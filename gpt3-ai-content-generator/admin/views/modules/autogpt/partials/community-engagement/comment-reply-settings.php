@@ -1,5 +1,15 @@
 <?php
- if (!defined('ABSPATH')) { exit; } ?>
+
+/**
+ * Partial: Community Engagement Automated Task - Comment Reply Settings
+ *
+ * @since NEXT_VERSION
+ */
+
+if (!defined('ABSPATH')) {
+    exit;
+}
+?>
 <div id="aipkit_task_config_comment_reply_settings">
     <section class="aipkit_cc_card aipkit_cc_card--filters">
         <div class="aipkit_cc_card_header">

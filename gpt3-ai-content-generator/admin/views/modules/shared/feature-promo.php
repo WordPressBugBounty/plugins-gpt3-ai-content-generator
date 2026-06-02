@@ -1,5 +1,19 @@
 <?php
-if (!defined('ABSPATH')) { exit; } $aipkit_feature_promo_class = isset($aipkit_feature_promo_class) ? (string) $aipkit_feature_promo_class : ''; $aipkit_feature_promo_dashicon = isset($aipkit_feature_promo_dashicon) ? sanitize_html_class((string) $aipkit_feature_promo_dashicon) : ''; $aipkit_feature_promo_title = isset($aipkit_feature_promo_title) ? (string) $aipkit_feature_promo_title : ''; $aipkit_feature_promo_subtitle = isset($aipkit_feature_promo_subtitle) ? (string) $aipkit_feature_promo_subtitle : ''; $aipkit_feature_promo_steps = isset($aipkit_feature_promo_steps) && is_array($aipkit_feature_promo_steps) ? $aipkit_feature_promo_steps : []; $aipkit_feature_promo_cards = isset($aipkit_feature_promo_cards) && is_array($aipkit_feature_promo_cards) ? $aipkit_feature_promo_cards : []; $aipkit_feature_promo_upgrade_url = isset($aipkit_feature_promo_upgrade_url) ? (string) $aipkit_feature_promo_upgrade_url : '#'; $aipkit_feature_promo_docs_url = isset($aipkit_feature_promo_docs_url) ? (string) $aipkit_feature_promo_docs_url : 'https://docs.aipower.org/'; ?>
+if (!defined('ABSPATH')) {
+    exit;
+}
+
+// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- Shared view partial configured by parent templates.
+
+$aipkit_feature_promo_class = isset($aipkit_feature_promo_class) ? (string) $aipkit_feature_promo_class : '';
+$aipkit_feature_promo_dashicon = isset($aipkit_feature_promo_dashicon) ? sanitize_html_class((string) $aipkit_feature_promo_dashicon) : '';
+$aipkit_feature_promo_title = isset($aipkit_feature_promo_title) ? (string) $aipkit_feature_promo_title : '';
+$aipkit_feature_promo_subtitle = isset($aipkit_feature_promo_subtitle) ? (string) $aipkit_feature_promo_subtitle : '';
+$aipkit_feature_promo_steps = isset($aipkit_feature_promo_steps) && is_array($aipkit_feature_promo_steps) ? $aipkit_feature_promo_steps : [];
+$aipkit_feature_promo_cards = isset($aipkit_feature_promo_cards) && is_array($aipkit_feature_promo_cards) ? $aipkit_feature_promo_cards : [];
+$aipkit_feature_promo_upgrade_url = isset($aipkit_feature_promo_upgrade_url) ? (string) $aipkit_feature_promo_upgrade_url : '#';
+$aipkit_feature_promo_docs_url = isset($aipkit_feature_promo_docs_url) ? (string) $aipkit_feature_promo_docs_url : 'https://docs.aipower.org/';
+?>
 <div class="aipkit_feature_promo <?php echo esc_attr($aipkit_feature_promo_class); ?>">
     <div class="aipkit_feature_promo_hero">
         <div class="aipkit_feature_promo_icon_ring">
@@ -24,7 +38,10 @@ if (!defined('ABSPATH')) { exit; } $aipkit_feature_promo_class = isset($aipkit_f
     <div class="aipkit_feature_promo_cards">
         <?php foreach ($aipkit_feature_promo_cards as $aipkit_feature_promo_card) : ?>
             <?php
- $aipkit_feature_promo_card_icon = isset($aipkit_feature_promo_card['icon']) ? (string) $aipkit_feature_promo_card['icon'] : ''; $aipkit_feature_promo_card_color = isset($aipkit_feature_promo_card['color']) ? sanitize_hex_color((string) $aipkit_feature_promo_card['color']) : ''; $aipkit_feature_promo_card_label = isset($aipkit_feature_promo_card['label']) ? (string) $aipkit_feature_promo_card['label'] : ''; ?>
+            $aipkit_feature_promo_card_icon = isset($aipkit_feature_promo_card['icon']) ? (string) $aipkit_feature_promo_card['icon'] : '';
+            $aipkit_feature_promo_card_color = isset($aipkit_feature_promo_card['color']) ? sanitize_hex_color((string) $aipkit_feature_promo_card['color']) : '';
+            $aipkit_feature_promo_card_label = isset($aipkit_feature_promo_card['label']) ? (string) $aipkit_feature_promo_card['label'] : '';
+            ?>
             <div class="aipkit_feature_promo_card">
                 <span class="aipkit_feature_promo_card_icon" style="color:<?php echo esc_attr($aipkit_feature_promo_card_color ?: '#2563eb'); ?>" aria-hidden="true"><?php echo esc_html($aipkit_feature_promo_card_icon); ?></span>
                 <span class="aipkit_feature_promo_card_label"><?php echo esc_html($aipkit_feature_promo_card_label); ?></span>

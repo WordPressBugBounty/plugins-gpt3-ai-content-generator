@@ -1,5 +1,12 @@
 <?php
-if (!defined('ABSPATH')) { exit; } $aipkit_post_settings_post_type_helper = $aipkit_post_settings_post_type_helper ?? __('Choose post type.', 'gpt3-ai-content-generator'); $aipkit_post_settings_include_author_login_attr = !empty($aipkit_post_settings_include_author_login_attr); ?>
+if (!defined('ABSPATH')) {
+    exit;
+}
+
+// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- Shared template variables are configured by wrapper partials.
+$aipkit_post_settings_post_type_helper = $aipkit_post_settings_post_type_helper ?? __('Choose post type.', 'gpt3-ai-content-generator');
+$aipkit_post_settings_include_author_login_attr = !empty($aipkit_post_settings_include_author_login_attr);
+?>
 
 <div class="aipkit_model_settings_popover_header aipkit_cw_settings_sheet_header">
     <span class="aipkit_model_settings_popover_title"><?php esc_html_e('Post settings', 'gpt3-ai-content-generator'); ?></span>

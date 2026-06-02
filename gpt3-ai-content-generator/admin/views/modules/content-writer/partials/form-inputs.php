@@ -1,5 +1,21 @@
 <?php
- if (!defined('ABSPATH')) { exit; } require_once __DIR__ . '/form-inputs/loader-vars.php'; $content_length_options = [ 'short' => __('Short', 'gpt3-ai-content-generator'), 'medium' => __('Medium', 'gpt3-ai-content-generator'), 'long' => __('Long', 'gpt3-ai-content-generator'), ]; ?>
+
+if (!defined('ABSPATH')) {
+    exit;
+}
+
+// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- This file only uses local helper/template variables and does not define public globals.
+
+// Load shared variables used by the partials
+require_once __DIR__ . '/form-inputs/loader-vars.php';
+
+$content_length_options = [
+    'short' => __('Short', 'gpt3-ai-content-generator'),
+    'medium' => __('Medium', 'gpt3-ai-content-generator'),
+    'long' => __('Long', 'gpt3-ai-content-generator'),
+];
+
+?>
 <div class="aipkit_cw_inspector_stack">
     <section class="aipkit_cw_inspector_card aipkit_cw_inspector_card--run">
         <div class="aipkit_cw_inspector_card_header">

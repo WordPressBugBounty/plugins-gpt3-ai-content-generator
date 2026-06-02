@@ -1,5 +1,12 @@
 <?php
- if (!defined('ABSPATH')) { exit; } ?>
+
+/**
+ * Partial: AI Form Editor - Labels & Text Configuration
+ */
+if (!defined('ABSPATH')) {
+    exit;
+}
+?>
 <div class="aipkit_popover_options_list aipkit_ai_form_labels_list">
     <div class="aipkit_popover_option_row">
         <div class="aipkit_popover_option_main">

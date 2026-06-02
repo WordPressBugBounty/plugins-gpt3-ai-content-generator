@@ -1,5 +1,28 @@
 <?php
- if (!defined('ABSPATH')) { exit; } $aipkit_cw_output_seo_profile = class_exists('\\WPAICG\\SEO\\AIPKit_SEO_Helper') ? \WPAICG\SEO\AIPKit_SEO_Helper::get_active_plugin_profile() : [ 'label' => __('AIPKit SEO', 'gpt3-ai-content-generator'), 'logo_url' => '', 'logo_initials' => 'AI', ]; $aipkit_cw_output_seo_profile_label = isset($aipkit_cw_output_seo_profile['label']) ? (string) $aipkit_cw_output_seo_profile['label'] : __('AIPKit SEO', 'gpt3-ai-content-generator'); $aipkit_cw_output_seo_profile_logo_url = isset($aipkit_cw_output_seo_profile['logo_url']) ? (string) $aipkit_cw_output_seo_profile['logo_url'] : ''; $aipkit_cw_output_seo_profile_logo_initials = isset($aipkit_cw_output_seo_profile['logo_initials']) ? (string) $aipkit_cw_output_seo_profile['logo_initials'] : 'SEO'; $aipkit_cw_output_upgrade_url = function_exists('wpaicg_gacg_fs') ? wpaicg_gacg_fs()->get_upgrade_url() : admin_url('admin.php?page=wpaicg-pricing'); ?>
+// Redesigned with Choice Overload reduction and Chunking principles:
+// - Progressive disclosure of meta fields
+// - Visual chunking with clear boundaries
+// - Prioritized action hierarchy
+// - Streamlined, focused interface
+
+if (!defined('ABSPATH')) {
+    exit;
+}
+
+$aipkit_cw_output_seo_profile = class_exists('\\WPAICG\\SEO\\AIPKit_SEO_Helper')
+    ? \WPAICG\SEO\AIPKit_SEO_Helper::get_active_plugin_profile()
+    : [
+        'label' => __('AIPKit SEO', 'gpt3-ai-content-generator'),
+        'logo_url' => '',
+        'logo_initials' => 'AI',
+    ];
+$aipkit_cw_output_seo_profile_label = isset($aipkit_cw_output_seo_profile['label']) ? (string) $aipkit_cw_output_seo_profile['label'] : __('AIPKit SEO', 'gpt3-ai-content-generator');
+$aipkit_cw_output_seo_profile_logo_url = isset($aipkit_cw_output_seo_profile['logo_url']) ? (string) $aipkit_cw_output_seo_profile['logo_url'] : '';
+$aipkit_cw_output_seo_profile_logo_initials = isset($aipkit_cw_output_seo_profile['logo_initials']) ? (string) $aipkit_cw_output_seo_profile['logo_initials'] : 'SEO';
+$aipkit_cw_output_upgrade_url = function_exists('wpaicg_gacg_fs')
+    ? wpaicg_gacg_fs()->get_upgrade_url()
+    : admin_url('admin.php?page=wpaicg-pricing');
+?>
 <div id="aipkit_cw_single_output_wrapper" class="aipkit_cw_output_wrapper" style="display: none;">
     <div class="aipkit_cw_output_workspace aipkit_cw_output_workspace--studio">
         <aside class="aipkit_cw_output_brief">
@@ -175,7 +198,12 @@
                                 <div class="aipkit_cw_smart_seo_locked_copy">
                                     <p>
                                         <?php
- printf( esc_html__('AI Puffer integrates with %s and automatically refines content until it achieves a higher SEO score.', 'gpt3-ai-content-generator'), esc_html($aipkit_cw_output_seo_profile_label) ); ?>
+                                        printf(
+                                            /* translators: %s: active SEO plugin name. */
+                                            esc_html__('AI Puffer integrates with %s and automatically refines content until it achieves a higher SEO score.', 'gpt3-ai-content-generator'),
+                                            esc_html($aipkit_cw_output_seo_profile_label)
+                                        );
+                                        ?>
                                     </p>
                                 </div>
                             </div>
@@ -216,7 +244,12 @@
                                 <div class="aipkit_cw_smart_seo_locked_copy">
                                     <p>
                                         <?php
- printf( esc_html__('AI Puffer integrates with %s. Improve this draft with Smart SEO before saving.', 'gpt3-ai-content-generator'), esc_html($aipkit_cw_output_seo_profile_label) ); ?>
+                                        printf(
+                                            /* translators: %s: active SEO plugin name. */
+                                            esc_html__('AI Puffer integrates with %s. Improve this draft with Smart SEO before saving.', 'gpt3-ai-content-generator'),
+                                            esc_html($aipkit_cw_output_seo_profile_label)
+                                        );
+                                        ?>
                                     </p>
                                 </div>
                             </div>

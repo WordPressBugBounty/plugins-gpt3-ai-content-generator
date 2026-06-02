@@ -1,5 +1,46 @@
 <?php
- if (!defined('ABSPATH')) { exit; } $render_ai_form_web_search_location_fields = static function ($provider_key, $location_type_row_extra_class = '') { $field_prefix = 'aipkit_ai_form_' . $provider_key . '_web_search'; $name_prefix = $provider_key . '_web_search'; $location_type_row_class = trim('aipkit_popover_option_row ' . $location_type_row_extra_class); $location_fields = [ [ 'suffix' => 'country', 'label' => __('Country', 'gpt3-ai-content-generator'), 'helper' => __('Two-letter country code.', 'gpt3-ai-content-generator'), 'placeholder' => __('US', 'gpt3-ai-content-generator'), 'maxlength' => 2, ], [ 'suffix' => 'city', 'label' => __('City', 'gpt3-ai-content-generator'), 'helper' => __('City for approximate location.', 'gpt3-ai-content-generator'), 'placeholder' => __('London', 'gpt3-ai-content-generator'), ], [ 'suffix' => 'region', 'label' => __('Region', 'gpt3-ai-content-generator'), 'helper' => __('State or region.', 'gpt3-ai-content-generator'), 'placeholder' => __('California', 'gpt3-ai-content-generator'), ], [ 'suffix' => 'timezone', 'label' => __('Timezone', 'gpt3-ai-content-generator'), 'helper' => __('IANA timezone name.', 'gpt3-ai-content-generator'), 'placeholder' => __('America/Chicago', 'gpt3-ai-content-generator'), ], ]; ?>
+
+/**
+ * Partial: AI Form Editor - Tools Configuration
+ * Contains settings for enabling and configuring web search integration.
+ */
+if (!defined('ABSPATH')) {
+    exit;
+}
+
+// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- This partial uses local renderer variables only.
+$render_ai_form_web_search_location_fields = static function ($provider_key, $location_type_row_extra_class = '') {
+    $field_prefix = 'aipkit_ai_form_' . $provider_key . '_web_search';
+    $name_prefix = $provider_key . '_web_search';
+    $location_type_row_class = trim('aipkit_popover_option_row ' . $location_type_row_extra_class);
+    $location_fields = [
+        [
+            'suffix' => 'country',
+            'label' => __('Country', 'gpt3-ai-content-generator'),
+            'helper' => __('Two-letter country code.', 'gpt3-ai-content-generator'),
+            'placeholder' => __('US', 'gpt3-ai-content-generator'),
+            'maxlength' => 2,
+        ],
+        [
+            'suffix' => 'city',
+            'label' => __('City', 'gpt3-ai-content-generator'),
+            'helper' => __('City for approximate location.', 'gpt3-ai-content-generator'),
+            'placeholder' => __('London', 'gpt3-ai-content-generator'),
+        ],
+        [
+            'suffix' => 'region',
+            'label' => __('Region', 'gpt3-ai-content-generator'),
+            'helper' => __('State or region.', 'gpt3-ai-content-generator'),
+            'placeholder' => __('California', 'gpt3-ai-content-generator'),
+        ],
+        [
+            'suffix' => 'timezone',
+            'label' => __('Timezone', 'gpt3-ai-content-generator'),
+            'helper' => __('IANA timezone name.', 'gpt3-ai-content-generator'),
+            'placeholder' => __('America/Chicago', 'gpt3-ai-content-generator'),
+        ],
+    ];
+    ?>
         <div class="<?php echo esc_attr($location_type_row_class); ?>">
             <div class="aipkit_popover_option_main">
                 <div class="aipkit_cw_settings_option_text">
@@ -44,7 +85,8 @@
             <?php endforeach; ?>
         </div>
     <?php
-}; ?>
+};
+?>
 <div class="aipkit_popover_options_list">
     <input
         type="checkbox"

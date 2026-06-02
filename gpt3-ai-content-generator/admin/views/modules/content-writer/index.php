@@ -1,7 +1,47 @@
 <?php
- if (!defined('ABSPATH')) { exit; } require_once __DIR__ . '/partials/form-inputs/loader-vars.php'; $content_writer_nonce = wp_create_nonce('aipkit_content_writer_nonce'); $content_writer_template_nonce = wp_create_nonce('aipkit_content_writer_template_nonce'); $frontend_stream_nonce = wp_create_nonce('aipkit_frontend_chat_nonce'); $aipkit_cw_seo_profile = class_exists('\\WPAICG\\SEO\\AIPKit_SEO_Helper') ? \WPAICG\SEO\AIPKit_SEO_Helper::get_active_plugin_profile() : [ 'label' => __('AIPKit SEO', 'gpt3-ai-content-generator'), 'logo_url' => '', 'logo_initials' => 'AI', ]; $aipkit_cw_seo_profile_label = isset($aipkit_cw_seo_profile['label']) ? (string) $aipkit_cw_seo_profile['label'] : __('AIPKit SEO', 'gpt3-ai-content-generator'); $aipkit_cw_seo_profile_logo_url = isset($aipkit_cw_seo_profile['logo_url']) ? (string) $aipkit_cw_seo_profile['logo_url'] : ''; $aipkit_cw_seo_profile_logo_initials = isset($aipkit_cw_seo_profile['logo_initials']) ? (string) $aipkit_cw_seo_profile['logo_initials'] : 'SEO'; $aipkit_cw_max_execution_time = function_exists('ini_get') ? (int) ini_get('max_execution_time') : 0; $aipkit_cw_socket_timeout = function_exists('ini_get') ? (int) ini_get('default_socket_timeout') : 0; $aipkit_cw_timeout_warnings = []; if ($aipkit_cw_max_execution_time > 0 && $aipkit_cw_max_execution_time <= 30) { $aipkit_cw_timeout_warnings[] = sprintf('max_execution_time=%ds', $aipkit_cw_max_execution_time); } if ($aipkit_cw_socket_timeout > 0 && $aipkit_cw_socket_timeout <= 30) { $aipkit_cw_timeout_warnings[] = sprintf('default_socket_timeout=%ds', $aipkit_cw_socket_timeout); } ?>
+/**
+ * AIPKit Content Writer Module - Main View
+ * UPDATED: Re-architected into a two-column layout with a central tabbed input panel and action bar.
+ * MODIFIED: Moved status indicators above the mode selector.
+ */
+
+if (!defined('ABSPATH')) {
+    exit;
+}
+
+// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- This file only uses local helper/template variables and does not define public globals.
+
+require_once __DIR__ . '/partials/form-inputs/loader-vars.php';
+
+$content_writer_nonce = wp_create_nonce('aipkit_content_writer_nonce');
+$content_writer_template_nonce = wp_create_nonce('aipkit_content_writer_template_nonce');
+$frontend_stream_nonce = wp_create_nonce('aipkit_frontend_chat_nonce');
+$aipkit_cw_seo_profile = class_exists('\\WPAICG\\SEO\\AIPKit_SEO_Helper')
+    ? \WPAICG\SEO\AIPKit_SEO_Helper::get_active_plugin_profile()
+    : [
+        'label' => __('AIPKit SEO', 'gpt3-ai-content-generator'),
+        'logo_url' => '',
+        'logo_initials' => 'AI',
+    ];
+$aipkit_cw_seo_profile_label = isset($aipkit_cw_seo_profile['label']) ? (string) $aipkit_cw_seo_profile['label'] : __('AIPKit SEO', 'gpt3-ai-content-generator');
+$aipkit_cw_seo_profile_logo_url = isset($aipkit_cw_seo_profile['logo_url']) ? (string) $aipkit_cw_seo_profile['logo_url'] : '';
+$aipkit_cw_seo_profile_logo_initials = isset($aipkit_cw_seo_profile['logo_initials']) ? (string) $aipkit_cw_seo_profile['logo_initials'] : 'SEO';
+
+$aipkit_cw_max_execution_time = function_exists('ini_get') ? (int) ini_get('max_execution_time') : 0;
+$aipkit_cw_socket_timeout = function_exists('ini_get') ? (int) ini_get('default_socket_timeout') : 0;
+$aipkit_cw_timeout_warnings = [];
+if ($aipkit_cw_max_execution_time > 0 && $aipkit_cw_max_execution_time <= 30) {
+    $aipkit_cw_timeout_warnings[] = sprintf('max_execution_time=%ds', $aipkit_cw_max_execution_time);
+}
+if ($aipkit_cw_socket_timeout > 0 && $aipkit_cw_socket_timeout <= 30) {
+    $aipkit_cw_timeout_warnings[] = sprintf('default_socket_timeout=%ds', $aipkit_cw_socket_timeout);
+}
+?>
 <?php
-$aipkit_notice_id = 'aipkit_provider_notice_content_writer'; include WPAICG_PLUGIN_DIR . 'admin/views/shared/provider-key-notice.php'; include WPAICG_PLUGIN_DIR . 'admin/views/shared/seo-plugin-conflict-notice.php'; ?>
+$aipkit_notice_id = 'aipkit_provider_notice_content_writer';
+include WPAICG_PLUGIN_DIR . 'admin/views/shared/provider-key-notice.php';
+include WPAICG_PLUGIN_DIR . 'admin/views/shared/seo-plugin-conflict-notice.php';
+?>
 <?php if (!empty($aipkit_cw_timeout_warnings)) : ?>
 <div class="aipkit_notification_bar aipkit_notification_bar--warning" data-aipkit-dismissible-notice="content-writer-low-php-timeouts-v1">
     <div class="aipkit_notification_bar__icon" aria-hidden="true">
@@ -10,7 +50,15 @@ $aipkit_notice_id = 'aipkit_provider_notice_content_writer'; include WPAICG_PLUG
     <div class="aipkit_notification_bar__content">
         <p>
             <?php
- printf( esc_html__( 'Low PHP timeouts detected (%s). Long content generations may time out. Increase max_execution_time/default_socket_timeout in php.ini and any web-server timeouts.', 'gpt3-ai-content-generator' ), esc_html(implode(', ', $aipkit_cw_timeout_warnings)) ); ?>
+            printf(
+                /* translators: %s: comma-separated list of PHP timeout settings that are too low. */
+                esc_html__(
+                    'Low PHP timeouts detected (%s). Long content generations may time out. Increase max_execution_time/default_socket_timeout in php.ini and any web-server timeouts.',
+                    'gpt3-ai-content-generator'
+                ),
+                esc_html(implode(', ', $aipkit_cw_timeout_warnings))
+            );
+            ?>
         </p>
     </div>
     <button type="button" class="aipkit_notification_bar__close" data-aipkit-dismiss-notice aria-label="<?php esc_attr_e('Dismiss notice', 'gpt3-ai-content-generator'); ?>">

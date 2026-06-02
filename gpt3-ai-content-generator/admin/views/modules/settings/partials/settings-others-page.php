@@ -1,5 +1,11 @@
 <?php
- if (!defined('ABSPATH')) { exit; } ?>
+/**
+ * Partial: Other Settings Page
+ */
+if (!defined('ABSPATH')) {
+    exit;
+}
+?>
 <div class="aipkit_form-group aipkit_settings_simple_row" id="aipkit_settings_backup_row">
     <label class="aipkit_form-label" for="aipkit_settings_export_button">
         <?php esc_html_e('Settings Backup', 'gpt3-ai-content-generator'); ?>

@@ -1,5 +1,56 @@
 <?php
- if (!defined('ABSPATH')) { exit; } use WPAICG\Chat\Storage\BotSettingsManager; use WPAICG\Core\TokenManager\Constants\CronHookConstant; $default_reset_period = BotSettingsManager::DEFAULT_TOKEN_RESET_PERIOD; $default_limit_message = BotSettingsManager::get_default_token_limit_message(); $default_token_limit_actions = BotSettingsManager::get_default_token_limit_action_settings(); $guest_limit = $bot_settings['token_guest_limit'] ?? null; $user_limit = $bot_settings['token_user_limit'] ?? null; $reset_period = $bot_settings['token_reset_period'] ?? $default_reset_period; $limit_message = $bot_settings['token_limit_message'] ?? $default_limit_message; $limit_mode = $bot_settings['token_limit_mode'] ?? BotSettingsManager::DEFAULT_TOKEN_LIMIT_MODE; $role_limits = $bot_settings['token_role_limits'] ?? []; $token_limit_primary_action_type = $bot_settings['token_limit_primary_action_type'] ?? $default_token_limit_actions['primary_type']; $token_limit_primary_action_label = $bot_settings['token_limit_primary_action_label'] ?? $default_token_limit_actions['primary_label']; $token_limit_primary_action_url = $bot_settings['token_limit_primary_action_url'] ?? $default_token_limit_actions['primary_url']; $token_limit_secondary_action_type = $bot_settings['token_limit_secondary_action_type'] ?? $default_token_limit_actions['secondary_type']; $token_limit_secondary_action_label = $bot_settings['token_limit_secondary_action_label'] ?? $default_token_limit_actions['secondary_label']; $token_limit_secondary_action_url = $bot_settings['token_limit_secondary_action_url'] ?? $default_token_limit_actions['secondary_url']; $token_limit_action_options = [ 'none' => __('No button', 'gpt3-ai-content-generator'), 'dashboard_usage' => __('Customer dashboard: Usage', 'gpt3-ai-content-generator'), 'dashboard_credits' => __('Customer dashboard: Credits', 'gpt3-ai-content-generator'), 'dashboard_purchases' => __('Customer dashboard: Purchases', 'gpt3-ai-content-generator'), 'buy_credits' => __('Buy credits page', 'gpt3-ai-content-generator'), 'custom_url' => __('Custom URL', 'gpt3-ai-content-generator'), ]; if (!in_array($limit_mode, ['general', 'role_based'], true)) { $limit_mode = BotSettingsManager::DEFAULT_TOKEN_LIMIT_MODE; } $limits_primary_grid_class = 'aipkit_limits_primary_grid'; $guest_limit_value = ($guest_limit === null) ? '' : (string) $guest_limit; $user_limit_value = ($user_limit === null) ? '' : (string) $user_limit; $primary_action_show_label = $token_limit_primary_action_type !== 'none'; $primary_action_show_url = $token_limit_primary_action_type === 'custom_url'; $primary_action_layout = $primary_action_show_url ? 'type-label-url' : ($primary_action_show_label ? 'type-label' : 'type-only'); $secondary_action_show_label = $token_limit_secondary_action_type !== 'none'; $secondary_action_show_url = $token_limit_secondary_action_type === 'custom_url'; $secondary_action_layout = $secondary_action_show_url ? 'type-label-url' : ($secondary_action_show_label ? 'type-label' : 'type-only'); ?>
+/**
+ * Partial: Chatbot Usage Settings (Flyout)
+ */
+if (!defined('ABSPATH')) {
+    exit;
+}
+
+// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- This file only uses local helper/template variables and does not define public globals.
+
+use WPAICG\Chat\Storage\BotSettingsManager;
+use WPAICG\Core\TokenManager\Constants\CronHookConstant;
+
+$default_reset_period = BotSettingsManager::DEFAULT_TOKEN_RESET_PERIOD;
+$default_limit_message = BotSettingsManager::get_default_token_limit_message();
+$default_token_limit_actions = BotSettingsManager::get_default_token_limit_action_settings();
+$guest_limit = $bot_settings['token_guest_limit'] ?? null;
+$user_limit = $bot_settings['token_user_limit'] ?? null;
+$reset_period = $bot_settings['token_reset_period'] ?? $default_reset_period;
+$limit_message = $bot_settings['token_limit_message'] ?? $default_limit_message;
+$limit_mode = $bot_settings['token_limit_mode'] ?? BotSettingsManager::DEFAULT_TOKEN_LIMIT_MODE;
+$role_limits = $bot_settings['token_role_limits'] ?? [];
+$token_limit_primary_action_type = $bot_settings['token_limit_primary_action_type'] ?? $default_token_limit_actions['primary_type'];
+$token_limit_primary_action_label = $bot_settings['token_limit_primary_action_label'] ?? $default_token_limit_actions['primary_label'];
+$token_limit_primary_action_url = $bot_settings['token_limit_primary_action_url'] ?? $default_token_limit_actions['primary_url'];
+$token_limit_secondary_action_type = $bot_settings['token_limit_secondary_action_type'] ?? $default_token_limit_actions['secondary_type'];
+$token_limit_secondary_action_label = $bot_settings['token_limit_secondary_action_label'] ?? $default_token_limit_actions['secondary_label'];
+$token_limit_secondary_action_url = $bot_settings['token_limit_secondary_action_url'] ?? $default_token_limit_actions['secondary_url'];
+$token_limit_action_options = [
+    'none' => __('No button', 'gpt3-ai-content-generator'),
+    'dashboard_usage' => __('Customer dashboard: Usage', 'gpt3-ai-content-generator'),
+    'dashboard_credits' => __('Customer dashboard: Credits', 'gpt3-ai-content-generator'),
+    'dashboard_purchases' => __('Customer dashboard: Purchases', 'gpt3-ai-content-generator'),
+    'buy_credits' => __('Buy credits page', 'gpt3-ai-content-generator'),
+    'custom_url' => __('Custom URL', 'gpt3-ai-content-generator'),
+];
+
+if (!in_array($limit_mode, ['general', 'role_based'], true)) {
+    $limit_mode = BotSettingsManager::DEFAULT_TOKEN_LIMIT_MODE;
+}
+
+$limits_primary_grid_class = 'aipkit_limits_primary_grid';
+
+$guest_limit_value = ($guest_limit === null) ? '' : (string) $guest_limit;
+$user_limit_value = ($user_limit === null) ? '' : (string) $user_limit;
+$primary_action_show_label = $token_limit_primary_action_type !== 'none';
+$primary_action_show_url = $token_limit_primary_action_type === 'custom_url';
+$primary_action_layout = $primary_action_show_url ? 'type-label-url' : ($primary_action_show_label ? 'type-label' : 'type-only');
+$secondary_action_show_label = $token_limit_secondary_action_type !== 'none';
+$secondary_action_show_url = $token_limit_secondary_action_type === 'custom_url';
+$secondary_action_layout = $secondary_action_show_url ? 'type-label-url' : ($secondary_action_show_label ? 'type-label' : 'type-only');
+
+?>
 
 <div class="aipkit_popover_options_list aipkit_popover_options_list--limits">
   <section class="aipkit_limits_section">
@@ -106,7 +157,11 @@
         </span>
         <div class="aipkit_popover_role_limits">
           <?php
- $editable_roles = get_editable_roles(); foreach ($editable_roles as $role_slug => $role_info) : $role_name = translate_user_role($role_info['name']); $role_limit_value = isset($role_limits[$role_slug]) ? $role_limits[$role_slug] : ''; ?>
+          $editable_roles = get_editable_roles();
+          foreach ($editable_roles as $role_slug => $role_info) :
+              $role_name = translate_user_role($role_info['name']);
+              $role_limit_value = isset($role_limits[$role_slug]) ? $role_limits[$role_slug] : '';
+              ?>
             <div class="aipkit_popover_role_limit_row">
               <span class="aipkit_popover_role_limit_label"><?php echo esc_html($role_name); ?></span>
               <input

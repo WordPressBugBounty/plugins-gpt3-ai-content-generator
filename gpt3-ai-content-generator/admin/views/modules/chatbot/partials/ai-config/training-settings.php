@@ -1,5 +1,10 @@
 <?php
-if (!defined('ABSPATH')) { exit; } ?>
+if (!defined('ABSPATH')) {
+    exit;
+}
+
+// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- This file only uses local helper/template variables and does not define public globals.
+?>
 <section
     id="aipkit_sources_training_card"
     <?php echo ($enable_vector_store === '1') ? '' : 'hidden'; ?>

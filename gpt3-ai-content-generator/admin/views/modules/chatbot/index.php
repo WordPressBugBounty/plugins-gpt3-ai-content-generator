@@ -1,19 +1,29 @@
 <?php
 
+/**
+ * AIPKit Chatbot Module - Admin View
+ *
+ * Layout-only rebuild based on the provided reference UI.
+ */
 if ( !defined( 'ABSPATH' ) ) {
     exit;
+    // Exit if accessed directly
 }
+// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- Template-local view variables here do not create public globals.
 use WPAICG\Chat\Storage\BotStorage;
 use WPAICG\Chat\Storage\DefaultBotSetup;
 use WPAICG\Chat\Storage\BotSettingsManager;
 use WPAICG\Chat\Frontend\Shortcode;
 use WPAICG\Chat\Utils\AIPKit_SVG_Icons;
 use WPAICG\aipkit_dashboard;
+// Required for addon status checks
 use WPAICG\AIPKit_Providers;
 use WPAICG\Vector\AIPKit_Vector_Store_Registry;
+// Instantiate the storage classes
 $bot_storage = new BotStorage();
 $default_setup = new DefaultBotSetup();
 DefaultBotSetup::ensure_default_chatbot();
+// Fetch all bot settings up front so switching can be state-driven client-side.
 $all_chatbots = [];
 $all_chatbot_settings_by_id = [];
 $all_chatbots_with_settings = $bot_storage->get_chatbots_with_settings();
@@ -27,9 +37,12 @@ if ( !empty( $all_chatbots_with_settings ) ) {
         $all_chatbot_settings_by_id[$bot_post->ID] = ( is_array( $bot_entry_with_settings['settings'] ?? null ) ? $bot_entry_with_settings['settings'] : [] );
     }
 }
+// These variables are defined by the AJAX loader and sanitized there.
 $force_active_bot_id = ( isset( $force_active_bot_id ) ? intval( $force_active_bot_id ) : 0 );
 $force_active_tab = ( isset( $force_active_tab ) ? sanitize_key( $force_active_tab ) : '' );
+// Get the ID of the default bot
 $default_bot_id = $default_setup->get_default_bot_id();
+// Separate the default bot and sort the others alphabetically
 $default_bot_post = null;
 $other_bots_posts = [];
 if ( !empty( $all_chatbots ) ) {
@@ -44,6 +57,7 @@ if ( !empty( $all_chatbots ) ) {
         return strcmp( $a->post_title, $b->post_title );
     } );
 }
+// Combine all bots into one list for the dropdown
 $all_bots_ordered_entries = [];
 if ( $default_bot_post ) {
     $all_bots_ordered_entries[] = [
@@ -55,6 +69,7 @@ foreach ( $other_bots_posts as $bot_post ) {
         'post' => $bot_post,
     ];
 }
+// Determine the initial active bot
 $initial_active_bot_id = 0;
 if ( $force_active_tab === 'create' ) {
     $initial_active_bot_id = 0;
@@ -65,6 +80,7 @@ if ( $force_active_tab === 'create' ) {
 } elseif ( !empty( $other_bots_posts ) ) {
     $initial_active_bot_id = $other_bots_posts[0]->ID;
 }
+// Find the active bot post
 $active_bot_post = null;
 if ( $initial_active_bot_id ) {
     foreach ( $all_bots_ordered_entries as $bot_entry ) {
@@ -74,6 +90,7 @@ if ( $initial_active_bot_id ) {
         }
     }
 }
+// If a forced/stored bot ID no longer exists, gracefully fall back.
 if ( !$active_bot_post ) {
     if ( $default_bot_post instanceof \WP_Post ) {
         $active_bot_post = $default_bot_post;
@@ -85,6 +102,7 @@ if ( !$active_bot_post ) {
         $initial_active_bot_id = 0;
     }
 }
+// Always initialize a bot ID variable for downstream partials/flyouts.
 $bot_id = (int) $initial_active_bot_id;
 $is_pro_plan = class_exists( '\\WPAICG\\aipkit_dashboard' ) && aipkit_dashboard::is_pro_plan();
 $build_chatbot_embed_code = static function ( int $bot_id ) use($is_pro_plan) : string {
@@ -206,6 +224,7 @@ if ( $saved_theme === 'custom' && !empty( $custom_theme_presets ) ) {
         $selected_theme_preset_key = $stored_theme_preset_key;
         $selected_theme_preset_label = $preset_label_map[$stored_theme_preset_key];
     } else {
+        // Backward compatibility for bots saved before explicit preset keys.
         $saved_custom_theme_settings = ( isset( $active_bot_settings['custom_theme_settings'] ) && is_array( $active_bot_settings['custom_theme_settings'] ) ? $active_bot_settings['custom_theme_settings'] : [] );
         $saved_custom_primary = ( isset( $saved_custom_theme_settings['primary_color'] ) ? strtolower( trim( (string) $saved_custom_theme_settings['primary_color'] ) ) : '' );
         $saved_custom_secondary = ( isset( $saved_custom_theme_settings['secondary_color'] ) ? strtolower( trim( (string) $saved_custom_theme_settings['secondary_color'] ) ) : '' );
@@ -512,6 +531,7 @@ if ( class_exists( AIPKit_SVG_Icons::class ) ) {
     ];
 }
 $popup_icons = $default_popup_icons;
+// Web & Grounding settings values (used in model settings sheet).
 $current_provider_for_this_bot = $active_bot_settings['provider'] ?? 'OpenAI';
 $openai_web_search_enabled_val = $active_bot_settings['openai_web_search_enabled'] ?? BotSettingsManager::DEFAULT_OPENAI_WEB_SEARCH_ENABLED;
 $openai_web_search_context_size_val = $active_bot_settings['openai_web_search_context_size'] ?? BotSettingsManager::DEFAULT_OPENAI_WEB_SEARCH_CONTEXT_SIZE;
@@ -549,6 +569,7 @@ $google_search_grounding_enabled_val = $active_bot_settings['google_search_groun
 $google_grounding_mode_val = $active_bot_settings['google_grounding_mode'] ?? BotSettingsManager::DEFAULT_GOOGLE_GROUNDING_MODE;
 $google_grounding_dynamic_threshold_val = ( isset( $active_bot_settings['google_grounding_dynamic_threshold'] ) ? floatval( $active_bot_settings['google_grounding_dynamic_threshold'] ) : BotSettingsManager::DEFAULT_GOOGLE_GROUNDING_DYNAMIC_THRESHOLD );
 $google_grounding_dynamic_threshold_val = max( 0.0, min( $google_grounding_dynamic_threshold_val, 1.0 ) );
+// Conversations settings values (used in model settings sheet).
 $openai_conversation_state_enabled_val = $active_bot_settings['openai_conversation_state_enabled'] ?? BotSettingsManager::DEFAULT_OPENAI_CONVERSATION_STATE_ENABLED;
 $openai_conversation_state_enabled_val = ( in_array( $openai_conversation_state_enabled_val, ['0', '1'], true ) ? $openai_conversation_state_enabled_val : BotSettingsManager::DEFAULT_OPENAI_CONVERSATION_STATE_ENABLED );
 $saved_max_messages = ( isset( $active_bot_settings['max_messages'] ) ? absint( $active_bot_settings['max_messages'] ) : BotSettingsManager::DEFAULT_MAX_MESSAGES );
@@ -684,6 +705,7 @@ $allowed_reasoning_effort = [
 if ( !in_array( $reasoning_effort_val, $allowed_reasoning_effort, true ) ) {
     $reasoning_effort_val = BotSettingsManager::DEFAULT_REASONING_EFFORT;
 }
+// Audio settings values (used in audio flyout).
 $enable_voice_input = $active_bot_settings['enable_voice_input'] ?? BotSettingsManager::DEFAULT_ENABLE_VOICE_INPUT;
 $enable_voice_input = ( in_array( $enable_voice_input, ['0', '1'], true ) ? $enable_voice_input : BotSettingsManager::DEFAULT_ENABLE_VOICE_INPUT );
 $stt_provider = $active_bot_settings['stt_provider'] ?? BotSettingsManager::DEFAULT_STT_PROVIDER;
@@ -764,6 +786,7 @@ $realtime_voices = [
     'verse'
 ];
 $direct_voice_mode_disabled = !($popup_enabled === '1' && $enable_realtime_voice === '1');
+// Provider/model data for AI selection.
 $allowed_main_providers = ( class_exists( AIPKit_Providers::class ) ? AIPKit_Providers::get_main_provider_allowlist() : [
     'OpenAI',
     'Google',
@@ -784,6 +807,7 @@ if ( !is_array( $allowed_main_providers ) || empty( $allowed_main_providers ) ) 
         'xAI'
     ];
 }
+// Backward-compatible alias used by shared provider/model partials.
 $providers = $allowed_main_providers;
 $default_main_provider = $allowed_main_providers[0] ?? 'OpenAI';
 $is_pro = class_exists( '\\WPAICG\\aipkit_dashboard' ) && aipkit_dashboard::is_pro_plan();
@@ -808,6 +832,7 @@ $ollama_model_list = AIPKit_Providers::get_ollama_models();
 $saved_provider = ( isset( $active_bot_settings['provider'] ) ? sanitize_text_field( (string) $active_bot_settings['provider'] ) : $default_main_provider );
 $saved_model = $active_bot_settings['model'] ?? '';
 if ( class_exists( AIPKit_Providers::class ) ) {
+    // Normalize legacy lowercase values against the current allowlist.
     $allowlist_by_lower = [];
     foreach ( $allowed_main_providers as $provider_name ) {
         if ( !is_string( $provider_name ) ) {
@@ -827,6 +852,7 @@ if ( class_exists( AIPKit_Providers::class ) ) {
 } elseif ( !in_array( $saved_provider, $allowed_main_providers, true ) ) {
     $saved_provider = $default_main_provider;
 }
+// Preview placeholder content
 $preview_placeholder_key = ( $active_bot_post ? 'previewLoading' : 'previewPlaceholderSelect' );
 $preview_placeholder_text = ( $active_bot_post ? __( 'Loading preview...', 'gpt3-ai-content-generator' ) : __( 'Select a bot to see the preview.', 'gpt3-ai-content-generator' ) );
 $is_default_active = $active_bot_post && $default_bot_id && $active_bot_post->ID === $default_bot_id;
@@ -1230,7 +1256,11 @@ if ( $active_bot_post ) {
                 }
                 $store_name = ( isset( $store['name'] ) ? trim( (string) $store['name'] ) : '' );
                 if ( $store_name === '' ) {
-                    $store_name = sprintf( __( 'Untitled store %d', 'gpt3-ai-content-generator' ), (int) $store_index + 1 );
+                    $store_name = sprintf( 
+                        /* translators: %d is the vector store index. */
+                        __( 'Untitled store %d', 'gpt3-ai-content-generator' ),
+                        (int) $store_index + 1
+                     );
                 }
                 $openai_store_names[$store_id] = $store_name;
             }
@@ -1335,9 +1365,17 @@ if ( $active_bot_post ) {
     }
     $tools_summary_count = count( $tools_summary_parts );
     if ( $tools_summary_count > 3 ) {
-        $tools_summary_text = sprintf( __( 'Enabled: %d', 'gpt3-ai-content-generator' ), $tools_summary_count );
+        $tools_summary_text = sprintf( 
+            /* translators: %d is the number of enabled tools. */
+            __( 'Enabled: %d', 'gpt3-ai-content-generator' ),
+            $tools_summary_count
+         );
     } elseif ( $tools_summary_count > 0 ) {
-        $tools_summary_text = sprintf( __( 'Enabled: %s', 'gpt3-ai-content-generator' ), implode( ', ', $tools_summary_parts ) );
+        $tools_summary_text = sprintf( 
+            /* translators: %s is a comma-separated list of enabled tools. */
+            __( 'Enabled: %s', 'gpt3-ai-content-generator' ),
+            implode( ', ', $tools_summary_parts )
+         );
     } else {
         $tools_summary_text = $tools_summary_fallback;
     }
@@ -1352,7 +1390,12 @@ if ( $active_bot_post ) {
     $token_user_limit_value = ( is_scalar( $token_user_limit_value ) ? trim( (string) $token_user_limit_value ) : '' );
     $token_guest_summary_value = ( $token_guest_limit_value !== '' ? $token_guest_limit_value : __( 'Unlimited', 'gpt3-ai-content-generator' ) );
     $token_user_summary_value = ( $token_user_limit_value !== '' ? $token_user_limit_value : __( 'Unlimited', 'gpt3-ai-content-generator' ) );
-    $quota_summary_text = ( $token_limit_mode_value === 'role_based' ? __( 'Role-based quota', 'gpt3-ai-content-generator' ) : sprintf( __( 'Guests %1$s · Users %2$s', 'gpt3-ai-content-generator' ), $token_guest_summary_value, $token_user_summary_value ) );
+    $quota_summary_text = ( $token_limit_mode_value === 'role_based' ? __( 'Role-based quota', 'gpt3-ai-content-generator' ) : sprintf( 
+        /* translators: 1: guest token limit summary, 2: user token limit summary. */
+        __( 'Guests %1$s · Users %2$s', 'gpt3-ai-content-generator' ),
+        $token_guest_summary_value,
+        $token_user_summary_value
+     ) );
     $limits_summary_text = $quota_summary_text;
     $limits_summary_fallback = $limits_summary_text;
     $rules_count = 0;
@@ -1374,12 +1417,16 @@ if ( $active_bot_post ) {
         }
     }
     $rules_summary_fallback = '';
-    $rules_summary_text = ( $rules_count > 0 ? sprintf( _n(
-        '%d rule',
-        '%d rules',
-        $rules_count,
-        'gpt3-ai-content-generator'
-    ), $rules_count ) : $rules_summary_fallback );
+    $rules_summary_text = ( $rules_count > 0 ? sprintf( 
+        /* translators: %d: number of chatbot rules. */
+        _n(
+            '%d rule',
+            '%d rules',
+            $rules_count,
+            'gpt3-ai-content-generator'
+        ),
+        $rules_count
+     ) : $rules_summary_fallback );
     ?>
                                 <div class="aipkit_accordion_section" data-aipkit-accordion="chatbot">
                                 <?php 
@@ -3122,6 +3169,7 @@ echo esc_attr( wp_json_encode( $bot_list_for_filter ) );
 
 <script type="application/json" id="aipkit_chatbot_switch_state_json"><?php 
 $inline_bot_switch_payload_json = wp_json_encode( $inline_bot_switch_payload, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT );
+// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- JSON_HEX_* encoded payload for an application/json script tag.
 echo ( $inline_bot_switch_payload_json !== false ? $inline_bot_switch_payload_json : '{}' );
 ?></script>
 

@@ -1,5 +1,13 @@
 <?php
- if (!defined('ABSPATH')) { exit; } $render_cw_bulk_row = static function () use ($wp_categories, $users_for_author, $available_post_types) { ?>
+
+if (!defined('ABSPATH')) {
+    exit;
+}
+
+// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- This file only uses local helper/template variables and does not define public globals.
+// Variables from loader-vars.php: $is_pro
+$render_cw_bulk_row = static function () use ($wp_categories, $users_for_author, $available_post_types) {
+    ?>
     <div class="aipkit_cw_bulk_row" data-aipkit-bulk-row>
         <div class="aipkit_cw_bulk_row_main">
             <label class="aipkit_cw_bulk_field aipkit_cw_bulk_field--topic">
@@ -58,7 +66,8 @@
         </div>
     </div>
     <?php
-}; ?>
+};
+?>
 <div class="aipkit_cw_mode_container" data-template-ready="0">
     <input type="hidden" id="aipkit_content_writer_title" name="content_title" value="" class="aipkit_autosave_trigger">
     

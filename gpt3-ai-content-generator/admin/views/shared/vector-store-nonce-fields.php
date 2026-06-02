@@ -1,5 +1,8 @@
 <?php
-if (!defined('ABSPATH')) { exit; } ?>
+if (!defined('ABSPATH')) {
+    exit;
+}
+?>
 <input type="hidden" id="aipkit_vector_store_nonce_openai" value="<?php echo esc_attr(wp_create_nonce('aipkit_vector_store_nonce_openai')); ?>">
 <input type="hidden" id="aipkit_vector_store_pinecone_nonce_management" value="<?php echo esc_attr(wp_create_nonce('aipkit_vector_store_pinecone_nonce')); ?>">
 <input type="hidden" id="aipkit_vector_store_qdrant_nonce_management" value="<?php echo esc_attr(wp_create_nonce('aipkit_vector_store_qdrant_nonce')); ?>">

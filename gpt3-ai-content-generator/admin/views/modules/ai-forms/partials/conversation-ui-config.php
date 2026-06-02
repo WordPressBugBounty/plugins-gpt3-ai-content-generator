@@ -1,5 +1,20 @@
 <?php
- if (!defined('ABSPATH')) { exit; } $upgrade_url = isset($upgrade_url) && !empty($upgrade_url) ? $upgrade_url : (function_exists('wpaicg_gacg_fs') ? wpaicg_gacg_fs()->get_upgrade_url() : admin_url('admin.php?page=wpaicg-pricing')); ?>
+
+/**
+ * Partial: AI Form Editor - Conversation UI Configuration
+ */
+if (!defined('ABSPATH')) {
+    exit;
+}
+
+// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- This file only uses local helper/template variables and does not define public globals.
+
+$upgrade_url = isset($upgrade_url) && !empty($upgrade_url)
+    ? $upgrade_url
+    : (function_exists('wpaicg_gacg_fs')
+        ? wpaicg_gacg_fs()->get_upgrade_url()
+        : admin_url('admin.php?page=wpaicg-pricing'));
+?>
 <div class="aipkit_popover_options_list aipkit_ai_form_conversation_ui_list">
     <?php if (!empty($is_pro)) : ?>
         <div class="aipkit_popover_option_row">

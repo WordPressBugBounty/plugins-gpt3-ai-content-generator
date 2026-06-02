@@ -1,5 +1,17 @@
 <?php
- if (!defined('ABSPATH')) { exit; } ?>
+
+/**
+ * Partial: Content Indexing Automated Task - Source Settings
+ * @since 2.2
+ */
+
+if (!defined('ABSPATH')) {
+    exit;
+}
+
+// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- This file only uses local helper/template variables and does not define public globals.
+// Variables from parent: $all_selectable_post_types
+?>
 <div id="aipkit_task_ci_source_settings" class="aipkit_ci_source_panel">
     <div class="aipkit_cw_source_mode_header aipkit_ci_source_header">
         <h3 class="aipkit_cw_source_mode_title"><?php esc_html_e('Content Indexing', 'gpt3-ai-content-generator'); ?></h3>

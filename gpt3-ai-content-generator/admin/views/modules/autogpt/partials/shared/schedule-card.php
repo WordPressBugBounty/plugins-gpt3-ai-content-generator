@@ -1,5 +1,18 @@
 <?php
- if (!defined('ABSPATH')) { exit; } $cw_post_statuses = isset($cw_post_statuses) && is_array($cw_post_statuses) ? $cw_post_statuses : []; ?>
+/**
+ * Partial: AutoGPT Task Schedule Card
+ */
+
+if (!defined('ABSPATH')) {
+    exit;
+}
+
+// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- This file only uses local helper/template variables and does not define public globals.
+
+$cw_post_statuses = isset($cw_post_statuses) && is_array($cw_post_statuses)
+    ? $cw_post_statuses
+    : [];
+?>
 <input type="hidden" id="aipkit_autogpt_task_status_input" name="task_status" value="active">
 
 <div class="aipkit_cw_publishing_panel aipkit_post_settings_redesigned">

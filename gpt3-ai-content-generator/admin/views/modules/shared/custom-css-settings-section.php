@@ -1,5 +1,23 @@
 <?php
-if (!defined('ABSPATH')) { exit; } $aipkit_custom_css_section_id_prefix = isset($aipkit_custom_css_section_id_prefix) ? preg_replace('/[^A-Za-z0-9_]/', '', (string) $aipkit_custom_css_section_id_prefix) : ''; $aipkit_custom_css_field_id = isset($aipkit_custom_css_field_id) ? preg_replace('/[^A-Za-z0-9_]/', '', (string) $aipkit_custom_css_field_id) : ''; $aipkit_custom_css_header_helper = isset($aipkit_custom_css_header_helper) ? (string) $aipkit_custom_css_header_helper : __('Theme overrides for Custom theme.', 'gpt3-ai-content-generator'); $aipkit_custom_css_label_helper = isset($aipkit_custom_css_label_helper) ? (string) $aipkit_custom_css_label_helper : __('Applies to the Custom theme.', 'gpt3-ai-content-generator'); ?>
+if (!defined('ABSPATH')) {
+    exit;
+}
+
+// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- Shared view partial configured by parent templates.
+
+$aipkit_custom_css_section_id_prefix = isset($aipkit_custom_css_section_id_prefix)
+    ? preg_replace('/[^A-Za-z0-9_]/', '', (string) $aipkit_custom_css_section_id_prefix)
+    : '';
+$aipkit_custom_css_field_id = isset($aipkit_custom_css_field_id)
+    ? preg_replace('/[^A-Za-z0-9_]/', '', (string) $aipkit_custom_css_field_id)
+    : '';
+$aipkit_custom_css_header_helper = isset($aipkit_custom_css_header_helper)
+    ? (string) $aipkit_custom_css_header_helper
+    : __('Theme overrides for Custom theme.', 'gpt3-ai-content-generator');
+$aipkit_custom_css_label_helper = isset($aipkit_custom_css_label_helper)
+    ? (string) $aipkit_custom_css_label_helper
+    : __('Applies to the Custom theme.', 'gpt3-ai-content-generator');
+?>
 <section
     class="aipkit_ai_forms_settings_block aipkit_settings_module_tab_panel"
     id="<?php echo esc_attr($aipkit_custom_css_section_id_prefix . '_custom_css'); ?>"

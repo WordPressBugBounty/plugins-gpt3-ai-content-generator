@@ -9,21 +9,30 @@ use WPAICG\Core\AIPKit_OpenAI_Reasoning;
 use WPAICG\Chat\Storage\SiteWideBotManager;
 use WPAICG\Chat\Frontend\Shortcode;
 use WPAICG\Chat\Admin\AdminSetup;
+// Needed for POST_TYPE constant
 use WPAICG\AIPKit_Providers;
+// Added for updating global provider settings
 use WPAICG\Utils\AIPKit_Prompt_Sanitizer;
 use function WPAICG\Chat\Storage\SaverMethods\sanitize_settings_logic;
 use WP_Error;
 if ( !defined( 'ABSPATH' ) ) {
     exit;
+    // Exit if accessed directly
 }
+/**
+ * Handles AJAX requests for Chatbot CRUD operations and settings.
+ * Uses the BotStorage facade.
+ */
 class ChatbotAjaxHandler extends BaseAjaxHandler {
     private $bot_storage;
 
     public function __construct() {
+        // Ensure BotStorage exists and instantiate
         if ( !class_exists( \WPAICG\Chat\Storage\BotStorage::class ) ) {
             return;
         }
         $this->bot_storage = new BotStorage();
+        // Ensure AIPKit_Providers is available for updating global settings
         if ( !class_exists( \WPAICG\AIPKit_Providers::class ) ) {
             $providers_path = WPAICG_PLUGIN_DIR . 'classes/dashboard/class-aipkit_providers.php';
             if ( file_exists( $providers_path ) ) {
@@ -32,12 +41,18 @@ class ChatbotAjaxHandler extends BaseAjaxHandler {
         }
     }
 
+    /**
+     * Validate access and resolve an existing chatbot ID from the current AJAX request.
+     *
+     * @return int Valid chatbot ID, or 0 after sending an error response.
+     */
     private function get_validated_chatbot_id_from_request() : int {
         $permission_check = $this->check_module_access_permissions( 'chatbot' );
         if ( is_wp_error( $permission_check ) ) {
             $this->send_wp_error( $permission_check );
             return 0;
         }
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce verification is handled in check_module_access_permissions.
         $bot_id = ( isset( $_POST['bot_id'] ) ? absint( $_POST['bot_id'] ) : 0 );
         if ( empty( $bot_id ) ) {
             wp_send_json_error( [
@@ -70,6 +85,7 @@ class ChatbotAjaxHandler extends BaseAjaxHandler {
             $this->send_wp_error( $permission_check );
             return;
         }
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Reason: Nonce verification is handled in check_module_access_permissions method.
         $botName = ( isset( $_POST['bot_name'] ) ? sanitize_text_field( wp_unslash( $_POST['bot_name'] ) ) : '' );
         if ( empty( $botName ) ) {
             wp_send_json_error( [
@@ -77,6 +93,7 @@ class ChatbotAjaxHandler extends BaseAjaxHandler {
             ], 400 );
             return;
         }
+        // Uses facade method
         $result = $this->bot_storage->create_bot( $botName );
         if ( is_wp_error( $result ) ) {
             $this->send_wp_error( $result );
@@ -86,12 +103,19 @@ class ChatbotAjaxHandler extends BaseAjaxHandler {
         }
     }
 
+    /**
+     * Return chatbot builder state for one bot or all bots.
+     * Used by the admin chatbot builder for state-driven bot switching.
+     *
+     * @return void
+     */
     public function ajax_get_chatbot_switch_state() {
         $permission_check = $this->check_module_access_permissions( 'chatbot' );
         if ( is_wp_error( $permission_check ) ) {
             $this->send_wp_error( $permission_check );
             return;
         }
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce verification is handled in check_module_access_permissions.
         $requested_bot_id = ( isset( $_POST['bot_id'] ) ? absint( $_POST['bot_id'] ) : 0 );
         if ( !class_exists( DefaultBotSetup::class ) ) {
             wp_send_json_error( [
@@ -164,6 +188,12 @@ class ChatbotAjaxHandler extends BaseAjaxHandler {
         ] );
     }
 
+    /**
+     * Build the frontend embed snippet for a bot.
+     *
+     * @param int $bot_id Bot ID.
+     * @return string
+     */
     private function build_embed_code_for_bot( int $bot_id ) : string {
         if ( $bot_id <= 0 || !$this->is_pro_plan_active() ) {
             return '';
@@ -174,6 +204,16 @@ class ChatbotAjaxHandler extends BaseAjaxHandler {
         return '';
     }
 
+    /**
+     * Resolve the persisted deploy mode for a bot.
+     *
+     * Falls back to legacy popup/inline behavior for bots saved before deploy mode
+     * was stored separately.
+     *
+     * @param string|null $stored_mode Raw stored deploy mode.
+     * @param array       $settings    Bot settings used for fallback inference.
+     * @return string
+     */
     private function resolve_deploy_mode( ?string $stored_mode, array $settings = [] ) : string {
         $normalized_mode = ( is_string( $stored_mode ) ? sanitize_key( $stored_mode ) : '' );
         if ( in_array( $normalized_mode, ['inline', 'popup', 'external'], true ) ) {
@@ -183,6 +223,12 @@ class ChatbotAjaxHandler extends BaseAjaxHandler {
         return ( $popup_enabled ? 'popup' : 'inline' );
     }
 
+    /**
+     * Normalize triggers payload to a JSON string.
+     *
+     * @param mixed $value Raw triggers value.
+     * @return string
+     */
     private function normalize_triggers_json( $value ) : string {
         if ( is_array( $value ) ) {
             return ( wp_json_encode( $value ) ?: '[]' );
@@ -194,6 +240,12 @@ class ChatbotAjaxHandler extends BaseAjaxHandler {
         return '[]';
     }
 
+    /**
+     * Get IDs of popup bots (excluding target) currently marked as site-wide.
+     *
+     * @param int $exclude_bot_id Bot ID to exclude from the query.
+     * @return int[]
+     */
     private function get_other_site_wide_popup_bot_ids( int $exclude_bot_id ) : array {
         if ( !class_exists( AdminSetup::class ) ) {
             return [];
@@ -230,6 +282,15 @@ class ChatbotAjaxHandler extends BaseAjaxHandler {
         return $ids;
     }
 
+    /**
+     * Build normalized switch state payload for a bot.
+     *
+     * @param int    $bot_id Bot ID.
+     * @param string $bot_name Bot name.
+     * @param array  $settings Bot settings.
+     * @param int    $default_bot_id Default bot ID.
+     * @return array<string, mixed>
+     */
     private function build_bot_switch_state_payload(
         int $bot_id,
         string $bot_name,
@@ -271,6 +332,14 @@ class ChatbotAjaxHandler extends BaseAjaxHandler {
         ];
     }
 
+    /**
+     * Build a standard successful save/autosave response for a chatbot.
+     *
+     * @param int                  $bot_id Chatbot ID.
+     * @param string               $message Success message.
+     * @param array<string, mixed> $extra Additional response fields.
+     * @return array<string, mixed>
+     */
     private function build_saved_bot_state_success_payload( int $bot_id, string $message, array $extra = [] ) : array {
         $default_bot_id = ( class_exists( DefaultBotSetup::class ) ? (int) DefaultBotSetup::get_default_bot_id() : 0 );
         $bot_post = get_post( $bot_id );
@@ -297,6 +366,14 @@ class ChatbotAjaxHandler extends BaseAjaxHandler {
         return $response;
     }
 
+    /**
+     * Send the standard successful save/autosave response for a chatbot.
+     *
+     * @param int                  $bot_id Chatbot ID.
+     * @param string               $message Success message.
+     * @param array<string, mixed> $extra Additional response fields.
+     * @return void
+     */
     private function send_saved_bot_state_success( int $bot_id, string $message, array $extra = [] ) : void {
         wp_send_json_success( $this->build_saved_bot_state_success_payload( $bot_id, $message, $extra ) );
     }
@@ -307,18 +384,23 @@ class ChatbotAjaxHandler extends BaseAjaxHandler {
             $this->send_wp_error( $permission_check );
             return;
         }
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Reason: Nonce verification is handled in check_module_access_permissions method.
         $botId = ( isset( $_POST['bot_id'] ) ? absint( $_POST['bot_id'] ) : 0 );
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Reason: Nonce verification is handled in check_module_access_permissions method.
         $settings = ( isset( $_POST ) ? wp_unslash( $_POST ) : array() );
+        // Use unslashed $_POST
         if ( empty( $botId ) ) {
             wp_send_json_error( [
                 'message' => __( 'Invalid Chatbot ID.', 'gpt3-ai-content-generator' ),
             ], 400 );
             return;
         }
+        // Uses facade method
         $result = $this->bot_storage->save_bot_settings( $botId, $settings );
         if ( is_wp_error( $result ) ) {
             $this->send_wp_error( $result );
         } else {
+            // --- START: Check and update global OpenAI store_conversation setting ---
             if ( isset( $settings['provider'] ) && $settings['provider'] === 'OpenAI' && isset( $settings['openai_conversation_state_enabled'] ) && $settings['openai_conversation_state_enabled'] === '1' ) {
                 if ( class_exists( \WPAICG\AIPKit_Providers::class ) ) {
                     $openai_global_settings = AIPKit_Providers::get_provider_data( 'OpenAI' );
@@ -328,6 +410,7 @@ class ChatbotAjaxHandler extends BaseAjaxHandler {
                     }
                 }
             }
+            // --- END: Check and update global OpenAI store_conversation setting ---
             $this->send_saved_bot_state_success( $botId, __( 'Chatbot settings saved successfully.', 'gpt3-ai-content-generator' ) );
         }
     }
@@ -338,6 +421,7 @@ class ChatbotAjaxHandler extends BaseAjaxHandler {
             $this->send_wp_error( $permission_check );
             return;
         }
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Reason: Nonce verification is handled in check_module_access_permissions method.
         $botId = ( isset( $_POST['bot_id'] ) ? absint( $_POST['bot_id'] ) : 0 );
         if ( empty( $botId ) ) {
             wp_send_json_error( [
@@ -345,6 +429,7 @@ class ChatbotAjaxHandler extends BaseAjaxHandler {
             ], 400 );
             return;
         }
+        // Check if it's the default bot (uses static method, no facade needed here)
         if ( !class_exists( DefaultBotSetup::class ) ) {
             $this->send_wp_error( new WP_Error('dependency_missing', 'DefaultBotSetup class not found for deletion check.', [
                 'status' => 500,
@@ -358,6 +443,7 @@ class ChatbotAjaxHandler extends BaseAjaxHandler {
             ]) );
             return;
         }
+        // Uses facade method
         $result = $this->bot_storage->delete_bot( $botId );
         if ( is_wp_error( $result ) ) {
             $this->send_wp_error( $result );
@@ -385,6 +471,7 @@ class ChatbotAjaxHandler extends BaseAjaxHandler {
         if ( $source_title === '' ) {
             $source_title = __( 'Chatbot', 'gpt3-ai-content-generator' );
         }
+        /* translators: %s is the chatbot name being duplicated. */
         $new_title = sprintf( __( '%s Copy', 'gpt3-ai-content-generator' ), $source_title );
         $new_bot_id = wp_insert_post( [
             'post_type'   => AdminSetup::POST_TYPE,
@@ -411,11 +498,14 @@ class ChatbotAjaxHandler extends BaseAjaxHandler {
                 }
             }
         }
+        // Ensure the duplicated bot is never marked as default.
         delete_post_meta( $new_bot_id, '_aipkit_default_bot' );
+        // Duplicated bots must always start as non-site-wide to avoid replacing live popup behavior.
         update_post_meta( $new_bot_id, '_aipkit_site_wide_enabled', '0' );
         update_post_meta( $new_bot_id, '_aipkit_popup_delay', BotSettingsManager::DEFAULT_POPUP_DELAY );
         update_post_meta( $new_bot_id, '_aipkit_enable_conversation_starters', BotSettingsManager::DEFAULT_ENABLE_CONVERSATION_STARTERS );
         update_post_meta( $new_bot_id, '_aipkit_conversation_starters', BotSettingsManager::get_default_conversation_starters_json() );
+        // Normalize default markers so only one chatbot remains default.
         $default_marker_ids = get_posts( [
             'post_type'      => AdminSetup::POST_TYPE,
             'post_status'    => 'publish',
@@ -455,7 +545,9 @@ class ChatbotAjaxHandler extends BaseAjaxHandler {
             $this->send_wp_error( $permission_check );
             return;
         }
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing, WordPress.Security.NonceVerification.Recommended -- Reason: Nonce verification is handled in check_module_access_permissions method.
         $bot_id = ( isset( $_REQUEST['bot_id'] ) ? absint( $_REQUEST['bot_id'] ) : 0 );
+        // Ensure AdminSetup class is available
         if ( !class_exists( AdminSetup::class ) ) {
             wp_send_json_error( [
                 'message' => __( 'Internal server error.', 'gpt3-ai-content-generator' ),
@@ -469,6 +561,7 @@ class ChatbotAjaxHandler extends BaseAjaxHandler {
             return;
         }
         try {
+            // Ensure Shortcode class is available
             if ( !class_exists( Shortcode::class ) ) {
                 wp_send_json_error( [
                     'message' => __( 'Internal server error.', 'gpt3-ai-content-generator' ),
@@ -491,6 +584,7 @@ class ChatbotAjaxHandler extends BaseAjaxHandler {
                 ], 500 );
                 return;
             }
+            // Basic UTF-8 check (optional but good practice)
             if ( !mb_check_encoding( $shortcode_html, 'UTF-8' ) ) {
                 $shortcode_html = mb_convert_encoding( $shortcode_html, 'UTF-8', mb_detect_encoding( $shortcode_html ) );
                 if ( !$shortcode_html ) {
@@ -516,6 +610,7 @@ class ChatbotAjaxHandler extends BaseAjaxHandler {
             $this->send_wp_error( $permission_check );
             return;
         }
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Reason: Nonce verification is handled in check_module_access_permissions method.
         $botId = ( isset( $_POST['bot_id'] ) ? absint( $_POST['bot_id'] ) : 0 );
         if ( empty( $botId ) ) {
             wp_send_json_error( [
@@ -523,6 +618,7 @@ class ChatbotAjaxHandler extends BaseAjaxHandler {
             ], 400 );
             return;
         }
+        // Uses static method, no facade needed here
         if ( !class_exists( DefaultBotSetup::class ) ) {
             $this->send_wp_error( new WP_Error('dependency_missing', 'DefaultBotSetup class not found for reset.', [
                 'status' => 500,
@@ -537,11 +633,16 @@ class ChatbotAjaxHandler extends BaseAjaxHandler {
         }
     }
 
+    /**
+     * AJAX: Renames a chatbot.
+     * @since NEXT_VERSION
+     */
     public function ajax_rename_chatbot() {
         $bot_id = $this->get_validated_chatbot_id_from_request();
         if ( $bot_id <= 0 ) {
             return;
         }
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Reason: Nonce verification is handled in check_module_access_permissions method.
         $new_name = ( isset( $_POST['new_name'] ) ? sanitize_text_field( wp_unslash( $_POST['new_name'] ) ) : '' );
         if ( empty( $new_name ) ) {
             wp_send_json_error( [
@@ -549,11 +650,13 @@ class ChatbotAjaxHandler extends BaseAjaxHandler {
             ], 400 );
             return;
         }
+        // Update the post title
         $update_args = [
             'ID'         => $bot_id,
             'post_title' => $new_name,
         ];
         $updated_post_id = wp_update_post( $update_args, true );
+        // Pass true to get WP_Error on failure
         if ( is_wp_error( $updated_post_id ) ) {
             wp_send_json_error( [
                 'message' => __( 'Failed to update chatbot name.', 'gpt3-ai-content-generator' ),
@@ -565,22 +668,33 @@ class ChatbotAjaxHandler extends BaseAjaxHandler {
         }
     }
 
+    /**
+     * AJAX: Updates chatbot instructions only (autosave).
+     * @since NEXT_VERSION
+     */
     public function ajax_update_chatbot_instructions() {
         $bot_id = $this->get_validated_chatbot_id_from_request();
         if ( $bot_id <= 0 ) {
             return;
         }
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing,WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Nonce is checked in check_module_access_permissions(); AIPKit_Prompt_Sanitizer preserves literal HTML while sanitizing prompt text.
         $instructions = ( isset( $_POST['instructions'] ) ? AIPKit_Prompt_Sanitizer::sanitize( wp_unslash( $_POST['instructions'] ) ) : '' );
         update_post_meta( $bot_id, '_aipkit_instructions', $instructions );
         $this->send_saved_bot_state_success( $bot_id, __( 'Saved', 'gpt3-ai-content-generator' ) );
     }
 
+    /**
+     * AJAX: Updates chatbot provider/model only (autosave).
+     * @since NEXT_VERSION
+     */
     public function ajax_update_chatbot_model_settings() {
         $bot_id = $this->get_validated_chatbot_id_from_request();
         if ( $bot_id <= 0 ) {
             return;
         }
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Reason: Nonce verification is handled in check_module_access_permissions method.
         $provider = ( isset( $_POST['provider'] ) ? sanitize_text_field( wp_unslash( $_POST['provider'] ) ) : '' );
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Reason: Nonce verification is handled in check_module_access_permissions method.
         $model = ( isset( $_POST['model'] ) ? sanitize_text_field( wp_unslash( $_POST['model'] ) ) : '' );
         $default_allowed_providers = [
             'OpenAI',
@@ -610,13 +724,21 @@ class ChatbotAjaxHandler extends BaseAjaxHandler {
         $this->send_saved_bot_state_success( $bot_id, __( 'Saved', 'gpt3-ai-content-generator' ) );
     }
 
+    /**
+     * AJAX: Updates chatbot AI parameters only (autosave).
+     * @since NEXT_VERSION
+     */
+    // phpcs:disable WordPress.Security.NonceVerification.Missing, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Every handler in this autosave/training block verifies access via check_module_access_permissions(); remaining superglobal reads are immediately unslashed and normalized per field.
     public function ajax_update_chatbot_ai_parameters() {
         $bot_id = $this->get_validated_chatbot_id_from_request();
         if ( $bot_id <= 0 ) {
             return;
         }
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Reason: Nonce verification is handled in check_module_access_permissions method.
         $temperature_raw = ( isset( $_POST['temperature'] ) ? wp_unslash( $_POST['temperature'] ) : null );
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Reason: Nonce verification is handled in check_module_access_permissions method.
         $max_tokens_raw = ( isset( $_POST['max_completion_tokens'] ) ? wp_unslash( $_POST['max_completion_tokens'] ) : null );
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Reason: Nonce verification is handled in check_module_access_permissions method.
         $max_messages_raw = ( isset( $_POST['max_messages'] ) ? wp_unslash( $_POST['max_messages'] ) : null );
         if ( $temperature_raw === null || $max_tokens_raw === null ) {
             wp_send_json_error( [
@@ -638,12 +760,18 @@ class ChatbotAjaxHandler extends BaseAjaxHandler {
         $this->send_saved_bot_state_success( $bot_id, __( 'Saved', 'gpt3-ai-content-generator' ) );
     }
 
+    /**
+     * AJAX: Updates chatbot conversation settings only (autosave).
+     * @since NEXT_VERSION
+     */
     public function ajax_update_chatbot_conversation_settings() {
         $bot_id = $this->get_validated_chatbot_id_from_request();
         if ( $bot_id <= 0 ) {
             return;
         }
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Reason: Nonce verification is handled in check_module_access_permissions method.
         $openai_conversation_state_enabled = ( isset( $_POST['openai_conversation_state_enabled'] ) && wp_unslash( $_POST['openai_conversation_state_enabled'] ) === '1' ? '1' : '0' );
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Reason: Nonce verification is handled in check_module_access_permissions method.
         $reasoning_effort = AIPKit_OpenAI_Reasoning::sanitize_effort( ( isset( $_POST['reasoning_effort'] ) ? wp_unslash( $_POST['reasoning_effort'] ) : '' ) );
         if ( $reasoning_effort === '' ) {
             $reasoning_effort = BotSettingsManager::DEFAULT_REASONING_EFFORT;
@@ -653,24 +781,32 @@ class ChatbotAjaxHandler extends BaseAjaxHandler {
         $this->send_saved_bot_state_success( $bot_id, __( 'Saved', 'gpt3-ai-content-generator' ) );
     }
 
+    /**
+     * AJAX: Updates chatbot style settings only (autosave).
+     * @since NEXT_VERSION
+     */
     public function ajax_update_chatbot_style_settings() {
         $bot_id = $this->get_validated_chatbot_id_from_request();
         if ( $bot_id <= 0 ) {
             return;
         }
         if ( isset( $_POST['greeting'] ) ) {
+            // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Reason: Nonce verification is handled in check_module_access_permissions method.
             $greeting = sanitize_textarea_field( wp_unslash( $_POST['greeting'] ) );
             update_post_meta( $bot_id, '_aipkit_greeting_message', $greeting );
         }
         if ( isset( $_POST['subgreeting'] ) ) {
+            // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Reason: Nonce verification is handled in check_module_access_permissions method.
             $subgreeting = sanitize_textarea_field( wp_unslash( $_POST['subgreeting'] ) );
             update_post_meta( $bot_id, '_aipkit_subgreeting_message', $subgreeting );
         }
         if ( isset( $_POST['input_placeholder'] ) ) {
+            // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Reason: Nonce verification is handled in check_module_access_permissions method.
             $input_placeholder = sanitize_text_field( wp_unslash( $_POST['input_placeholder'] ) );
             update_post_meta( $bot_id, '_aipkit_input_placeholder', $input_placeholder );
         }
         if ( isset( $_POST['footer_text'] ) ) {
+            // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Reason: Nonce verification is handled in check_module_access_permissions method.
             $footer_text = wp_kses_post( wp_unslash( $_POST['footer_text'] ) );
             update_post_meta( $bot_id, '_aipkit_footer_text', $footer_text );
         }
@@ -684,6 +820,7 @@ class ChatbotAjaxHandler extends BaseAjaxHandler {
             ];
             $header_avatar_type = get_post_meta( $bot_id, '_aipkit_header_avatar_type', BotSettingsManager::DEFAULT_HEADER_AVATAR_TYPE );
             if ( isset( $_POST['header_avatar_type'] ) ) {
+                // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Reason: Nonce verification is handled in check_module_access_permissions method.
                 $header_avatar_type = sanitize_key( wp_unslash( $_POST['header_avatar_type'] ) );
             }
             if ( !in_array( $header_avatar_type, ['default', 'custom'], true ) ) {
@@ -708,10 +845,12 @@ class ChatbotAjaxHandler extends BaseAjaxHandler {
             update_post_meta( $bot_id, '_aipkit_header_avatar_value', $header_avatar_value );
         }
         if ( isset( $_POST['custom_typing_text'] ) ) {
+            // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Reason: Nonce verification is handled in check_module_access_permissions method.
             $typing_text = sanitize_text_field( wp_unslash( $_POST['custom_typing_text'] ) );
             update_post_meta( $bot_id, '_aipkit_custom_typing_text', $typing_text );
         }
         if ( isset( $_POST['retrieving_context_text'] ) ) {
+            // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Reason: Nonce verification is handled in check_module_access_permissions method.
             $retrieving_context_text = sanitize_text_field( wp_unslash( $_POST['retrieving_context_text'] ) );
             update_post_meta( $bot_id, '_aipkit_retrieving_context_text', $retrieving_context_text );
         }
@@ -725,6 +864,7 @@ class ChatbotAjaxHandler extends BaseAjaxHandler {
             $theme_for_preset = 'dark';
         }
         if ( isset( $_POST['theme'] ) ) {
+            // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Reason: Nonce verification is handled in check_module_access_permissions method.
             $theme = sanitize_key( wp_unslash( $_POST['theme'] ) );
             $allowed_themes = [
                 'light',
@@ -741,6 +881,7 @@ class ChatbotAjaxHandler extends BaseAjaxHandler {
         if ( $theme_for_preset !== 'custom' ) {
             delete_post_meta( $bot_id, '_aipkit_theme_preset_key' );
         } elseif ( isset( $_POST['theme_preset_key'] ) ) {
+            // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Reason: Nonce verification is handled in check_module_access_permissions method.
             $theme_preset_key = sanitize_key( wp_unslash( $_POST['theme_preset_key'] ) );
             $valid_theme_preset_keys = [];
             if ( class_exists( BotSettingsManager::class ) ) {
@@ -762,46 +903,57 @@ class ChatbotAjaxHandler extends BaseAjaxHandler {
             }
         }
         if ( isset( $_POST['enable_download'] ) ) {
+            // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Reason: Nonce verification is handled in check_module_access_permissions method.
             $enable_download = ( wp_unslash( $_POST['enable_download'] ) === '1' ? '1' : '0' );
             update_post_meta( $bot_id, '_aipkit_enable_download', $enable_download );
         }
         if ( isset( $_POST['enable_copy_button'] ) ) {
+            // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Reason: Nonce verification is handled in check_module_access_permissions method.
             $enable_copy_button = ( wp_unslash( $_POST['enable_copy_button'] ) === '1' ? '1' : '0' );
             update_post_meta( $bot_id, '_aipkit_enable_copy_button', $enable_copy_button );
         }
         if ( isset( $_POST['enable_fullscreen'] ) ) {
+            // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Reason: Nonce verification is handled in check_module_access_permissions method.
             $enable_fullscreen = ( wp_unslash( $_POST['enable_fullscreen'] ) === '1' ? '1' : '0' );
             update_post_meta( $bot_id, '_aipkit_enable_fullscreen', $enable_fullscreen );
         }
         if ( isset( $_POST['enable_feedback'] ) ) {
+            // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Reason: Nonce verification is handled in check_module_access_permissions method.
             $enable_feedback = ( wp_unslash( $_POST['enable_feedback'] ) === '1' ? '1' : '0' );
             update_post_meta( $bot_id, '_aipkit_enable_feedback', $enable_feedback );
         }
         if ( isset( $_POST['enable_consent_compliance'] ) ) {
+            // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Reason: Nonce verification is handled in check_module_access_permissions method.
             $enable_consent = ( wp_unslash( $_POST['enable_consent_compliance'] ) === '1' ? '1' : '0' );
             update_post_meta( $bot_id, '_aipkit_enable_consent_compliance', $enable_consent );
         }
         if ( isset( $_POST['consent_title'] ) ) {
+            // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Reason: Nonce verification is handled in check_module_access_permissions method.
             $consent_title = sanitize_text_field( wp_unslash( $_POST['consent_title'] ) );
             update_post_meta( $bot_id, '_aipkit_consent_title', $consent_title );
         }
         if ( isset( $_POST['consent_message'] ) ) {
+            // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Reason: Nonce verification is handled in check_module_access_permissions method.
             $consent_message = wp_kses_post( wp_unslash( $_POST['consent_message'] ) );
             update_post_meta( $bot_id, '_aipkit_consent_message', $consent_message );
         }
         if ( isset( $_POST['consent_button'] ) ) {
+            // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Reason: Nonce verification is handled in check_module_access_permissions method.
             $consent_button = sanitize_text_field( wp_unslash( $_POST['consent_button'] ) );
             update_post_meta( $bot_id, '_aipkit_consent_button', $consent_button );
         }
         if ( isset( $_POST['enable_conversation_sidebar'] ) ) {
+            // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Reason: Nonce verification is handled in check_module_access_permissions method.
             $enable_sidebar = ( wp_unslash( $_POST['enable_conversation_sidebar'] ) === '1' ? '1' : '0' );
             update_post_meta( $bot_id, '_aipkit_enable_conversation_sidebar', $enable_sidebar );
         }
         if ( isset( $_POST['enable_conversation_starters'] ) ) {
+            // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Reason: Nonce verification is handled in check_module_access_permissions method.
             $enable_starters = ( wp_unslash( $_POST['enable_conversation_starters'] ) === '1' ? '1' : '0' );
             update_post_meta( $bot_id, '_aipkit_enable_conversation_starters', $enable_starters );
         }
         if ( isset( $_POST['conversation_starters'] ) ) {
+            // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Reason: Nonce verification is handled in check_module_access_permissions method.
             $starters_raw = wp_unslash( $_POST['conversation_starters'] );
             $starters_array = [];
             if ( !empty( $starters_raw ) ) {
@@ -817,6 +969,7 @@ class ChatbotAjaxHandler extends BaseAjaxHandler {
             update_post_meta( $bot_id, '_aipkit_conversation_starters', wp_json_encode( $starters_array, JSON_UNESCAPED_UNICODE ) );
         }
         if ( isset( $_POST['custom_theme_settings'] ) && is_array( $_POST['custom_theme_settings'] ) ) {
+            // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Reason: Nonce verification is handled in check_module_access_permissions method.
             $custom_theme_raw = wp_unslash( $_POST['custom_theme_settings'] );
             if ( is_array( $custom_theme_raw ) ) {
                 if ( !function_exists( '\\WPAICG\\Chat\\Storage\\SaverMethods\\sanitize_settings_logic' ) ) {
@@ -841,37 +994,55 @@ class ChatbotAjaxHandler extends BaseAjaxHandler {
         $this->send_saved_bot_state_success( $bot_id, __( 'Saved', 'gpt3-ai-content-generator' ) );
     }
 
+    /**
+     * AJAX: Updates chatbot web search/grounding settings only (autosave).
+     * @since NEXT_VERSION
+     */
     public function ajax_update_chatbot_web_settings() {
         $bot_id = $this->get_validated_chatbot_id_from_request();
         if ( $bot_id <= 0 ) {
             return;
         }
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Reason: Nonce verification is handled in check_module_access_permissions method.
         $openai_web_search_enabled = ( isset( $_POST['openai_web_search_enabled'] ) && wp_unslash( $_POST['openai_web_search_enabled'] ) === '1' ? '1' : '0' );
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Reason: Nonce verification is handled in check_module_access_permissions method.
         $openai_web_search_context_size = ( isset( $_POST['openai_web_search_context_size'] ) ? sanitize_text_field( wp_unslash( $_POST['openai_web_search_context_size'] ) ) : BotSettingsManager::DEFAULT_OPENAI_WEB_SEARCH_CONTEXT_SIZE );
         $allowed_context_sizes = ['low', 'medium', 'high'];
         if ( !in_array( $openai_web_search_context_size, $allowed_context_sizes, true ) ) {
             $openai_web_search_context_size = BotSettingsManager::DEFAULT_OPENAI_WEB_SEARCH_CONTEXT_SIZE;
         }
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Reason: Nonce verification is handled in check_module_access_permissions method.
         $openai_web_search_loc_type = ( isset( $_POST['openai_web_search_loc_type'] ) ? sanitize_text_field( wp_unslash( $_POST['openai_web_search_loc_type'] ) ) : BotSettingsManager::DEFAULT_OPENAI_WEB_SEARCH_LOC_TYPE );
         $allowed_loc_types = ['none', 'approximate'];
         if ( !in_array( $openai_web_search_loc_type, $allowed_loc_types, true ) ) {
             $openai_web_search_loc_type = BotSettingsManager::DEFAULT_OPENAI_WEB_SEARCH_LOC_TYPE;
         }
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Reason: Nonce verification is handled in check_module_access_permissions method.
         $openai_web_search_loc_country = ( isset( $_POST['openai_web_search_loc_country'] ) ? sanitize_text_field( wp_unslash( $_POST['openai_web_search_loc_country'] ) ) : '' );
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Reason: Nonce verification is handled in check_module_access_permissions method.
         $openai_web_search_loc_city = ( isset( $_POST['openai_web_search_loc_city'] ) ? sanitize_text_field( wp_unslash( $_POST['openai_web_search_loc_city'] ) ) : '' );
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Reason: Nonce verification is handled in check_module_access_permissions method.
         $openai_web_search_loc_region = ( isset( $_POST['openai_web_search_loc_region'] ) ? sanitize_text_field( wp_unslash( $_POST['openai_web_search_loc_region'] ) ) : '' );
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Reason: Nonce verification is handled in check_module_access_permissions method.
         $openai_web_search_loc_timezone = ( isset( $_POST['openai_web_search_loc_timezone'] ) ? sanitize_text_field( wp_unslash( $_POST['openai_web_search_loc_timezone'] ) ) : '' );
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Reason: Nonce verification is handled in check_module_access_permissions method.
         $claude_web_search_enabled = ( isset( $_POST['claude_web_search_enabled'] ) && wp_unslash( $_POST['claude_web_search_enabled'] ) === '1' ? '1' : '0' );
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Reason: Nonce verification is handled in check_module_access_permissions method.
         $claude_web_search_max_uses = ( isset( $_POST['claude_web_search_max_uses'] ) ? absint( wp_unslash( $_POST['claude_web_search_max_uses'] ) ) : BotSettingsManager::DEFAULT_CLAUDE_WEB_SEARCH_MAX_USES );
         $claude_web_search_max_uses = max( 1, min( $claude_web_search_max_uses, 20 ) );
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Reason: Nonce verification is handled in check_module_access_permissions method.
         $claude_web_search_loc_type = ( isset( $_POST['claude_web_search_loc_type'] ) ? sanitize_text_field( wp_unslash( $_POST['claude_web_search_loc_type'] ) ) : BotSettingsManager::DEFAULT_CLAUDE_WEB_SEARCH_LOC_TYPE );
         $allowed_claude_loc_types = ['none', 'approximate'];
         if ( !in_array( $claude_web_search_loc_type, $allowed_claude_loc_types, true ) ) {
             $claude_web_search_loc_type = BotSettingsManager::DEFAULT_CLAUDE_WEB_SEARCH_LOC_TYPE;
         }
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Reason: Nonce verification is handled in check_module_access_permissions method.
         $claude_web_search_loc_country = ( isset( $_POST['claude_web_search_loc_country'] ) ? sanitize_text_field( wp_unslash( $_POST['claude_web_search_loc_country'] ) ) : '' );
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Reason: Nonce verification is handled in check_module_access_permissions method.
         $claude_web_search_loc_city = ( isset( $_POST['claude_web_search_loc_city'] ) ? sanitize_text_field( wp_unslash( $_POST['claude_web_search_loc_city'] ) ) : '' );
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Reason: Nonce verification is handled in check_module_access_permissions method.
         $claude_web_search_loc_region = ( isset( $_POST['claude_web_search_loc_region'] ) ? sanitize_text_field( wp_unslash( $_POST['claude_web_search_loc_region'] ) ) : '' );
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Reason: Nonce verification is handled in check_module_access_permissions method.
         $claude_web_search_loc_timezone = ( isset( $_POST['claude_web_search_loc_timezone'] ) ? sanitize_text_field( wp_unslash( $_POST['claude_web_search_loc_timezone'] ) ) : '' );
         $normalize_domains = static function ( $value ) : string {
             if ( !is_string( $value ) ) {
@@ -899,35 +1070,50 @@ class ChatbotAjaxHandler extends BaseAjaxHandler {
             }
             return implode( ',', array_values( array_unique( $clean ) ) );
         };
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Reason: Nonce verification is handled in check_module_access_permissions method.
         $claude_web_search_allowed_domains = ( isset( $_POST['claude_web_search_allowed_domains'] ) ? $normalize_domains( (string) wp_unslash( $_POST['claude_web_search_allowed_domains'] ) ) : '' );
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Reason: Nonce verification is handled in check_module_access_permissions method.
         $claude_web_search_blocked_domains = ( isset( $_POST['claude_web_search_blocked_domains'] ) ? $normalize_domains( (string) wp_unslash( $_POST['claude_web_search_blocked_domains'] ) ) : '' );
         if ( $claude_web_search_allowed_domains !== '' ) {
             $claude_web_search_blocked_domains = '';
         }
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Reason: Nonce verification is handled in check_module_access_permissions method.
         $claude_web_search_cache_ttl = ( isset( $_POST['claude_web_search_cache_ttl'] ) ? sanitize_text_field( wp_unslash( $_POST['claude_web_search_cache_ttl'] ) ) : BotSettingsManager::DEFAULT_CLAUDE_WEB_SEARCH_CACHE_TTL );
         if ( !in_array( $claude_web_search_cache_ttl, ['none', '5m', '1h'], true ) ) {
             $claude_web_search_cache_ttl = BotSettingsManager::DEFAULT_CLAUDE_WEB_SEARCH_CACHE_TTL;
         }
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Reason: Nonce verification is handled in check_module_access_permissions method.
         $openrouter_web_search_enabled = ( isset( $_POST['openrouter_web_search_enabled'] ) && wp_unslash( $_POST['openrouter_web_search_enabled'] ) === '1' ? '1' : '0' );
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Reason: Nonce verification is handled in check_module_access_permissions method.
         $openrouter_web_search_engine = ( isset( $_POST['openrouter_web_search_engine'] ) ? sanitize_key( wp_unslash( $_POST['openrouter_web_search_engine'] ) ) : BotSettingsManager::DEFAULT_OPENROUTER_WEB_SEARCH_ENGINE );
         if ( !in_array( $openrouter_web_search_engine, ['auto', 'native', 'exa'], true ) ) {
             $openrouter_web_search_engine = BotSettingsManager::DEFAULT_OPENROUTER_WEB_SEARCH_ENGINE;
         }
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Reason: Nonce verification is handled in check_module_access_permissions method.
         $openrouter_web_search_max_results = ( isset( $_POST['openrouter_web_search_max_results'] ) ? absint( wp_unslash( $_POST['openrouter_web_search_max_results'] ) ) : BotSettingsManager::DEFAULT_OPENROUTER_WEB_SEARCH_MAX_RESULTS );
         $openrouter_web_search_max_results = max( 1, min( $openrouter_web_search_max_results, 10 ) );
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Reason: Nonce verification is handled in check_module_access_permissions method.
         $openrouter_web_search_search_prompt = ( isset( $_POST['openrouter_web_search_search_prompt'] ) ? AIPKit_Prompt_Sanitizer::sanitize( wp_unslash( $_POST['openrouter_web_search_search_prompt'] ) ) : BotSettingsManager::DEFAULT_OPENROUTER_WEB_SEARCH_SEARCH_PROMPT );
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Reason: Nonce verification is handled in check_module_access_permissions method.
         $xai_web_search_enabled = ( isset( $_POST['xai_web_search_enabled'] ) && wp_unslash( $_POST['xai_web_search_enabled'] ) === '1' ? '1' : '0' );
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Reason: Nonce verification is handled in check_module_access_permissions method.
         $google_search_grounding_enabled = ( isset( $_POST['google_search_grounding_enabled'] ) && wp_unslash( $_POST['google_search_grounding_enabled'] ) === '1' ? '1' : '0' );
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Reason: Nonce verification is handled in check_module_access_permissions method.
         $google_grounding_mode = ( isset( $_POST['google_grounding_mode'] ) ? sanitize_text_field( wp_unslash( $_POST['google_grounding_mode'] ) ) : BotSettingsManager::DEFAULT_GOOGLE_GROUNDING_MODE );
         $allowed_grounding_modes = ['DEFAULT_MODE', 'MODE_DYNAMIC'];
         if ( !in_array( $google_grounding_mode, $allowed_grounding_modes, true ) ) {
             $google_grounding_mode = BotSettingsManager::DEFAULT_GOOGLE_GROUNDING_MODE;
         }
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Reason: Nonce verification is handled in check_module_access_permissions method.
         $google_grounding_dynamic_threshold = ( isset( $_POST['google_grounding_dynamic_threshold'] ) ? floatval( wp_unslash( $_POST['google_grounding_dynamic_threshold'] ) ) : BotSettingsManager::DEFAULT_GOOGLE_GROUNDING_DYNAMIC_THRESHOLD );
         $google_grounding_dynamic_threshold = max( 0.0, min( $google_grounding_dynamic_threshold, 1.0 ) );
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Reason: Nonce verification is handled in check_module_access_permissions method.
         $web_toggle_default_on = ( isset( $_POST['web_toggle_default_on'] ) && wp_unslash( $_POST['web_toggle_default_on'] ) === '1' ? '1' : '0' );
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Reason: Nonce verification is handled in check_module_access_permissions method.
         $show_sources = ( isset( $_POST['show_sources'] ) ? ( wp_unslash( $_POST['show_sources'] ) === '1' ? '1' : '0' ) : BotSettingsManager::DEFAULT_SHOW_SOURCES );
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Reason: Nonce verification is handled in check_module_access_permissions method.
         $sources_label = ( isset( $_POST['sources_label'] ) ? sanitize_text_field( wp_unslash( $_POST['sources_label'] ) ) : BotSettingsManager::DEFAULT_SOURCES_LABEL );
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Reason: Nonce verification is handled in check_module_access_permissions method.
         $searching_web_text = ( isset( $_POST['searching_web_text'] ) ? sanitize_text_field( wp_unslash( $_POST['searching_web_text'] ) ) : BotSettingsManager::DEFAULT_SEARCHING_WEB_TEXT );
         update_post_meta( $bot_id, '_aipkit_openai_web_search_enabled', $openai_web_search_enabled );
         update_post_meta( $bot_id, '_aipkit_openai_web_search_context_size', $openai_web_search_context_size );
@@ -961,13 +1147,20 @@ class ChatbotAjaxHandler extends BaseAjaxHandler {
         $this->send_saved_bot_state_success( $bot_id, __( 'Saved', 'gpt3-ai-content-generator' ) );
     }
 
+    /**
+     * AJAX: Updates chatbot context settings only (autosave).
+     * @since NEXT_VERSION
+     */
     public function ajax_update_chatbot_context_settings() {
         $bot_id = $this->get_validated_chatbot_id_from_request();
         if ( $bot_id <= 0 ) {
             return;
         }
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Reason: Nonce verification is handled in check_module_access_permissions method.
         $content_aware_enabled = ( isset( $_POST['content_aware_enabled'] ) && wp_unslash( $_POST['content_aware_enabled'] ) === '1' ? '1' : '0' );
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Reason: Nonce verification is handled in check_module_access_permissions method.
         $enable_vector_store = ( isset( $_POST['enable_vector_store'] ) && wp_unslash( $_POST['enable_vector_store'] ) === '1' ? '1' : '0' );
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Reason: Nonce verification is handled in check_module_access_permissions method.
         $vector_store_provider = ( isset( $_POST['vector_store_provider'] ) ? sanitize_text_field( wp_unslash( $_POST['vector_store_provider'] ) ) : BotSettingsManager::DEFAULT_VECTOR_STORE_PROVIDER );
         $main_provider = (string) get_post_meta( $bot_id, '_aipkit_provider', true );
         $allowed_providers = [
@@ -983,7 +1176,9 @@ class ChatbotAjaxHandler extends BaseAjaxHandler {
             $vector_store_provider = BotSettingsManager::DEFAULT_VECTOR_STORE_PROVIDER;
         }
         $openai_vector_store_ids = [];
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Reason: Nonce verification is handled in check_module_access_permissions method.
         if ( isset( $_POST['openai_vector_store_ids'] ) ) {
+            // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Reason: Nonce verification is handled in check_module_access_permissions method.
             $raw_ids = wp_unslash( $_POST['openai_vector_store_ids'] );
             if ( is_array( $raw_ids ) ) {
                 foreach ( $raw_ids as $vs_id ) {
@@ -997,11 +1192,14 @@ class ChatbotAjaxHandler extends BaseAjaxHandler {
         $openai_vector_store_ids = array_values( array_unique( $openai_vector_store_ids ) );
         $pinecone_index_name = '';
         if ( $vector_store_provider === 'pinecone' ) {
+            // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Reason: Nonce verification is handled in check_module_access_permissions method.
             $pinecone_index_name = ( isset( $_POST['pinecone_index_name'] ) ? sanitize_text_field( wp_unslash( $_POST['pinecone_index_name'] ) ) : '' );
         }
         $qdrant_collection_names = [];
         if ( $vector_store_provider === 'qdrant' ) {
+            // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Reason: Nonce verification is handled in check_module_access_permissions method.
             if ( isset( $_POST['qdrant_collection_names'] ) ) {
+                // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Reason: Nonce verification is handled in check_module_access_permissions method.
                 $raw_names = wp_unslash( $_POST['qdrant_collection_names'] );
                 if ( is_array( $raw_names ) ) {
                     foreach ( $raw_names as $name ) {
@@ -1017,7 +1215,9 @@ class ChatbotAjaxHandler extends BaseAjaxHandler {
         $qdrant_collection_name = $qdrant_collection_names[0] ?? '';
         $chroma_collection_names = [];
         if ( $vector_store_provider === 'chroma' ) {
+            // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Reason: Nonce verification is handled in check_module_access_permissions method.
             if ( isset( $_POST['chroma_collection_names'] ) ) {
+                // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Reason: Nonce verification is handled in check_module_access_permissions method.
                 $raw_names = wp_unslash( $_POST['chroma_collection_names'] );
                 if ( is_array( $raw_names ) ) {
                     foreach ( $raw_names as $name ) {
@@ -1034,12 +1234,15 @@ class ChatbotAjaxHandler extends BaseAjaxHandler {
         $vector_embedding_provider = BotSettingsManager::DEFAULT_VECTOR_EMBEDDING_PROVIDER;
         $vector_embedding_model = '';
         if ( in_array( $vector_store_provider, ['pinecone', 'qdrant', 'chroma'], true ) ) {
+            // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Reason: Nonce verification is handled in check_module_access_permissions method.
             $vector_embedding_provider = ( isset( $_POST['vector_embedding_provider'] ) ? sanitize_key( wp_unslash( $_POST['vector_embedding_provider'] ) ) : BotSettingsManager::DEFAULT_VECTOR_EMBEDDING_PROVIDER );
             $allowed_embedding_providers = AIPKit_Providers::get_embedding_provider_keys( 'chatbot_admin_save' );
             if ( !in_array( $vector_embedding_provider, $allowed_embedding_providers, true ) ) {
                 $vector_embedding_provider = BotSettingsManager::DEFAULT_VECTOR_EMBEDDING_PROVIDER;
             }
+            // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Reason: Nonce verification is handled in check_module_access_permissions method.
             $vector_embedding_model = ( isset( $_POST['vector_embedding_model'] ) ? sanitize_text_field( wp_unslash( $_POST['vector_embedding_model'] ) ) : '' );
+            // Backward-compatibility: accept combined "provider::model" values from older UI payloads.
             if ( strpos( $vector_embedding_model, '::' ) !== false ) {
                 [$model_provider, $model_id] = array_pad( explode( '::', $vector_embedding_model, 2 ), 2, '' );
                 $model_provider = sanitize_key( (string) $model_provider );
@@ -1050,8 +1253,10 @@ class ChatbotAjaxHandler extends BaseAjaxHandler {
                 }
             }
         }
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Reason: Nonce verification is handled in check_module_access_permissions method.
         $vector_store_top_k = ( isset( $_POST['vector_store_top_k'] ) ? absint( wp_unslash( $_POST['vector_store_top_k'] ) ) : BotSettingsManager::DEFAULT_VECTOR_STORE_TOP_K );
         $vector_store_top_k = max( 1, min( $vector_store_top_k, 20 ) );
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Reason: Nonce verification is handled in check_module_access_permissions method.
         $vector_store_confidence_threshold = ( isset( $_POST['vector_store_confidence_threshold'] ) ? absint( wp_unslash( $_POST['vector_store_confidence_threshold'] ) ) : BotSettingsManager::DEFAULT_VECTOR_STORE_CONFIDENCE_THRESHOLD );
         $vector_store_confidence_threshold = max( 0, min( $vector_store_confidence_threshold, 100 ) );
         update_post_meta( $bot_id, '_aipkit_content_aware_enabled', $content_aware_enabled );
@@ -1108,19 +1313,28 @@ class ChatbotAjaxHandler extends BaseAjaxHandler {
         $this->send_saved_bot_state_success( $bot_id, __( 'Saved', 'gpt3-ai-content-generator' ) );
     }
 
+    /**
+     * AJAX: Updates chatbot token limit settings only (autosave).
+     * @since NEXT_VERSION
+     */
     public function ajax_update_chatbot_token_limits() {
         $bot_id = $this->get_validated_chatbot_id_from_request();
         if ( $bot_id <= 0 ) {
             return;
         }
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Reason: Nonce verification is handled in check_module_access_permissions method.
         $token_limit_mode = ( isset( $_POST['token_limit_mode'] ) ? sanitize_key( wp_unslash( $_POST['token_limit_mode'] ) ) : BotSettingsManager::DEFAULT_TOKEN_LIMIT_MODE );
         if ( !in_array( $token_limit_mode, ['general', 'role_based'], true ) ) {
             $token_limit_mode = BotSettingsManager::DEFAULT_TOKEN_LIMIT_MODE;
         }
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Reason: Nonce verification is handled in check_module_access_permissions method.
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Reason: Nonce verification is handled in check_module_access_permissions method.
         $guest_limit_raw = ( isset( $_POST['token_guest_limit'] ) ? trim( wp_unslash( $_POST['token_guest_limit'] ) ) : '' );
         $token_guest_limit = ( $guest_limit_raw === '0' || ctype_digit( $guest_limit_raw ) && $guest_limit_raw > 0 ? (string) absint( $guest_limit_raw ) : '' );
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Reason: Nonce verification is handled in check_module_access_permissions method.
         $user_limit_raw = ( isset( $_POST['token_user_limit'] ) ? trim( wp_unslash( $_POST['token_user_limit'] ) ) : '' );
         $token_user_limit = ( $user_limit_raw === '0' || ctype_digit( $user_limit_raw ) && $user_limit_raw > 0 ? (string) absint( $user_limit_raw ) : '' );
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Reason: Nonce verification is handled in check_module_access_permissions method.
         $token_reset_period = ( isset( $_POST['token_reset_period'] ) ? sanitize_key( wp_unslash( $_POST['token_reset_period'] ) ) : BotSettingsManager::DEFAULT_TOKEN_RESET_PERIOD );
         if ( !in_array( $token_reset_period, [
             'never',
@@ -1130,32 +1344,40 @@ class ChatbotAjaxHandler extends BaseAjaxHandler {
         ], true ) ) {
             $token_reset_period = BotSettingsManager::DEFAULT_TOKEN_RESET_PERIOD;
         }
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Reason: Nonce verification is handled in check_module_access_permissions method.
         $token_limit_message = ( isset( $_POST['token_limit_message'] ) ? sanitize_text_field( wp_unslash( $_POST['token_limit_message'] ) ) : '' );
         $default_token_limit_actions = BotSettingsManager::get_default_token_limit_action_settings();
         $allowed_token_limit_action_types = BotSettingsManager::get_token_limit_action_types();
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Reason: Nonce verification is handled in check_module_access_permissions method.
         $token_limit_primary_action_type = ( isset( $_POST['token_limit_primary_action_type'] ) ? sanitize_key( wp_unslash( $_POST['token_limit_primary_action_type'] ) ) : $default_token_limit_actions['primary_type'] );
         if ( !in_array( $token_limit_primary_action_type, $allowed_token_limit_action_types, true ) ) {
             $token_limit_primary_action_type = $default_token_limit_actions['primary_type'];
         }
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Reason: Nonce verification is handled in check_module_access_permissions method.
         $token_limit_primary_action_label = ( isset( $_POST['token_limit_primary_action_label'] ) ? sanitize_text_field( wp_unslash( $_POST['token_limit_primary_action_label'] ) ) : $default_token_limit_actions['primary_label'] );
         if ( $token_limit_primary_action_type === 'none' ) {
             $token_limit_primary_action_label = '';
         } elseif ( $token_limit_primary_action_label === '' ) {
             $token_limit_primary_action_label = BotSettingsManager::get_token_limit_action_default_label( $token_limit_primary_action_type );
         }
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Reason: Nonce verification is handled in check_module_access_permissions method.
         $token_limit_primary_action_url = ( isset( $_POST['token_limit_primary_action_url'] ) ? esc_url_raw( trim( (string) wp_unslash( $_POST['token_limit_primary_action_url'] ) ) ) : $default_token_limit_actions['primary_url'] );
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Reason: Nonce verification is handled in check_module_access_permissions method.
         $token_limit_secondary_action_type = ( isset( $_POST['token_limit_secondary_action_type'] ) ? sanitize_key( wp_unslash( $_POST['token_limit_secondary_action_type'] ) ) : $default_token_limit_actions['secondary_type'] );
         if ( !in_array( $token_limit_secondary_action_type, $allowed_token_limit_action_types, true ) ) {
             $token_limit_secondary_action_type = $default_token_limit_actions['secondary_type'];
         }
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Reason: Nonce verification is handled in check_module_access_permissions method.
         $token_limit_secondary_action_label = ( isset( $_POST['token_limit_secondary_action_label'] ) ? sanitize_text_field( wp_unslash( $_POST['token_limit_secondary_action_label'] ) ) : $default_token_limit_actions['secondary_label'] );
         if ( $token_limit_secondary_action_type === 'none' ) {
             $token_limit_secondary_action_label = '';
         } elseif ( $token_limit_secondary_action_label === '' ) {
             $token_limit_secondary_action_label = BotSettingsManager::get_token_limit_action_default_label( $token_limit_secondary_action_type );
         }
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Reason: Nonce verification is handled in check_module_access_permissions method.
         $token_limit_secondary_action_url = ( isset( $_POST['token_limit_secondary_action_url'] ) ? esc_url_raw( trim( (string) wp_unslash( $_POST['token_limit_secondary_action_url'] ) ) ) : $default_token_limit_actions['secondary_url'] );
         $role_limits_to_save = [];
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Reason: Nonce verification is handled in check_module_access_permissions method.
         if ( isset( $_POST['token_role_limits'] ) && is_array( $_POST['token_role_limits'] ) ) {
             $editable_roles = get_editable_roles();
             $posted_role_limits = wp_unslash( $_POST['token_role_limits'] );
@@ -1220,19 +1442,27 @@ class ChatbotAjaxHandler extends BaseAjaxHandler {
         $this->send_saved_bot_state_success( $bot_id, __( 'Saved', 'gpt3-ai-content-generator' ) );
     }
 
+    /**
+     * AJAX: Updates chatbot image settings only (autosave).
+     * @since NEXT_VERSION
+     */
     public function ajax_update_chatbot_image_settings() {
         $bot_id = $this->get_validated_chatbot_id_from_request();
         if ( $bot_id <= 0 ) {
             return;
         }
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Reason: Nonce verification is handled in check_module_access_permissions method.
         $chat_image_model_id = ( isset( $_POST['chat_image_model_id'] ) ? sanitize_text_field( wp_unslash( $_POST['chat_image_model_id'] ) ) : BotSettingsManager::DEFAULT_CHAT_IMAGE_MODEL_ID );
         if ( $chat_image_model_id === '' ) {
             $chat_image_model_id = BotSettingsManager::DEFAULT_CHAT_IMAGE_MODEL_ID;
         }
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Reason: Nonce verification is handled in check_module_access_permissions method.
         $raw_image_triggers = ( isset( $_POST['image_triggers'] ) ? sanitize_text_field( wp_unslash( $_POST['image_triggers'] ) ) : BotSettingsManager::DEFAULT_IMAGE_TRIGGERS );
         $triggers_array = array_map( 'trim', explode( ',', $raw_image_triggers ) );
         $image_triggers = ( !empty( $triggers_array ) ? implode( ',', $triggers_array ) : BotSettingsManager::DEFAULT_IMAGE_TRIGGERS );
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Reason: Nonce verification is handled in check_module_access_permissions method.
         $enable_image_generation = ( isset( $_POST['enable_image_generation'] ) && wp_unslash( $_POST['enable_image_generation'] ) === '1' ? '1' : '0' );
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Reason: Nonce verification is handled in check_module_access_permissions method.
         $enable_image_upload = ( isset( $_POST['enable_image_upload'] ) && wp_unslash( $_POST['enable_image_upload'] ) === '1' ? '1' : '0' );
         update_post_meta( $bot_id, '_aipkit_chat_image_model_id', $chat_image_model_id );
         update_post_meta( $bot_id, '_aipkit_image_triggers', $image_triggers );
@@ -1241,26 +1471,37 @@ class ChatbotAjaxHandler extends BaseAjaxHandler {
         $this->send_saved_bot_state_success( $bot_id, __( 'Saved', 'gpt3-ai-content-generator' ) );
     }
 
+    /**
+     * AJAX: Updates chatbot file upload setting only (autosave).
+     * @since NEXT_VERSION
+     */
     public function ajax_update_chatbot_file_upload_settings() {
         $bot_id = $this->get_validated_chatbot_id_from_request();
         if ( $bot_id <= 0 ) {
             return;
         }
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Reason: Nonce verification is handled in check_module_access_permissions method.
         $enable_file_upload = ( isset( $_POST['enable_file_upload'] ) && wp_unslash( $_POST['enable_file_upload'] ) === '1' ? '1' : '0' );
         update_post_meta( $bot_id, '_aipkit_enable_file_upload', $enable_file_upload );
         $this->send_saved_bot_state_success( $bot_id, __( 'Saved', 'gpt3-ai-content-generator' ) );
     }
 
+    /**
+     * AJAX: Updates chatbot audio settings only (autosave).
+     * @since NEXT_VERSION
+     */
     public function ajax_update_chatbot_audio_settings() {
         $bot_id = $this->get_validated_chatbot_id_from_request();
         if ( $bot_id <= 0 ) {
             return;
         }
         if ( isset( $_POST['enable_voice_input'] ) ) {
+            // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Reason: Nonce verification is handled in check_module_access_permissions method.
             $enable_voice_input = ( wp_unslash( $_POST['enable_voice_input'] ) === '1' ? '1' : '0' );
             update_post_meta( $bot_id, '_aipkit_enable_voice_input', $enable_voice_input );
         }
         if ( isset( $_POST['stt_provider'] ) ) {
+            // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Reason: Nonce verification is handled in check_module_access_permissions method.
             $stt_provider = sanitize_text_field( wp_unslash( $_POST['stt_provider'] ) );
             $allowed_stt_providers = ['OpenAI', 'Azure'];
             if ( !in_array( $stt_provider, $allowed_stt_providers, true ) ) {
@@ -1269,6 +1510,7 @@ class ChatbotAjaxHandler extends BaseAjaxHandler {
             update_post_meta( $bot_id, '_aipkit_stt_provider', $stt_provider );
         }
         if ( isset( $_POST['stt_openai_model_id'] ) ) {
+            // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Reason: Nonce verification is handled in check_module_access_permissions method.
             $stt_openai_model_id = sanitize_text_field( wp_unslash( $_POST['stt_openai_model_id'] ) );
             if ( $stt_openai_model_id === '' ) {
                 $stt_openai_model_id = BotSettingsManager::DEFAULT_STT_OPENAI_MODEL_ID;
@@ -1276,14 +1518,17 @@ class ChatbotAjaxHandler extends BaseAjaxHandler {
             update_post_meta( $bot_id, '_aipkit_stt_openai_model_id', $stt_openai_model_id );
         }
         if ( isset( $_POST['tts_enabled'] ) ) {
+            // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Reason: Nonce verification is handled in check_module_access_permissions method.
             $tts_enabled = ( wp_unslash( $_POST['tts_enabled'] ) === '1' ? '1' : '0' );
             update_post_meta( $bot_id, '_aipkit_tts_enabled', $tts_enabled );
         }
         if ( isset( $_POST['tts_auto_play'] ) ) {
+            // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Reason: Nonce verification is handled in check_module_access_permissions method.
             $tts_auto_play = ( wp_unslash( $_POST['tts_auto_play'] ) === '1' ? '1' : '0' );
             update_post_meta( $bot_id, '_aipkit_tts_auto_play', $tts_auto_play );
         }
         if ( isset( $_POST['tts_provider'] ) ) {
+            // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Reason: Nonce verification is handled in check_module_access_permissions method.
             $tts_provider = sanitize_text_field( wp_unslash( $_POST['tts_provider'] ) );
             $allowed_tts_providers = ['Google', 'OpenAI', 'ElevenLabs'];
             if ( !in_array( $tts_provider, $allowed_tts_providers, true ) ) {
@@ -1292,10 +1537,12 @@ class ChatbotAjaxHandler extends BaseAjaxHandler {
             update_post_meta( $bot_id, '_aipkit_tts_provider', $tts_provider );
         }
         if ( isset( $_POST['tts_google_voice_id'] ) ) {
+            // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Reason: Nonce verification is handled in check_module_access_permissions method.
             $tts_google_voice_id = sanitize_text_field( wp_unslash( $_POST['tts_google_voice_id'] ) );
             update_post_meta( $bot_id, '_aipkit_tts_google_voice_id', $tts_google_voice_id );
         }
         if ( isset( $_POST['tts_openai_voice_id'] ) ) {
+            // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Reason: Nonce verification is handled in check_module_access_permissions method.
             $tts_openai_voice_id = sanitize_text_field( wp_unslash( $_POST['tts_openai_voice_id'] ) );
             if ( $tts_openai_voice_id === '' ) {
                 $tts_openai_voice_id = 'alloy';
@@ -1303,6 +1550,7 @@ class ChatbotAjaxHandler extends BaseAjaxHandler {
             update_post_meta( $bot_id, '_aipkit_tts_openai_voice_id', $tts_openai_voice_id );
         }
         if ( isset( $_POST['tts_openai_model_id'] ) ) {
+            // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Reason: Nonce verification is handled in check_module_access_permissions method.
             $tts_openai_model_id = sanitize_text_field( wp_unslash( $_POST['tts_openai_model_id'] ) );
             if ( $tts_openai_model_id === '' ) {
                 $tts_openai_model_id = BotSettingsManager::DEFAULT_TTS_OPENAI_MODEL_ID;
@@ -1310,26 +1558,32 @@ class ChatbotAjaxHandler extends BaseAjaxHandler {
             update_post_meta( $bot_id, '_aipkit_tts_openai_model_id', $tts_openai_model_id );
         }
         if ( isset( $_POST['tts_elevenlabs_voice_id'] ) ) {
+            // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Reason: Nonce verification is handled in check_module_access_permissions method.
             $tts_elevenlabs_voice_id = sanitize_text_field( wp_unslash( $_POST['tts_elevenlabs_voice_id'] ) );
             update_post_meta( $bot_id, '_aipkit_tts_elevenlabs_voice_id', $tts_elevenlabs_voice_id );
         }
         if ( isset( $_POST['tts_elevenlabs_model_id'] ) ) {
+            // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Reason: Nonce verification is handled in check_module_access_permissions method.
             $tts_elevenlabs_model_id = sanitize_text_field( wp_unslash( $_POST['tts_elevenlabs_model_id'] ) );
             update_post_meta( $bot_id, '_aipkit_tts_elevenlabs_model_id', $tts_elevenlabs_model_id );
         }
         if ( isset( $_POST['enable_realtime_voice'] ) ) {
+            // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Reason: Nonce verification is handled in check_module_access_permissions method.
             $enable_realtime_voice = ( wp_unslash( $_POST['enable_realtime_voice'] ) === '1' ? '1' : '0' );
             update_post_meta( $bot_id, '_aipkit_enable_realtime_voice', $enable_realtime_voice );
         }
         if ( isset( $_POST['direct_voice_mode'] ) ) {
+            // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Reason: Nonce verification is handled in check_module_access_permissions method.
             $direct_voice_mode = ( wp_unslash( $_POST['direct_voice_mode'] ) === '1' ? '1' : '0' );
             update_post_meta( $bot_id, '_aipkit_direct_voice_mode', $direct_voice_mode );
         }
         if ( isset( $_POST['input_audio_noise_reduction'] ) ) {
+            // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Reason: Nonce verification is handled in check_module_access_permissions method.
             $input_audio_noise_reduction = ( wp_unslash( $_POST['input_audio_noise_reduction'] ) === '1' ? '1' : '0' );
             update_post_meta( $bot_id, '_aipkit_input_audio_noise_reduction', $input_audio_noise_reduction );
         }
         if ( isset( $_POST['realtime_model'] ) ) {
+            // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Reason: Nonce verification is handled in check_module_access_permissions method.
             $realtime_model = sanitize_text_field( wp_unslash( $_POST['realtime_model'] ) );
             $allowed_realtime_models = ['gpt-4o-realtime-preview', 'gpt-4o-mini-realtime'];
             if ( !in_array( $realtime_model, $allowed_realtime_models, true ) ) {
@@ -1338,6 +1592,7 @@ class ChatbotAjaxHandler extends BaseAjaxHandler {
             update_post_meta( $bot_id, '_aipkit_realtime_model', $realtime_model );
         }
         if ( isset( $_POST['realtime_voice'] ) ) {
+            // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Reason: Nonce verification is handled in check_module_access_permissions method.
             $realtime_voice = sanitize_text_field( wp_unslash( $_POST['realtime_voice'] ) );
             $allowed_realtime_voices = [
                 'alloy',
@@ -1357,6 +1612,7 @@ class ChatbotAjaxHandler extends BaseAjaxHandler {
             update_post_meta( $bot_id, '_aipkit_realtime_voice', $realtime_voice );
         }
         if ( isset( $_POST['turn_detection'] ) ) {
+            // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Reason: Nonce verification is handled in check_module_access_permissions method.
             $turn_detection = sanitize_text_field( wp_unslash( $_POST['turn_detection'] ) );
             $allowed_turn_detection = ['none', 'server_vad', 'semantic_vad'];
             if ( !in_array( $turn_detection, $allowed_turn_detection, true ) ) {
@@ -1365,11 +1621,13 @@ class ChatbotAjaxHandler extends BaseAjaxHandler {
             update_post_meta( $bot_id, '_aipkit_turn_detection', $turn_detection );
         }
         if ( isset( $_POST['speed'] ) ) {
+            // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Reason: Nonce verification is handled in check_module_access_permissions method.
             $speed = floatval( wp_unslash( $_POST['speed'] ) );
             $speed = max( 0.25, min( $speed, 1.5 ) );
             update_post_meta( $bot_id, '_aipkit_speed', (string) $speed );
         }
         if ( isset( $_POST['input_audio_format'] ) ) {
+            // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Reason: Nonce verification is handled in check_module_access_permissions method.
             $input_audio_format = sanitize_text_field( wp_unslash( $_POST['input_audio_format'] ) );
             $valid_formats = ['pcm16', 'g711_ulaw', 'g711_alaw'];
             if ( !in_array( $input_audio_format, $valid_formats, true ) ) {
@@ -1378,6 +1636,7 @@ class ChatbotAjaxHandler extends BaseAjaxHandler {
             update_post_meta( $bot_id, '_aipkit_input_audio_format', $input_audio_format );
         }
         if ( isset( $_POST['output_audio_format'] ) ) {
+            // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Reason: Nonce verification is handled in check_module_access_permissions method.
             $output_audio_format = sanitize_text_field( wp_unslash( $_POST['output_audio_format'] ) );
             $valid_formats = ['pcm16', 'g711_ulaw', 'g711_alaw'];
             if ( !in_array( $output_audio_format, $valid_formats, true ) ) {
@@ -1388,12 +1647,17 @@ class ChatbotAjaxHandler extends BaseAjaxHandler {
         $this->send_saved_bot_state_success( $bot_id, __( 'Saved', 'gpt3-ai-content-generator' ) );
     }
 
+    /**
+     * AJAX: Updates chatbot popup settings only (autosave).
+     * @since NEXT_VERSION
+     */
     public function ajax_update_chatbot_popup_settings() {
         $bot_id = $this->get_validated_chatbot_id_from_request();
         if ( $bot_id <= 0 ) {
             return;
         }
         if ( isset( $_POST['popup_position'] ) ) {
+            // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Reason: Nonce verification is handled in check_module_access_permissions method.
             $popup_position = sanitize_key( wp_unslash( $_POST['popup_position'] ) );
             $allowed_positions = [
                 'bottom-right',
@@ -1407,11 +1671,13 @@ class ChatbotAjaxHandler extends BaseAjaxHandler {
             update_post_meta( $bot_id, '_aipkit_popup_position', $popup_position );
         }
         if ( isset( $_POST['popup_delay'] ) ) {
+            // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Reason: Nonce verification is handled in check_module_access_permissions method.
             $popup_delay = absint( wp_unslash( $_POST['popup_delay'] ) );
             update_post_meta( $bot_id, '_aipkit_popup_delay', $popup_delay );
         }
         $icon_type = null;
         if ( isset( $_POST['popup_icon_type'] ) ) {
+            // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Reason: Nonce verification is handled in check_module_access_permissions method.
             $icon_type = sanitize_key( wp_unslash( $_POST['popup_icon_type'] ) );
             if ( !in_array( $icon_type, ['default', 'custom'], true ) ) {
                 $icon_type = BotSettingsManager::DEFAULT_POPUP_ICON_TYPE;
@@ -1419,6 +1685,7 @@ class ChatbotAjaxHandler extends BaseAjaxHandler {
             update_post_meta( $bot_id, '_aipkit_popup_icon_type', $icon_type );
         }
         if ( isset( $_POST['popup_icon_style'] ) ) {
+            // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Reason: Nonce verification is handled in check_module_access_permissions method.
             $icon_style = sanitize_key( wp_unslash( $_POST['popup_icon_style'] ) );
             if ( !in_array( $icon_style, ['circle', 'square', 'none'], true ) ) {
                 $icon_style = BotSettingsManager::DEFAULT_POPUP_ICON_STYLE;
@@ -1426,6 +1693,7 @@ class ChatbotAjaxHandler extends BaseAjaxHandler {
             update_post_meta( $bot_id, '_aipkit_popup_icon_style', $icon_style );
         }
         if ( isset( $_POST['popup_icon_size'] ) ) {
+            // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Reason: Nonce verification is handled in check_module_access_permissions method.
             $icon_size = sanitize_key( wp_unslash( $_POST['popup_icon_size'] ) );
             $allowed_sizes = [
                 'small',
@@ -1445,6 +1713,7 @@ class ChatbotAjaxHandler extends BaseAjaxHandler {
             }
             if ( $icon_type === 'custom' ) {
                 if ( isset( $_POST['popup_icon_custom_url'] ) ) {
+                    // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Reason: Nonce verification is handled in check_module_access_permissions method.
                     $icon_value = esc_url_raw( trim( wp_unslash( $_POST['popup_icon_custom_url'] ) ) );
                 } else {
                     $icon_value = ( filter_var( $current_icon_value, FILTER_VALIDATE_URL ) ? $current_icon_value : '' );
@@ -1458,6 +1727,7 @@ class ChatbotAjaxHandler extends BaseAjaxHandler {
                     'question-mark'
                 ];
                 if ( isset( $_POST['popup_icon_default'] ) ) {
+                    // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Reason: Nonce verification is handled in check_module_access_permissions method.
                     $icon_value = sanitize_key( wp_unslash( $_POST['popup_icon_default'] ) );
                 } else {
                     $icon_value = $current_icon_value;
@@ -1499,18 +1769,22 @@ class ChatbotAjaxHandler extends BaseAjaxHandler {
             update_post_meta( $bot_id, '_aipkit_header_avatar_value', $header_avatar_value );
         }
         if ( isset( $_POST['header_online_text'] ) ) {
+            // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Reason: Nonce verification is handled in check_module_access_permissions method.
             $header_online_text = sanitize_text_field( wp_unslash( $_POST['header_online_text'] ) );
             update_post_meta( $bot_id, '_aipkit_header_online_text', $header_online_text );
         }
         if ( isset( $_POST['popup_label_enabled'] ) ) {
+            // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Reason: Nonce verification is handled in check_module_access_permissions method.
             $label_enabled = ( wp_unslash( $_POST['popup_label_enabled'] ) === '1' ? '1' : '0' );
             update_post_meta( $bot_id, '_aipkit_popup_label_enabled', $label_enabled );
         }
         if ( isset( $_POST['popup_label_text'] ) ) {
+            // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Reason: Nonce verification is handled in check_module_access_permissions method.
             $label_text = sanitize_text_field( wp_unslash( $_POST['popup_label_text'] ) );
             update_post_meta( $bot_id, '_aipkit_popup_label_text', $label_text );
         }
         if ( isset( $_POST['popup_label_mode'] ) ) {
+            // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Reason: Nonce verification is handled in check_module_access_permissions method.
             $label_mode = sanitize_key( wp_unslash( $_POST['popup_label_mode'] ) );
             $allowed_modes = [
                 'always',
@@ -1524,6 +1798,7 @@ class ChatbotAjaxHandler extends BaseAjaxHandler {
             update_post_meta( $bot_id, '_aipkit_popup_label_mode', $label_mode );
         }
         if ( isset( $_POST['popup_label_size'] ) ) {
+            // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Reason: Nonce verification is handled in check_module_access_permissions method.
             $label_size = sanitize_key( wp_unslash( $_POST['popup_label_size'] ) );
             $allowed_sizes = [
                 'small',
@@ -1537,26 +1812,32 @@ class ChatbotAjaxHandler extends BaseAjaxHandler {
             update_post_meta( $bot_id, '_aipkit_popup_label_size', $label_size );
         }
         if ( isset( $_POST['popup_label_delay_seconds'] ) ) {
+            // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Reason: Nonce verification is handled in check_module_access_permissions method.
             $label_delay = max( 0, absint( wp_unslash( $_POST['popup_label_delay_seconds'] ) ) );
             update_post_meta( $bot_id, '_aipkit_popup_label_delay_seconds', $label_delay );
         }
         if ( isset( $_POST['popup_label_auto_hide_seconds'] ) ) {
+            // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Reason: Nonce verification is handled in check_module_access_permissions method.
             $label_auto_hide = max( 0, absint( wp_unslash( $_POST['popup_label_auto_hide_seconds'] ) ) );
             update_post_meta( $bot_id, '_aipkit_popup_label_auto_hide_seconds', $label_auto_hide );
         }
         if ( isset( $_POST['popup_label_dismissible'] ) ) {
+            // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Reason: Nonce verification is handled in check_module_access_permissions method.
             $label_dismissible = ( wp_unslash( $_POST['popup_label_dismissible'] ) === '1' ? '1' : '0' );
             update_post_meta( $bot_id, '_aipkit_popup_label_dismissible', $label_dismissible );
         }
         if ( isset( $_POST['popup_label_show_on_desktop'] ) ) {
+            // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Reason: Nonce verification is handled in check_module_access_permissions method.
             $label_show_desktop = ( wp_unslash( $_POST['popup_label_show_on_desktop'] ) === '1' ? '1' : '0' );
             update_post_meta( $bot_id, '_aipkit_popup_label_show_on_desktop', $label_show_desktop );
         }
         if ( isset( $_POST['popup_label_show_on_mobile'] ) ) {
+            // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Reason: Nonce verification is handled in check_module_access_permissions method.
             $label_show_mobile = ( wp_unslash( $_POST['popup_label_show_on_mobile'] ) === '1' ? '1' : '0' );
             update_post_meta( $bot_id, '_aipkit_popup_label_show_on_mobile', $label_show_mobile );
         }
         if ( isset( $_POST['popup_label_frequency'] ) ) {
+            // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Reason: Nonce verification is handled in check_module_access_permissions method.
             $label_frequency = sanitize_key( wp_unslash( $_POST['popup_label_frequency'] ) );
             $allowed_frequency = ['once_per_visitor', 'once_per_session', 'always'];
             if ( !in_array( $label_frequency, $allowed_frequency, true ) ) {
@@ -1565,12 +1846,17 @@ class ChatbotAjaxHandler extends BaseAjaxHandler {
             update_post_meta( $bot_id, '_aipkit_popup_label_frequency', $label_frequency );
         }
         if ( isset( $_POST['popup_label_version'] ) ) {
+            // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Reason: Nonce verification is handled in check_module_access_permissions method.
             $label_version = sanitize_text_field( wp_unslash( $_POST['popup_label_version'] ) );
             update_post_meta( $bot_id, '_aipkit_popup_label_version', $label_version );
         }
         $this->send_saved_bot_state_success( $bot_id, __( 'Saved', 'gpt3-ai-content-generator' ) );
     }
 
+    /**
+     * AJAX: Updates chatbot deploy settings (popup/site-wide/embed) only (autosave).
+     * @since NEXT_VERSION
+     */
     public function ajax_update_chatbot_deploy_settings() {
         $bot_id = $this->get_validated_chatbot_id_from_request();
         if ( $bot_id <= 0 ) {
@@ -1590,6 +1876,7 @@ class ChatbotAjaxHandler extends BaseAjaxHandler {
         }
         $deploy_mode_explicit = false;
         if ( isset( $_POST['deploy_mode'] ) ) {
+            // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Reason: Nonce verification is handled in check_module_access_permissions method.
             $deploy_mode = $this->resolve_deploy_mode( sanitize_key( (string) wp_unslash( $_POST['deploy_mode'] ) ), [
                 'popup_enabled' => $popup_enabled,
             ] );
@@ -1600,6 +1887,7 @@ class ChatbotAjaxHandler extends BaseAjaxHandler {
             $updated_any = true;
         }
         if ( isset( $_POST['popup_enabled'] ) ) {
+            // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Reason: Nonce verification is handled in check_module_access_permissions method.
             $popup_enabled = ( wp_unslash( $_POST['popup_enabled'] ) === '1' ? '1' : '0' );
             update_post_meta( $bot_id, '_aipkit_popup_enabled', $popup_enabled );
             $updated_any = true;
@@ -1608,6 +1896,7 @@ class ChatbotAjaxHandler extends BaseAjaxHandler {
             }
         }
         if ( isset( $_POST['site_wide_enabled'] ) ) {
+            // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Reason: Nonce verification is handled in check_module_access_permissions method.
             $requested_site_wide_enabled = ( wp_unslash( $_POST['site_wide_enabled'] ) === '1' ? '1' : '0' );
             $site_wide_enabled = ( $requested_site_wide_enabled === '1' && $popup_enabled === '1' ? '1' : '0' );
             $updated_any = true;
@@ -1664,6 +1953,7 @@ class ChatbotAjaxHandler extends BaseAjaxHandler {
             }
         }
         if ( $is_pro_plan && isset( $_POST['embed_allowed_domains'] ) ) {
+            // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Reason: Nonce verification is handled in check_module_access_permissions method.
             $raw_domains = trim( wp_unslash( $_POST['embed_allowed_domains'] ) );
             if ( $raw_domains === '' ) {
                 $sanitized_domains = '';
@@ -1699,11 +1989,16 @@ class ChatbotAjaxHandler extends BaseAjaxHandler {
         $this->send_saved_bot_state_success( $bot_id, $success_message, $response_extra );
     }
 
+    /**
+     * AJAX: Updates chatbot triggers JSON only (autosave).
+     * @since NEXT_VERSION
+     */
     public function ajax_update_chatbot_triggers() {
         $bot_id = $this->get_validated_chatbot_id_from_request();
         if ( $bot_id <= 0 ) {
             return;
         }
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Reason: Nonce verification is handled in check_module_access_permissions method.
         $triggers_json = ( isset( $_POST['triggers_json'] ) ? trim( wp_unslash( $_POST['triggers_json'] ) ) : '' );
         if ( $triggers_json === '' ) {
             $triggers_json = '[]';
@@ -1718,6 +2013,7 @@ class ChatbotAjaxHandler extends BaseAjaxHandler {
         if ( !is_array( $decoded_triggers ) ) {
             $triggers_json = '[]';
         } else {
+            // Normalize stored JSON to ensure nested strings (e.g. body_template) are properly escaped.
             $triggers_json = wp_json_encode( $decoded_triggers, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES );
         }
         $trigger_validator_class = '\\WPAICG\\Lib\\Chat\\Triggers\\Validation\\AIPKit_Trigger_Validator';
@@ -1745,6 +2041,10 @@ class ChatbotAjaxHandler extends BaseAjaxHandler {
         $this->send_saved_bot_state_success( $bot_id, __( 'Saved', 'gpt3-ai-content-generator' ) );
     }
 
+    /**
+     * AJAX: Returns the training source count for a chatbot.
+     * @since NEXT_VERSION
+     */
     public function ajax_get_chatbot_training_source_count() {
         $bot_id = $this->get_validated_chatbot_id_from_request();
         if ( $bot_id <= 0 ) {
@@ -1758,14 +2058,21 @@ class ChatbotAjaxHandler extends BaseAjaxHandler {
         }
         $settings_manager = ( class_exists( BotSettingsManager::class ) ? new BotSettingsManager() : null );
         $settings = ( $settings_manager ? $settings_manager->get_chatbot_settings( $bot_id ) : [] );
+        // Optional overrides from UI (for instant reflection before autosave completes).
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Reason: Nonce verification is handled in check_module_access_permissions method.
         $override_enable_vector_store = ( isset( $_POST['enable_vector_store'] ) ? sanitize_text_field( wp_unslash( $_POST['enable_vector_store'] ) ) : null );
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Reason: Nonce verification is handled in check_module_access_permissions method.
         $override_provider = ( isset( $_POST['vector_store_provider'] ) ? sanitize_key( wp_unslash( $_POST['vector_store_provider'] ) ) : null );
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Reason: Nonce verification is handled in check_module_access_permissions method.
         $has_openai_override = isset( $_POST['openai_vector_store_ids'] );
         $override_openai_ids = ( $has_openai_override ? (array) wp_unslash( $_POST['openai_vector_store_ids'] ) : null );
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Reason: Nonce verification is handled in check_module_access_permissions method.
         $has_pinecone_override = isset( $_POST['pinecone_index_name'] );
         $override_pinecone_index = ( $has_pinecone_override ? sanitize_text_field( wp_unslash( $_POST['pinecone_index_name'] ) ) : null );
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Reason: Nonce verification is handled in check_module_access_permissions method.
         $has_qdrant_override = isset( $_POST['qdrant_collection_names'] );
         $override_qdrant_names = ( $has_qdrant_override ? (array) wp_unslash( $_POST['qdrant_collection_names'] ) : null );
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Reason: Nonce verification is handled in check_module_access_permissions method.
         $has_chroma_override = isset( $_POST['chroma_collection_names'] );
         $override_chroma_names = ( $has_chroma_override ? (array) wp_unslash( $_POST['chroma_collection_names'] ) : null );
         $vector_store_enabled = $settings['enable_vector_store'] ?? BotSettingsManager::DEFAULT_ENABLE_VECTOR_STORE;
@@ -1865,6 +2172,7 @@ class ChatbotAjaxHandler extends BaseAjaxHandler {
         $table_name = $wpdb->prefix . 'aipkit_vector_data_source';
         $placeholders = implode( ',', array_fill( 0, count( $store_ids ), '%s' ) );
         $params = array_merge( [$provider_name], $store_ids );
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter -- $table_name is safe and the dynamic placeholder list is prepared below.
         $count = (int) $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM {$table_name} WHERE provider = %s AND vector_store_id IN ({$placeholders}) AND (post_id IS NOT NULL OR file_id IS NOT NULL OR indexed_content IS NOT NULL)", ...$params ) );
         set_transient( $cache_key, [
             'count' => $count,
@@ -1874,6 +2182,10 @@ class ChatbotAjaxHandler extends BaseAjaxHandler {
         ] );
     }
 
+    /**
+     * AJAX: Returns training source records for the active knowledge base.
+     * @since NEXT_VERSION
+     */
     public function ajax_get_chatbot_training_sources() {
         $bot_id = $this->get_validated_chatbot_id_from_request();
         if ( $bot_id <= 0 ) {
@@ -1887,14 +2199,20 @@ class ChatbotAjaxHandler extends BaseAjaxHandler {
         }
         $settings_manager = ( class_exists( BotSettingsManager::class ) ? new BotSettingsManager() : null );
         $settings = ( $settings_manager ? $settings_manager->get_chatbot_settings( $bot_id ) : [] );
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Reason: Nonce verification is handled in check_module_access_permissions method.
         $override_enable_vector_store = ( isset( $_POST['enable_vector_store'] ) ? sanitize_text_field( wp_unslash( $_POST['enable_vector_store'] ) ) : null );
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Reason: Nonce verification is handled in check_module_access_permissions method.
         $override_provider = ( isset( $_POST['vector_store_provider'] ) ? sanitize_key( wp_unslash( $_POST['vector_store_provider'] ) ) : null );
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Reason: Nonce verification is handled in check_module_access_permissions method.
         $has_openai_override = isset( $_POST['openai_vector_store_ids'] );
         $override_openai_ids = ( $has_openai_override ? (array) wp_unslash( $_POST['openai_vector_store_ids'] ) : null );
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Reason: Nonce verification is handled in check_module_access_permissions method.
         $has_pinecone_override = isset( $_POST['pinecone_index_name'] );
         $override_pinecone_index = ( $has_pinecone_override ? sanitize_text_field( wp_unslash( $_POST['pinecone_index_name'] ) ) : null );
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Reason: Nonce verification is handled in check_module_access_permissions method.
         $has_qdrant_override = isset( $_POST['qdrant_collection_names'] );
         $override_qdrant_names = ( $has_qdrant_override ? (array) wp_unslash( $_POST['qdrant_collection_names'] ) : null );
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Reason: Nonce verification is handled in check_module_access_permissions method.
         $has_chroma_override = isset( $_POST['chroma_collection_names'] );
         $override_chroma_names = ( $has_chroma_override ? (array) wp_unslash( $_POST['chroma_collection_names'] ) : null );
         $vector_store_enabled = $settings['enable_vector_store'] ?? BotSettingsManager::DEFAULT_ENABLE_VECTOR_STORE;
@@ -1964,11 +2282,15 @@ class ChatbotAjaxHandler extends BaseAjaxHandler {
             ] );
             return;
         }
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Reason: Nonce verification is handled in check_module_access_permissions method.
         $page = ( isset( $_POST['page'] ) ? max( 1, absint( $_POST['page'] ) ) : 1 );
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Reason: Nonce verification is handled in check_module_access_permissions method.
         $per_page = ( isset( $_POST['per_page'] ) ? absint( $_POST['per_page'] ) : 10 );
         $per_page = min( 50, max( 1, $per_page ) );
         $offset = ($page - 1) * $per_page;
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Reason: Nonce verification is handled in check_module_access_permissions method.
         $search = ( isset( $_POST['search'] ) ? sanitize_text_field( wp_unslash( $_POST['search'] ) ) : '' );
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Reason: Nonce verification is handled in check_module_access_permissions method.
         $status_filter = ( isset( $_POST['status'] ) ? sanitize_key( wp_unslash( $_POST['status'] ) ) : '' );
         $allowed_statuses = [
             'indexed',
@@ -1997,8 +2319,10 @@ class ChatbotAjaxHandler extends BaseAjaxHandler {
             $params = array_merge( $params, array_fill( 0, 5, $like ) );
         }
         $where_sql = implode( ' AND ', $where_clauses );
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare, PluginCheck.Security.DirectDB.UnescapedDBParameter -- $table_name and assembled WHERE clause are internal and scalar values are prepared below.
         $total_logs = (int) $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM {$table_name} WHERE {$where_sql}", ...$params ) );
         $logs_params = array_merge( $params, [$per_page, $offset] );
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrongNumber, PluginCheck.Security.DirectDB.UnescapedDBParameter -- $table_name and assembled WHERE clause are internal and scalar values are prepared below.
         $logs = $wpdb->get_results( $wpdb->prepare( "SELECT id, timestamp, status, message, indexed_content, post_id, post_title, file_id, batch_id, embedding_provider, embedding_model, vector_store_id, vector_store_name FROM {$table_name} WHERE {$where_sql} ORDER BY timestamp DESC LIMIT %d OFFSET %d", ...$logs_params ), ARRAY_A );
         $total_pages = ( $per_page > 0 ? (int) ceil( $total_logs / $per_page ) : 0 );
         wp_send_json_success( [
@@ -2012,4 +2336,5 @@ class ChatbotAjaxHandler extends BaseAjaxHandler {
         ] );
     }
 
+    // phpcs:enable WordPress.Security.NonceVerification.Missing, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
 }

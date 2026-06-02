@@ -1,5 +1,26 @@
 <?php
-if (!defined('ABSPATH')) { exit; } $aipkit_frontend_models_section_id_prefix = isset($aipkit_frontend_models_section_id_prefix) ? preg_replace('/[^A-Za-z0-9_]/', '', (string) $aipkit_frontend_models_section_id_prefix) : ''; $aipkit_frontend_models_textarea_id = isset($aipkit_frontend_models_textarea_id) ? preg_replace('/[^A-Za-z0-9_]/', '', (string) $aipkit_frontend_models_textarea_id) : ''; $aipkit_frontend_models_selector_id = isset($aipkit_frontend_models_selector_id) ? preg_replace('/[^A-Za-z0-9_]/', '', (string) $aipkit_frontend_models_selector_id) : ''; $aipkit_frontend_models_providers_textarea_id = isset($aipkit_frontend_models_providers_textarea_id) ? preg_replace('/[^A-Za-z0-9_]/', '', (string) $aipkit_frontend_models_providers_textarea_id) : ''; $aipkit_frontend_models_empty_all_selected_attr = isset($aipkit_frontend_models_empty_all_selected) ? ' data-empty-all-selected="' . ($aipkit_frontend_models_empty_all_selected ? '1' : '0') . '"' : ''; ?>
+if (!defined('ABSPATH')) {
+    exit;
+}
+
+// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- Shared view partial configured by parent templates.
+
+$aipkit_frontend_models_section_id_prefix = isset($aipkit_frontend_models_section_id_prefix)
+    ? preg_replace('/[^A-Za-z0-9_]/', '', (string) $aipkit_frontend_models_section_id_prefix)
+    : '';
+$aipkit_frontend_models_textarea_id = isset($aipkit_frontend_models_textarea_id)
+    ? preg_replace('/[^A-Za-z0-9_]/', '', (string) $aipkit_frontend_models_textarea_id)
+    : '';
+$aipkit_frontend_models_selector_id = isset($aipkit_frontend_models_selector_id)
+    ? preg_replace('/[^A-Za-z0-9_]/', '', (string) $aipkit_frontend_models_selector_id)
+    : '';
+$aipkit_frontend_models_providers_textarea_id = isset($aipkit_frontend_models_providers_textarea_id)
+    ? preg_replace('/[^A-Za-z0-9_]/', '', (string) $aipkit_frontend_models_providers_textarea_id)
+    : '';
+$aipkit_frontend_models_empty_all_selected_attr = isset($aipkit_frontend_models_empty_all_selected)
+    ? ' data-empty-all-selected="' . ($aipkit_frontend_models_empty_all_selected ? '1' : '0') . '"'
+    : '';
+?>
 <section
     class="aipkit_ai_forms_settings_block aipkit_settings_module_tab_panel"
     id="<?php echo esc_attr($aipkit_frontend_models_section_id_prefix . '_frontend_models'); ?>"
@@ -40,7 +61,7 @@ if (!defined('ABSPATH')) { exit; } $aipkit_frontend_models_section_id_prefix = i
             <div
                 id="<?php echo esc_attr($aipkit_frontend_models_selector_id); ?>"
                 class="aipkit_models_selector"
-                data-initial-value="<?php echo esc_attr($allowed_models_str); ?>"<?php echo $aipkit_frontend_models_empty_all_selected_attr; ?>
+                data-initial-value="<?php echo esc_attr($allowed_models_str); ?>"<?php echo $aipkit_frontend_models_empty_all_selected_attr; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Attribute string is generated from a boolean above. ?>
             >
                 <div class="aipkit_models_selector-loading">
                     <?php esc_html_e('Loading model list...', 'gpt3-ai-content-generator'); ?>

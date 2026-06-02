@@ -1,5 +1,21 @@
 <?php
- if (!defined('ABSPATH')) { exit; } $enhancer_editor_integration_enabled = isset($enhancer_editor_integration_enabled) && (string) $enhancer_editor_integration_enabled === '1' ? '1' : '0'; $enhancer_list_button_enabled = isset($enhancer_list_button_enabled) && (string) $enhancer_list_button_enabled === '1' ? '1' : '0'; ?>
+/**
+ * Partial: Utility Assistant Settings
+ */
+if (!defined('ABSPATH')) {
+    exit;
+}
+
+// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- This file only uses local helper/template variables and does not define public globals.
+
+// Variables from parent: $enhancer_editor_integration_enabled, $enhancer_list_button_enabled
+$enhancer_editor_integration_enabled = isset($enhancer_editor_integration_enabled) && (string) $enhancer_editor_integration_enabled === '1'
+    ? '1'
+    : '0';
+$enhancer_list_button_enabled = isset($enhancer_list_button_enabled) && (string) $enhancer_list_button_enabled === '1'
+    ? '1'
+    : '0';
+?>
 
 <div class="aipkit_form-group aipkit_settings_simple_row" id="aipkit_utilities_content_assistant_row">
     <label class="aipkit_form-label" for="aipkit_enhancer_list_button">

@@ -1,5 +1,69 @@
 <?php
- if (!defined('ABSPATH')) { exit; } $has_woocommerce = class_exists('WooCommerce') && post_type_exists('product'); $create_modes = [ [ 'mode' => 'task', 'icon' => 'dashicons-edit-page', 'title' => __('Manual Entry', 'gpt3-ai-content-generator'), 'active' => true, ], [ 'mode' => 'csv', 'icon' => 'dashicons-media-spreadsheet', 'title' => __('Import CSV', 'gpt3-ai-content-generator'), 'active' => false, ], [ 'mode' => 'rss', 'icon' => 'dashicons-rss', 'title' => __('RSS Feed', 'gpt3-ai-content-generator'), 'active' => false, ], [ 'mode' => 'url', 'icon' => 'dashicons-admin-links', 'title' => __('Web Page', 'gpt3-ai-content-generator'), 'active' => false, ], [ 'mode' => 'gsheets', 'icon' => 'dashicons-table-col-before', 'title' => __('Google Sheets', 'gpt3-ai-content-generator'), 'active' => false, ], ]; $optimize_modes = [ [ 'mode' => 'existing-content', 'icon' => 'dashicons-edit-large', 'title' => __('Rewrite Content', 'gpt3-ai-content-generator'), 'active' => false, ], [ 'mode' => 'existing-images', 'icon' => 'dashicons-format-image', 'title' => __('Image Metadata', 'gpt3-ai-content-generator'), 'active' => false, ], ]; if ($has_woocommerce) { $optimize_modes[] = [ 'mode' => 'existing-products', 'icon' => 'dashicons-cart', 'title' => __('Optimize Products', 'gpt3-ai-content-generator'), 'active' => false, ]; } ?>
+
+if (!defined('ABSPATH')) {
+    exit;
+}
+
+// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- This file only uses local helper/template variables and does not define public globals.
+
+$has_woocommerce = class_exists('WooCommerce') && post_type_exists('product');
+$create_modes = [
+    [
+        'mode' => 'task',
+        'icon' => 'dashicons-edit-page',
+        'title' => __('Manual Entry', 'gpt3-ai-content-generator'),
+        'active' => true,
+    ],
+    [
+        'mode' => 'csv',
+        'icon' => 'dashicons-media-spreadsheet',
+        'title' => __('Import CSV', 'gpt3-ai-content-generator'),
+        'active' => false,
+    ],
+    [
+        'mode' => 'rss',
+        'icon' => 'dashicons-rss',
+        'title' => __('RSS Feed', 'gpt3-ai-content-generator'),
+        'active' => false,
+    ],
+    [
+        'mode' => 'url',
+        'icon' => 'dashicons-admin-links',
+        'title' => __('Web Page', 'gpt3-ai-content-generator'),
+        'active' => false,
+    ],
+    [
+        'mode' => 'gsheets',
+        'icon' => 'dashicons-table-col-before',
+        'title' => __('Google Sheets', 'gpt3-ai-content-generator'),
+        'active' => false,
+    ],
+];
+
+$optimize_modes = [
+    [
+        'mode' => 'existing-content',
+        'icon' => 'dashicons-edit-large',
+        'title' => __('Rewrite Content', 'gpt3-ai-content-generator'),
+        'active' => false,
+    ],
+    [
+        'mode' => 'existing-images',
+        'icon' => 'dashicons-format-image',
+        'title' => __('Image Metadata', 'gpt3-ai-content-generator'),
+        'active' => false,
+    ],
+];
+
+if ($has_woocommerce) {
+    $optimize_modes[] = [
+        'mode' => 'existing-products',
+        'icon' => 'dashicons-cart',
+        'title' => __('Optimize Products', 'gpt3-ai-content-generator'),
+        'active' => false,
+    ];
+}
+?>
 <div class="aipkit_cw_source_selector_wrapper" data-template-ready="0">
     <div class="aipkit_cw_workflow_header">
         <div class="aipkit_cw_workflow_title"><?php esc_html_e('Mode', 'gpt3-ai-content-generator'); ?></div>

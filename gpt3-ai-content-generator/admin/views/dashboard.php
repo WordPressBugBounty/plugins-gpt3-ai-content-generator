@@ -1,5 +1,58 @@
 <?php
- if (!defined('ABSPATH')) { exit; } use WPAICG\aipkit_dashboard; use WPAICG\AIPKit_Role_Manager; $module_settings = aipkit_dashboard::get_module_settings(); $can_access_dashboard = AIPKit_Role_Manager::user_can_access_dashboard_shell(); $can_access_settings = AIPKit_Role_Manager::user_can_access_module('settings'); $nav_modules = array( 'chat_bot' => array( 'label' => __('Chatbots', 'gpt3-ai-content-generator'), 'icon' => 'format-chat', 'data_module' => 'chatbot', ), 'content_writer' => array( 'label' => __('Content Writer', 'gpt3-ai-content-generator'), 'icon' => 'edit', 'data_module' => 'content-writer', ), 'autogpt' => array( 'label' => __('Automations', 'gpt3-ai-content-generator'), 'icon' => 'airplane', 'data_module' => 'autogpt', ), 'ai_forms' => array( 'label' => __('AI Forms', 'gpt3-ai-content-generator'), 'icon' => 'feedback', 'data_module' => 'ai-forms', ), 'image_generator' => array( 'label' => __('Images', 'gpt3-ai-content-generator'), 'icon' => 'format-image', 'data_module' => 'image-generator', ), 'sources' => array( 'label' => __('Knowledge Base', 'gpt3-ai-content-generator'), 'icon' => 'media-document', 'data_module' => 'sources', ), 'stats_viewer' => array( 'label' => __('Usage', 'gpt3-ai-content-generator'), 'icon' => 'chart-bar', 'data_module' => 'stats', ), ); ?>
+
+// Silence direct access
+if (!defined('ABSPATH')) {
+    exit;
+}
+
+// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- This file only uses local helper/template variables and does not define public globals.
+
+use WPAICG\aipkit_dashboard;
+use WPAICG\AIPKit_Role_Manager; // <-- Import Role Manager
+
+$module_settings = aipkit_dashboard::get_module_settings();
+$can_access_dashboard = AIPKit_Role_Manager::user_can_access_dashboard_shell();
+$can_access_settings = AIPKit_Role_Manager::user_can_access_module('settings');
+
+$nav_modules = array(
+    'chat_bot' => array(
+        'label'       => __('Chatbots', 'gpt3-ai-content-generator'),
+        'icon'        => 'format-chat',
+        'data_module' => 'chatbot',
+    ),
+    'content_writer' => array(
+        'label'       => __('Content Writer', 'gpt3-ai-content-generator'),
+        'icon'        => 'edit',
+        'data_module' => 'content-writer',
+    ),
+    'autogpt' => array(
+        'label'       => __('Automations', 'gpt3-ai-content-generator'),
+        'icon'        => 'airplane',
+        'data_module' => 'autogpt',
+    ),
+    'ai_forms' => array(
+        'label'       => __('AI Forms', 'gpt3-ai-content-generator'),
+        'icon'        => 'feedback',
+        'data_module' => 'ai-forms',
+    ),
+    'image_generator' => array(
+        'label'       => __('Images', 'gpt3-ai-content-generator'),
+        'icon'        => 'format-image',
+        'data_module' => 'image-generator',
+    ),
+    'sources' => array(
+        'label'       => __('Knowledge Base', 'gpt3-ai-content-generator'),
+        'icon'        => 'media-document',
+        'data_module' => 'sources',
+    ),
+    'stats_viewer' => array(
+        'label'       => __('Usage', 'gpt3-ai-content-generator'),
+        'icon'        => 'chart-bar',
+        'data_module' => 'stats',
+    ),
+);
+
+?>
 <div class="wrap aipkit_wrap">
     <div class="aipkit_module-tabs">
         <nav class="aipkit_module-tabs_list" role="tablist" aria-label="<?php esc_attr_e('Main navigation', 'gpt3-ai-content-generator'); ?>">
@@ -25,7 +78,12 @@
 
                 <?php foreach ($nav_modules as $option_key => $module): ?>
                     <?php
- $module_slug = $module['data_module']; $is_enabled = !isset($module_settings[$option_key]) || !empty($module_settings[$option_key]); if (!AIPKit_Role_Manager::user_can_access_module($module_slug)) { continue; } ?>
+                    $module_slug = $module['data_module'];
+                    $is_enabled = !isset($module_settings[$option_key]) || !empty($module_settings[$option_key]);
+                    if (!AIPKit_Role_Manager::user_can_access_module($module_slug)) {
+                        continue;
+                    }
+                    ?>
                     <a
                         href="#"
                         class="aipkit_module-tab aipkit_module-link aipkit_module-tab--module<?php echo $is_enabled ? '' : ' aipkit_module-tab--is-hidden'; ?>"
@@ -66,7 +124,11 @@
                 </a>
                 <?php endif; ?>
 
-                <?php  $is_pro_plan = class_exists('\\WPAICG\\aipkit_dashboard') ? \WPAICG\aipkit_dashboard::is_pro_plan() : false; if (!$is_pro_plan): ?>
+                <?php 
+                // Show upgrade button only for non-pro users
+                $is_pro_plan = class_exists('\\WPAICG\\aipkit_dashboard') ? \WPAICG\aipkit_dashboard::is_pro_plan() : false;
+                if (!$is_pro_plan):
+                ?>
                 <button 
                     type="button" 
                     class="aipkit_module-tab aipkit_module-tab--settings aipkit_upgrade_btn" 
@@ -89,7 +151,12 @@
     </div>
 </div>
 
-<?php  $is_pro_plan_for_modal = class_exists('\\WPAICG\\aipkit_dashboard') ? \WPAICG\aipkit_dashboard::is_pro_plan() : false; if (!$is_pro_plan_for_modal && AIPKit_Role_Manager::user_can_manage_settings()): $upgrade_url = function_exists('wpaicg_gacg_fs') ? wpaicg_gacg_fs()->get_upgrade_url() : admin_url('admin.php?page=wpaicg-pricing'); ?>
+<?php 
+// Upgrade to Pro Modal - Only show for non-pro users
+$is_pro_plan_for_modal = class_exists('\\WPAICG\\aipkit_dashboard') ? \WPAICG\aipkit_dashboard::is_pro_plan() : false;
+if (!$is_pro_plan_for_modal && AIPKit_Role_Manager::user_can_manage_settings()):
+    $upgrade_url = function_exists('wpaicg_gacg_fs') ? wpaicg_gacg_fs()->get_upgrade_url() : admin_url('admin.php?page=wpaicg-pricing');
+?>
 <div class="aipkit_upgrade_modal" id="aipkit_upgradeModal">
     <div class="aipkit_modal_backdrop" data-close-modal></div>
     <div class="aipkit_modal aipkit_upgrade_modal_content">

@@ -1,5 +1,112 @@
 <?php
- if (!defined('ABSPATH')) { exit; } $kb_is_pro = isset($is_pro) ? (bool) $is_pro : (class_exists('\\WPAICG\\aipkit_dashboard') && \WPAICG\aipkit_dashboard::is_pro_plan()); $kb_upgrade_url = function_exists('wpaicg_gacg_fs') ? wpaicg_gacg_fs()->get_upgrade_url() : admin_url('admin.php?page=wpaicg-pricing'); $kb_training_general_settings = get_option('aipkit_training_general_settings', [ 'hide_user_uploads' => true, ]); $kb_hide_user_uploads_checked = $kb_training_general_settings['hide_user_uploads'] ?? true; $kb_chunk_avg_chars = isset($kb_training_general_settings['chunk_avg_chars_per_token']) ? (int) $kb_training_general_settings['chunk_avg_chars_per_token'] : 4; $kb_chunk_avg_chars = min(4, max(2, $kb_chunk_avg_chars)); $kb_chunk_max_tokens = isset($kb_training_general_settings['chunk_max_tokens_per_chunk']) ? (int) $kb_training_general_settings['chunk_max_tokens_per_chunk'] : 3000; $kb_chunk_max_tokens = min(6000, max(256, $kb_chunk_max_tokens)); $kb_chunk_overlap_tokens = isset($kb_training_general_settings['chunk_overlap_tokens']) ? (int) $kb_training_general_settings['chunk_overlap_tokens'] : 150; $kb_chunk_overlap_tokens = min(1000, max(0, $kb_chunk_overlap_tokens), max(0, $kb_chunk_max_tokens - 1)); $kb_openai_file_search_chunking_mode = isset($kb_training_general_settings['openai_file_search_chunking_mode']) ? sanitize_key((string) $kb_training_general_settings['openai_file_search_chunking_mode']) : 'auto'; if (!in_array($kb_openai_file_search_chunking_mode, ['auto', 'custom'], true)) { $kb_openai_file_search_chunking_mode = 'auto'; } $kb_openai_file_search_max_tokens = isset($kb_training_general_settings['openai_file_search_max_chunk_size_tokens']) ? (int) $kb_training_general_settings['openai_file_search_max_chunk_size_tokens'] : 800; $kb_openai_file_search_max_tokens = min(4096, max(100, $kb_openai_file_search_max_tokens)); $kb_openai_file_search_overlap_tokens = isset($kb_training_general_settings['openai_file_search_chunk_overlap_tokens']) ? (int) $kb_training_general_settings['openai_file_search_chunk_overlap_tokens'] : 400; $kb_openai_file_search_overlap_tokens = min((int) floor($kb_openai_file_search_max_tokens / 2), max(0, $kb_openai_file_search_overlap_tokens)); $kb_openai_custom_rows_hidden_attr = $kb_openai_file_search_chunking_mode !== 'custom' ? ' hidden' : ''; $kb_options = get_option('aipkit_options', []); $kb_options = is_array($kb_options) ? $kb_options : []; $kb_semantic_search_settings = isset($kb_options['semantic_search']) && is_array($kb_options['semantic_search']) ? $kb_options['semantic_search'] : []; $kb_semantic_vector_provider = sanitize_key((string) ($kb_semantic_search_settings['vector_provider'] ?? 'pinecone')); if (!in_array($kb_semantic_vector_provider, ['pinecone', 'qdrant', 'chroma'], true)) { $kb_semantic_vector_provider = 'pinecone'; } $kb_semantic_target_id = $kb_semantic_search_settings['target_id'] ?? ''; $kb_semantic_embedding_provider = $kb_semantic_search_settings['embedding_provider'] ?? 'openai'; $kb_semantic_embedding_model = $kb_semantic_search_settings['embedding_model'] ?? ''; $kb_semantic_num_results = $kb_semantic_search_settings['num_results'] ?? 5; $kb_semantic_no_results_text = $kb_semantic_search_settings['no_results_text'] ?? __('No results found.', 'gpt3-ai-content-generator'); $kb_pinecone_index_list = is_array($pinecone_index_list ?? null) ? $pinecone_index_list : []; $kb_qdrant_collection_list = is_array($qdrant_collection_list ?? null) ? $qdrant_collection_list : []; $kb_chroma_collection_list = is_array($chroma_collection_list ?? null) ? $chroma_collection_list : []; $kb_embedding_provider_options = []; $kb_embedding_models_by_provider = []; if (class_exists('\\WPAICG\\AIPKit_Providers')) { if (empty($kb_pinecone_index_list)) { $kb_pinecone_index_list = \WPAICG\AIPKit_Providers::get_pinecone_indexes(); } if (empty($kb_qdrant_collection_list)) { $kb_qdrant_collection_list = \WPAICG\AIPKit_Providers::get_qdrant_collections(); } if (empty($kb_chroma_collection_list)) { $kb_chroma_collection_list = \WPAICG\AIPKit_Providers::get_chroma_collections(); } $kb_embedding_provider_options = \WPAICG\AIPKit_Providers::get_embedding_provider_map('knowledge_base_settings_ui'); $kb_embedding_models_by_provider = \WPAICG\AIPKit_Providers::get_embedding_models_by_provider('knowledge_base_settings_ui'); } if (!isset($kb_embedding_provider_options[$kb_semantic_embedding_provider])) { $kb_semantic_embedding_provider = array_key_first($kb_embedding_provider_options) ?: 'openai'; } $kb_embedding_options_allowed_html = [ 'optgroup' => [ 'label' => true, ], 'option' => [ 'value' => true, 'data-provider' => true, 'selected' => true, 'hidden' => true, 'disabled' => true, ], ]; $kb_semantic_current_list = []; if ($kb_semantic_vector_provider === 'pinecone') { $kb_semantic_current_list = $kb_pinecone_index_list; } elseif ($kb_semantic_vector_provider === 'qdrant') { $kb_semantic_current_list = $kb_qdrant_collection_list; } elseif ($kb_semantic_vector_provider === 'chroma') { $kb_semantic_current_list = $kb_chroma_collection_list; } $kb_semantic_target_label = in_array($kb_semantic_vector_provider, ['qdrant', 'chroma'], true) ? __('Collection', 'gpt3-ai-content-generator') : __('Index', 'gpt3-ai-content-generator'); ?>
+/**
+ * Partial: Knowledge Base Settings Page
+ */
+if (!defined('ABSPATH')) {
+    exit;
+}
+
+// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- This file only uses local helper/template variables.
+
+$kb_is_pro = isset($is_pro) ? (bool) $is_pro : (class_exists('\\WPAICG\\aipkit_dashboard') && \WPAICG\aipkit_dashboard::is_pro_plan());
+$kb_upgrade_url = function_exists('wpaicg_gacg_fs')
+    ? wpaicg_gacg_fs()->get_upgrade_url()
+    : admin_url('admin.php?page=wpaicg-pricing');
+
+$kb_training_general_settings = get_option('aipkit_training_general_settings', [
+    'hide_user_uploads' => true,
+]);
+$kb_hide_user_uploads_checked = $kb_training_general_settings['hide_user_uploads'] ?? true;
+$kb_chunk_avg_chars = isset($kb_training_general_settings['chunk_avg_chars_per_token'])
+    ? (int) $kb_training_general_settings['chunk_avg_chars_per_token']
+    : 4;
+$kb_chunk_avg_chars = min(4, max(2, $kb_chunk_avg_chars));
+$kb_chunk_max_tokens = isset($kb_training_general_settings['chunk_max_tokens_per_chunk'])
+    ? (int) $kb_training_general_settings['chunk_max_tokens_per_chunk']
+    : 3000;
+$kb_chunk_max_tokens = min(6000, max(256, $kb_chunk_max_tokens));
+$kb_chunk_overlap_tokens = isset($kb_training_general_settings['chunk_overlap_tokens'])
+    ? (int) $kb_training_general_settings['chunk_overlap_tokens']
+    : 150;
+$kb_chunk_overlap_tokens = min(1000, max(0, $kb_chunk_overlap_tokens), max(0, $kb_chunk_max_tokens - 1));
+$kb_openai_file_search_chunking_mode = isset($kb_training_general_settings['openai_file_search_chunking_mode'])
+    ? sanitize_key((string) $kb_training_general_settings['openai_file_search_chunking_mode'])
+    : 'auto';
+if (!in_array($kb_openai_file_search_chunking_mode, ['auto', 'custom'], true)) {
+    $kb_openai_file_search_chunking_mode = 'auto';
+}
+$kb_openai_file_search_max_tokens = isset($kb_training_general_settings['openai_file_search_max_chunk_size_tokens'])
+    ? (int) $kb_training_general_settings['openai_file_search_max_chunk_size_tokens']
+    : 800;
+$kb_openai_file_search_max_tokens = min(4096, max(100, $kb_openai_file_search_max_tokens));
+$kb_openai_file_search_overlap_tokens = isset($kb_training_general_settings['openai_file_search_chunk_overlap_tokens'])
+    ? (int) $kb_training_general_settings['openai_file_search_chunk_overlap_tokens']
+    : 400;
+$kb_openai_file_search_overlap_tokens = min((int) floor($kb_openai_file_search_max_tokens / 2), max(0, $kb_openai_file_search_overlap_tokens));
+$kb_openai_custom_rows_hidden_attr = $kb_openai_file_search_chunking_mode !== 'custom' ? ' hidden' : '';
+
+$kb_options = get_option('aipkit_options', []);
+$kb_options = is_array($kb_options) ? $kb_options : [];
+$kb_semantic_search_settings = isset($kb_options['semantic_search']) && is_array($kb_options['semantic_search'])
+    ? $kb_options['semantic_search']
+    : [];
+$kb_semantic_vector_provider = sanitize_key((string) ($kb_semantic_search_settings['vector_provider'] ?? 'pinecone'));
+if (!in_array($kb_semantic_vector_provider, ['pinecone', 'qdrant', 'chroma'], true)) {
+    $kb_semantic_vector_provider = 'pinecone';
+}
+$kb_semantic_target_id = $kb_semantic_search_settings['target_id'] ?? '';
+$kb_semantic_embedding_provider = $kb_semantic_search_settings['embedding_provider'] ?? 'openai';
+$kb_semantic_embedding_model = $kb_semantic_search_settings['embedding_model'] ?? '';
+$kb_semantic_num_results = $kb_semantic_search_settings['num_results'] ?? 5;
+$kb_semantic_no_results_text = $kb_semantic_search_settings['no_results_text'] ?? __('No results found.', 'gpt3-ai-content-generator');
+
+$kb_pinecone_index_list = is_array($pinecone_index_list ?? null) ? $pinecone_index_list : [];
+$kb_qdrant_collection_list = is_array($qdrant_collection_list ?? null) ? $qdrant_collection_list : [];
+$kb_chroma_collection_list = is_array($chroma_collection_list ?? null) ? $chroma_collection_list : [];
+$kb_embedding_provider_options = [];
+$kb_embedding_models_by_provider = [];
+if (class_exists('\\WPAICG\\AIPKit_Providers')) {
+    if (empty($kb_pinecone_index_list)) {
+        $kb_pinecone_index_list = \WPAICG\AIPKit_Providers::get_pinecone_indexes();
+    }
+    if (empty($kb_qdrant_collection_list)) {
+        $kb_qdrant_collection_list = \WPAICG\AIPKit_Providers::get_qdrant_collections();
+    }
+    if (empty($kb_chroma_collection_list)) {
+        $kb_chroma_collection_list = \WPAICG\AIPKit_Providers::get_chroma_collections();
+    }
+    $kb_embedding_provider_options = \WPAICG\AIPKit_Providers::get_embedding_provider_map('knowledge_base_settings_ui');
+    $kb_embedding_models_by_provider = \WPAICG\AIPKit_Providers::get_embedding_models_by_provider('knowledge_base_settings_ui');
+}
+if (!isset($kb_embedding_provider_options[$kb_semantic_embedding_provider])) {
+    $kb_semantic_embedding_provider = array_key_first($kb_embedding_provider_options) ?: 'openai';
+}
+
+$kb_embedding_options_allowed_html = [
+    'optgroup' => [
+        'label' => true,
+    ],
+    'option' => [
+        'value' => true,
+        'data-provider' => true,
+        'selected' => true,
+        'hidden' => true,
+        'disabled' => true,
+    ],
+];
+
+$kb_semantic_current_list = [];
+if ($kb_semantic_vector_provider === 'pinecone') {
+    $kb_semantic_current_list = $kb_pinecone_index_list;
+} elseif ($kb_semantic_vector_provider === 'qdrant') {
+    $kb_semantic_current_list = $kb_qdrant_collection_list;
+} elseif ($kb_semantic_vector_provider === 'chroma') {
+    $kb_semantic_current_list = $kb_chroma_collection_list;
+}
+$kb_semantic_target_label = in_array($kb_semantic_vector_provider, ['qdrant', 'chroma'], true)
+    ? __('Collection', 'gpt3-ai-content-generator')
+    : __('Index', 'gpt3-ai-content-generator');
+?>
 <div
     class="aipkit_settings_knowledge_base_page"
     id="aipkit_settings_knowledge_base_page"
@@ -146,7 +253,24 @@
                                 <select id="aipkit_semantic_search_target_id" name="semantic_search_target_id" class="aipkit_form-input aipkit_autosave_trigger">
                                     <option value=""><?php esc_html_e('-- Select --', 'gpt3-ai-content-generator'); ?></option>
                                     <?php
- $kb_semantic_target_found = false; if (!empty($kb_semantic_current_list)) { foreach ($kb_semantic_current_list as $kb_semantic_item) { $kb_semantic_item_name = is_array($kb_semantic_item) ? ($kb_semantic_item['name'] ?? ($kb_semantic_item['id'] ?? '')) : $kb_semantic_item; if (empty($kb_semantic_item_name)) { continue; } $kb_semantic_is_selected = selected($kb_semantic_target_id, $kb_semantic_item_name, false); if ($kb_semantic_is_selected) { $kb_semantic_target_found = true; } echo '<option value="' . esc_attr($kb_semantic_item_name) . '" ' . $kb_semantic_is_selected . '>' . esc_html($kb_semantic_item_name) . '</option>'; } } if (!$kb_semantic_target_found && !empty($kb_semantic_target_id)) { echo '<option value="' . esc_attr($kb_semantic_target_id) . '" selected>' . esc_html($kb_semantic_target_id) . '</option>'; } ?>
+                                    $kb_semantic_target_found = false;
+                                    if (!empty($kb_semantic_current_list)) {
+                                        foreach ($kb_semantic_current_list as $kb_semantic_item) {
+                                            $kb_semantic_item_name = is_array($kb_semantic_item) ? ($kb_semantic_item['name'] ?? ($kb_semantic_item['id'] ?? '')) : $kb_semantic_item;
+                                            if (empty($kb_semantic_item_name)) {
+                                                continue;
+                                            }
+                                            $kb_semantic_is_selected = selected($kb_semantic_target_id, $kb_semantic_item_name, false);
+                                            if ($kb_semantic_is_selected) {
+                                                $kb_semantic_target_found = true;
+                                            }
+                                            echo '<option value="' . esc_attr($kb_semantic_item_name) . '" ' . $kb_semantic_is_selected . '>' . esc_html($kb_semantic_item_name) . '</option>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- selected() output is safe.
+                                        }
+                                    }
+                                    if (!$kb_semantic_target_found && !empty($kb_semantic_target_id)) {
+                                        echo '<option value="' . esc_attr($kb_semantic_target_id) . '" selected>' . esc_html($kb_semantic_target_id) . '</option>';
+                                    }
+                                    ?>
                                 </select>
                             </div>
                             <div class="aipkit_form-group aipkit_settings_simple_row">
@@ -156,7 +280,22 @@
                                 </label>
                                 <select id="aipkit_semantic_search_embedding_model" name="semantic_search_embedding_model" class="aipkit_form-input aipkit_autosave_trigger">
                                     <?php
- if (class_exists('\\WPAICG\\AIPKit_Providers')) { echo wp_kses( \WPAICG\AIPKit_Providers::render_embedding_optgroup_options( $kb_embedding_provider_options, $kb_embedding_models_by_provider, $kb_semantic_embedding_provider, $kb_semantic_embedding_model, [ 'value_mode' => 'model', 'include_manual_fallback' => true, ] ), $kb_embedding_options_allowed_html ); } ?>
+                                    if (class_exists('\\WPAICG\\AIPKit_Providers')) {
+                                        echo wp_kses(
+                                            \WPAICG\AIPKit_Providers::render_embedding_optgroup_options(
+                                                $kb_embedding_provider_options,
+                                                $kb_embedding_models_by_provider,
+                                                $kb_semantic_embedding_provider,
+                                                $kb_semantic_embedding_model,
+                                                [
+                                                    'value_mode' => 'model',
+                                                    'include_manual_fallback' => true,
+                                                ]
+                                            ),
+                                            $kb_embedding_options_allowed_html
+                                        );
+                                    }
+                                    ?>
                                 </select>
                                 <input type="hidden" id="aipkit_semantic_search_embedding_provider" name="semantic_search_embedding_provider" value="<?php echo esc_attr($kb_semantic_embedding_provider); ?>" class="aipkit_autosave_trigger">
                             </div>
@@ -315,7 +454,7 @@
                 <option value="custom" <?php selected($kb_openai_file_search_chunking_mode, 'custom'); ?>><?php esc_html_e('Custom', 'gpt3-ai-content-generator'); ?></option>
             </select>
             </div>
-            <div class="aipkit_form-group aipkit_settings_simple_row" data-aipkit-openai-chunking-custom-row<?php echo $kb_openai_custom_rows_hidden_attr; ?>>
+            <div class="aipkit_form-group aipkit_settings_simple_row" data-aipkit-openai-chunking-custom-row<?php echo $kb_openai_custom_rows_hidden_attr; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Attribute is a fixed string. ?>>
             <label class="aipkit_form-label" for="aipkit_openai_file_search_max_chunk_size_tokens">
                 <?php esc_html_e('Max tokens per chunk', 'gpt3-ai-content-generator'); ?>
                 <span class="aipkit_form-label-helper"><?php esc_html_e('Applies to OpenAI only.', 'gpt3-ai-content-generator'); ?></span>
@@ -332,7 +471,7 @@
                 <?php echo !$kb_is_pro ? 'disabled' : ''; ?>
             />
             </div>
-            <div class="aipkit_form-group aipkit_settings_simple_row" data-aipkit-openai-chunking-custom-row<?php echo $kb_openai_custom_rows_hidden_attr; ?>>
+            <div class="aipkit_form-group aipkit_settings_simple_row" data-aipkit-openai-chunking-custom-row<?php echo $kb_openai_custom_rows_hidden_attr; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Attribute is a fixed string. ?>>
             <label class="aipkit_form-label" for="aipkit_openai_file_search_chunk_overlap_tokens">
                 <?php esc_html_e('Overlap tokens', 'gpt3-ai-content-generator'); ?>
                 <span class="aipkit_form-label-helper"><?php esc_html_e('Applies to OpenAI only.', 'gpt3-ai-content-generator'); ?></span>
@@ -381,7 +520,15 @@
                     </div>
                 </div>
                 <?php
- $aipkit_batch_show_summary = false; $kb_embedding_batches_partial = defined('WPAICG_LIB_DIR') ? WPAICG_LIB_DIR . 'views/modules/settings/partials/embedding-batches.php' : ''; if ($kb_embedding_batches_partial && file_exists($kb_embedding_batches_partial)) { include $kb_embedding_batches_partial; } unset($aipkit_batch_show_summary); ?>
+                $aipkit_batch_show_summary = false;
+                $kb_embedding_batches_partial = defined('WPAICG_LIB_DIR')
+                    ? WPAICG_LIB_DIR . 'views/modules/settings/partials/embedding-batches.php'
+                    : '';
+                if ($kb_embedding_batches_partial && file_exists($kb_embedding_batches_partial)) {
+                    include $kb_embedding_batches_partial;
+                }
+                unset($aipkit_batch_show_summary);
+                ?>
             </div>
         </section>
 

@@ -1,5 +1,14 @@
 <?php
- if (!defined('ABSPATH')) { exit; } ?>
+/**
+ * Main UI for Task Automation.
+ * Includes the form for creating/editing tasks and the list of existing tasks/queue.
+ * Variable definitions are now in admin/views/modules/autogpt/index.php
+ */
+
+if (!defined('ABSPATH')) {
+    exit;
+}
+?>
 <div class="aipkit_container-body">
     <div id="aipkit_automated_task_form_wrapper">
         <div class="aipkit_task_form_container">

@@ -1,5 +1,23 @@
 <?php
- if (!defined('ABSPATH')) { exit; } $reply_actions = [ 'approve' => __('Approve Immediately', 'gpt3-ai-content-generator'), 'hold' => __('Hold for Moderation', 'gpt3-ai-content-generator'), ]; ?>
+
+/**
+ * Partial: Community Engagement Automated Task - Source Settings
+ * This is included in the main "Setup" step of the wizard.
+ *
+ * @since 2.2.0
+ */
+if (!defined('ABSPATH')) {
+    exit;
+}
+
+// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- This file only uses local helper/template variables and does not define public globals.
+// Variables from parent: $all_selectable_post_types
+
+$reply_actions = [
+    'approve' => __('Approve Immediately', 'gpt3-ai-content-generator'),
+    'hold' => __('Hold for Moderation', 'gpt3-ai-content-generator'),
+];
+?>
 <div id="aipkit_task_cc_source_settings" class="aipkit_cc_source_panel">
     <div class="aipkit_cw_source_mode_header aipkit_cc_source_header">
         <h3 class="aipkit_cw_source_mode_title"><?php esc_html_e('Comment Replies', 'gpt3-ai-content-generator'); ?></h3>

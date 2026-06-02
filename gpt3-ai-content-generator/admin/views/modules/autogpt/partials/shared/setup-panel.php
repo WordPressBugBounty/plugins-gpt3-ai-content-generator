@@ -1,5 +1,109 @@
 <?php
- if (!defined('ABSPATH')) { exit; } $aipkit_autogpt_setup_config = isset($aipkit_autogpt_setup_config) && is_array($aipkit_autogpt_setup_config) ? $aipkit_autogpt_setup_config : []; $aipkit_autogpt_setup_scope = isset($aipkit_autogpt_setup_config['scope']) ? (string) $aipkit_autogpt_setup_config['scope'] : 'cw'; $aipkit_autogpt_setup_name_prefix = isset($aipkit_autogpt_setup_config['name_prefix']) ? (string) $aipkit_autogpt_setup_config['name_prefix'] : ''; $aipkit_autogpt_setup_model_helper = isset($aipkit_autogpt_setup_config['model_helper']) ? (string) $aipkit_autogpt_setup_config['model_helper'] : __('More varied writing.', 'gpt3-ai-content-generator'); $aipkit_autogpt_setup_max_tokens_helper = isset($aipkit_autogpt_setup_config['max_tokens_helper']) ? (string) $aipkit_autogpt_setup_config['max_tokens_helper'] : __('Limit output size.', 'gpt3-ai-content-generator'); $aipkit_autogpt_setup_reasoning_helper = isset($aipkit_autogpt_setup_config['reasoning_helper']) ? (string) $aipkit_autogpt_setup_config['reasoning_helper'] : __('More effort for hard tasks.', 'gpt3-ai-content-generator'); $aipkit_autogpt_setup_prompt_label = isset($aipkit_autogpt_setup_config['prompt_label']) ? (string) $aipkit_autogpt_setup_config['prompt_label'] : __('Prompts', 'gpt3-ai-content-generator'); $aipkit_autogpt_setup_prompt_mode = isset($aipkit_autogpt_setup_config['prompt_mode']) ? (string) $aipkit_autogpt_setup_config['prompt_mode'] : 'popover'; $aipkit_autogpt_setup_prompt_target = isset($aipkit_autogpt_setup_config['prompt_target']) ? (string) $aipkit_autogpt_setup_config['prompt_target'] : ''; $aipkit_autogpt_setup_prompt_include = isset($aipkit_autogpt_setup_config['prompt_include']) ? (string) $aipkit_autogpt_setup_config['prompt_include'] : ''; $aipkit_autogpt_setup_prompt_popover_title = isset($aipkit_autogpt_setup_config['prompt_popover_title']) ? (string) $aipkit_autogpt_setup_config['prompt_popover_title'] : __('Prompts', 'gpt3-ai-content-generator'); $aipkit_autogpt_setup_prompt_stage_id = isset($aipkit_autogpt_setup_config['prompt_stage_id']) ? (string) $aipkit_autogpt_setup_config['prompt_stage_id'] : ''; $aipkit_autogpt_setup_prompt_show_back_button = !empty($aipkit_autogpt_setup_config['prompt_show_back_button']); $aipkit_autogpt_setup_prompt_track_title = !empty($aipkit_autogpt_setup_config['prompt_track_title']); $aipkit_autogpt_setup_prompt_root_attrs = isset($aipkit_autogpt_setup_config['prompt_root_attrs']) && is_array($aipkit_autogpt_setup_config['prompt_root_attrs']) ? $aipkit_autogpt_setup_config['prompt_root_attrs'] : []; $aipkit_autogpt_setup_extra_rows_include = isset($aipkit_autogpt_setup_config['extra_rows_include']) ? (string) $aipkit_autogpt_setup_config['extra_rows_include'] : ''; $aipkit_autogpt_setup_has_length = !empty($aipkit_autogpt_setup_config['has_length']); $aipkit_autogpt_setup_has_max_tokens = !empty($aipkit_autogpt_setup_config['has_max_tokens']); $aipkit_autogpt_setup_default_max_tokens = isset($aipkit_autogpt_setup_config['default_max_tokens']) ? $aipkit_autogpt_setup_config['default_max_tokens'] : '4000'; $aipkit_autogpt_setup_content_length_options = isset($aipkit_autogpt_setup_config['content_length_options']) && is_array($aipkit_autogpt_setup_config['content_length_options']) ? $aipkit_autogpt_setup_config['content_length_options'] : [ 'short' => __('Short', 'gpt3-ai-content-generator'), 'medium' => __('Medium', 'gpt3-ai-content-generator'), 'long' => __('Long', 'gpt3-ai-content-generator'), ]; $aipkit_autogpt_setup_default_length = isset($aipkit_autogpt_setup_config['default_length']) ? (string) $aipkit_autogpt_setup_config['default_length'] : 'medium'; $aipkit_autogpt_setup_providers = isset($cw_providers_for_select) && is_array($cw_providers_for_select) ? $cw_providers_for_select : []; $aipkit_autogpt_setup_default_provider = class_exists('\WPAICG\AIPKit_Providers') ? strtolower(\WPAICG\AIPKit_Providers::get_current_provider()) : 'openai'; $aipkit_autogpt_setup_is_pro = class_exists('\WPAICG\aipkit_dashboard') && \WPAICG\aipkit_dashboard::is_pro_plan(); $aipkit_autogpt_setup_default_temperature = isset($cw_default_temperature) ? $cw_default_temperature : '1'; $aipkit_autogpt_setup_reasoning_options = [ 'none' => __('None', 'gpt3-ai-content-generator'), 'low' => __('Low', 'gpt3-ai-content-generator'), 'medium' => __('Medium', 'gpt3-ai-content-generator'), 'high' => __('High', 'gpt3-ai-content-generator'), 'xhigh' => __('XHigh', 'gpt3-ai-content-generator'), ]; $aipkit_autogpt_setup_base = 'aipkit_task_' . $aipkit_autogpt_setup_scope; $aipkit_autogpt_setup_provider_id = $aipkit_autogpt_setup_base . '_ai_provider'; $aipkit_autogpt_setup_model_id = $aipkit_autogpt_setup_base . '_ai_model'; $aipkit_autogpt_setup_selection_id = $aipkit_autogpt_setup_base . '_ai_selection'; $aipkit_autogpt_setup_temperature_id = $aipkit_autogpt_setup_base . '_ai_temperature'; $aipkit_autogpt_setup_reasoning_row_class = $aipkit_autogpt_setup_base . '_reasoning_effort_field'; $aipkit_autogpt_setup_reasoning_id = $aipkit_autogpt_setup_base . '_reasoning_effort'; $aipkit_autogpt_setup_advanced_trigger_id = 'aipkit_autogpt_' . $aipkit_autogpt_setup_scope . '_ai_advanced_trigger'; $aipkit_autogpt_setup_advanced_popover_id = 'aipkit_autogpt_' . $aipkit_autogpt_setup_scope . '_ai_advanced_popover'; $aipkit_autogpt_setup_prompt_trigger_id = 'aipkit_task_' . $aipkit_autogpt_setup_scope . '_prompt_trigger'; $aipkit_autogpt_setup_prompt_popover_id = 'aipkit_autogpt_' . $aipkit_autogpt_setup_scope . '_prompt_settings_popover'; $aipkit_autogpt_setup_content_length_id = $aipkit_autogpt_setup_base . '_content_length'; $aipkit_autogpt_setup_content_max_tokens_id = $aipkit_autogpt_setup_base . '_content_max_tokens'; ?>
+/**
+ * Shared AutoGPT setup panel renderer.
+ *
+ * Expected variables:
+ * - $aipkit_autogpt_setup_config (array)
+ * - $cw_providers_for_select (array)
+ * - $cw_default_temperature (mixed)
+ */
+
+if (!defined('ABSPATH')) {
+    exit;
+}
+
+$aipkit_autogpt_setup_config = isset($aipkit_autogpt_setup_config) && is_array($aipkit_autogpt_setup_config)
+    ? $aipkit_autogpt_setup_config
+    : [];
+
+$aipkit_autogpt_setup_scope = isset($aipkit_autogpt_setup_config['scope'])
+    ? (string) $aipkit_autogpt_setup_config['scope']
+    : 'cw';
+$aipkit_autogpt_setup_name_prefix = isset($aipkit_autogpt_setup_config['name_prefix'])
+    ? (string) $aipkit_autogpt_setup_config['name_prefix']
+    : '';
+$aipkit_autogpt_setup_model_helper = isset($aipkit_autogpt_setup_config['model_helper'])
+    ? (string) $aipkit_autogpt_setup_config['model_helper']
+    : __('More varied writing.', 'gpt3-ai-content-generator');
+$aipkit_autogpt_setup_max_tokens_helper = isset($aipkit_autogpt_setup_config['max_tokens_helper'])
+    ? (string) $aipkit_autogpt_setup_config['max_tokens_helper']
+    : __('Limit output size.', 'gpt3-ai-content-generator');
+$aipkit_autogpt_setup_reasoning_helper = isset($aipkit_autogpt_setup_config['reasoning_helper'])
+    ? (string) $aipkit_autogpt_setup_config['reasoning_helper']
+    : __('More effort for hard tasks.', 'gpt3-ai-content-generator');
+$aipkit_autogpt_setup_prompt_label = isset($aipkit_autogpt_setup_config['prompt_label'])
+    ? (string) $aipkit_autogpt_setup_config['prompt_label']
+    : __('Prompts', 'gpt3-ai-content-generator');
+$aipkit_autogpt_setup_prompt_mode = isset($aipkit_autogpt_setup_config['prompt_mode'])
+    ? (string) $aipkit_autogpt_setup_config['prompt_mode']
+    : 'popover';
+$aipkit_autogpt_setup_prompt_target = isset($aipkit_autogpt_setup_config['prompt_target'])
+    ? (string) $aipkit_autogpt_setup_config['prompt_target']
+    : '';
+$aipkit_autogpt_setup_prompt_include = isset($aipkit_autogpt_setup_config['prompt_include'])
+    ? (string) $aipkit_autogpt_setup_config['prompt_include']
+    : '';
+$aipkit_autogpt_setup_prompt_popover_title = isset($aipkit_autogpt_setup_config['prompt_popover_title'])
+    ? (string) $aipkit_autogpt_setup_config['prompt_popover_title']
+    : __('Prompts', 'gpt3-ai-content-generator');
+$aipkit_autogpt_setup_prompt_stage_id = isset($aipkit_autogpt_setup_config['prompt_stage_id'])
+    ? (string) $aipkit_autogpt_setup_config['prompt_stage_id']
+    : '';
+$aipkit_autogpt_setup_prompt_show_back_button = !empty($aipkit_autogpt_setup_config['prompt_show_back_button']);
+$aipkit_autogpt_setup_prompt_track_title = !empty($aipkit_autogpt_setup_config['prompt_track_title']);
+$aipkit_autogpt_setup_prompt_root_attrs = isset($aipkit_autogpt_setup_config['prompt_root_attrs']) && is_array($aipkit_autogpt_setup_config['prompt_root_attrs'])
+    ? $aipkit_autogpt_setup_config['prompt_root_attrs']
+    : [];
+$aipkit_autogpt_setup_extra_rows_include = isset($aipkit_autogpt_setup_config['extra_rows_include'])
+    ? (string) $aipkit_autogpt_setup_config['extra_rows_include']
+    : '';
+$aipkit_autogpt_setup_has_length = !empty($aipkit_autogpt_setup_config['has_length']);
+$aipkit_autogpt_setup_has_max_tokens = !empty($aipkit_autogpt_setup_config['has_max_tokens']);
+$aipkit_autogpt_setup_default_max_tokens = isset($aipkit_autogpt_setup_config['default_max_tokens'])
+    ? $aipkit_autogpt_setup_config['default_max_tokens']
+    : '4000';
+$aipkit_autogpt_setup_content_length_options = isset($aipkit_autogpt_setup_config['content_length_options']) && is_array($aipkit_autogpt_setup_config['content_length_options'])
+    ? $aipkit_autogpt_setup_config['content_length_options']
+    : [
+        'short' => __('Short', 'gpt3-ai-content-generator'),
+        'medium' => __('Medium', 'gpt3-ai-content-generator'),
+        'long' => __('Long', 'gpt3-ai-content-generator'),
+    ];
+$aipkit_autogpt_setup_default_length = isset($aipkit_autogpt_setup_config['default_length'])
+    ? (string) $aipkit_autogpt_setup_config['default_length']
+    : 'medium';
+
+$aipkit_autogpt_setup_providers = isset($cw_providers_for_select) && is_array($cw_providers_for_select)
+    ? $cw_providers_for_select
+    : [];
+$aipkit_autogpt_setup_default_provider = class_exists('\WPAICG\AIPKit_Providers')
+    ? strtolower(\WPAICG\AIPKit_Providers::get_current_provider())
+    : 'openai';
+$aipkit_autogpt_setup_is_pro = class_exists('\WPAICG\aipkit_dashboard') && \WPAICG\aipkit_dashboard::is_pro_plan();
+$aipkit_autogpt_setup_default_temperature = isset($cw_default_temperature) ? $cw_default_temperature : '1';
+$aipkit_autogpt_setup_reasoning_options = [
+    'none' => __('None', 'gpt3-ai-content-generator'),
+    'low' => __('Low', 'gpt3-ai-content-generator'),
+    'medium' => __('Medium', 'gpt3-ai-content-generator'),
+    'high' => __('High', 'gpt3-ai-content-generator'),
+    'xhigh' => __('XHigh', 'gpt3-ai-content-generator'),
+];
+
+$aipkit_autogpt_setup_base = 'aipkit_task_' . $aipkit_autogpt_setup_scope;
+$aipkit_autogpt_setup_provider_id = $aipkit_autogpt_setup_base . '_ai_provider';
+$aipkit_autogpt_setup_model_id = $aipkit_autogpt_setup_base . '_ai_model';
+$aipkit_autogpt_setup_selection_id = $aipkit_autogpt_setup_base . '_ai_selection';
+$aipkit_autogpt_setup_temperature_id = $aipkit_autogpt_setup_base . '_ai_temperature';
+$aipkit_autogpt_setup_reasoning_row_class = $aipkit_autogpt_setup_base . '_reasoning_effort_field';
+$aipkit_autogpt_setup_reasoning_id = $aipkit_autogpt_setup_base . '_reasoning_effort';
+$aipkit_autogpt_setup_advanced_trigger_id = 'aipkit_autogpt_' . $aipkit_autogpt_setup_scope . '_ai_advanced_trigger';
+$aipkit_autogpt_setup_advanced_popover_id = 'aipkit_autogpt_' . $aipkit_autogpt_setup_scope . '_ai_advanced_popover';
+$aipkit_autogpt_setup_prompt_trigger_id = 'aipkit_task_' . $aipkit_autogpt_setup_scope . '_prompt_trigger';
+$aipkit_autogpt_setup_prompt_popover_id = 'aipkit_autogpt_' . $aipkit_autogpt_setup_scope . '_prompt_settings_popover';
+$aipkit_autogpt_setup_content_length_id = $aipkit_autogpt_setup_base . '_content_length';
+$aipkit_autogpt_setup_content_max_tokens_id = $aipkit_autogpt_setup_base . '_content_max_tokens';
+
+?>
 <div class="aipkit_content_writer_inputs aipkit_autogpt_setup_fields">
     <select
         id="<?php echo esc_attr($aipkit_autogpt_setup_provider_id); ?>"
@@ -13,7 +117,15 @@
     >
         <?php foreach ($aipkit_autogpt_setup_providers as $aipkit_autogpt_setup_provider_name) : ?>
             <?php
- $aipkit_autogpt_setup_provider_value = strtolower((string) $aipkit_autogpt_setup_provider_name); $aipkit_autogpt_setup_provider_disabled = ($aipkit_autogpt_setup_provider_name === 'Ollama' && !$aipkit_autogpt_setup_is_pro); $aipkit_autogpt_setup_provider_display_name = class_exists('\\WPAICG\\AIPKit_Providers') ? \WPAICG\AIPKit_Providers::get_provider_display_name((string) $aipkit_autogpt_setup_provider_name) : ((string) $aipkit_autogpt_setup_provider_name === 'Claude' ? __('Anthropic', 'gpt3-ai-content-generator') : (string) $aipkit_autogpt_setup_provider_name); $aipkit_autogpt_setup_provider_label = $aipkit_autogpt_setup_provider_disabled ? __('Ollama (Pro)', 'gpt3-ai-content-generator') : $aipkit_autogpt_setup_provider_display_name; ?>
+            $aipkit_autogpt_setup_provider_value = strtolower((string) $aipkit_autogpt_setup_provider_name);
+            $aipkit_autogpt_setup_provider_disabled = ($aipkit_autogpt_setup_provider_name === 'Ollama' && !$aipkit_autogpt_setup_is_pro);
+            $aipkit_autogpt_setup_provider_display_name = class_exists('\\WPAICG\\AIPKit_Providers')
+                ? \WPAICG\AIPKit_Providers::get_provider_display_name((string) $aipkit_autogpt_setup_provider_name)
+                : ((string) $aipkit_autogpt_setup_provider_name === 'Claude' ? __('Anthropic', 'gpt3-ai-content-generator') : (string) $aipkit_autogpt_setup_provider_name);
+            $aipkit_autogpt_setup_provider_label = $aipkit_autogpt_setup_provider_disabled
+                ? __('Ollama (Pro)', 'gpt3-ai-content-generator')
+                : $aipkit_autogpt_setup_provider_display_name;
+            ?>
             <option
                 value="<?php echo esc_attr($aipkit_autogpt_setup_provider_value); ?>"
                 <?php selected($aipkit_autogpt_setup_default_provider, $aipkit_autogpt_setup_provider_value); ?>

@@ -1,5 +1,67 @@
 <?php
- if (!defined('ABSPATH')) { exit; } $aipkit_autogpt_context_config = isset($aipkit_autogpt_context_config) && is_array($aipkit_autogpt_context_config) ? $aipkit_autogpt_context_config : []; $aipkit_autogpt_context_scope = isset($aipkit_autogpt_context_config['scope']) ? (string) $aipkit_autogpt_context_config['scope'] : 'cw'; $aipkit_autogpt_context_name_prefix = isset($aipkit_autogpt_context_config['name_prefix']) ? (string) $aipkit_autogpt_context_config['name_prefix'] : ''; $aipkit_autogpt_context_root_classes = isset($aipkit_autogpt_context_config['root_classes']) ? (string) $aipkit_autogpt_context_config['root_classes'] : 'aipkit_cw_vector_section aipkit_task_cw_kb_section'; $aipkit_autogpt_context_show_confidence = !empty($aipkit_autogpt_context_config['show_confidence_threshold']); $aipkit_autogpt_context_use_autosave = !empty($aipkit_autogpt_context_config['use_autosave_class']); $aipkit_autogpt_context_top_k_default = isset($aipkit_autogpt_context_config['top_k_default']) ? (int) $aipkit_autogpt_context_config['top_k_default'] : 3; $aipkit_autogpt_context_confidence_default = isset($aipkit_autogpt_context_config['confidence_default']) ? (int) $aipkit_autogpt_context_config['confidence_default'] : 20; $chroma_collections = isset($chroma_collections) && is_array($chroma_collections) ? $chroma_collections : []; $aipkit_autogpt_context_base = 'aipkit_task_' . $aipkit_autogpt_context_scope; $aipkit_autogpt_context_enable_id = $aipkit_autogpt_context_base . '_enable_vector_store'; $aipkit_autogpt_context_provider_field_id = $aipkit_autogpt_context_base . '_vector_store_provider'; $aipkit_autogpt_context_mode_control_id = $aipkit_autogpt_context_base . '_kb_mode_control'; $aipkit_autogpt_context_source_row_id = $aipkit_autogpt_context_base . '_kb_source_row'; $aipkit_autogpt_context_source_label_id = $aipkit_autogpt_context_base . '_kb_source_label'; $aipkit_autogpt_context_openai_panel_id = $aipkit_autogpt_context_base . '_openai_vector_store_panel'; $aipkit_autogpt_context_openai_select_id = $aipkit_autogpt_context_base . '_openai_vector_store_ids'; $aipkit_autogpt_context_pinecone_select_id = $aipkit_autogpt_context_base . '_pinecone_index_name'; $aipkit_autogpt_context_qdrant_select_id = $aipkit_autogpt_context_base . '_qdrant_collection_name'; $aipkit_autogpt_context_chroma_select_id = $aipkit_autogpt_context_base . '_chroma_collection_name'; $aipkit_autogpt_context_settings_trigger_id = $aipkit_autogpt_context_base . '_kb_settings_trigger'; $aipkit_autogpt_context_settings_popover_id = $aipkit_autogpt_context_base . '_kb_settings_popover'; $aipkit_autogpt_context_embedding_section_id = $aipkit_autogpt_context_base . '_kb_embedding_section'; $aipkit_autogpt_context_embedding_provider_id = $aipkit_autogpt_context_base . '_vector_embedding_provider'; $aipkit_autogpt_context_embedding_model_id = $aipkit_autogpt_context_base . '_vector_embedding_model'; $aipkit_autogpt_context_top_k_id = $aipkit_autogpt_context_base . '_vector_store_top_k'; $aipkit_autogpt_context_confidence_id = $aipkit_autogpt_context_base . '_vector_store_confidence_threshold'; $aipkit_autogpt_context_autosave_class = $aipkit_autogpt_context_use_autosave ? ' aipkit_autosave_trigger' : ''; ?>
+/**
+ * Shared AutoGPT context settings renderer for content-writing and content-enhancement.
+ *
+ * Expected variables:
+ * - $aipkit_autogpt_context_config (array)
+ * - $embedding_provider_options (array)
+ * - $default_embedding_provider_key (string)
+ * - $openai_vector_stores (array)
+ * - $pinecone_indexes (array)
+ * - $qdrant_collections (array)
+ * - $chroma_collections (array)
+ */
+
+if (!defined('ABSPATH')) {
+    exit;
+}
+
+// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- This file only uses local helper/template variables and does not define public globals.
+
+$aipkit_autogpt_context_config = isset($aipkit_autogpt_context_config) && is_array($aipkit_autogpt_context_config)
+    ? $aipkit_autogpt_context_config
+    : [];
+
+$aipkit_autogpt_context_scope = isset($aipkit_autogpt_context_config['scope'])
+    ? (string) $aipkit_autogpt_context_config['scope']
+    : 'cw';
+$aipkit_autogpt_context_name_prefix = isset($aipkit_autogpt_context_config['name_prefix'])
+    ? (string) $aipkit_autogpt_context_config['name_prefix']
+    : '';
+$aipkit_autogpt_context_root_classes = isset($aipkit_autogpt_context_config['root_classes'])
+    ? (string) $aipkit_autogpt_context_config['root_classes']
+    : 'aipkit_cw_vector_section aipkit_task_cw_kb_section';
+$aipkit_autogpt_context_show_confidence = !empty($aipkit_autogpt_context_config['show_confidence_threshold']);
+$aipkit_autogpt_context_use_autosave = !empty($aipkit_autogpt_context_config['use_autosave_class']);
+$aipkit_autogpt_context_top_k_default = isset($aipkit_autogpt_context_config['top_k_default'])
+    ? (int) $aipkit_autogpt_context_config['top_k_default']
+    : 3;
+$aipkit_autogpt_context_confidence_default = isset($aipkit_autogpt_context_config['confidence_default'])
+    ? (int) $aipkit_autogpt_context_config['confidence_default']
+    : 20;
+$chroma_collections = isset($chroma_collections) && is_array($chroma_collections) ? $chroma_collections : [];
+
+$aipkit_autogpt_context_base = 'aipkit_task_' . $aipkit_autogpt_context_scope;
+$aipkit_autogpt_context_enable_id = $aipkit_autogpt_context_base . '_enable_vector_store';
+$aipkit_autogpt_context_provider_field_id = $aipkit_autogpt_context_base . '_vector_store_provider';
+$aipkit_autogpt_context_mode_control_id = $aipkit_autogpt_context_base . '_kb_mode_control';
+$aipkit_autogpt_context_source_row_id = $aipkit_autogpt_context_base . '_kb_source_row';
+$aipkit_autogpt_context_source_label_id = $aipkit_autogpt_context_base . '_kb_source_label';
+$aipkit_autogpt_context_openai_panel_id = $aipkit_autogpt_context_base . '_openai_vector_store_panel';
+$aipkit_autogpt_context_openai_select_id = $aipkit_autogpt_context_base . '_openai_vector_store_ids';
+$aipkit_autogpt_context_pinecone_select_id = $aipkit_autogpt_context_base . '_pinecone_index_name';
+$aipkit_autogpt_context_qdrant_select_id = $aipkit_autogpt_context_base . '_qdrant_collection_name';
+$aipkit_autogpt_context_chroma_select_id = $aipkit_autogpt_context_base . '_chroma_collection_name';
+$aipkit_autogpt_context_settings_trigger_id = $aipkit_autogpt_context_base . '_kb_settings_trigger';
+$aipkit_autogpt_context_settings_popover_id = $aipkit_autogpt_context_base . '_kb_settings_popover';
+$aipkit_autogpt_context_embedding_section_id = $aipkit_autogpt_context_base . '_kb_embedding_section';
+$aipkit_autogpt_context_embedding_provider_id = $aipkit_autogpt_context_base . '_vector_embedding_provider';
+$aipkit_autogpt_context_embedding_model_id = $aipkit_autogpt_context_base . '_vector_embedding_model';
+$aipkit_autogpt_context_top_k_id = $aipkit_autogpt_context_base . '_vector_store_top_k';
+$aipkit_autogpt_context_confidence_id = $aipkit_autogpt_context_base . '_vector_store_confidence_threshold';
+
+$aipkit_autogpt_context_autosave_class = $aipkit_autogpt_context_use_autosave ? ' aipkit_autosave_trigger' : '';
+?>
 <div class="<?php echo esc_attr($aipkit_autogpt_context_root_classes); ?>">
     <input
         type="checkbox"
@@ -151,7 +213,13 @@
                             <?php if (!empty($chroma_collections)) : ?>
                                 <?php foreach ($chroma_collections as $collection) : ?>
                                     <?php
- $aipkit_chroma_collection_name = is_array($collection) ? ($collection['name'] ?? ($collection['collection_name'] ?? ($collection['id'] ?? ''))) : (string) $collection; if ($aipkit_chroma_collection_name === '') { continue; } ?>
+                                    $aipkit_chroma_collection_name = is_array($collection)
+                                        ? ($collection['name'] ?? ($collection['collection_name'] ?? ($collection['id'] ?? '')))
+                                        : (string) $collection;
+                                    if ($aipkit_chroma_collection_name === '') {
+                                        continue;
+                                    }
+                                    ?>
                                     <option value="<?php echo esc_attr($aipkit_chroma_collection_name); ?>">
                                         <?php echo esc_html($aipkit_chroma_collection_name); ?>
                                     </option>

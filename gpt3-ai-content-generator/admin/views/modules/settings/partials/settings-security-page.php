@@ -1,5 +1,37 @@
 <?php
- if (!defined('ABSPATH')) { exit; } use WPAICG\Core\Moderation\AIPKit_Global_Security_Settings; $security_settings = class_exists(AIPKit_Global_Security_Settings::class) ? AIPKit_Global_Security_Settings::get_settings() : [ 'enable_ip_anonymization' => '0', 'blocklists' => [ 'banned_words' => '', 'banned_words_message' => '', 'banned_ips' => '', 'banned_ips_message' => '', ], ]; $security_blocklists = isset($security_settings['blocklists']) && is_array($security_settings['blocklists']) ? $security_settings['blocklists'] : []; $enable_ip_anonymization = isset($security_settings['enable_ip_anonymization']) && (string) $security_settings['enable_ip_anonymization'] === '1' ? '1' : '0'; $banned_words = (string) ($security_blocklists['banned_words'] ?? ''); $banned_words_message = (string) ($security_blocklists['banned_words_message'] ?? ''); $banned_ips = (string) ($security_blocklists['banned_ips'] ?? ''); $banned_ips_message = (string) ($security_blocklists['banned_ips_message'] ?? ''); ?>
+/**
+ * Partial: Security Settings Page
+ */
+if (!defined('ABSPATH')) {
+    exit;
+}
+
+// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- This file only uses local helper/template variables and does not define public globals.
+
+use WPAICG\Core\Moderation\AIPKit_Global_Security_Settings;
+
+$security_settings = class_exists(AIPKit_Global_Security_Settings::class)
+    ? AIPKit_Global_Security_Settings::get_settings()
+    : [
+        'enable_ip_anonymization' => '0',
+        'blocklists' => [
+            'banned_words' => '',
+            'banned_words_message' => '',
+            'banned_ips' => '',
+            'banned_ips_message' => '',
+        ],
+    ];
+$security_blocklists = isset($security_settings['blocklists']) && is_array($security_settings['blocklists'])
+    ? $security_settings['blocklists']
+    : [];
+$enable_ip_anonymization = isset($security_settings['enable_ip_anonymization']) && (string) $security_settings['enable_ip_anonymization'] === '1'
+    ? '1'
+    : '0';
+$banned_words = (string) ($security_blocklists['banned_words'] ?? '');
+$banned_words_message = (string) ($security_blocklists['banned_words_message'] ?? '');
+$banned_ips = (string) ($security_blocklists['banned_ips'] ?? '');
+$banned_ips_message = (string) ($security_blocklists['banned_ips_message'] ?? '');
+?>
 <div class="aipkit_form-group aipkit_settings_simple_row">
     <label class="aipkit_form-label" for="aipkit_settings_enable_ip_anonymization">
         <?php esc_html_e('IP Anonymization', 'gpt3-ai-content-generator'); ?>

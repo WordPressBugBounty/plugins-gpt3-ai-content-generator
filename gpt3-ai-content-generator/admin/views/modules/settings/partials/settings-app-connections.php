@@ -1,5 +1,113 @@
 <?php
- if (!defined('ABSPATH')) { exit; } $is_pro_plan = class_exists('\WPAICG\\aipkit_dashboard') && \WPAICG\aipkit_dashboard::is_pro_plan(); $app_connections_class = '\WPAICG\\Lib\\Integrations\\Apps\\AIPKit_App_Connections'; if (!$is_pro_plan || !class_exists($app_connections_class)) { return; } $app_connections = $app_connections_class::get_connections(); $supported_apps = $app_connections_class::get_supported_app_options(); $supported_auth_types = $app_connections_class::get_supported_auth_options(); $supported_auth_types_by_app = method_exists($app_connections_class, 'get_supported_auth_types_by_app') ? $app_connections_class::get_supported_auth_types_by_app() : []; $diagnostics_class = '\WPAICG\\Lib\\Integrations\\Apps\\AIPKit_App_Connection_Diagnostics'; $app_field_definitions = method_exists($app_connections_class, 'get_app_field_definitions') ? $app_connections_class::get_app_field_definitions() : []; $default_auth_types_by_app = method_exists($app_connections_class, 'get_default_auth_types_by_app') ? $app_connections_class::get_default_auth_types_by_app() : []; $auth_type_app_map = []; foreach ($supported_auth_types_by_app as $app_slug => $auth_types) { if (!is_array($auth_types)) { continue; } foreach ($auth_types as $auth_type) { $auth_key = sanitize_key((string) $auth_type); if ($auth_key === '') { continue; } if (!isset($auth_type_app_map[$auth_key])) { $auth_type_app_map[$auth_key] = []; } $auth_type_app_map[$auth_key][] = sanitize_key((string) $app_slug); } } $get_connection_field_value = static function (array $connection, string $group, string $key) use ($app_connections_class): string { if (method_exists($app_connections_class, 'get_connection_field_value')) { return (string) $app_connections_class::get_connection_field_value($connection, $group, $key); } $group_value = $connection[$group] ?? []; if (!is_array($group_value)) { return ''; } return sanitize_text_field((string) ($group_value[$key] ?? '')); }; $render_app_connection = static function ($index, array $connection = []) use ($supported_apps, $supported_auth_types, $supported_auth_types_by_app, $auth_type_app_map, $diagnostics_class, $app_field_definitions, $default_auth_types_by_app, $get_connection_field_value): void { $connection_index = (string) $index; $connection_id = sanitize_text_field((string) ($connection['id'] ?? '')); $connection_name = (string) ($connection['name'] ?? ''); $connection_app_slug = sanitize_key((string) ($connection['app_slug'] ?? 'slack')); if (!isset($supported_apps[$connection_app_slug])) { $connection_app_slug = 'slack'; } $connection_auth_type = sanitize_key((string) ($connection['auth_type'] ?? 'webhook')); $allowed_auth_types = $supported_auth_types_by_app[$connection_app_slug] ?? array_keys($supported_auth_types); if (!isset($supported_auth_types[$connection_auth_type]) || !in_array($connection_auth_type, $allowed_auth_types, true)) { $connection_auth_type = sanitize_key((string) ($default_auth_types_by_app[$connection_app_slug] ?? ($allowed_auth_types[0] ?? 'webhook'))); } $connection_status = sanitize_key((string) ($connection['status'] ?? 'draft')); if (!in_array($connection_status, ['draft', 'active', 'inactive', 'error', 'reauth_required'], true)) { $connection_status = 'draft'; } $connection_enabled = !array_key_exists('is_enabled', $connection) || !empty($connection['is_enabled']); $connection_ui_state = class_exists($diagnostics_class) && method_exists($diagnostics_class, 'get_connection_ui_state') ? $diagnostics_class::get_connection_ui_state($connection) : [ 'status_key' => $connection_status, 'status_label' => ucwords(str_replace('_', ' ', $connection_status)), 'summary' => __('Connection details saved.', 'gpt3-ai-content-generator'), 'is_testable' => false, 'can_test' => false, 'button_label' => __('Test Connection', 'gpt3-ai-content-generator'), ]; $status_key = sanitize_key((string) ($connection_ui_state['status_key'] ?? $connection_status)); $status_label = sanitize_text_field((string) ($connection_ui_state['status_label'] ?? ucwords(str_replace('_', ' ', $connection_status)))); $status_summary = sanitize_text_field((string) ($connection_ui_state['summary'] ?? '')); $is_testable = !empty($connection_ui_state['is_testable']); $can_test = !empty($connection_ui_state['can_test']); $test_button_label = sanitize_text_field((string) ($connection_ui_state['button_label'] ?? __('Test Connection', 'gpt3-ai-content-generator'))); $connection_summary_parts = []; if (isset($supported_apps[$connection_app_slug])) { $connection_summary_parts[] = (string) $supported_apps[$connection_app_slug]; } if (isset($supported_auth_types[$connection_auth_type])) { $connection_summary_parts[] = (string) $supported_auth_types[$connection_auth_type]; } $connection_summary = implode(' | ', array_filter($connection_summary_parts, static function ($value): bool { return is_string($value) && $value !== ''; })); ?>
+/**
+ * Partial: Native App Connections Settings Section
+ */
+if (!defined('ABSPATH')) {
+    exit;
+}
+
+// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- This file only uses local helper/template variables and does not define public globals.
+
+$is_pro_plan = class_exists('\WPAICG\\aipkit_dashboard') && \WPAICG\aipkit_dashboard::is_pro_plan();
+$app_connections_class = '\WPAICG\\Lib\\Integrations\\Apps\\AIPKit_App_Connections';
+
+if (!$is_pro_plan || !class_exists($app_connections_class)) {
+    return;
+}
+
+$app_connections = $app_connections_class::get_connections();
+$supported_apps = $app_connections_class::get_supported_app_options();
+$supported_auth_types = $app_connections_class::get_supported_auth_options();
+$supported_auth_types_by_app = method_exists($app_connections_class, 'get_supported_auth_types_by_app')
+    ? $app_connections_class::get_supported_auth_types_by_app()
+    : [];
+$diagnostics_class = '\WPAICG\\Lib\\Integrations\\Apps\\AIPKit_App_Connection_Diagnostics';
+$app_field_definitions = method_exists($app_connections_class, 'get_app_field_definitions')
+    ? $app_connections_class::get_app_field_definitions()
+    : [];
+$default_auth_types_by_app = method_exists($app_connections_class, 'get_default_auth_types_by_app')
+    ? $app_connections_class::get_default_auth_types_by_app()
+    : [];
+$auth_type_app_map = [];
+foreach ($supported_auth_types_by_app as $app_slug => $auth_types) {
+    if (!is_array($auth_types)) {
+        continue;
+    }
+
+    foreach ($auth_types as $auth_type) {
+        $auth_key = sanitize_key((string) $auth_type);
+        if ($auth_key === '') {
+            continue;
+        }
+
+        if (!isset($auth_type_app_map[$auth_key])) {
+            $auth_type_app_map[$auth_key] = [];
+        }
+
+        $auth_type_app_map[$auth_key][] = sanitize_key((string) $app_slug);
+    }
+}
+$get_connection_field_value = static function (array $connection, string $group, string $key) use ($app_connections_class): string {
+    if (method_exists($app_connections_class, 'get_connection_field_value')) {
+        return (string) $app_connections_class::get_connection_field_value($connection, $group, $key);
+    }
+
+    $group_value = $connection[$group] ?? [];
+    if (!is_array($group_value)) {
+        return '';
+    }
+
+    return sanitize_text_field((string) ($group_value[$key] ?? ''));
+};
+
+$render_app_connection = static function ($index, array $connection = []) use ($supported_apps, $supported_auth_types, $supported_auth_types_by_app, $auth_type_app_map, $diagnostics_class, $app_field_definitions, $default_auth_types_by_app, $get_connection_field_value): void {
+    $connection_index = (string) $index;
+    $connection_id = sanitize_text_field((string) ($connection['id'] ?? ''));
+    $connection_name = (string) ($connection['name'] ?? '');
+    $connection_app_slug = sanitize_key((string) ($connection['app_slug'] ?? 'slack'));
+    if (!isset($supported_apps[$connection_app_slug])) {
+        $connection_app_slug = 'slack';
+    }
+
+    $connection_auth_type = sanitize_key((string) ($connection['auth_type'] ?? 'webhook'));
+    $allowed_auth_types = $supported_auth_types_by_app[$connection_app_slug] ?? array_keys($supported_auth_types);
+    if (!isset($supported_auth_types[$connection_auth_type]) || !in_array($connection_auth_type, $allowed_auth_types, true)) {
+        $connection_auth_type = sanitize_key((string) ($default_auth_types_by_app[$connection_app_slug] ?? ($allowed_auth_types[0] ?? 'webhook')));
+    }
+
+    $connection_status = sanitize_key((string) ($connection['status'] ?? 'draft'));
+    if (!in_array($connection_status, ['draft', 'active', 'inactive', 'error', 'reauth_required'], true)) {
+        $connection_status = 'draft';
+    }
+
+    $connection_enabled = !array_key_exists('is_enabled', $connection) || !empty($connection['is_enabled']);
+    $connection_ui_state = class_exists($diagnostics_class) && method_exists($diagnostics_class, 'get_connection_ui_state')
+        ? $diagnostics_class::get_connection_ui_state($connection)
+        : [
+            'status_key' => $connection_status,
+            'status_label' => ucwords(str_replace('_', ' ', $connection_status)),
+            'summary' => __('Connection details saved.', 'gpt3-ai-content-generator'),
+            'is_testable' => false,
+            'can_test' => false,
+            'button_label' => __('Test Connection', 'gpt3-ai-content-generator'),
+        ];
+    $status_key = sanitize_key((string) ($connection_ui_state['status_key'] ?? $connection_status));
+    $status_label = sanitize_text_field((string) ($connection_ui_state['status_label'] ?? ucwords(str_replace('_', ' ', $connection_status))));
+    $status_summary = sanitize_text_field((string) ($connection_ui_state['summary'] ?? ''));
+    $is_testable = !empty($connection_ui_state['is_testable']);
+    $can_test = !empty($connection_ui_state['can_test']);
+    $test_button_label = sanitize_text_field((string) ($connection_ui_state['button_label'] ?? __('Test Connection', 'gpt3-ai-content-generator')));
+    $connection_summary_parts = [];
+    if (isset($supported_apps[$connection_app_slug])) {
+        $connection_summary_parts[] = (string) $supported_apps[$connection_app_slug];
+    }
+    if (isset($supported_auth_types[$connection_auth_type])) {
+        $connection_summary_parts[] = (string) $supported_auth_types[$connection_auth_type];
+    }
+    $connection_summary = implode(' | ', array_filter($connection_summary_parts, static function ($value): bool {
+        return is_string($value) && $value !== '';
+    }));
+    ?>
     <article class="aipkit_settings_app_connection" data-aipkit-app-connection data-connection-index="<?php echo esc_attr($connection_index); ?>">
         <input
             type="hidden"
@@ -122,7 +230,9 @@
                     >
                         <?php foreach ($supported_auth_types as $auth_type => $auth_label) : ?>
                             <?php
- $auth_app_slugs = $auth_type_app_map[$auth_type] ?? []; $auth_visible_for_app = in_array($connection_app_slug, $auth_app_slugs, true); ?>
+                            $auth_app_slugs = $auth_type_app_map[$auth_type] ?? [];
+                            $auth_visible_for_app = in_array($connection_app_slug, $auth_app_slugs, true);
+                            ?>
                             <option
                                 value="<?php echo esc_attr($auth_type); ?>"
                                 data-app-slugs="<?php echo esc_attr(implode(',', array_unique($auth_app_slugs))); ?>"
@@ -139,7 +249,9 @@
             <?php if (!empty($app_field_definitions)) : ?>
                 <div class="aipkit_settings_app_connection_app_forms" data-aipkit-app-connection-forms>
                     <?php foreach ($app_field_definitions as $app_slug => $field_definitions) : ?>
-                        <?php if (empty($field_definitions) || !is_array($field_definitions)) { continue; } ?>
+                        <?php if (empty($field_definitions) || !is_array($field_definitions)) {
+                            continue;
+                        } ?>
                         <div
                             class="aipkit_settings_app_connection_app_form"
                             data-aipkit-app-connection-app-form="<?php echo esc_attr($app_slug); ?>"
@@ -152,7 +264,26 @@
                             <div class="aipkit_settings_app_connection_app_form_grid">
                                 <?php foreach ($field_definitions as $field_definition) : ?>
                                     <?php
- $field_group = sanitize_key((string) ($field_definition['group'] ?? '')); $field_key = sanitize_key((string) ($field_definition['key'] ?? '')); if ($field_group === '' || $field_key === '') { continue; } $field_label = (string) ($field_definition['label'] ?? $field_key); $field_type = sanitize_key((string) ($field_definition['type'] ?? 'text')); if (!in_array($field_type, ['text', 'password', 'url'], true)) { $field_type = 'text'; } $field_placeholder = (string) ($field_definition['placeholder'] ?? ''); $field_value = $get_connection_field_value($connection, $field_group, $field_key); $field_path = $field_group . '.' . $field_key; $field_auth_types = isset($field_definition['auth_types']) && is_array($field_definition['auth_types']) ? array_values(array_filter(array_map('sanitize_key', $field_definition['auth_types']))) : []; $field_visible_for_auth = empty($field_auth_types) || in_array($connection_auth_type, $field_auth_types, true); ?>
+                                    $field_group = sanitize_key((string) ($field_definition['group'] ?? ''));
+                                    $field_key = sanitize_key((string) ($field_definition['key'] ?? ''));
+                                    if ($field_group === '' || $field_key === '') {
+                                        continue;
+                                    }
+
+                                    $field_label = (string) ($field_definition['label'] ?? $field_key);
+                                    $field_type = sanitize_key((string) ($field_definition['type'] ?? 'text'));
+                                    if (!in_array($field_type, ['text', 'password', 'url'], true)) {
+                                        $field_type = 'text';
+                                    }
+
+                                    $field_placeholder = (string) ($field_definition['placeholder'] ?? '');
+                                    $field_value = $get_connection_field_value($connection, $field_group, $field_key);
+                                    $field_path = $field_group . '.' . $field_key;
+                                    $field_auth_types = isset($field_definition['auth_types']) && is_array($field_definition['auth_types'])
+                                        ? array_values(array_filter(array_map('sanitize_key', $field_definition['auth_types'])))
+                                        : [];
+                                    $field_visible_for_auth = empty($field_auth_types) || in_array($connection_auth_type, $field_auth_types, true);
+                                    ?>
                                     <label
                                         class="aipkit_settings_app_connection_field"
                                         data-aipkit-app-connection-field-wrapper
@@ -180,7 +311,8 @@
         </div>
     </article>
     <?php
-}; ?>
+};
+?>
 
 <section id="aipkit_settings_app_connections_section">
     <div class="aipkit_form-group aipkit_settings_simple_row aipkit_settings_simple_row--app-connections" id="aipkit_settings_app_connections_row">

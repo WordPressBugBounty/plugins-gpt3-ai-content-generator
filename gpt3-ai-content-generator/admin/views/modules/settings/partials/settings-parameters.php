@@ -1,5 +1,83 @@
 <?php
- if (!defined('ABSPATH')) exit; use WPAICG\Core\Providers\Google\GoogleSettingsHandler; use WPAICG\Core\Moderation\AIPKit_Global_Security_Settings; $openai_security_settings = class_exists(AIPKit_Global_Security_Settings::class) ? AIPKit_Global_Security_Settings::get_settings() : [ 'openai_moderation_enabled' => '0', 'openai_moderation_message' => __('Your message was flagged by the moderation system and could not be sent.', 'gpt3-ai-content-generator'), ]; $openai_moderation_enabled = isset($openai_security_settings['openai_moderation_enabled']) && (string) $openai_security_settings['openai_moderation_enabled'] === '1' ? '1' : '0'; $openai_moderation_message = (string) ($openai_security_settings['openai_moderation_message'] ?? __('Your message was flagged by the moderation system and could not be sent.', 'gpt3-ai-content-generator')); $sync_button_configs = [ 'OpenAI' => [ 'id' => 'aipkit_sync_openai_models', 'label' => __('Model List', 'gpt3-ai-content-generator'), 'button_text' => __('Sync Models', 'gpt3-ai-content-generator'), ], 'OpenRouter' => [ 'id' => 'aipkit_sync_openrouter_models', 'label' => __('Model List', 'gpt3-ai-content-generator'), 'button_text' => __('Sync Models', 'gpt3-ai-content-generator'), ], 'Google' => [ 'id' => 'aipkit_sync_google_models', 'label' => __('Model List', 'gpt3-ai-content-generator'), 'button_text' => __('Sync Models', 'gpt3-ai-content-generator'), ], 'Azure' => [ 'id' => 'aipkit_sync_azure_models', 'label' => __('Model List', 'gpt3-ai-content-generator'), 'button_text' => __('Sync Models', 'gpt3-ai-content-generator'), ], 'Claude' => [ 'id' => 'aipkit_sync_claude_models', 'label' => __('Model List', 'gpt3-ai-content-generator'), 'button_text' => __('Sync Models', 'gpt3-ai-content-generator'), ], 'DeepSeek' => [ 'id' => 'aipkit_sync_deepseek_models', 'label' => __('Model List', 'gpt3-ai-content-generator'), 'button_text' => __('Sync Models', 'gpt3-ai-content-generator'), ], 'xAI' => [ 'id' => 'aipkit_sync_xai_models', 'label' => __('Model List', 'gpt3-ai-content-generator'), 'button_text' => __('Sync Models', 'gpt3-ai-content-generator'), ], 'Ollama' => [ 'id' => 'aipkit_sync_ollama_models', 'label' => __('Model List', 'gpt3-ai-content-generator'), 'button_text' => __('Sync Models', 'gpt3-ai-content-generator'), ], ]; $render_sync_row = static function ($provider) use ($sync_button_configs) { if (!isset($sync_button_configs[$provider])) { return; } $config = $sync_button_configs[$provider]; ?>
+/**
+ * Partial: AI Parameters & Advanced Settings
+ */
+// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- This file only uses local helper/template variables and does not define public globals.
+
+if (!defined('ABSPATH')) exit;
+
+// Variables required: $current_provider, $temperature, $top_p
+// Also, variables required by the included partials settings-advanced-provider.php and settings-safety-google.php
+// must be available here or passed down.
+// For settings-advanced-provider.php: $openai_data, $openrouter_data, $google_data, $azure_data, $claude_data, $deepseek_data, $openai_defaults, etc.
+// For settings-safety-google.php: $category_thresholds, $safety_thresholds
+// $is_pro (from settings/index.php)
+
+use WPAICG\Core\Providers\Google\GoogleSettingsHandler; // For settings-safety-google.php
+use WPAICG\Core\Moderation\AIPKit_Global_Security_Settings;
+
+$openai_security_settings = class_exists(AIPKit_Global_Security_Settings::class)
+    ? AIPKit_Global_Security_Settings::get_settings()
+    : [
+        'openai_moderation_enabled' => '0',
+        'openai_moderation_message' => __('Your message was flagged by the moderation system and could not be sent.', 'gpt3-ai-content-generator'),
+    ];
+$openai_moderation_enabled = isset($openai_security_settings['openai_moderation_enabled']) && (string) $openai_security_settings['openai_moderation_enabled'] === '1'
+    ? '1'
+    : '0';
+$openai_moderation_message = (string) ($openai_security_settings['openai_moderation_message']
+    ?? __('Your message was flagged by the moderation system and could not be sent.', 'gpt3-ai-content-generator'));
+
+$sync_button_configs = [
+    'OpenAI' => [
+        'id' => 'aipkit_sync_openai_models',
+        'label' => __('Model List', 'gpt3-ai-content-generator'),
+        'button_text' => __('Sync Models', 'gpt3-ai-content-generator'),
+    ],
+    'OpenRouter' => [
+        'id' => 'aipkit_sync_openrouter_models',
+        'label' => __('Model List', 'gpt3-ai-content-generator'),
+        'button_text' => __('Sync Models', 'gpt3-ai-content-generator'),
+    ],
+    'Google' => [
+        'id' => 'aipkit_sync_google_models',
+        'label' => __('Model List', 'gpt3-ai-content-generator'),
+        'button_text' => __('Sync Models', 'gpt3-ai-content-generator'),
+    ],
+    'Azure' => [
+        'id' => 'aipkit_sync_azure_models',
+        'label' => __('Model List', 'gpt3-ai-content-generator'),
+        'button_text' => __('Sync Models', 'gpt3-ai-content-generator'),
+    ],
+    'Claude' => [
+        'id' => 'aipkit_sync_claude_models',
+        'label' => __('Model List', 'gpt3-ai-content-generator'),
+        'button_text' => __('Sync Models', 'gpt3-ai-content-generator'),
+    ],
+    'DeepSeek' => [
+        'id' => 'aipkit_sync_deepseek_models',
+        'label' => __('Model List', 'gpt3-ai-content-generator'),
+        'button_text' => __('Sync Models', 'gpt3-ai-content-generator'),
+    ],
+    'xAI' => [
+        'id' => 'aipkit_sync_xai_models',
+        'label' => __('Model List', 'gpt3-ai-content-generator'),
+        'button_text' => __('Sync Models', 'gpt3-ai-content-generator'),
+    ],
+    'Ollama' => [
+        'id' => 'aipkit_sync_ollama_models',
+        'label' => __('Model List', 'gpt3-ai-content-generator'),
+        'button_text' => __('Sync Models', 'gpt3-ai-content-generator'),
+    ],
+];
+
+$render_sync_row = static function ($provider) use ($sync_button_configs) {
+    if (!isset($sync_button_configs[$provider])) {
+        return;
+    }
+
+    $config = $sync_button_configs[$provider];
+    ?>
     <button
         type="button"
         id="<?php echo esc_attr($config['id']); ?>"
@@ -10,7 +88,14 @@
         <span class="aipkit_btn_label"><?php echo esc_html($config['button_text']); ?></span>
     </button>
     <?php
-}; $render_endpoint_provider_group = static function ($provider, $slug, $data, $defaults) use ($current_provider, $render_sync_row) { $base_url_id = 'aipkit_' . $slug . '_base_url'; $base_url_name = $slug . '_base_url'; $api_version_id = 'aipkit_' . $slug . '_api_version'; $api_version_name = $slug . '_api_version'; ?>
+};
+
+$render_endpoint_provider_group = static function ($provider, $slug, $data, $defaults) use ($current_provider, $render_sync_row) {
+    $base_url_id = 'aipkit_' . $slug . '_base_url';
+    $base_url_name = $slug . '_base_url';
+    $api_version_id = 'aipkit_' . $slug . '_api_version';
+    $api_version_name = $slug . '_api_version';
+    ?>
     <div
         class="aipkit_popover_option_group aipkit_settings_advanced_group aipkit_advanced_settings_provider"
         data-provider-setting="<?php echo esc_attr($provider); ?>"
@@ -53,7 +138,9 @@
         </div>
     </div>
     <?php
-}; ?>
+};
+
+?>
     <div class="aipkit_popover_options_list">
     <div class="aipkit_popover_option_group aipkit_settings_advanced_group aipkit_settings_advanced_group--common">
         <div class="aipkit_settings_advanced_row">
@@ -225,7 +312,9 @@
     </div>
 
     <?php
- $render_endpoint_provider_group('OpenRouter', 'openrouter', $openrouter_data, $openrouter_defaults); $render_endpoint_provider_group('Google', 'google', $google_data, $google_defaults); ?>
+    $render_endpoint_provider_group('OpenRouter', 'openrouter', $openrouter_data, $openrouter_defaults);
+    $render_endpoint_provider_group('Google', 'google', $google_data, $google_defaults);
+    ?>
 
     <div
         class="aipkit_popover_option_group aipkit_settings_advanced_group aipkit_advanced_settings_provider"
@@ -270,8 +359,14 @@
     </div>
 
     <?php
- $render_endpoint_provider_group('Claude', 'claude', $claude_data, $claude_defaults); $render_endpoint_provider_group('DeepSeek', 'deepseek', $deepseek_data, $deepseek_defaults); $render_endpoint_provider_group('xAI', 'xai', $xai_data, $xai_defaults); ?>
+    $render_endpoint_provider_group('Claude', 'claude', $claude_data, $claude_defaults);
+    $render_endpoint_provider_group('DeepSeek', 'deepseek', $deepseek_data, $deepseek_defaults);
+    $render_endpoint_provider_group('xAI', 'xai', $xai_data, $xai_defaults);
+    ?>
 
     <?php
- if (class_exists(GoogleSettingsHandler::class)) { include __DIR__ . '/settings-safety-google.php'; } ?>
+    if (class_exists(GoogleSettingsHandler::class)) {
+        include __DIR__ . '/settings-safety-google.php';
+    }
+    ?>
 </div>

@@ -1,5 +1,31 @@
 <?php
- if (!defined('ABSPATH')) { exit; } $utilities_options = get_option('aipkit_options', []); $utilities_options = is_array($utilities_options) ? $utilities_options : []; $utilities_enhancer_settings = isset($utilities_options['enhancer_settings']) && is_array($utilities_options['enhancer_settings']) ? $utilities_options['enhancer_settings'] : []; $enhancer_editor_integration_enabled = $utilities_enhancer_settings['editor_integration'] ?? '1'; $enhancer_list_button_enabled = $utilities_enhancer_settings['show_list_button'] ?? '1'; $utilities_training_general_settings = get_option('aipkit_training_general_settings', [ 'show_index_button' => true, ]); $utilities_training_general_settings = is_array($utilities_training_general_settings) ? $utilities_training_general_settings : []; $utilities_show_index_button_enabled = !array_key_exists('show_index_button', $utilities_training_general_settings) || (bool) $utilities_training_general_settings['show_index_button']; $utilities_indexing_nonce = wp_create_nonce('aipkit_ai_training_settings_nonce'); ?>
+/**
+ * Partial: Utilities Settings Page
+ */
+if (!defined('ABSPATH')) {
+    exit;
+}
+
+// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- This file only uses local helper/template variables and does not define public globals.
+
+$utilities_options = get_option('aipkit_options', []);
+$utilities_options = is_array($utilities_options) ? $utilities_options : [];
+$utilities_enhancer_settings = isset($utilities_options['enhancer_settings']) && is_array($utilities_options['enhancer_settings'])
+    ? $utilities_options['enhancer_settings']
+    : [];
+$enhancer_editor_integration_enabled = $utilities_enhancer_settings['editor_integration'] ?? '1';
+$enhancer_list_button_enabled = $utilities_enhancer_settings['show_list_button'] ?? '1';
+
+$utilities_training_general_settings = get_option('aipkit_training_general_settings', [
+    'show_index_button' => true,
+]);
+$utilities_training_general_settings = is_array($utilities_training_general_settings)
+    ? $utilities_training_general_settings
+    : [];
+$utilities_show_index_button_enabled = !array_key_exists('show_index_button', $utilities_training_general_settings)
+    || (bool) $utilities_training_general_settings['show_index_button'];
+$utilities_indexing_nonce = wp_create_nonce('aipkit_ai_training_settings_nonce');
+?>
 
 <div
     id="aipkit_settings_utilities_page"

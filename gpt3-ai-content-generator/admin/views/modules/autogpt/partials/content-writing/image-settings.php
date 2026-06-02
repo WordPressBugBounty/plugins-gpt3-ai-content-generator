@@ -1,5 +1,16 @@
 <?php
- if (!defined('ABSPATH')) { exit; } $image_provider_settings_url = admin_url('admin.php?page=wpaicg'); ?>
+
+/**
+ * Partial: Automated Task Form - Media Settings
+ */
+if (!defined('ABSPATH')) {
+    exit;
+}
+
+// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- This file only uses local helper/template variables and does not define public globals.
+
+$image_provider_settings_url = admin_url('admin.php?page=wpaicg');
+?>
 
 <div class="aipkit_image_settings_redesigned">
     <div class="aipkit_cw_image_section">
@@ -35,7 +46,7 @@
                 </optgroup>
             </select>
             <select id="aipkit_task_cw_image_model" name="image_model" tabindex="-1">
-                <?php ?>
+                <?php // Populated by JS ?>
             </select>
             <input
                 type="hidden"
@@ -80,7 +91,7 @@
                             class="aipkit_form-input"
                             data-aipkit-picker-title="<?php echo esc_attr__('Image source', 'gpt3-ai-content-generator'); ?>"
                         >
-                            <?php ?>
+                            <?php // Populated by JS ?>
                         </select>
                         <?php $aipkit_task_cw_image_display_settings_render_mode = 'trigger'; ?>
                         <?php include __DIR__ . '/image-display-settings.php'; ?>

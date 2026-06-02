@@ -1,5 +1,40 @@
 <?php
- if (!defined('ABSPATH')) { exit; } use WPAICG\Chat\Storage\BotSettingsManager; $custom_theme_defaults = BotSettingsManager::get_custom_theme_defaults(); $get_cts_val = function ($key) use ($bot_settings, $custom_theme_defaults) { $custom_settings = $bot_settings['custom_theme_settings'] ?? []; return $custom_settings[$key] ?? ($custom_theme_defaults[$key] ?? ''); }; $esc_cts_val_attr = function ($key) use ($get_cts_val) { return esc_attr($get_cts_val($key)); }; $font_families = [ 'System' => '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif', 'Arial' => 'Arial, Helvetica, sans-serif', 'Verdana' => 'Verdana, Geneva, sans-serif', 'Tahoma' => 'Tahoma, Geneva, sans-serif', 'Trebuchet MS' => '"Trebuchet MS", Helvetica, sans-serif', '"Times New Roman", Times, serif', 'Georgia' => 'Georgia, serif', 'Garamond' => 'Garamond, serif', '"Courier New", Courier, monospace', '"Brush Script MT", cursive', ]; ?>
+/**
+ * Partial: Chatbot Custom Theme Flyout (Row-based)
+ */
+if (!defined('ABSPATH')) {
+    exit;
+}
+
+// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- This file only uses local helper/template variables and does not define public globals.
+
+use WPAICG\Chat\Storage\BotSettingsManager;
+
+$custom_theme_defaults = BotSettingsManager::get_custom_theme_defaults();
+
+$get_cts_val = function ($key) use ($bot_settings, $custom_theme_defaults) {
+    $custom_settings = $bot_settings['custom_theme_settings'] ?? [];
+    return $custom_settings[$key] ?? ($custom_theme_defaults[$key] ?? '');
+};
+
+$esc_cts_val_attr = function ($key) use ($get_cts_val) {
+    return esc_attr($get_cts_val($key));
+};
+
+$font_families = [
+    'System' => '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif',
+    'Arial' => 'Arial, Helvetica, sans-serif',
+    'Verdana' => 'Verdana, Geneva, sans-serif',
+    'Tahoma' => 'Tahoma, Geneva, sans-serif',
+    'Trebuchet MS' => '"Trebuchet MS", Helvetica, sans-serif',
+    '"Times New Roman", Times, serif',
+    'Georgia' => 'Georgia, serif',
+    'Garamond' => 'Garamond, serif',
+    '"Courier New", Courier, monospace',
+    '"Brush Script MT", cursive',
+];
+
+?>
 
 <div
     class="aipkit_popover_custom_theme_flyout"
@@ -37,7 +72,7 @@
                             id="cts_secondary_color_<?php echo esc_attr($bot_id); ?>"
                             name="custom_theme_settings[secondary_color]"
                             class="aipkit_form-input aipkit_color_picker_input"
-                            value="<?php echo $esc_cts_val_attr('secondary_color'); ?>"
+                            value="<?php echo $esc_cts_val_attr('secondary_color'); // phpcs:ignore ?>"
                         />
                     </div>
                 </div>
@@ -52,7 +87,7 @@
                             id="cts_primary_color_<?php echo esc_attr($bot_id); ?>"
                             name="custom_theme_settings[primary_color]"
                             class="aipkit_form-input aipkit_color_picker_input"
-                            value="<?php echo $esc_cts_val_attr('primary_color'); ?>"
+                            value="<?php echo $esc_cts_val_attr('primary_color'); // phpcs:ignore ?>"
                         />
                     </div>
                 </div>
@@ -71,7 +106,7 @@
                                 min="0"
                                 max="50"
                                 step="1"
-                                value="<?php echo $esc_cts_val_attr('bubble_border_radius'); ?>"
+                                value="<?php echo $esc_cts_val_attr('bubble_border_radius'); // phpcs:ignore ?>"
                             />
                             <span id="cts_bubble_border_radius_<?php echo esc_attr($bot_id); ?>_value" class="aipkit_popover_param_value"></span>
                         </div>
@@ -285,7 +320,7 @@
                                     id="cts_messages_bg_color_<?php echo esc_attr($bot_id); ?>"
                                     name="custom_theme_settings[messages_bg_color]"
                                     class="aipkit_form-input aipkit_color_picker_input"
-                                    value="<?php echo $esc_cts_val_attr('messages_bg_color'); ?>"
+                                    value="<?php echo $esc_cts_val_attr('messages_bg_color'); // phpcs:ignore ?>"
                                 />
                             </div>
                         </div>
@@ -300,7 +335,7 @@
                                     id="cts_container_bg_color_<?php echo esc_attr($bot_id); ?>"
                                     name="custom_theme_settings[container_bg_color]"
                                     class="aipkit_form-input aipkit_color_picker_input"
-                                    value="<?php echo $esc_cts_val_attr('container_bg_color'); ?>"
+                                    value="<?php echo $esc_cts_val_attr('container_bg_color'); // phpcs:ignore ?>"
                                 />
                             </div>
                         </div>
@@ -315,7 +350,7 @@
                                     id="cts_container_text_color_<?php echo esc_attr($bot_id); ?>"
                                     name="custom_theme_settings[container_text_color]"
                                     class="aipkit_form-input aipkit_color_picker_input"
-                                    value="<?php echo $esc_cts_val_attr('container_text_color'); ?>"
+                                    value="<?php echo $esc_cts_val_attr('container_text_color'); // phpcs:ignore ?>"
                                 />
                             </div>
                         </div>
@@ -330,7 +365,7 @@
                                     id="cts_container_border_color_<?php echo esc_attr($bot_id); ?>"
                                     name="custom_theme_settings[container_border_color]"
                                     class="aipkit_form-input aipkit_color_picker_input"
-                                    value="<?php echo $esc_cts_val_attr('container_border_color'); ?>"
+                                    value="<?php echo $esc_cts_val_attr('container_border_color'); // phpcs:ignore ?>"
                                 />
                             </div>
                         </div>
@@ -345,7 +380,7 @@
                                     id="cts_header_bg_color_<?php echo esc_attr($bot_id); ?>"
                                     name="custom_theme_settings[header_bg_color]"
                                     class="aipkit_form-input aipkit_color_picker_input"
-                                    value="<?php echo $esc_cts_val_attr('header_bg_color'); ?>"
+                                    value="<?php echo $esc_cts_val_attr('header_bg_color'); // phpcs:ignore ?>"
                                 />
                             </div>
                         </div>
@@ -360,7 +395,7 @@
                                     id="cts_header_text_color_<?php echo esc_attr($bot_id); ?>"
                                     name="custom_theme_settings[header_text_color]"
                                     class="aipkit_form-input aipkit_color_picker_input"
-                                    value="<?php echo $esc_cts_val_attr('header_text_color'); ?>"
+                                    value="<?php echo $esc_cts_val_attr('header_text_color'); // phpcs:ignore ?>"
                                 />
                             </div>
                         </div>
@@ -375,7 +410,7 @@
                                     id="cts_header_border_color_<?php echo esc_attr($bot_id); ?>"
                                     name="custom_theme_settings[header_border_color]"
                                     class="aipkit_form-input aipkit_color_picker_input"
-                                    value="<?php echo $esc_cts_val_attr('header_border_color'); ?>"
+                                    value="<?php echo $esc_cts_val_attr('header_border_color'); // phpcs:ignore ?>"
                                 />
                             </div>
                         </div>
@@ -420,7 +455,7 @@
                                     id="cts_footer_bg_color_<?php echo esc_attr($bot_id); ?>"
                                     name="custom_theme_settings[footer_bg_color]"
                                     class="aipkit_form-input aipkit_color_picker_input"
-                                    value="<?php echo $esc_cts_val_attr('footer_bg_color'); ?>"
+                                    value="<?php echo $esc_cts_val_attr('footer_bg_color'); // phpcs:ignore ?>"
                                 />
                             </div>
                         </div>
@@ -435,7 +470,7 @@
                                     id="cts_footer_text_color_<?php echo esc_attr($bot_id); ?>"
                                     name="custom_theme_settings[footer_text_color]"
                                     class="aipkit_form-input aipkit_color_picker_input"
-                                    value="<?php echo $esc_cts_val_attr('footer_text_color'); ?>"
+                                    value="<?php echo $esc_cts_val_attr('footer_text_color'); // phpcs:ignore ?>"
                                 />
                             </div>
                         </div>
@@ -450,7 +485,7 @@
                                     id="cts_footer_border_color_<?php echo esc_attr($bot_id); ?>"
                                     name="custom_theme_settings[footer_border_color]"
                                     class="aipkit_form-input aipkit_color_picker_input"
-                                    value="<?php echo $esc_cts_val_attr('footer_border_color'); ?>"
+                                    value="<?php echo $esc_cts_val_attr('footer_border_color'); // phpcs:ignore ?>"
                                 />
                             </div>
                         </div>
@@ -465,7 +500,7 @@
                                     id="cts_input_bg_color_<?php echo esc_attr($bot_id); ?>"
                                     name="custom_theme_settings[input_area_bg_color]"
                                     class="aipkit_form-input aipkit_color_picker_input"
-                                    value="<?php echo $esc_cts_val_attr('input_area_bg_color'); ?>"
+                                    value="<?php echo $esc_cts_val_attr('input_area_bg_color'); // phpcs:ignore ?>"
                                 />
                             </div>
                         </div>
@@ -480,7 +515,7 @@
                                     id="cts_input_text_color_<?php echo esc_attr($bot_id); ?>"
                                     name="custom_theme_settings[input_text_color]"
                                     class="aipkit_form-input aipkit_color_picker_input"
-                                    value="<?php echo $esc_cts_val_attr('input_text_color'); ?>"
+                                    value="<?php echo $esc_cts_val_attr('input_text_color'); // phpcs:ignore ?>"
                                 />
                             </div>
                         </div>
@@ -495,7 +530,7 @@
                                     id="cts_input_wrapper_bg_color_<?php echo esc_attr($bot_id); ?>"
                                     name="custom_theme_settings[input_wrapper_bg_color]"
                                     class="aipkit_form-input aipkit_color_picker_input"
-                                    value="<?php echo $esc_cts_val_attr('input_wrapper_bg_color'); ?>"
+                                    value="<?php echo $esc_cts_val_attr('input_wrapper_bg_color'); // phpcs:ignore ?>"
                                 />
                             </div>
                         </div>
@@ -510,7 +545,7 @@
                                     id="cts_input_wrapper_border_color_<?php echo esc_attr($bot_id); ?>"
                                     name="custom_theme_settings[input_wrapper_border_color]"
                                     class="aipkit_form-input aipkit_color_picker_input"
-                                    value="<?php echo $esc_cts_val_attr('input_wrapper_border_color'); ?>"
+                                    value="<?php echo $esc_cts_val_attr('input_wrapper_border_color'); // phpcs:ignore ?>"
                                 />
                             </div>
                         </div>
@@ -525,7 +560,7 @@
                                     id="cts_send_button_bg_color_<?php echo esc_attr($bot_id); ?>"
                                     name="custom_theme_settings[send_button_bg_color]"
                                     class="aipkit_form-input aipkit_color_picker_input"
-                                    value="<?php echo $esc_cts_val_attr('send_button_bg_color'); ?>"
+                                    value="<?php echo $esc_cts_val_attr('send_button_bg_color'); // phpcs:ignore ?>"
                                 />
                             </div>
                         </div>
@@ -540,7 +575,7 @@
                                     id="cts_send_button_text_color_<?php echo esc_attr($bot_id); ?>"
                                     name="custom_theme_settings[send_button_text_color]"
                                     class="aipkit_form-input aipkit_color_picker_input"
-                                    value="<?php echo $esc_cts_val_attr('send_button_text_color'); ?>"
+                                    value="<?php echo $esc_cts_val_attr('send_button_text_color'); // phpcs:ignore ?>"
                                 />
                             </div>
                         </div>
@@ -555,7 +590,7 @@
                                     id="cts_action_button_bg_color_<?php echo esc_attr($bot_id); ?>"
                                     name="custom_theme_settings[action_button_bg_color]"
                                     class="aipkit_form-input aipkit_color_picker_input"
-                                    value="<?php echo $esc_cts_val_attr('action_button_bg_color'); ?>"
+                                    value="<?php echo $esc_cts_val_attr('action_button_bg_color'); // phpcs:ignore ?>"
                                 />
                             </div>
                         </div>
@@ -570,7 +605,7 @@
                                     id="cts_action_button_color_<?php echo esc_attr($bot_id); ?>"
                                     name="custom_theme_settings[action_button_color]"
                                     class="aipkit_form-input aipkit_color_picker_input"
-                                    value="<?php echo $esc_cts_val_attr('action_button_color'); ?>"
+                                    value="<?php echo $esc_cts_val_attr('action_button_color'); // phpcs:ignore ?>"
                                 />
                             </div>
                         </div>
@@ -585,7 +620,7 @@
                                     id="cts_action_button_border_color_<?php echo esc_attr($bot_id); ?>"
                                     name="custom_theme_settings[action_button_border_color]"
                                     class="aipkit_form-input aipkit_color_picker_input"
-                                    value="<?php echo $esc_cts_val_attr('action_button_border_color'); ?>"
+                                    value="<?php echo $esc_cts_val_attr('action_button_border_color'); // phpcs:ignore ?>"
                                 />
                             </div>
                         </div>
@@ -600,7 +635,7 @@
                                     id="cts_action_button_hover_bg_color_<?php echo esc_attr($bot_id); ?>"
                                     name="custom_theme_settings[action_button_hover_bg_color]"
                                     class="aipkit_form-input aipkit_color_picker_input"
-                                    value="<?php echo $esc_cts_val_attr('action_button_hover_bg_color'); ?>"
+                                    value="<?php echo $esc_cts_val_attr('action_button_hover_bg_color'); // phpcs:ignore ?>"
                                 />
                             </div>
                         </div>
@@ -615,7 +650,7 @@
                                     id="cts_action_button_hover_color_<?php echo esc_attr($bot_id); ?>"
                                     name="custom_theme_settings[action_button_hover_color]"
                                     class="aipkit_form-input aipkit_color_picker_input"
-                                    value="<?php echo $esc_cts_val_attr('action_button_hover_color'); ?>"
+                                    value="<?php echo $esc_cts_val_attr('action_button_hover_color'); // phpcs:ignore ?>"
                                 />
                             </div>
                         </div>

@@ -1,5 +1,36 @@
 <?php
-if (!defined('ABSPATH')) { exit; } $aipkit_token_limits_section_id_prefix = isset($aipkit_token_limits_section_id_prefix) ? preg_replace('/[^A-Za-z0-9_]/', '', (string) $aipkit_token_limits_section_id_prefix) : ''; $aipkit_token_limits_field_id_prefix = isset($aipkit_token_limits_field_id_prefix) ? preg_replace('/[^A-Za-z0-9_]/', '', (string) $aipkit_token_limits_field_id_prefix) : ''; $aipkit_token_limits_field_name_prefix = isset($aipkit_token_limits_field_name_prefix) ? preg_replace('/[^A-Za-z0-9_]/', '', (string) $aipkit_token_limits_field_name_prefix) : ''; $aipkit_token_limits_reset_period_row_extra_class = isset($aipkit_token_limits_reset_period_row_extra_class) ? sanitize_html_class((string) $aipkit_token_limits_reset_period_row_extra_class) : ''; $aipkit_token_limits_reset_period_row_extra_class = $aipkit_token_limits_reset_period_row_extra_class !== '' ? ' ' . $aipkit_token_limits_reset_period_row_extra_class : ''; $aipkit_token_limits_id = static function (string $suffix) use ($aipkit_token_limits_field_id_prefix): string { return $aipkit_token_limits_field_id_prefix . '_' . $suffix; }; $aipkit_token_limits_name = static function (string $suffix) use ($aipkit_token_limits_field_name_prefix): string { return $aipkit_token_limits_field_name_prefix . '_' . $suffix; }; $aipkit_token_limits_default_label = static function (string $action_type): string { return \WPAICG\Chat\Storage\BotSettingsManager::get_token_limit_action_default_label($action_type); }; ?>
+if (!defined('ABSPATH')) {
+    exit;
+}
+
+// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- Shared view partial configured by parent templates.
+
+$aipkit_token_limits_section_id_prefix = isset($aipkit_token_limits_section_id_prefix)
+    ? preg_replace('/[^A-Za-z0-9_]/', '', (string) $aipkit_token_limits_section_id_prefix)
+    : '';
+$aipkit_token_limits_field_id_prefix = isset($aipkit_token_limits_field_id_prefix)
+    ? preg_replace('/[^A-Za-z0-9_]/', '', (string) $aipkit_token_limits_field_id_prefix)
+    : '';
+$aipkit_token_limits_field_name_prefix = isset($aipkit_token_limits_field_name_prefix)
+    ? preg_replace('/[^A-Za-z0-9_]/', '', (string) $aipkit_token_limits_field_name_prefix)
+    : '';
+$aipkit_token_limits_reset_period_row_extra_class = isset($aipkit_token_limits_reset_period_row_extra_class)
+    ? sanitize_html_class((string) $aipkit_token_limits_reset_period_row_extra_class)
+    : '';
+$aipkit_token_limits_reset_period_row_extra_class = $aipkit_token_limits_reset_period_row_extra_class !== ''
+    ? ' ' . $aipkit_token_limits_reset_period_row_extra_class
+    : '';
+
+$aipkit_token_limits_id = static function (string $suffix) use ($aipkit_token_limits_field_id_prefix): string {
+    return $aipkit_token_limits_field_id_prefix . '_' . $suffix;
+};
+$aipkit_token_limits_name = static function (string $suffix) use ($aipkit_token_limits_field_name_prefix): string {
+    return $aipkit_token_limits_field_name_prefix . '_' . $suffix;
+};
+$aipkit_token_limits_default_label = static function (string $action_type): string {
+    return \WPAICG\Chat\Storage\BotSettingsManager::get_token_limit_action_default_label($action_type);
+};
+?>
 <section
     class="aipkit_ai_forms_settings_block aipkit_settings_module_tab_panel"
     id="<?php echo esc_attr($aipkit_token_limits_section_id_prefix . '_limits'); ?>"
@@ -97,7 +128,12 @@ if (!defined('ABSPATH')) { exit; } $aipkit_token_limits_section_id_prefix = isse
             </div>
             <div class="aipkit_popover_role_limits aipkit_ai_forms_role_limits">
                 <?php
- $editable_roles = get_editable_roles(); foreach ($editable_roles as $role_slug => $role_info) : $role_name = translate_user_role($role_info['name']); $role_limit = $role_limits[$role_slug] ?? null; $role_limit_value = ($role_limit === null) ? '' : (string) $role_limit; ?>
+                $editable_roles = get_editable_roles();
+                foreach ($editable_roles as $role_slug => $role_info) :
+                    $role_name = translate_user_role($role_info['name']);
+                    $role_limit = $role_limits[$role_slug] ?? null;
+                    $role_limit_value = ($role_limit === null) ? '' : (string) $role_limit;
+                    ?>
                     <div class="aipkit_popover_role_limit_row">
                         <span class="aipkit_popover_role_limit_label"><?php echo esc_html($role_name); ?></span>
                         <input

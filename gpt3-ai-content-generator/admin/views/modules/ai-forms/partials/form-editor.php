@@ -1,5 +1,93 @@
 <?php
- if (!defined('ABSPATH')) { exit; } use WPAICG\aipkit_dashboard; use WPAICG\AIPKIT_AI_Settings; $providers = ['OpenAI', 'Google', 'Claude', 'OpenRouter', 'Azure', 'Ollama', 'DeepSeek', 'xAI']; $is_pro = class_exists('\\WPAICG\\aipkit_dashboard') && aipkit_dashboard::is_pro_plan(); $global_ai_params = []; if (class_exists('\\WPAICG\\AIPKIT_AI_Settings')) { $global_ai_params = AIPKIT_AI_Settings::get_ai_parameters(); } $default_temp = $global_ai_params['temperature'] ?? 1.0; $default_max_tokens = $global_ai_params['max_completion_tokens'] ?? 4000; $default_top_p = $global_ai_params['top_p'] ?? 1.0; $default_frequency_penalty = $global_ai_params['frequency_penalty'] ?? 0.0; $default_presence_penalty = $global_ai_params['presence_penalty'] ?? 0.0; $upgrade_url = function_exists('wpaicg_gacg_fs') ? wpaicg_gacg_fs()->get_upgrade_url() : admin_url('admin.php?page=wpaicg-pricing'); $connected_apps_manage_url = admin_url('admin.php?page=wpaicg&aipkit_module=settings&aipkit_settings_page=apps'); $connected_apps_supported_destinations = [ [ 'name' => 'Slack', 'logo_url' => WPAICG_PLUGIN_URL . 'admin/images/apps/slack.svg', ], [ 'name' => 'HubSpot', 'logo_url' => WPAICG_PLUGIN_URL . 'admin/images/apps/hubspot.svg', ], [ 'name' => 'Notion', 'logo_url' => WPAICG_PLUGIN_URL . 'admin/images/apps/notion.svg', ], [ 'name' => 'Pipedrive', 'logo_url' => WPAICG_PLUGIN_URL . 'admin/images/apps/pipedrive.svg', ], [ 'name' => 'Zapier', 'logo_url' => WPAICG_PLUGIN_URL . 'admin/images/apps/zapier.svg', ], [ 'name' => 'Make', 'logo_url' => WPAICG_PLUGIN_URL . 'admin/images/apps/make.svg', ], [ 'name' => 'n8n', 'logo_url' => WPAICG_PLUGIN_URL . 'admin/images/apps/n8n.svg', ], ]; $initial_ai_form_connected_apps = [ 'count' => 0, 'summary' => '', 'recipes' => [], ]; $render_ai_form_connected_apps_cards = static function (array $connected_apps_payload): void { $recipes = isset($connected_apps_payload['recipes']) && is_array($connected_apps_payload['recipes']) ? $connected_apps_payload['recipes'] : []; foreach ($recipes as $recipe) { if (!is_array($recipe)) { continue; } $recipe_name = sanitize_text_field((string) ($recipe['name'] ?? __('Untitled Recipe', 'gpt3-ai-content-generator'))); $status_key = sanitize_key((string) ($recipe['status_key'] ?? 'warning')); if (!in_array($status_key, ['ready', 'warning', 'error', 'reauth_required'], true)) { $status_key = 'warning'; } $status_label = sanitize_text_field((string) ($recipe['status_label'] ?? __('Warning', 'gpt3-ai-content-generator'))); $connection_label = sanitize_text_field((string) ($recipe['connection_label'] ?? __('No connection', 'gpt3-ai-content-generator'))); $event_label = sanitize_text_field((string) ($recipe['event_label'] ?? __('No event', 'gpt3-ai-content-generator'))); $action_label = sanitize_text_field((string) ($recipe['action_label'] ?? __('No action', 'gpt3-ai-content-generator'))); $scope_label = sanitize_text_field((string) ($recipe['scope_label'] ?? __('All AI Forms', 'gpt3-ai-content-generator'))); $validation_summary = sanitize_text_field((string) ($recipe['validation_summary'] ?? __('Validation unavailable.', 'gpt3-ai-content-generator'))); ?>
+
+/**
+ * Partial: AI Form Editor (Main Orchestrator)
+ * UI for creating or editing an AI Form. Implements a modern 3-column layout for an improved user experience.
+ */
+
+if (!defined('ABSPATH')) {
+    exit;
+}
+
+// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- This file only uses local helper/template variables and does not define public globals.
+
+use WPAICG\aipkit_dashboard;
+use WPAICG\AIPKIT_AI_Settings;
+
+// --- Get available providers (always show, lock via disabled when not eligible) ---
+$providers = ['OpenAI', 'Google', 'Claude', 'OpenRouter', 'Azure', 'Ollama', 'DeepSeek', 'xAI'];
+$is_pro = class_exists('\\WPAICG\\aipkit_dashboard') && aipkit_dashboard::is_pro_plan();
+// --- Get global AI param defaults ---
+$global_ai_params = [];
+if (class_exists('\\WPAICG\\AIPKIT_AI_Settings')) {
+    $global_ai_params = AIPKIT_AI_Settings::get_ai_parameters();
+}
+$default_temp = $global_ai_params['temperature'] ?? 1.0;
+$default_max_tokens = $global_ai_params['max_completion_tokens'] ?? 4000;
+$default_top_p = $global_ai_params['top_p'] ?? 1.0;
+$default_frequency_penalty = $global_ai_params['frequency_penalty'] ?? 0.0;
+$default_presence_penalty = $global_ai_params['presence_penalty'] ?? 0.0;
+$upgrade_url = function_exists('wpaicg_gacg_fs')
+    ? wpaicg_gacg_fs()->get_upgrade_url()
+    : admin_url('admin.php?page=wpaicg-pricing');
+$connected_apps_manage_url = admin_url('admin.php?page=wpaicg&aipkit_module=settings&aipkit_settings_page=apps');
+$connected_apps_supported_destinations = [
+    [
+        'name' => 'Slack',
+        'logo_url' => WPAICG_PLUGIN_URL . 'admin/images/apps/slack.svg',
+    ],
+    [
+        'name' => 'HubSpot',
+        'logo_url' => WPAICG_PLUGIN_URL . 'admin/images/apps/hubspot.svg',
+    ],
+    [
+        'name' => 'Notion',
+        'logo_url' => WPAICG_PLUGIN_URL . 'admin/images/apps/notion.svg',
+    ],
+    [
+        'name' => 'Pipedrive',
+        'logo_url' => WPAICG_PLUGIN_URL . 'admin/images/apps/pipedrive.svg',
+    ],
+    [
+        'name' => 'Zapier',
+        'logo_url' => WPAICG_PLUGIN_URL . 'admin/images/apps/zapier.svg',
+    ],
+    [
+        'name' => 'Make',
+        'logo_url' => WPAICG_PLUGIN_URL . 'admin/images/apps/make.svg',
+    ],
+    [
+        'name' => 'n8n',
+        'logo_url' => WPAICG_PLUGIN_URL . 'admin/images/apps/n8n.svg',
+    ],
+];
+$initial_ai_form_connected_apps = [
+    'count' => 0,
+    'summary' => '',
+    'recipes' => [],
+];
+$render_ai_form_connected_apps_cards = static function (array $connected_apps_payload): void {
+    $recipes = isset($connected_apps_payload['recipes']) && is_array($connected_apps_payload['recipes'])
+        ? $connected_apps_payload['recipes']
+        : [];
+
+    foreach ($recipes as $recipe) {
+        if (!is_array($recipe)) {
+            continue;
+        }
+
+        $recipe_name = sanitize_text_field((string) ($recipe['name'] ?? __('Untitled Recipe', 'gpt3-ai-content-generator')));
+        $status_key = sanitize_key((string) ($recipe['status_key'] ?? 'warning'));
+        if (!in_array($status_key, ['ready', 'warning', 'error', 'reauth_required'], true)) {
+            $status_key = 'warning';
+        }
+        $status_label = sanitize_text_field((string) ($recipe['status_label'] ?? __('Warning', 'gpt3-ai-content-generator')));
+        $connection_label = sanitize_text_field((string) ($recipe['connection_label'] ?? __('No connection', 'gpt3-ai-content-generator')));
+        $event_label = sanitize_text_field((string) ($recipe['event_label'] ?? __('No event', 'gpt3-ai-content-generator')));
+        $action_label = sanitize_text_field((string) ($recipe['action_label'] ?? __('No action', 'gpt3-ai-content-generator')));
+        $scope_label = sanitize_text_field((string) ($recipe['scope_label'] ?? __('All AI Forms', 'gpt3-ai-content-generator')));
+        $validation_summary = sanitize_text_field((string) ($recipe['validation_summary'] ?? __('Validation unavailable.', 'gpt3-ai-content-generator')));
+        ?>
         <article class="aipkit_chatbot_connected_apps_recipe">
             <div class="aipkit_chatbot_connected_apps_recipe_header">
                 <strong class="aipkit_chatbot_connected_apps_recipe_title"><?php echo esc_html($recipe_name); ?></strong>
@@ -23,7 +111,9 @@
             </p>
         </article>
         <?php
- } }; ?>
+    }
+};
+?>
 <div class="aipkit_form_editor">
     <form id="aipkit_ai_form_editor_form" onsubmit="return false;">
         <input type="hidden" id="aipkit_ai_form_id" name="form_id" value="">
@@ -178,7 +268,9 @@
                             </div>
 
                             <?php
- $aipkit_ai_forms_workflow_renderer_registered = has_action('aipkit_ai_forms_editor_left_accordion_after_multistep'); do_action('aipkit_ai_forms_editor_left_accordion_after_multistep', $is_pro, $upgrade_url); ?>
+                            $aipkit_ai_forms_workflow_renderer_registered = has_action('aipkit_ai_forms_editor_left_accordion_after_multistep');
+                            do_action('aipkit_ai_forms_editor_left_accordion_after_multistep', $is_pro, $upgrade_url);
+                            ?>
                             <?php if (!$is_pro && false === $aipkit_ai_forms_workflow_renderer_registered): ?>
                                 <div class="aipkit_accordion aipkit_ai_forms_workflow_accordion">
                                     <div class="aipkit_accordion-header">

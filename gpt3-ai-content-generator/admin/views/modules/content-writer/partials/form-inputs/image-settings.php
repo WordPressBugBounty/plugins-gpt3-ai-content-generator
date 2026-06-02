@@ -1,5 +1,36 @@
 <?php
-if (!defined('ABSPATH')) { exit; } use WPAICG\ContentWriter\AIPKit_Content_Writer_Prompts; $prompt_library = AIPKit_Content_Writer_Prompts::get_prompt_library(); $default_image_prompt = AIPKit_Content_Writer_Prompts::get_default_image_prompt(); $default_featured_image_prompt = AIPKit_Content_Writer_Prompts::get_default_featured_image_prompt(); $default_image_title_prompt = AIPKit_Content_Writer_Prompts::get_default_image_title_prompt(); $default_image_alt_text_prompt = AIPKit_Content_Writer_Prompts::get_default_image_alt_text_prompt(); $default_image_caption_prompt = AIPKit_Content_Writer_Prompts::get_default_image_caption_prompt(); $default_image_description_prompt = AIPKit_Content_Writer_Prompts::get_default_image_description_prompt(); $default_image_title_prompt_update = AIPKit_Content_Writer_Prompts::get_default_image_title_prompt_update(); $default_image_alt_text_prompt_update = AIPKit_Content_Writer_Prompts::get_default_image_alt_text_prompt_update(); $default_image_caption_prompt_update = AIPKit_Content_Writer_Prompts::get_default_image_caption_prompt_update(); $default_image_description_prompt_update = AIPKit_Content_Writer_Prompts::get_default_image_description_prompt_update(); $render_prompt_library_options = static function(array $options, string $mode = ''): void { foreach ($options as $option) { if (empty($option['label']) || empty($option['prompt'])) { continue; } echo '<option value="' . esc_attr($option['prompt']) . '"'; if ($mode !== '') { echo ' data-aipkit-mode="' . esc_attr($mode) . '"'; } echo '>' . esc_html($option['label']) . '</option>'; } }; ?>
+if (!defined('ABSPATH')) {
+    exit;
+}
+
+// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- This file only uses local helper/template variables and does not define public globals.
+
+use WPAICG\ContentWriter\AIPKit_Content_Writer_Prompts;
+
+$prompt_library = AIPKit_Content_Writer_Prompts::get_prompt_library();
+$default_image_prompt = AIPKit_Content_Writer_Prompts::get_default_image_prompt();
+$default_featured_image_prompt = AIPKit_Content_Writer_Prompts::get_default_featured_image_prompt();
+$default_image_title_prompt = AIPKit_Content_Writer_Prompts::get_default_image_title_prompt();
+$default_image_alt_text_prompt = AIPKit_Content_Writer_Prompts::get_default_image_alt_text_prompt();
+$default_image_caption_prompt = AIPKit_Content_Writer_Prompts::get_default_image_caption_prompt();
+$default_image_description_prompt = AIPKit_Content_Writer_Prompts::get_default_image_description_prompt();
+$default_image_title_prompt_update = AIPKit_Content_Writer_Prompts::get_default_image_title_prompt_update();
+$default_image_alt_text_prompt_update = AIPKit_Content_Writer_Prompts::get_default_image_alt_text_prompt_update();
+$default_image_caption_prompt_update = AIPKit_Content_Writer_Prompts::get_default_image_caption_prompt_update();
+$default_image_description_prompt_update = AIPKit_Content_Writer_Prompts::get_default_image_description_prompt_update();
+$render_prompt_library_options = static function(array $options, string $mode = ''): void {
+    foreach ($options as $option) {
+        if (empty($option['label']) || empty($option['prompt'])) {
+            continue;
+        }
+        echo '<option value="' . esc_attr($option['prompt']) . '"';
+        if ($mode !== '') {
+            echo ' data-aipkit-mode="' . esc_attr($mode) . '"';
+        }
+        echo '>' . esc_html($option['label']) . '</option>';
+    }
+};
+?>
 
 <input type="hidden" name="image_prompt_update" id="aipkit_cw_image_prompt_update" value="">
 <input type="hidden" name="featured_image_prompt_update" id="aipkit_cw_featured_image_prompt_update" value="">
@@ -41,7 +72,7 @@ if (!defined('ABSPATH')) { exit; } use WPAICG\ContentWriter\AIPKit_Content_Write
             </optgroup>
         </select>
         <select id="aipkit_cw_image_model" name="image_model" class="aipkit_autosave_trigger" tabindex="-1">
-            <?php ?>
+            <?php // Populated by JS ?>
         </select>
         <input
             type="hidden"
@@ -81,7 +112,7 @@ if (!defined('ABSPATH')) { exit; } use WPAICG\ContentWriter\AIPKit_Content_Write
                     class="aipkit_form-input"
                     data-aipkit-picker-title="<?php echo esc_attr__('Image source', 'gpt3-ai-content-generator'); ?>"
                 >
-                    <?php ?>
+                    <?php // Populated by JS ?>
                 </select>
                 <?php $aipkit_cw_image_display_settings_render_mode = 'trigger'; ?>
                 <?php include __DIR__ . '/image-display-settings.php'; ?>
