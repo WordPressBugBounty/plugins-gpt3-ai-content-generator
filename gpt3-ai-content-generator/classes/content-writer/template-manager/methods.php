@@ -516,10 +516,10 @@ function get_cw_starter_template_definitions(array $base_config): array
     $default_excerpt_prompt = AIPKit_Content_Writer_Prompts::get_default_excerpt_prompt();
     $default_tags_prompt = AIPKit_Content_Writer_Prompts::get_default_tags_prompt();
     $default_smart_seo_disabled_rules = $base_config['seo_score_disabled_rules'] ?? '[]';
-    $default_title_prompt = __('Write a clear, SEO-friendly title that includes the main keyword. Keep it concise and suitable for search results (about 8-12 words). Return only the title text with no extra text or annotations.
+    $default_title_prompt = 'Write a clear, SEO-friendly title that includes the main keyword. Keep it concise and suitable for search results (about 8-12 words). Return only the title text with no extra text or annotations.
 
 Topic: "{topic}"
-Keywords: "{keywords}"', 'gpt3-ai-content-generator');
+Keywords: "{keywords}"';
 
     $shared_config = [
         'ai_provider' => $default_provider,
@@ -554,32 +554,32 @@ Keywords: "{keywords}"', 'gpt3-ai-content-generator');
         [
             'name' => __('Short (600-800 words)', 'gpt3-ai-content-generator'),
             'length' => 'short',
-            'content_prompt' => __('Write a short blog post of about 600-800 words. Use headings, short paragraphs, and include the focus keyword naturally. Format the article in proper Markdown with clear H2/H3 headings, lists when helpful, and no extra commentary.
+            'content_prompt' => 'Write a short blog post of about 600-800 words. Use headings, short paragraphs, and include the focus keyword naturally. Format the article in proper Markdown with clear H2/H3 headings, lists when helpful, and no extra commentary.
 
 Return only the Markdown article.
 
 Topic: "{topic}"
-Keywords: "{keywords}"', 'gpt3-ai-content-generator'),
+Keywords: "{keywords}"',
         ],
         [
             'name' => __('Medium (1200-1600 words)', 'gpt3-ai-content-generator'),
             'length' => 'medium',
-            'content_prompt' => __('Write a medium-length blog post of about 1200-1600 words. Use clear headings, examples, and a short conclusion. Format the article in proper Markdown with clear H2/H3 headings, lists when helpful, and no extra commentary.
+            'content_prompt' => 'Write a medium-length blog post of about 1200-1600 words. Use clear headings, examples, and a short conclusion. Format the article in proper Markdown with clear H2/H3 headings, lists when helpful, and no extra commentary.
 
 Return only the Markdown article.
 
 Topic: "{topic}"
-Keywords: "{keywords}"', 'gpt3-ai-content-generator'),
+Keywords: "{keywords}"',
         ],
         [
             'name' => __('Long (2000-2500 words)', 'gpt3-ai-content-generator'),
             'length' => 'long',
-            'content_prompt' => __('Write a long-form blog post of about 2000-2500 words. Use clear headings, examples, and a concise conclusion. Format the article in proper Markdown with clear H2/H3 headings, lists when helpful, and no extra commentary.
+            'content_prompt' => 'Write a long-form blog post of about 2000-2500 words. Use clear headings, examples, and a concise conclusion. Format the article in proper Markdown with clear H2/H3 headings, lists when helpful, and no extra commentary.
 
 Return only the Markdown article.
 
 Topic: "{topic}"
-Keywords: "{keywords}"', 'gpt3-ai-content-generator'),
+Keywords: "{keywords}"',
         ],
     ];
 

@@ -78,7 +78,7 @@ class AIPKit_Instruction_Manager {
     private static function process_base_instructions(string $instructions_raw): string {
         if (empty($instructions_raw)) {
             // Provide a minimal default if base instructions are empty
-            $instructions_raw = __("You are a helpful AI Assistant.", 'gpt3-ai-content-generator');
+            $instructions_raw = 'You are a helpful AI Assistant.';
         }
 
         // Replace [date] placeholder

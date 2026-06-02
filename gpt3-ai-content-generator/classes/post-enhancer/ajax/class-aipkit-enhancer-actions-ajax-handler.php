@@ -30,56 +30,49 @@ class AIPKit_Enhancer_Actions_Ajax_Handler extends BaseDashboardAjaxHandler
             [
                 'id' => 'rewrite-' . wp_generate_uuid4(),
                 'label' => __('Rewrite', 'gpt3-ai-content-generator'),
-                /* translators: %s: The text to be rewritten */
-                'prompt' => __('Rewrite this to improve clarity and engagement: "%s"', 'gpt3-ai-content-generator'),
+                'prompt' => 'Rewrite this to improve clarity and engagement: "%s"',
                 'insert_position' => 'replace',
                 'is_default' => true
             ],
             [
                 'id' => 'expand-' . wp_generate_uuid4(),
                 'label' => __('Expand', 'gpt3-ai-content-generator'),
-                /* translators: %s: The text to be expanded */
-                'prompt' => __('Expand on the following point: "%s"', 'gpt3-ai-content-generator'),
+                'prompt' => 'Expand on the following point: "%s"',
                 'insert_position' => 'replace',
                 'is_default' => true
             ],
             [
                 'id' => 'fix_grammar-' . wp_generate_uuid4(),
                 'label' => __('Fix Grammar & Spelling', 'gpt3-ai-content-generator'),
-                /* translators: %s: The text to be corrected */
-                'prompt' => __('Correct any spelling and grammar mistakes in the following text: "%s"', 'gpt3-ai-content-generator'),
+                'prompt' => 'Correct any spelling and grammar mistakes in the following text: "%s"',
                 'insert_position' => 'replace',
                 'is_default' => true
             ],
             [
                 'id' => 'summarize-' . wp_generate_uuid4(),
                 'label' => __('Summarize', 'gpt3-ai-content-generator'),
-                /* translators: %s: The text to be summarized */
-                'prompt' => __('Summarize the following text in 3–5 concise sentences while preserving key facts and tone: "%s"', 'gpt3-ai-content-generator'),
+                'prompt' => 'Summarize the following text in 3–5 concise sentences while preserving key facts and tone: "%s"',
                 'insert_position' => 'replace',
                 'is_default' => true
             ],
             [
                 'id' => 'outline-' . wp_generate_uuid4(),
                 'label' => __('Create Outline (H2/H3)', 'gpt3-ai-content-generator'),
-                /* translators: %s: The text to outline */
-                'prompt' => __('Create a clear outline from the following text using headings (## for H2, ### for H3) and short bullets as needed: "%s"', 'gpt3-ai-content-generator'),
+                'prompt' => 'Create a clear outline from the following text using headings (## for H2, ### for H3) and short bullets as needed: "%s"',
                 'insert_position' => 'replace',
                 'is_default' => true
             ],
             [
                 'id' => 'faqs-' . wp_generate_uuid4(),
                 'label' => __('Generate FAQs', 'gpt3-ai-content-generator'),
-                /* translators: %s: The text to generate FAQs from */
-                'prompt' => __('Generate 5–7 relevant FAQ questions and short answers based on this text. Use a simple Q/A format in Markdown. Text: "%s"', 'gpt3-ai-content-generator'),
+                'prompt' => 'Generate 5–7 relevant FAQ questions and short answers based on this text. Use a simple Q/A format in Markdown. Text: "%s"',
                 'insert_position' => 'replace',
                 'is_default' => true
             ],
             [
                 'id' => 'simplify-' . wp_generate_uuid4(),
                 'label' => __('Simplify Tone', 'gpt3-ai-content-generator'),
-                /* translators: %s: The text to be simplified */
-                'prompt' => __('Rewrite the following in a friendly, simple tone (grade 7–8 readability) while preserving meaning and structure: "%s"', 'gpt3-ai-content-generator'),
+                'prompt' => 'Rewrite the following in a friendly, simple tone (grade 7–8 readability) while preserving meaning and structure: "%s"',
                 'insert_position' => 'replace',
                 'is_default' => true
             ],

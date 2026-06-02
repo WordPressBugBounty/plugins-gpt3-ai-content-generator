@@ -4,7 +4,7 @@ Tags: ai, chatbot, gpt, claude, openai
 Requires at least: 6.0
 Tested up to: 7.0
 Requires PHP: 7.4
-Stable tag: 2.4.37
+Stable tag: 2.4.38
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -126,9 +126,13 @@ Yes. AIP supports GPT-5, GPT-4o, GPT-4 Turbo, Google Gemini 1.5, Imagen 4.0, and
 
 == Changelog ==
 
-= 2.4.37 =
+= 2.4.38 =
 
 Brought back PHP 7.4 support due to popular demand from PHP 7.4 fans.
+
+= 2.4.37 =
+
+- Code cleanup.
 
 = 2.4.36 =
 

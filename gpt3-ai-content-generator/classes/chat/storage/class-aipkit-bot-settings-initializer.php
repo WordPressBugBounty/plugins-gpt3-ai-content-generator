@@ -57,7 +57,7 @@ class AIPKit_Bot_Settings_Initializer
         delete_post_meta($post_id, '_aipkit_azure_endpoint');
         update_post_meta($post_id, '_aipkit_theme', 'dark');
         update_post_meta($post_id, '_aipkit_theme_preset_key', '');
-        $default_instructions = __("You are a helpful AI Assistant. Please be friendly. Today's date is [date].", 'gpt3-ai-content-generator');
+        $default_instructions = "You are a helpful AI Assistant. Please be friendly. Today's date is [date].";
         update_post_meta($post_id, '_aipkit_instructions', $default_instructions);
         update_post_meta($post_id, '_aipkit_deploy_mode', 'popup');
         update_post_meta($post_id, '_aipkit_popup_enabled', '1');

@@ -13,7 +13,7 @@ class AIPKit_AutoGPT_Prompt_Definitions
     public static function get_content_enhancement_defaults(): array
     {
         return [
-            'title' => __('You are an expert SEO copywriter. Generate the single best and most compelling SEO title based on the provided information. The title must:
+            'title' => 'You are an expert SEO copywriter. Generate the single best and most compelling SEO title based on the provided information. The title must:
 - Be under 60 characters
 - Start with the main focus keyword
 - Include at least one power word (e.g., Stunning, Must-Have, Exclusive)
@@ -23,12 +23,12 @@ Return ONLY the new title text. Do not include any introduction, explanation, or
 
 Original title: "{original_title}"
 Post content snippet: "{original_content}"
-Focus keyword: "{original_focus_keyword}"', 'gpt3-ai-content-generator'),
-            'excerpt' => __('Rewrite the post excerpt to be more compelling and engaging based on the information provided. Use a friendly tone and aim for 1-2 concise sentences. Return ONLY the new excerpt without any explanation or formatting.
+Focus keyword: "{original_focus_keyword}"',
+            'excerpt' => 'Rewrite the post excerpt to be more compelling and engaging based on the information provided. Use a friendly tone and aim for 1-2 concise sentences. Return ONLY the new excerpt without any explanation or formatting.
 
 Post title: "{original_title}"
-Post content snippet: "{original_content}"', 'gpt3-ai-content-generator'),
-            'content' => __('You are an expert editor. Rewrite and improve the following article to make it more engaging, clear, and informative. Maintain the original tone and intent, but enhance the writing quality. Ensure the following:
+Post content snippet: "{original_content}"',
+            'content' => 'You are an expert editor. Rewrite and improve the following article to make it more engaging, clear, and informative. Maintain the original tone and intent, but enhance the writing quality. Ensure the following:
 - The revised content is at least 600 words long
 - The focus keyword appears in one or more subheadings (H2 or H3)
 - The focus keyword is used naturally throughout the article, especially in the introduction and conclusion
@@ -37,8 +37,8 @@ The article title is: {original_title}
 Focus keyword: {original_focus_keyword}
 
 Original Content:
-{original_content}', 'gpt3-ai-content-generator'),
-            'meta' => __('Generate a single, concise, and SEO-friendly meta description (120-156 characters) for a web page based on the provided information. The description must:
+{original_content}',
+            'meta' => 'Generate a single, concise, and SEO-friendly meta description (120-156 characters) for a web page based on the provided information. The description must:
 - Begin with or include the focus keyword near the start
 - Use an active voice
 - Include a clear call-to-action
@@ -47,7 +47,7 @@ Return ONLY the new meta description without any introduction or formatting.
 
 Page title: "{original_title}"
 Page content snippet: "{original_content}"
-Focus keyword: "{original_focus_keyword}"', 'gpt3-ai-content-generator'),
+Focus keyword: "{original_focus_keyword}"',
         ];
     }
 
@@ -206,9 +206,9 @@ Focus keyword: "{original_focus_keyword}"', 'gpt3-ai-content-generator'),
     public static function get_comment_reply_defaults(): array
     {
         return [
-            'reply' => __('Write a helpful and friendly reply to this comment on my blog post titled \'{post_title}\'.
+            'reply' => 'Write a helpful and friendly reply to this comment on my blog post titled \'{post_title}\'.
 
-Comment: {comment_content}', 'gpt3-ai-content-generator'),
+Comment: {comment_content}',
         ];
     }
 
@@ -251,18 +251,18 @@ Comment: {comment_content}', 'gpt3-ai-content-generator'),
     {
         $defaults = self::get_content_enhancement_defaults();
 
-        $defaults['keyword'] = __('You are an SEO expert. Your task is to identify the single most important and relevant focus keyphrase for the following article. The keyphrase should be concise (ideally 2-4 words) and must be present within the provided content.
+        $defaults['keyword'] = 'You are an SEO expert. Your task is to identify the single most important and relevant focus keyphrase for the following article. The keyphrase should be concise (ideally 2-4 words) and must be present within the provided content.
 
 Return ONLY the keyphrase. Do not add any explanation, labels, or quotation marks.
 
 Article Title: "{original_title}"
 Article Content:
-{original_content}', 'gpt3-ai-content-generator');
+{original_content}';
 
-        $defaults['tags'] = __('You are an SEO expert. Generate a list of 5-10 relevant tags for a blog post titled "{original_title}". Return ONLY a comma-separated list of the tags. Do not include any introduction, explanation, or numbering.
+        $defaults['tags'] = 'You are an SEO expert. Generate a list of 5-10 relevant tags for a blog post titled "{original_title}". Return ONLY a comma-separated list of the tags. Do not include any introduction, explanation, or numbering.
 
 Article Content Snippet:
-{original_content}', 'gpt3-ai-content-generator');
+{original_content}';
 
         return $defaults;
     }

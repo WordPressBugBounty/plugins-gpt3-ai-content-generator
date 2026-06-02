@@ -362,7 +362,7 @@ class AIPKit_Content_Writer_Prompts
      */
     public static function get_default_title_prompt(): string
     {
-        return __('You are an expert SEO copywriter. Write a powerful and engaging SEO title that:
+        return 'You are an expert SEO copywriter. Write a powerful and engaging SEO title that:
 - Starts with the main focus keyword
 - Uses normal title capitalization when the focus keyword starts the title
 - Stays concise and fits typical search-result length (about 8-12 words)
@@ -372,7 +372,7 @@ class AIPKit_Content_Writer_Prompts
 Return ONLY the title text on a single line with no extra text or annotations.
 
 Topic: "{topic}"
-Keywords: "{keywords}"', 'gpt3-ai-content-generator');
+Keywords: "{keywords}"';
     }
 
     /**
@@ -380,7 +380,7 @@ Keywords: "{keywords}"', 'gpt3-ai-content-generator');
      */
     public static function get_default_content_prompt(): string
     {
-        return __('Write a full article based on the topic and keywords below. The article must:
+        return 'Write a full article based on the topic and keywords below. The article must:
 - Be at least 600 words long
 - Include the focus keyword in one or more subheadings (H2, H3, etc.)
 - Begin with an introductory paragraph, not a heading, image, table of contents, or repeated title
@@ -393,7 +393,7 @@ Keywords: "{keywords}"', 'gpt3-ai-content-generator');
 - Do not include chat-style follow-up questions, offers to rewrite the article, or alternative format suggestions
 
 Topic: "{topic}"
-Keywords: "{keywords}"', 'gpt3-ai-content-generator');
+Keywords: "{keywords}"';
     }
 
     /**
@@ -401,7 +401,7 @@ Keywords: "{keywords}"', 'gpt3-ai-content-generator');
      */
     public static function get_default_meta_prompt(): string
     {
-        return __('Write a meta description (120-156 characters) for a page about the following topic. The description must:
+        return 'Write a meta description (120-156 characters) for a page about the following topic. The description must:
 - Begin with or include the focus keyword early
 - Use active voice and a clear call-to-action
 - Be concise and engaging
@@ -410,7 +410,7 @@ Return ONLY the plain meta description without any quotation marks, labels, or f
 
 Topic: "{topic}"
 Keywords: "{keywords}"
-Summary: "{content_summary}"', 'gpt3-ai-content-generator');
+Summary: "{content_summary}"';
     }
 
     /**
@@ -418,7 +418,7 @@ Summary: "{content_summary}"', 'gpt3-ai-content-generator');
      */
     public static function get_default_keyword_prompt(): string
     {
-        return __('Identify the single most important and relevant SEO focus keyphrase for the article based on the title and summary. The keyphrase must:
+        return 'Identify the single most important and relevant SEO focus keyphrase for the article based on the title and summary. The keyphrase must:
 - Be 2–4 words
 - Be naturally found in the content
 - Be suitable for SEO targeting
@@ -427,7 +427,7 @@ Return ONLY the keyphrase, with no labels, formatting, or quotation marks.
 
 Title: "{topic}"
 Summary:
-{content_summary}', 'gpt3-ai-content-generator');
+{content_summary}';
     }
 
     /**
@@ -435,13 +435,13 @@ Summary:
      */
     public static function get_default_excerpt_prompt(): string
     {
-        return __('Write a short excerpt (1–2 engaging sentences) for the following article. Use a friendly, clear tone. Include the focus keyword naturally.
+        return 'Write a short excerpt (1–2 engaging sentences) for the following article. Use a friendly, clear tone. Include the focus keyword naturally.
 
 Return ONLY the excerpt, without any formatting or explanation.
 
 Title: "{topic}"
 Keywords: "{keywords}"
-Summary: "{content_summary}"', 'gpt3-ai-content-generator');
+Summary: "{content_summary}"';
     }
 
     /**
@@ -449,14 +449,14 @@ Summary: "{content_summary}"', 'gpt3-ai-content-generator');
      */
     public static function get_default_tags_prompt(): string
     {
-        return __('Generate 5–10 relevant SEO tags for a blog post about the following topic. Tags must reflect key themes and keywords.
+        return 'Generate 5–10 relevant SEO tags for a blog post about the following topic. Tags must reflect key themes and keywords.
 
 Return ONLY a comma-separated list of tags. Do not include any explanation, numbering, or formatting.
 
 Title: "{topic}"
 Keywords: "{keywords}"
 Summary:
-{content_summary}', 'gpt3-ai-content-generator');
+{content_summary}';
     }
 
     /**
@@ -464,7 +464,7 @@ Summary:
      */
     public static function get_default_image_prompt(): string
     {
-        return __('Create a high-quality, relevant image for an article about: {topic}', 'gpt3-ai-content-generator');
+        return 'Create a high-quality, relevant image for an article about: {topic}';
     }
 
     /**
@@ -472,7 +472,7 @@ Summary:
      */
     public static function get_default_featured_image_prompt(): string
     {
-        return __('Create an eye-catching, high-quality featured image for a blog post about: {topic}. Keywords: {keywords}.', 'gpt3-ai-content-generator');
+        return 'Create an eye-catching, high-quality featured image for a blog post about: {topic}. Keywords: {keywords}.';
     }
 
     /**
@@ -480,7 +480,7 @@ Summary:
      */
     public static function get_default_image_title_prompt(): string
     {
-        return __('Write a concise image title (under 8 words) based on the information below. Keep it clear and descriptive.
+        return 'Write a concise image title (under 8 words) based on the information below. Keep it clear and descriptive.
 
 Return ONLY the title text without quotation marks or extra text.
 
@@ -488,7 +488,7 @@ Topic: "{topic}"
 Keywords: "{keywords}"
 Post title: "{post_title}"
 Excerpt: "{excerpt}"
-File name: "{file_name}"', 'gpt3-ai-content-generator');
+File name: "{file_name}"';
     }
 
     /**
@@ -496,7 +496,7 @@ File name: "{file_name}"', 'gpt3-ai-content-generator');
      */
     public static function get_default_image_alt_text_prompt(): string
     {
-        return __('Write clear alt text (under 125 characters) that describes the image for accessibility.
+        return 'Write clear alt text (under 125 characters) that describes the image for accessibility.
 
 Return ONLY the alt text with no extra text.
 
@@ -504,7 +504,7 @@ Topic: "{topic}"
 Keywords: "{keywords}"
 Post title: "{post_title}"
 Excerpt: "{excerpt}"
-File name: "{file_name}"', 'gpt3-ai-content-generator');
+File name: "{file_name}"';
     }
 
     /**
@@ -512,7 +512,7 @@ File name: "{file_name}"', 'gpt3-ai-content-generator');
      */
     public static function get_default_image_caption_prompt(): string
     {
-        return __('Write a short, friendly caption (1 sentence) for the image.
+        return 'Write a short, friendly caption (1 sentence) for the image.
 
 Return ONLY the caption text with no extra text.
 
@@ -520,7 +520,7 @@ Topic: "{topic}"
 Keywords: "{keywords}"
 Post title: "{post_title}"
 Excerpt: "{excerpt}"
-File name: "{file_name}"', 'gpt3-ai-content-generator');
+File name: "{file_name}"';
     }
 
     /**
@@ -528,7 +528,7 @@ File name: "{file_name}"', 'gpt3-ai-content-generator');
      */
     public static function get_default_image_description_prompt(): string
     {
-        return __('Write a brief image description (1–2 sentences) suitable for the media library.
+        return 'Write a brief image description (1–2 sentences) suitable for the media library.
 
 Return ONLY the description with no extra text.
 
@@ -536,7 +536,7 @@ Topic: "{topic}"
 Keywords: "{keywords}"
 Post title: "{post_title}"
 Excerpt: "{excerpt}"
-File name: "{file_name}"', 'gpt3-ai-content-generator');
+File name: "{file_name}"';
     }
 
     /**
@@ -544,7 +544,7 @@ File name: "{file_name}"', 'gpt3-ai-content-generator');
      */
     public static function get_default_image_title_prompt_update(): string
     {
-        return __('Write a concise image title (under 8 words) based on the attachment details below. Keep it literal and clear.
+        return 'Write a concise image title (under 8 words) based on the attachment details below. Keep it literal and clear.
 
 Return ONLY the title text without quotation marks or extra text.
 
@@ -552,7 +552,7 @@ Attachment title: "{original_title}"
 Caption: "{original_caption}"
 Description: "{original_description}"
 Alt text: "{original_alt}"
-File name: "{file_name}"', 'gpt3-ai-content-generator');
+File name: "{file_name}"';
     }
 
     /**
@@ -560,7 +560,7 @@ File name: "{file_name}"', 'gpt3-ai-content-generator');
      */
     public static function get_default_image_alt_text_prompt_update(): string
     {
-        return __('Write clear alt text (under 125 characters) that describes the image for accessibility. Include a keyword only if it fits naturally.
+        return 'Write clear alt text (under 125 characters) that describes the image for accessibility. Include a keyword only if it fits naturally.
 
 Return ONLY the alt text.
 
@@ -568,7 +568,7 @@ Attachment title: "{original_title}"
 Caption: "{original_caption}"
 Description: "{original_description}"
 Alt text: "{original_alt}"
-File name: "{file_name}"', 'gpt3-ai-content-generator');
+File name: "{file_name}"';
     }
 
     /**
@@ -576,7 +576,7 @@ File name: "{file_name}"', 'gpt3-ai-content-generator');
      */
     public static function get_default_image_caption_prompt_update(): string
     {
-        return __('Write a short, friendly caption (1 sentence, under 20 words) that matches the attachment content.
+        return 'Write a short, friendly caption (1 sentence, under 20 words) that matches the attachment content.
 
 Return ONLY the caption.
 
@@ -584,7 +584,7 @@ Attachment title: "{original_title}"
 Caption: "{original_caption}"
 Description: "{original_description}"
 Alt text: "{original_alt}"
-File name: "{file_name}"', 'gpt3-ai-content-generator');
+File name: "{file_name}"';
     }
 
     /**
@@ -592,7 +592,7 @@ File name: "{file_name}"', 'gpt3-ai-content-generator');
      */
     public static function get_default_image_description_prompt_update(): string
     {
-        return __('Write a brief media library description (1-2 sentences, under 240 characters) for the image.
+        return 'Write a brief media library description (1-2 sentences, under 240 characters) for the image.
 
 Return ONLY the description.
 
@@ -600,7 +600,7 @@ Attachment title: "{original_title}"
 Caption: "{original_caption}"
 Description: "{original_description}"
 Alt text: "{original_alt}"
-File name: "{file_name}"', 'gpt3-ai-content-generator');
+File name: "{file_name}"';
     }
 
     /**
@@ -617,7 +617,7 @@ File name: "{file_name}"', 'gpt3-ai-content-generator');
             'title' => [
                 [
                     'label' => __('Primary SEO Title (Strict)', 'gpt3-ai-content-generator'),
-                    'prompt' => __('Write a single, SEO-optimized article title based on the topic and keywords below.
+                    'prompt' => 'Write a single, SEO-optimized article title based on the topic and keywords below.
 The title must:
 - Clearly represent the core topic of the article
 - Naturally incorporate the most relevant keywords where appropriate
@@ -630,11 +630,11 @@ The title must:
 Return ONLY the title text on a single line with no extra text or annotations.
 
 Topic: "{topic}"
-Keywords: "{keywords}"', 'gpt3-ai-content-generator'),
+Keywords: "{keywords}"',
                 ],
                 [
                     'label' => __('High-CTR Search Result Title', 'gpt3-ai-content-generator'),
-                    'prompt' => __('Generate a compelling, high click-through-rate SEO title.
+                    'prompt' => 'Generate a compelling, high click-through-rate SEO title.
 The title must:
 - Encourage clicks by clearly communicating value or outcome
 - Use keywords naturally without forcing them
@@ -644,11 +644,11 @@ The title must:
 Return ONLY the title text on a single line with no extra text or annotations.
 
 Topic: "{topic}"
-Keywords: "{keywords}"', 'gpt3-ai-content-generator'),
+Keywords: "{keywords}"',
                 ],
                 [
                     'label' => __('Authoritative Guide Title', 'gpt3-ai-content-generator'),
-                    'prompt' => __('Write an authoritative, expert-level title that positions the article as a comprehensive and trustworthy resource.
+                    'prompt' => 'Write an authoritative, expert-level title that positions the article as a comprehensive and trustworthy resource.
 The title must:
 - Convey depth, clarity, and credibility
 - Integrate relevant keywords naturally
@@ -657,11 +657,11 @@ The title must:
 Return ONLY the title text on a single line with no extra text or annotations.
 
 Topic: "{topic}"
-Keywords: "{keywords}"', 'gpt3-ai-content-generator'),
+Keywords: "{keywords}"',
                 ],
                 [
                     'label' => __('How-To Practical Title', 'gpt3-ai-content-generator'),
-                    'prompt' => __('Generate a clear, practical how-to style title.
+                    'prompt' => 'Generate a clear, practical how-to style title.
 The title must:
 - Clearly indicate actionable or instructional value
 - Reflect what the reader will learn or achieve
@@ -670,11 +670,11 @@ The title must:
 Return ONLY the title text on a single line with no extra text or annotations.
 
 Topic: "{topic}"
-Keywords: "{keywords}"', 'gpt3-ai-content-generator'),
+Keywords: "{keywords}"',
                 ],
                 [
                     'label' => __('Problem-Solution Title', 'gpt3-ai-content-generator'),
-                    'prompt' => __('Write a problem-solution focused title based on the topic below.
+                    'prompt' => 'Write a problem-solution focused title based on the topic below.
 The title must:
 - Reference a real or common problem related to the topic
 - Imply a clear solution, improvement, or outcome
@@ -684,11 +684,11 @@ The title must:
 Return ONLY the title text on a single line with no extra text or annotations.
 
 Topic: "{topic}"
-Keywords: "{keywords}"', 'gpt3-ai-content-generator'),
+Keywords: "{keywords}"',
                 ],
                 [
                     'label' => __('Beginner-Friendly Title', 'gpt3-ai-content-generator'),
-                    'prompt' => __('Create a beginner-friendly article title designed for users new to the topic.
+                    'prompt' => 'Create a beginner-friendly article title designed for users new to the topic.
 The title must:
 - Use simple, clear language
 - Avoid jargon or overly technical terms
@@ -697,11 +697,11 @@ The title must:
 Return ONLY the title text on a single line with no extra text or annotations.
 
 Topic: "{topic}"
-Keywords: "{keywords}"', 'gpt3-ai-content-generator'),
+Keywords: "{keywords}"',
                 ],
                 [
                     'label' => __('Advanced Audience Title', 'gpt3-ai-content-generator'),
-                    'prompt' => __('Write a title aimed at experienced users or professionals.
+                    'prompt' => 'Write a title aimed at experienced users or professionals.
 The title must:
 - Signal depth, strategy, or advanced insight
 - Avoid beginner-level wording
@@ -710,11 +710,11 @@ The title must:
 Return ONLY the title text on a single line with no extra text or annotations.
 
 Topic: "{topic}"
-Keywords: "{keywords}"', 'gpt3-ai-content-generator'),
+Keywords: "{keywords}"',
                 ],
                 [
                     'label' => __('List-Style SEO Title', 'gpt3-ai-content-generator'),
-                    'prompt' => __('Generate a list-based SEO title.
+                    'prompt' => 'Generate a list-based SEO title.
 The title must:
 - Include a number between 5 and 15
 - Clearly describe what the list contains
@@ -724,11 +724,11 @@ The title must:
 Return ONLY the title text on a single line with no extra text or annotations.
 
 Topic: "{topic}"
-Keywords: "{keywords}"', 'gpt3-ai-content-generator'),
+Keywords: "{keywords}"',
                 ],
                 [
                     'label' => __('Question-Based Title', 'gpt3-ai-content-generator'),
-                    'prompt' => __('Write a question-style title that closely matches user search intent.
+                    'prompt' => 'Write a question-style title that closely matches user search intent.
 The title must:
 - Be phrased as a natural, human question
 - Clearly relate to the topic
@@ -737,11 +737,11 @@ The title must:
 Return ONLY the title text on a single line with no extra text or annotations.
 
 Topic: "{topic}"
-Keywords: "{keywords}"', 'gpt3-ai-content-generator'),
+Keywords: "{keywords}"',
                 ],
                 [
                     'label' => __('Evergreen SEO Title', 'gpt3-ai-content-generator'),
-                    'prompt' => __('Generate an evergreen SEO title designed for long-term relevance.
+                    'prompt' => 'Generate an evergreen SEO title designed for long-term relevance.
 The title must:
 - Avoid years, trends, or time-sensitive wording
 - Clearly communicate the article subject
@@ -751,13 +751,13 @@ The title must:
 Return ONLY the title text on a single line with no extra text or annotations.
 
 Topic: "{topic}"
-Keywords: "{keywords}"', 'gpt3-ai-content-generator'),
+Keywords: "{keywords}"',
                 ],
             ],
             'content' => [
                 [
                     'label' => __('Core SEO Long-Form Article', 'gpt3-ai-content-generator'),
-                    'prompt' => __('Write a full, original article based on the topic and keywords below.
+                    'prompt' => 'Write a full, original article based on the topic and keywords below.
 The article must:
 - Be at least 600 words long
 - Clearly introduce the topic in the opening paragraph
@@ -769,11 +769,11 @@ The article must:
 - Avoid keyword stuffing or unnatural phrasing
 
 Topic: "{topic}"
-Keywords: "{keywords}"', 'gpt3-ai-content-generator'),
+Keywords: "{keywords}"',
                 ],
                 [
                     'label' => __('Topical Authority Content', 'gpt3-ai-content-generator'),
-                    'prompt' => __('Write an in-depth, authoritative article that establishes topical authority.
+                    'prompt' => 'Write an in-depth, authoritative article that establishes topical authority.
 The article must:
 - Fully explain the topic with expert-level clarity
 - Cover related concepts and subtopics where relevant
@@ -783,11 +783,11 @@ The article must:
 - Avoid promotional or sales-focused language
 
 Topic: "{topic}"
-Keywords: "{keywords}"', 'gpt3-ai-content-generator'),
+Keywords: "{keywords}"',
                 ],
                 [
                     'label' => __('Search-Intent Content', 'gpt3-ai-content-generator'),
-                    'prompt' => __('Write an SEO-optimized article with primary focus on user search intent.
+                    'prompt' => 'Write an SEO-optimized article with primary focus on user search intent.
 The article must:
 - Clearly answer the main intent behind the topic
 - Address common questions users may have
@@ -796,11 +796,11 @@ The article must:
 - Maintain logical flow and strong readability
 
 Topic: "{topic}"
-Keywords: "{keywords}"', 'gpt3-ai-content-generator'),
+Keywords: "{keywords}"',
                 ],
                 [
                     'label' => __('Structured Educational Article', 'gpt3-ai-content-generator'),
-                    'prompt' => __('Write an educational, well-structured article suitable for learning purposes.
+                    'prompt' => 'Write an educational, well-structured article suitable for learning purposes.
 The article must:
 - Break the topic into logical sections
 - Use H2 for main ideas and H3 for explanations
@@ -809,11 +809,11 @@ The article must:
 - Use keywords naturally without forcing them
 
 Topic: "{topic}"
-Keywords: "{keywords}"', 'gpt3-ai-content-generator'),
+Keywords: "{keywords}"',
                 ],
                 [
                     'label' => __('Conversational SEO Content', 'gpt3-ai-content-generator'),
-                    'prompt' => __('Write a natural-sounding, conversational article that remains SEO-compliant.
+                    'prompt' => 'Write a natural-sounding, conversational article that remains SEO-compliant.
 The article must:
 - Feel human-written and easy to read
 - Avoid robotic or repetitive phrasing
@@ -822,11 +822,11 @@ The article must:
 - Maintain a friendly but professional tone
 
 Topic: "{topic}"
-Keywords: "{keywords}"', 'gpt3-ai-content-generator'),
+Keywords: "{keywords}"',
                 ],
                 [
                     'label' => __('Problem-Solving Content', 'gpt3-ai-content-generator'),
-                    'prompt' => __('Write a practical, solution-oriented article focused on real-world problems related to the topic.
+                    'prompt' => 'Write a practical, solution-oriented article focused on real-world problems related to the topic.
 The article must:
 - Identify common challenges or pain points
 - Explain why these issues occur
@@ -835,11 +835,11 @@ The article must:
 - Include keywords naturally within context
 
 Topic: "{topic}"
-Keywords: "{keywords}"', 'gpt3-ai-content-generator'),
+Keywords: "{keywords}"',
                 ],
                 [
                     'label' => __('Evergreen SEO Content', 'gpt3-ai-content-generator'),
-                    'prompt' => __('Write an evergreen SEO article designed to remain relevant over time.
+                    'prompt' => 'Write an evergreen SEO article designed to remain relevant over time.
 The article must:
 - Avoid time-sensitive references such as years or trends
 - Focus on foundational knowledge and best practices
@@ -847,11 +847,11 @@ The article must:
 - Maintain a neutral, professional tone
 
 Topic: "{topic}"
-Keywords: "{keywords}"', 'gpt3-ai-content-generator'),
+Keywords: "{keywords}"',
                 ],
                 [
                     'label' => __('Advanced Professional Content', 'gpt3-ai-content-generator'),
-                    'prompt' => __('Write an advanced-level article targeting experienced readers or professionals.
+                    'prompt' => 'Write an advanced-level article targeting experienced readers or professionals.
 The article must:
 - Assume baseline knowledge of the topic
 - Focus on strategy, optimization, or deeper insights
@@ -860,11 +860,11 @@ The article must:
 - Use keywords naturally without overuse
 
 Topic: "{topic}"
-Keywords: "{keywords}"', 'gpt3-ai-content-generator'),
+Keywords: "{keywords}"',
                 ],
                 [
                     'label' => __('Readability-Optimized SEO Content', 'gpt3-ai-content-generator'),
-                    'prompt' => __('Write an SEO-optimized article with strong emphasis on readability.
+                    'prompt' => 'Write an SEO-optimized article with strong emphasis on readability.
 The article must:
 - Use short paragraphs and clear sentence structure
 - Avoid overly complex or long sentences
@@ -873,11 +873,11 @@ The article must:
 - Be easy to scan and skim
 
 Topic: "{topic}"
-Keywords: "{keywords}"', 'gpt3-ai-content-generator'),
+Keywords: "{keywords}"',
                 ],
                 [
                     'label' => __('Informational Soft Conversion', 'gpt3-ai-content-generator'),
-                    'prompt' => __('Write an informative, trust-building article that subtly encourages reader engagement.
+                    'prompt' => 'Write an informative, trust-building article that subtly encourages reader engagement.
 The article must:
 - Educate the reader thoroughly without sales pressure
 - Build credibility and clarity around the topic
@@ -886,13 +886,13 @@ The article must:
 - End with a neutral, informative conclusion
 
 Topic: "{topic}"
-Keywords: "{keywords}"', 'gpt3-ai-content-generator'),
+Keywords: "{keywords}"',
                 ],
             ],
             'meta' => [
                 [
                     'label' => __('Primary SEO Meta Description', 'gpt3-ai-content-generator'),
-                    'prompt' => __('Write a single, SEO-optimized meta description based on the topic, keywords, and content summary below.
+                    'prompt' => 'Write a single, SEO-optimized meta description based on the topic, keywords, and content summary below.
 The meta description must:
 - Accurately summarize the article content
 - Naturally incorporate relevant keywords without stuffing
@@ -904,11 +904,11 @@ Return ONLY the meta description text on a single line with no extra text or ann
 
 Topic: "{topic}"
 Keywords: "{keywords}"
-Content Summary: "{content_summary}"', 'gpt3-ai-content-generator'),
+Content Summary: "{content_summary}"',
                 ],
                 [
                     'label' => __('High-CTR Meta Description', 'gpt3-ai-content-generator'),
-                    'prompt' => __('Generate a compelling, high click-through-rate meta description.
+                    'prompt' => 'Generate a compelling, high click-through-rate meta description.
 The meta description must:
 - Encourage clicks by clearly communicating value
 - Reflect what the reader will gain from the article
@@ -919,11 +919,11 @@ Return ONLY the meta description text on a single line with no extra text or ann
 
 Topic: "{topic}"
 Keywords: "{keywords}"
-Content Summary: "{content_summary}"', 'gpt3-ai-content-generator'),
+Content Summary: "{content_summary}"',
                 ],
                 [
                     'label' => __('Informational Intent Meta', 'gpt3-ai-content-generator'),
-                    'prompt' => __('Write an informational meta description aligned with user search intent.
+                    'prompt' => 'Write an informational meta description aligned with user search intent.
 The meta description must:
 - Clearly explain what the article covers
 - Answer the implied "what is / how / why" intent
@@ -934,11 +934,11 @@ Return ONLY the meta description text on a single line with no extra text or ann
 
 Topic: "{topic}"
 Keywords: "{keywords}"
-Content Summary: "{content_summary}"', 'gpt3-ai-content-generator'),
+Content Summary: "{content_summary}"',
                 ],
                 [
                     'label' => __('Benefit-Driven Meta', 'gpt3-ai-content-generator'),
-                    'prompt' => __('Write a benefit-focused meta description for an SEO article.
+                    'prompt' => 'Write a benefit-focused meta description for an SEO article.
 The meta description must:
 - Highlight the main benefit or outcome for the reader
 - Stay truthful to the article’s actual content
@@ -949,11 +949,11 @@ Return ONLY the meta description text on a single line with no extra text or ann
 
 Topic: "{topic}"
 Keywords: "{keywords}"
-Content Summary: "{content_summary}"', 'gpt3-ai-content-generator'),
+Content Summary: "{content_summary}"',
                 ],
                 [
                     'label' => __('Question-Style Meta', 'gpt3-ai-content-generator'),
-                    'prompt' => __('Generate a question-style meta description that encourages curiosity.
+                    'prompt' => 'Generate a question-style meta description that encourages curiosity.
 The meta description must:
 - Be phrased as a natural question
 - Reflect the article’s core topic accurately
@@ -964,11 +964,11 @@ Return ONLY the meta description text on a single line with no extra text or ann
 
 Topic: "{topic}"
 Keywords: "{keywords}"
-Content Summary: "{content_summary}"', 'gpt3-ai-content-generator'),
+Content Summary: "{content_summary}"',
                 ],
                 [
                     'label' => __('Professional Editorial Meta', 'gpt3-ai-content-generator'),
-                    'prompt' => __('Write a professional, editorial-style meta description suitable for agencies or authoritative blogs.
+                    'prompt' => 'Write a professional, editorial-style meta description suitable for agencies or authoritative blogs.
 The meta description must:
 - Sound neutral, trustworthy, and informative
 - Avoid marketing or sales language
@@ -979,11 +979,11 @@ Return ONLY the meta description text on a single line with no extra text or ann
 
 Topic: "{topic}"
 Keywords: "{keywords}"
-Content Summary: "{content_summary}"', 'gpt3-ai-content-generator'),
+Content Summary: "{content_summary}"',
                 ],
                 [
                     'label' => __('Beginner-Friendly Meta', 'gpt3-ai-content-generator'),
-                    'prompt' => __('Create a beginner-friendly meta description for users new to the topic.
+                    'prompt' => 'Create a beginner-friendly meta description for users new to the topic.
 The meta description must:
 - Use simple, clear language
 - Explain what the article helps the reader understand
@@ -994,11 +994,11 @@ Return ONLY the meta description text on a single line with no extra text or ann
 
 Topic: "{topic}"
 Keywords: "{keywords}"
-Content Summary: "{content_summary}"', 'gpt3-ai-content-generator'),
+Content Summary: "{content_summary}"',
                 ],
                 [
                     'label' => __('Short & Punchy Meta', 'gpt3-ai-content-generator'),
-                    'prompt' => __('Write a short, punchy meta description optimized for quick scanning in search results.
+                    'prompt' => 'Write a short, punchy meta description optimized for quick scanning in search results.
 The meta description must:
 - Be concise and impactful
 - Clearly describe the article’s focus
@@ -1009,11 +1009,11 @@ Return ONLY the meta description text on a single line with no extra text or ann
 
 Topic: "{topic}"
 Keywords: "{keywords}"
-Content Summary: "{content_summary}"', 'gpt3-ai-content-generator'),
+Content Summary: "{content_summary}"',
                 ],
                 [
                     'label' => __('Problem-Solution Meta', 'gpt3-ai-content-generator'),
-                    'prompt' => __('Write a problem-solution oriented meta description.
+                    'prompt' => 'Write a problem-solution oriented meta description.
 The meta description must:
 - Reference a common problem related to the topic
 - Hint at a clear solution provided by the article
@@ -1024,11 +1024,11 @@ Return ONLY the meta description text on a single line with no extra text or ann
 
 Topic: "{topic}"
 Keywords: "{keywords}"
-Content Summary: "{content_summary}"', 'gpt3-ai-content-generator'),
+Content Summary: "{content_summary}"',
                 ],
                 [
                     'label' => __('Evergreen SEO Meta', 'gpt3-ai-content-generator'),
-                    'prompt' => __('Generate an evergreen SEO meta description designed for long-term relevance.
+                    'prompt' => 'Generate an evergreen SEO meta description designed for long-term relevance.
 The meta description must:
 - Avoid time-sensitive language
 - Clearly communicate what the article is about
@@ -1039,13 +1039,13 @@ Return ONLY the meta description text on a single line with no extra text or ann
 
 Topic: "{topic}"
 Keywords: "{keywords}"
-Content Summary: "{content_summary}"', 'gpt3-ai-content-generator'),
+Content Summary: "{content_summary}"',
                 ],
             ],
             'keyword' => [
                 [
                     'label' => __('Primary SEO Focus Keyword', 'gpt3-ai-content-generator'),
-                    'prompt' => __('Generate one primary focus keyword based on the topic and content summary below.
+                    'prompt' => 'Generate one primary focus keyword based on the topic and content summary below.
 The focus keyword must:
 - Accurately represent the core subject of the article
 - Match the main informational search intent
@@ -1056,11 +1056,11 @@ The focus keyword must:
 Return ONLY the focus keyword text on a single line with no extra text or annotations.
 
 Topic: "{topic}"
-Content Summary: "{content_summary}"', 'gpt3-ai-content-generator'),
+Content Summary: "{content_summary}"',
                 ],
                 [
                     'label' => __('Long-Tail Focus Keyword', 'gpt3-ai-content-generator'),
-                    'prompt' => __('Generate one long-tail focus keyword based on the topic and content summary below.
+                    'prompt' => 'Generate one long-tail focus keyword based on the topic and content summary below.
 The focus keyword must:
 - Be more specific than a generic head term
 - Clearly reflect the article’s unique angle or depth
@@ -1069,11 +1069,11 @@ The focus keyword must:
 Return ONLY the focus keyword text on a single line with no extra text or annotations.
 
 Topic: "{topic}"
-Content Summary: "{content_summary}"', 'gpt3-ai-content-generator'),
+Content Summary: "{content_summary}"',
                 ],
                 [
                     'label' => __('Search-Intent Focus Keyword', 'gpt3-ai-content-generator'),
-                    'prompt' => __('Generate one focus keyword optimized specifically for search intent.
+                    'prompt' => 'Generate one focus keyword optimized specifically for search intent.
 The focus keyword must:
 - Reflect what the user is actually trying to learn or solve
 - Be phrased as a natural search query
@@ -1082,11 +1082,11 @@ The focus keyword must:
 Return ONLY the focus keyword text on a single line with no extra text or annotations.
 
 Topic: "{topic}"
-Content Summary: "{content_summary}"', 'gpt3-ai-content-generator'),
+Content Summary: "{content_summary}"',
                 ],
                 [
                     'label' => __('Beginner-Friendly Focus Keyword', 'gpt3-ai-content-generator'),
-                    'prompt' => __('Generate one beginner-friendly focus keyword based on the topic and content summary.
+                    'prompt' => 'Generate one beginner-friendly focus keyword based on the topic and content summary.
 The focus keyword must:
 - Use simple, commonly searched wording
 - Avoid advanced or technical jargon
@@ -1095,11 +1095,11 @@ The focus keyword must:
 Return ONLY the focus keyword text on a single line with no extra text or annotations.
 
 Topic: "{topic}"
-Content Summary: "{content_summary}"', 'gpt3-ai-content-generator'),
+Content Summary: "{content_summary}"',
                 ],
                 [
                     'label' => __('Professional Focus Keyword', 'gpt3-ai-content-generator'),
-                    'prompt' => __('Generate one advanced or professional-level focus keyword.
+                    'prompt' => 'Generate one advanced or professional-level focus keyword.
 The focus keyword must:
 - Reflect deeper or more specialized search intent
 - Be suitable for experienced users or professionals
@@ -1108,11 +1108,11 @@ The focus keyword must:
 Return ONLY the focus keyword text on a single line with no extra text or annotations.
 
 Topic: "{topic}"
-Content Summary: "{content_summary}"', 'gpt3-ai-content-generator'),
+Content Summary: "{content_summary}"',
                 ],
                 [
                     'label' => __('Problem-Oriented Focus Keyword', 'gpt3-ai-content-generator'),
-                    'prompt' => __('Generate one problem-oriented focus keyword based on the article content.
+                    'prompt' => 'Generate one problem-oriented focus keyword based on the article content.
 The focus keyword must:
 - Clearly express a problem, challenge, or pain point
 - Match problem-solving or informational intent
@@ -1121,11 +1121,11 @@ The focus keyword must:
 Return ONLY the focus keyword text on a single line with no extra text or annotations.
 
 Topic: "{topic}"
-Content Summary: "{content_summary}"', 'gpt3-ai-content-generator'),
+Content Summary: "{content_summary}"',
                 ],
                 [
                     'label' => __('Question-Style Focus Keyword', 'gpt3-ai-content-generator'),
-                    'prompt' => __('Generate one question-style focus keyword.
+                    'prompt' => 'Generate one question-style focus keyword.
 The focus keyword must:
 - Be phrased as a natural question a user might search
 - Directly relate to the topic and content summary
@@ -1134,11 +1134,11 @@ The focus keyword must:
 Return ONLY the focus keyword text on a single line with no extra text or annotations.
 
 Topic: "{topic}"
-Content Summary: "{content_summary}"', 'gpt3-ai-content-generator'),
+Content Summary: "{content_summary}"',
                 ],
                 [
                     'label' => __('Evergreen Focus Keyword', 'gpt3-ai-content-generator'),
-                    'prompt' => __('Generate one evergreen focus keyword designed for long-term SEO value.
+                    'prompt' => 'Generate one evergreen focus keyword designed for long-term SEO value.
 The focus keyword must:
 - Avoid time-sensitive terms or trends
 - Reflect stable, long-term search interest
@@ -1147,11 +1147,11 @@ The focus keyword must:
 Return ONLY the focus keyword text on a single line with no extra text or annotations.
 
 Topic: "{topic}"
-Content Summary: "{content_summary}"', 'gpt3-ai-content-generator'),
+Content Summary: "{content_summary}"',
                 ],
                 [
                     'label' => __('Conversion-Adjacent Focus Keyword', 'gpt3-ai-content-generator'),
-                    'prompt' => __('Generate one focus keyword that sits close to conversion intent without being transactional.
+                    'prompt' => 'Generate one focus keyword that sits close to conversion intent without being transactional.
 The focus keyword must:
 - Indicate deeper interest or evaluation
 - Avoid direct buying terms unless required by the topic
@@ -1160,11 +1160,11 @@ The focus keyword must:
 Return ONLY the focus keyword text on a single line with no extra text or annotations.
 
 Topic: "{topic}"
-Content Summary: "{content_summary}"', 'gpt3-ai-content-generator'),
+Content Summary: "{content_summary}"',
                 ],
                 [
                     'label' => __('Balanced SEO Focus Keyword', 'gpt3-ai-content-generator'),
-                    'prompt' => __('Generate one balanced focus keyword that combines clarity, relevance, and search intent.
+                    'prompt' => 'Generate one balanced focus keyword that combines clarity, relevance, and search intent.
 The focus keyword must:
 - Not be too broad or too narrow
 - Represent the article accurately
@@ -1173,13 +1173,13 @@ The focus keyword must:
 Return ONLY the focus keyword text on a single line with no extra text or annotations.
 
 Topic: "{topic}"
-Content Summary: "{content_summary}"', 'gpt3-ai-content-generator'),
+Content Summary: "{content_summary}"',
                 ],
             ],
             'excerpt' => [
                 [
                     'label' => __('Primary SEO Excerpt', 'gpt3-ai-content-generator'),
-                    'prompt' => __('Write a concise, SEO-friendly excerpt based on the topic, keywords, and content summary below.
+                    'prompt' => 'Write a concise, SEO-friendly excerpt based on the topic, keywords, and content summary below.
 The excerpt must:
 - Accurately summarize the article’s main idea
 - Be between 2–3 sentences
@@ -1191,11 +1191,11 @@ Return ONLY the excerpt text on a single line with no extra text or annotations.
 
 Topic: "{topic}"
 Keywords: "{keywords}"
-Content Summary: "{content_summary}"', 'gpt3-ai-content-generator'),
+Content Summary: "{content_summary}"',
                 ],
                 [
                     'label' => __('Hook-Driven Excerpt', 'gpt3-ai-content-generator'),
-                    'prompt' => __('Write a hook-driven excerpt designed to encourage readers to continue reading.
+                    'prompt' => 'Write a hook-driven excerpt designed to encourage readers to continue reading.
 The excerpt must:
 - Capture interest without clickbait
 - Clearly indicate what the article covers
@@ -1206,11 +1206,11 @@ Return ONLY the excerpt text on a single line with no extra text or annotations.
 
 Topic: "{topic}"
 Keywords: "{keywords}"
-Content Summary: "{content_summary}"', 'gpt3-ai-content-generator'),
+Content Summary: "{content_summary}"',
                 ],
                 [
                     'label' => __('Benefit-Focused Excerpt', 'gpt3-ai-content-generator'),
-                    'prompt' => __('Write a benefit-focused article excerpt.
+                    'prompt' => 'Write a benefit-focused article excerpt.
 The excerpt must:
 - Clearly explain what the reader will learn or gain
 - Remain accurate to the article’s content
@@ -1221,11 +1221,11 @@ Return ONLY the excerpt text on a single line with no extra text or annotations.
 
 Topic: "{topic}"
 Keywords: "{keywords}"
-Content Summary: "{content_summary}"', 'gpt3-ai-content-generator'),
+Content Summary: "{content_summary}"',
                 ],
                 [
                     'label' => __('Informational Excerpt', 'gpt3-ai-content-generator'),
-                    'prompt' => __('Write an informative, educational excerpt suitable for explanatory content.
+                    'prompt' => 'Write an informative, educational excerpt suitable for explanatory content.
 The excerpt must:
 - Focus on clarity and understanding
 - Briefly describe the subject matter
@@ -1236,11 +1236,11 @@ Return ONLY the excerpt text on a single line with no extra text or annotations.
 
 Topic: "{topic}"
 Keywords: "{keywords}"
-Content Summary: "{content_summary}"', 'gpt3-ai-content-generator'),
+Content Summary: "{content_summary}"',
                 ],
                 [
                     'label' => __('Problem-Solution Excerpt', 'gpt3-ai-content-generator'),
-                    'prompt' => __('Write a problem-solution style excerpt.
+                    'prompt' => 'Write a problem-solution style excerpt.
 The excerpt must:
 - Reference a common challenge related to the topic
 - Hint at a solution or guidance offered in the article
@@ -1251,11 +1251,11 @@ Return ONLY the excerpt text on a single line with no extra text or annotations.
 
 Topic: "{topic}"
 Keywords: "{keywords}"
-Content Summary: "{content_summary}"', 'gpt3-ai-content-generator'),
+Content Summary: "{content_summary}"',
                 ],
                 [
                     'label' => __('Beginner-Friendly Excerpt', 'gpt3-ai-content-generator'),
-                    'prompt' => __('Write a beginner-friendly excerpt for readers new to the topic.
+                    'prompt' => 'Write a beginner-friendly excerpt for readers new to the topic.
 The excerpt must:
 - Use approachable, simple language
 - Clearly explain what the article is about
@@ -1266,11 +1266,11 @@ Return ONLY the excerpt text on a single line with no extra text or annotations.
 
 Topic: "{topic}"
 Keywords: "{keywords}"
-Content Summary: "{content_summary}"', 'gpt3-ai-content-generator'),
+Content Summary: "{content_summary}"',
                 ],
                 [
                     'label' => __('Professional Editorial Excerpt', 'gpt3-ai-content-generator'),
-                    'prompt' => __('Write a professional, editorial-style excerpt suitable for agencies or authoritative blogs.
+                    'prompt' => 'Write a professional, editorial-style excerpt suitable for agencies or authoritative blogs.
 The excerpt must:
 - Sound neutral, trustworthy, and polished
 - Reflect depth and seriousness of the topic
@@ -1281,11 +1281,11 @@ Return ONLY the excerpt text on a single line with no extra text or annotations.
 
 Topic: "{topic}"
 Keywords: "{keywords}"
-Content Summary: "{content_summary}"', 'gpt3-ai-content-generator'),
+Content Summary: "{content_summary}"',
                 ],
                 [
                     'label' => __('Short Teaser Excerpt', 'gpt3-ai-content-generator'),
-                    'prompt' => __('Write a short teaser excerpt for blog listings.
+                    'prompt' => 'Write a short teaser excerpt for blog listings.
 The excerpt must:
 - Be 1–2 sentences only
 - Spark curiosity while remaining accurate
@@ -1296,11 +1296,11 @@ Return ONLY the excerpt text on a single line with no extra text or annotations.
 
 Topic: "{topic}"
 Keywords: "{keywords}"
-Content Summary: "{content_summary}"', 'gpt3-ai-content-generator'),
+Content Summary: "{content_summary}"',
                 ],
                 [
                     'label' => __('Readability-Optimized Excerpt', 'gpt3-ai-content-generator'),
-                    'prompt' => __('Write an excerpt optimized for readability and scanning.
+                    'prompt' => 'Write an excerpt optimized for readability and scanning.
 The excerpt must:
 - Use short sentences
 - Be easy to understand at a glance
@@ -1311,11 +1311,11 @@ Return ONLY the excerpt text on a single line with no extra text or annotations.
 
 Topic: "{topic}"
 Keywords: "{keywords}"
-Content Summary: "{content_summary}"', 'gpt3-ai-content-generator'),
+Content Summary: "{content_summary}"',
                 ],
                 [
                     'label' => __('Evergreen SEO Excerpt', 'gpt3-ai-content-generator'),
-                    'prompt' => __('Write an evergreen SEO excerpt designed for long-term relevance.
+                    'prompt' => 'Write an evergreen SEO excerpt designed for long-term relevance.
 The excerpt must:
 - Avoid time-sensitive language
 - Clearly summarize the article’s subject
@@ -1326,13 +1326,13 @@ Return ONLY the excerpt text on a single line with no extra text or annotations.
 
 Topic: "{topic}"
 Keywords: "{keywords}"
-Content Summary: "{content_summary}"', 'gpt3-ai-content-generator'),
+Content Summary: "{content_summary}"',
                 ],
             ],
             'tags' => [
                 [
                     'label' => __('Primary SEO Tags', 'gpt3-ai-content-generator'),
-                    'prompt' => __('Generate a list of relevant SEO tags based on the topic, keywords, and content summary below.
+                    'prompt' => 'Generate a list of relevant SEO tags based on the topic, keywords, and content summary below.
 The tags must:
 - Accurately reflect the main subjects of the article
 - Be closely related to the topic
@@ -1344,11 +1344,11 @@ Return ONLY the tags as a comma-separated list on a single line with no extra te
 
 Topic: "{topic}"
 Keywords: "{keywords}"
-Content Summary: "{content_summary}"', 'gpt3-ai-content-generator'),
+Content Summary: "{content_summary}"',
                 ],
                 [
                     'label' => __('Long-Tail SEO Tags', 'gpt3-ai-content-generator'),
-                    'prompt' => __('Generate a list of long-tail SEO tags for the article.
+                    'prompt' => 'Generate a list of long-tail SEO tags for the article.
 The tags must:
 - Be more specific than generic head terms
 - Reflect deeper aspects of the topic
@@ -1359,11 +1359,11 @@ Return ONLY the tags as a comma-separated list on a single line with no extra te
 
 Topic: "{topic}"
 Keywords: "{keywords}"
-Content Summary: "{content_summary}"', 'gpt3-ai-content-generator'),
+Content Summary: "{content_summary}"',
                 ],
                 [
                     'label' => __('Semantic Topic Tags', 'gpt3-ai-content-generator'),
-                    'prompt' => __('Generate a list of semantically related tags that support topical authority.
+                    'prompt' => 'Generate a list of semantically related tags that support topical authority.
 The tags must:
 - Represent closely related concepts and subtopics
 - Expand semantic coverage without duplication
@@ -1374,11 +1374,11 @@ Return ONLY the tags as a comma-separated list on a single line with no extra te
 
 Topic: "{topic}"
 Keywords: "{keywords}"
-Content Summary: "{content_summary}"', 'gpt3-ai-content-generator'),
+Content Summary: "{content_summary}"',
                 ],
                 [
                     'label' => __('Beginner-Friendly Tags', 'gpt3-ai-content-generator'),
-                    'prompt' => __('Generate a list of beginner-friendly tags for readers new to the topic.
+                    'prompt' => 'Generate a list of beginner-friendly tags for readers new to the topic.
 The tags must:
 - Use simple, commonly understood terms
 - Avoid technical or advanced jargon
@@ -1389,11 +1389,11 @@ Return ONLY the tags as a comma-separated list on a single line with no extra te
 
 Topic: "{topic}"
 Keywords: "{keywords}"
-Content Summary: "{content_summary}"', 'gpt3-ai-content-generator'),
+Content Summary: "{content_summary}"',
                 ],
                 [
                     'label' => __('Professional Tags', 'gpt3-ai-content-generator'),
-                    'prompt' => __('Generate a list of advanced or professional-level tags.
+                    'prompt' => 'Generate a list of advanced or professional-level tags.
 The tags must:
 - Reflect deeper knowledge or strategic aspects
 - Be suitable for experienced users or professionals
@@ -1404,11 +1404,11 @@ Return ONLY the tags as a comma-separated list on a single line with no extra te
 
 Topic: "{topic}"
 Keywords: "{keywords}"
-Content Summary: "{content_summary}"', 'gpt3-ai-content-generator'),
+Content Summary: "{content_summary}"',
                 ],
                 [
                     'label' => __('Question-Based Tags', 'gpt3-ai-content-generator'),
-                    'prompt' => __('Generate a list of question-based SEO tags related to the article.
+                    'prompt' => 'Generate a list of question-based SEO tags related to the article.
 The tags must:
 - Be phrased as natural search questions
 - Reflect common user curiosities
@@ -1419,11 +1419,11 @@ Return ONLY the tags as a comma-separated list on a single line with no extra te
 
 Topic: "{topic}"
 Keywords: "{keywords}"
-Content Summary: "{content_summary}"', 'gpt3-ai-content-generator'),
+Content Summary: "{content_summary}"',
                 ],
                 [
                     'label' => __('Problem-Oriented Tags', 'gpt3-ai-content-generator'),
-                    'prompt' => __('Generate a list of problem-oriented tags based on the article content.
+                    'prompt' => 'Generate a list of problem-oriented tags based on the article content.
 The tags must:
 - Clearly express challenges, issues, or pain points
 - Match problem-solving search intent
@@ -1434,11 +1434,11 @@ Return ONLY the tags as a comma-separated list on a single line with no extra te
 
 Topic: "{topic}"
 Keywords: "{keywords}"
-Content Summary: "{content_summary}"', 'gpt3-ai-content-generator'),
+Content Summary: "{content_summary}"',
                 ],
                 [
                     'label' => __('Evergreen SEO Tags', 'gpt3-ai-content-generator'),
-                    'prompt' => __('Generate a list of evergreen SEO tags suitable for long-term use.
+                    'prompt' => 'Generate a list of evergreen SEO tags suitable for long-term use.
 The tags must:
 - Avoid time-sensitive or trend-based terms
 - Represent stable, ongoing search interest
@@ -1449,11 +1449,11 @@ Return ONLY the tags as a comma-separated list on a single line with no extra te
 
 Topic: "{topic}"
 Keywords: "{keywords}"
-Content Summary: "{content_summary}"', 'gpt3-ai-content-generator'),
+Content Summary: "{content_summary}"',
                 ],
                 [
                     'label' => __('Short & High-Impact Tags', 'gpt3-ai-content-generator'),
-                    'prompt' => __('Generate a list of short, high-impact SEO tags.
+                    'prompt' => 'Generate a list of short, high-impact SEO tags.
 The tags must:
 - Be concise (1–3 words where possible)
 - Represent core concepts of the article
@@ -1464,11 +1464,11 @@ Return ONLY the tags as a comma-separated list on a single line with no extra te
 
 Topic: "{topic}"
 Keywords: "{keywords}"
-Content Summary: "{content_summary}"', 'gpt3-ai-content-generator'),
+Content Summary: "{content_summary}"',
                 ],
                 [
                     'label' => __('Balanced SEO Tag Set', 'gpt3-ai-content-generator'),
-                    'prompt' => __('Generate a balanced set of SEO tags for the article.
+                    'prompt' => 'Generate a balanced set of SEO tags for the article.
 The tags must:
 - Include a mix of broad, specific, and semantic terms
 - Reflect different user search intents
@@ -1479,13 +1479,13 @@ Return ONLY the tags as a comma-separated list on a single line with no extra te
 
 Topic: "{topic}"
 Keywords: "{keywords}"
-Content Summary: "{content_summary}"', 'gpt3-ai-content-generator'),
+Content Summary: "{content_summary}"',
                 ],
             ],
             'reply' => [
                 [
                     'label' => __('Helpful Comment Reply', 'gpt3-ai-content-generator'),
-                    'prompt' => __('Write a helpful, friendly reply to the blog comment below.
+                    'prompt' => 'Write a helpful, friendly reply to the blog comment below.
 The reply must:
 - Directly address the comment
 - Sound natural and professional
@@ -1495,11 +1495,11 @@ Return ONLY the reply text.
 
 Post title: "{post_title}"
 Comment author: "{comment_author}"
-Comment: "{comment_content}"', 'gpt3-ai-content-generator'),
+Comment: "{comment_content}"',
                 ],
                 [
                     'label' => __('Concise Comment Reply', 'gpt3-ai-content-generator'),
-                    'prompt' => __('Write a short, clear reply to this comment.
+                    'prompt' => 'Write a short, clear reply to this comment.
 The reply must:
 - Be 1-3 sentences
 - Acknowledge the commenter naturally
@@ -1509,11 +1509,11 @@ Return ONLY the reply text.
 
 Post title: "{post_title}"
 Comment author: "{comment_author}"
-Comment: "{comment_content}"', 'gpt3-ai-content-generator'),
+Comment: "{comment_content}"',
                 ],
                 [
                     'label' => __('Supportive Comment Reply', 'gpt3-ai-content-generator'),
-                    'prompt' => __('Write a supportive reply to this blog comment.
+                    'prompt' => 'Write a supportive reply to this blog comment.
 The reply must:
 - Be polite, human, and constructive
 - Answer or acknowledge the main point
@@ -1523,13 +1523,13 @@ Return ONLY the reply text.
 
 Post title: "{post_title}"
 Comment author: "{comment_author}"
-Comment: "{comment_content}"', 'gpt3-ai-content-generator'),
+Comment: "{comment_content}"',
                 ],
             ],
             'image' => [
                 [
                     'label' => __('Contextual Illustration Image', 'gpt3-ai-content-generator'),
-                    'prompt' => __('Generate a contextual illustration based on the topic, keywords, and excerpt below.
+                    'prompt' => 'Generate a contextual illustration based on the topic, keywords, and excerpt below.
 The image must:
 - Visually support a key concept discussed in the article
 - Be relevant to the written content, not decorative
@@ -1540,11 +1540,11 @@ The image must:
 Topic: "{topic}"
 Keywords: "{keywords}"
 Excerpt: "{excerpt}"
-Post Title: "{post_title}"', 'gpt3-ai-content-generator'),
+Post Title: "{post_title}"',
                 ],
                 [
                     'label' => __('Educational Image', 'gpt3-ai-content-generator'),
-                    'prompt' => __('Create an educational-style image that helps explain the topic visually.
+                    'prompt' => 'Create an educational-style image that helps explain the topic visually.
 The image must:
 - Represent an idea, process, or concept from the article
 - Be easy to understand at a glance
@@ -1554,11 +1554,11 @@ The image must:
 Topic: "{topic}"
 Keywords: "{keywords}"
 Excerpt: "{excerpt}"
-Post Title: "{post_title}"', 'gpt3-ai-content-generator'),
+Post Title: "{post_title}"',
                 ],
                 [
                     'label' => __('Abstract Concept Image', 'gpt3-ai-content-generator'),
-                    'prompt' => __('Generate an abstract conceptual image inspired by the article topic.
+                    'prompt' => 'Generate an abstract conceptual image inspired by the article topic.
 The image must:
 - Symbolize the core idea rather than literal objects
 - Use abstract shapes, metaphors, or visual themes
@@ -1568,11 +1568,11 @@ The image must:
 Topic: "{topic}"
 Keywords: "{keywords}"
 Excerpt: "{excerpt}"
-Post Title: "{post_title}"', 'gpt3-ai-content-generator'),
+Post Title: "{post_title}"',
                 ],
                 [
                     'label' => __('Minimalist Supporting Image', 'gpt3-ai-content-generator'),
-                    'prompt' => __('Create a minimalist supporting image for in-content use.
+                    'prompt' => 'Create a minimalist supporting image for in-content use.
 The image must:
 - Be simple, clean, and uncluttered
 - Support the article without overpowering the text
@@ -1582,11 +1582,11 @@ The image must:
 Topic: "{topic}"
 Keywords: "{keywords}"
 Excerpt: "{excerpt}"
-Post Title: "{post_title}"', 'gpt3-ai-content-generator'),
+Post Title: "{post_title}"',
                 ],
                 [
                     'label' => __('Modern Flat Design Image', 'gpt3-ai-content-generator'),
-                    'prompt' => __('Generate a modern flat-design style image based on the article.
+                    'prompt' => 'Generate a modern flat-design style image based on the article.
 The image must:
 - Use flat shapes and clear visual hierarchy
 - Represent ideas related to the topic
@@ -1596,11 +1596,11 @@ The image must:
 Topic: "{topic}"
 Keywords: "{keywords}"
 Excerpt: "{excerpt}"
-Post Title: "{post_title}"', 'gpt3-ai-content-generator'),
+Post Title: "{post_title}"',
                 ],
                 [
                     'label' => __('Professional Business Image', 'gpt3-ai-content-generator'),
-                    'prompt' => __('Create a professional, business-appropriate image.
+                    'prompt' => 'Create a professional, business-appropriate image.
 The image must:
 - Be suitable for agency or corporate blogs
 - Use realistic or semi-realistic visuals
@@ -1610,11 +1610,11 @@ The image must:
 Topic: "{topic}"
 Keywords: "{keywords}"
 Excerpt: "{excerpt}"
-Post Title: "{post_title}"', 'gpt3-ai-content-generator'),
+Post Title: "{post_title}"',
                 ],
                 [
                     'label' => __('Data/Process Visualization Image', 'gpt3-ai-content-generator'),
-                    'prompt' => __('Generate a visual representation of a process, flow, or system related to the article.
+                    'prompt' => 'Generate a visual representation of a process, flow, or system related to the article.
 The image must:
 - Visually communicate structure or progression
 - Avoid readable text
@@ -1624,11 +1624,11 @@ The image must:
 Topic: "{topic}"
 Keywords: "{keywords}"
 Excerpt: "{excerpt}"
-Post Title: "{post_title}"', 'gpt3-ai-content-generator'),
+Post Title: "{post_title}"',
                 ],
                 [
                     'label' => __('Neutral SEO-Friendly Image', 'gpt3-ai-content-generator'),
-                    'prompt' => __('Create a neutral, SEO-friendly image that complements the article content.
+                    'prompt' => 'Create a neutral, SEO-friendly image that complements the article content.
 The image must:
 - Be broadly applicable and non-controversial
 - Avoid strong opinions or emotional cues
@@ -1637,11 +1637,11 @@ The image must:
 Topic: "{topic}"
 Keywords: "{keywords}"
 Excerpt: "{excerpt}"
-Post Title: "{post_title}"', 'gpt3-ai-content-generator'),
+Post Title: "{post_title}"',
                 ],
                 [
                     'label' => __('Illustrative Blog Image', 'gpt3-ai-content-generator'),
-                    'prompt' => __('Generate an illustrative blog image designed specifically for content sections.
+                    'prompt' => 'Generate an illustrative blog image designed specifically for content sections.
 The image must:
 - Match modern blog aesthetics
 - Support the written explanation
@@ -1651,11 +1651,11 @@ The image must:
 Topic: "{topic}"
 Keywords: "{keywords}"
 Excerpt: "{excerpt}"
-Post Title: "{post_title}"', 'gpt3-ai-content-generator'),
+Post Title: "{post_title}"',
                 ],
                 [
                     'label' => __('Concept + Keyword Image', 'gpt3-ai-content-generator'),
-                    'prompt' => __('Create an image inspired by the topic and keywords combined.
+                    'prompt' => 'Create an image inspired by the topic and keywords combined.
 The image must:
 - Reflect multiple concepts subtly
 - Avoid literal keyword text
@@ -1665,13 +1665,13 @@ The image must:
 Topic: "{topic}"
 Keywords: "{keywords}"
 Excerpt: "{excerpt}"
-Post Title: "{post_title}"', 'gpt3-ai-content-generator'),
+Post Title: "{post_title}"',
                 ],
             ],
             'image_title' => [
                 [
                     'label' => __('Concise Image Title', 'gpt3-ai-content-generator'),
-                    'prompt' => __('Write a concise image title (4-8 words) describing the image.
+                    'prompt' => 'Write a concise image title (4-8 words) describing the image.
 Keep it literal and clear.
 
 Return ONLY the title text.
@@ -1680,11 +1680,11 @@ Topic: "{topic}"
 Keywords: "{keywords}"
 Post Title: "{post_title}"
 Excerpt: "{excerpt}"
-File Name: "{file_name}"', 'gpt3-ai-content-generator'),
+File Name: "{file_name}"',
                 ],
                 [
                     'label' => __('Keyword-Aware Image Title', 'gpt3-ai-content-generator'),
-                    'prompt' => __('Write a short image title (under 8 words) that includes one relevant keyword when natural.
+                    'prompt' => 'Write a short image title (under 8 words) that includes one relevant keyword when natural.
 
 Return ONLY the title text.
 
@@ -1692,13 +1692,13 @@ Topic: "{topic}"
 Keywords: "{keywords}"
 Post Title: "{post_title}"
 Excerpt: "{excerpt}"
-File Name: "{file_name}"', 'gpt3-ai-content-generator'),
+File Name: "{file_name}"',
                 ],
             ],
             'image_title_update' => [
                 [
                     'label' => __('Attachment Title (Concise)', 'gpt3-ai-content-generator'),
-                    'prompt' => __('Write a concise attachment title (4-8 words) based on the image details.
+                    'prompt' => 'Write a concise attachment title (4-8 words) based on the image details.
 Keep it literal and clear.
 
 Return ONLY the title text.
@@ -1707,11 +1707,11 @@ Attachment title: "{original_title}"
 Caption: "{original_caption}"
 Description: "{original_description}"
 Alt text: "{original_alt}"
-File name: "{file_name}"', 'gpt3-ai-content-generator'),
+File name: "{file_name}"',
                 ],
                 [
                     'label' => __('Attachment Title (Short)', 'gpt3-ai-content-generator'),
-                    'prompt' => __('Write a short attachment title (under 8 words) that reflects the image content.
+                    'prompt' => 'Write a short attachment title (under 8 words) that reflects the image content.
 
 Return ONLY the title text.
 
@@ -1719,13 +1719,13 @@ Attachment title: "{original_title}"
 Caption: "{original_caption}"
 Description: "{original_description}"
 Alt text: "{original_alt}"
-File name: "{file_name}"', 'gpt3-ai-content-generator'),
+File name: "{file_name}"',
                 ],
             ],
             'image_alt_text' => [
                 [
                     'label' => __('Accessibility-First Alt Text', 'gpt3-ai-content-generator'),
-                    'prompt' => __('Write clear alt text (under 125 characters) that describes what is in the image for accessibility.
+                    'prompt' => 'Write clear alt text (under 125 characters) that describes what is in the image for accessibility.
 Include a keyword only if it fits naturally.
 
 Return ONLY the alt text.
@@ -1734,11 +1734,11 @@ Topic: "{topic}"
 Keywords: "{keywords}"
 Post Title: "{post_title}"
 Excerpt: "{excerpt}"
-File Name: "{file_name}"', 'gpt3-ai-content-generator'),
+File Name: "{file_name}"',
                 ],
                 [
                     'label' => __('Short Descriptive Alt Text', 'gpt3-ai-content-generator'),
-                    'prompt' => __('Write short alt text (under 100 characters) that focuses on the main subject and setting.
+                    'prompt' => 'Write short alt text (under 100 characters) that focuses on the main subject and setting.
 
 Return ONLY the alt text.
 
@@ -1746,13 +1746,13 @@ Topic: "{topic}"
 Keywords: "{keywords}"
 Post Title: "{post_title}"
 Excerpt: "{excerpt}"
-File Name: "{file_name}"', 'gpt3-ai-content-generator'),
+File Name: "{file_name}"',
                 ],
             ],
             'image_alt_text_update' => [
                 [
                     'label' => __('Alt Text (Accessibility)', 'gpt3-ai-content-generator'),
-                    'prompt' => __('Write clear alt text (under 125 characters) that describes the image for accessibility.
+                    'prompt' => 'Write clear alt text (under 125 characters) that describes the image for accessibility.
 Keep it factual and specific.
 
 Return ONLY the alt text.
@@ -1761,11 +1761,11 @@ Attachment title: "{original_title}"
 Caption: "{original_caption}"
 Description: "{original_description}"
 Alt text: "{original_alt}"
-File name: "{file_name}"', 'gpt3-ai-content-generator'),
+File name: "{file_name}"',
                 ],
                 [
                     'label' => __('Alt Text (Short)', 'gpt3-ai-content-generator'),
-                    'prompt' => __('Write short alt text (under 100 characters) focusing on the main subject and setting.
+                    'prompt' => 'Write short alt text (under 100 characters) focusing on the main subject and setting.
 
 Return ONLY the alt text.
 
@@ -1773,13 +1773,13 @@ Attachment title: "{original_title}"
 Caption: "{original_caption}"
 Description: "{original_description}"
 Alt text: "{original_alt}"
-File name: "{file_name}"', 'gpt3-ai-content-generator'),
+File name: "{file_name}"',
                 ],
             ],
             'image_caption' => [
                 [
                     'label' => __('Short Caption', 'gpt3-ai-content-generator'),
-                    'prompt' => __('Write a short, friendly caption (1 sentence, under 20 words) that matches the article tone.
+                    'prompt' => 'Write a short, friendly caption (1 sentence, under 20 words) that matches the article tone.
 
 Return ONLY the caption.
 
@@ -1787,11 +1787,11 @@ Topic: "{topic}"
 Keywords: "{keywords}"
 Post Title: "{post_title}"
 Excerpt: "{excerpt}"
-File Name: "{file_name}"', 'gpt3-ai-content-generator'),
+File Name: "{file_name}"',
                 ],
                 [
                     'label' => __('Informative Caption', 'gpt3-ai-content-generator'),
-                    'prompt' => __('Write a concise caption that adds context related to the topic.
+                    'prompt' => 'Write a concise caption that adds context related to the topic.
 
 Return ONLY the caption.
 
@@ -1799,13 +1799,13 @@ Topic: "{topic}"
 Keywords: "{keywords}"
 Post Title: "{post_title}"
 Excerpt: "{excerpt}"
-File Name: "{file_name}"', 'gpt3-ai-content-generator'),
+File Name: "{file_name}"',
                 ],
             ],
             'image_caption_update' => [
                 [
                     'label' => __('Caption (Short)', 'gpt3-ai-content-generator'),
-                    'prompt' => __('Write a short, friendly caption (1 sentence, under 20 words) that matches the image.
+                    'prompt' => 'Write a short, friendly caption (1 sentence, under 20 words) that matches the image.
 
 Return ONLY the caption.
 
@@ -1813,11 +1813,11 @@ Attachment title: "{original_title}"
 Caption: "{original_caption}"
 Description: "{original_description}"
 Alt text: "{original_alt}"
-File name: "{file_name}"', 'gpt3-ai-content-generator'),
+File name: "{file_name}"',
                 ],
                 [
                     'label' => __('Caption (Context)', 'gpt3-ai-content-generator'),
-                    'prompt' => __('Write a concise caption that adds helpful context about the image.
+                    'prompt' => 'Write a concise caption that adds helpful context about the image.
 
 Return ONLY the caption.
 
@@ -1825,13 +1825,13 @@ Attachment title: "{original_title}"
 Caption: "{original_caption}"
 Description: "{original_description}"
 Alt text: "{original_alt}"
-File name: "{file_name}"', 'gpt3-ai-content-generator'),
+File name: "{file_name}"',
                 ],
             ],
             'image_description' => [
                 [
                     'label' => __('Media Library Description', 'gpt3-ai-content-generator'),
-                    'prompt' => __('Write a brief media library description (1-2 sentences, under 240 characters) describing the image.
+                    'prompt' => 'Write a brief media library description (1-2 sentences, under 240 characters) describing the image.
 
 Return ONLY the description.
 
@@ -1839,11 +1839,11 @@ Topic: "{topic}"
 Keywords: "{keywords}"
 Post Title: "{post_title}"
 Excerpt: "{excerpt}"
-File Name: "{file_name}"', 'gpt3-ai-content-generator'),
+File Name: "{file_name}"',
                 ],
                 [
                     'label' => __('Detailed Image Description', 'gpt3-ai-content-generator'),
-                    'prompt' => __('Write a clear description (2 sentences max) that describes the image and its relevance to the article.
+                    'prompt' => 'Write a clear description (2 sentences max) that describes the image and its relevance to the article.
 
 Return ONLY the description.
 
@@ -1851,13 +1851,13 @@ Topic: "{topic}"
 Keywords: "{keywords}"
 Post Title: "{post_title}"
 Excerpt: "{excerpt}"
-File Name: "{file_name}"', 'gpt3-ai-content-generator'),
+File Name: "{file_name}"',
                 ],
             ],
             'image_description_update' => [
                 [
                     'label' => __('Description (Media Library)', 'gpt3-ai-content-generator'),
-                    'prompt' => __('Write a brief media library description (1-2 sentences, under 240 characters) describing the image.
+                    'prompt' => 'Write a brief media library description (1-2 sentences, under 240 characters) describing the image.
 
 Return ONLY the description.
 
@@ -1865,11 +1865,11 @@ Attachment title: "{original_title}"
 Caption: "{original_caption}"
 Description: "{original_description}"
 Alt text: "{original_alt}"
-File name: "{file_name}"', 'gpt3-ai-content-generator'),
+File name: "{file_name}"',
                 ],
                 [
                     'label' => __('Description (Detailed)', 'gpt3-ai-content-generator'),
-                    'prompt' => __('Write a clear description (2 sentences max) that describes the image.
+                    'prompt' => 'Write a clear description (2 sentences max) that describes the image.
 
 Return ONLY the description.
 
@@ -1877,13 +1877,13 @@ Attachment title: "{original_title}"
 Caption: "{original_caption}"
 Description: "{original_description}"
 Alt text: "{original_alt}"
-File name: "{file_name}"', 'gpt3-ai-content-generator'),
+File name: "{file_name}"',
                 ],
             ],
             'featured_image' => [
                 [
                     'label' => __('Hero Featured Image', 'gpt3-ai-content-generator'),
-                    'prompt' => __('Generate a strong hero-style featured image for the article.
+                    'prompt' => 'Generate a strong hero-style featured image for the article.
 The image must:
 - Represent the overall topic clearly
 - Be visually striking at large sizes
@@ -1893,11 +1893,11 @@ The image must:
 Topic: "{topic}"
 Keywords: "{keywords}"
 Excerpt: "{excerpt}"
-Post Title: "{post_title}"', 'gpt3-ai-content-generator'),
+Post Title: "{post_title}"',
                 ],
                 [
                     'label' => __('Clean Blog Header Image', 'gpt3-ai-content-generator'),
-                    'prompt' => __('Create a clean, modern featured image suitable for a blog header.
+                    'prompt' => 'Create a clean, modern featured image suitable for a blog header.
 The image must:
 - Be wide-format friendly
 - Use balanced composition
@@ -1906,11 +1906,11 @@ The image must:
 Topic: "{topic}"
 Keywords: "{keywords}"
 Excerpt: "{excerpt}"
-Post Title: "{post_title}"', 'gpt3-ai-content-generator'),
+Post Title: "{post_title}"',
                 ],
                 [
                     'label' => __('Editorial Featured Image', 'gpt3-ai-content-generator'),
-                    'prompt' => __('Generate an editorial-style featured image inspired by online magazines.
+                    'prompt' => 'Generate an editorial-style featured image inspired by online magazines.
 The image must:
 - Feel professional and high-quality
 - Convey authority and credibility
@@ -1919,11 +1919,11 @@ The image must:
 Topic: "{topic}"
 Keywords: "{keywords}"
 Excerpt: "{excerpt}"
-Post Title: "{post_title}"', 'gpt3-ai-content-generator'),
+Post Title: "{post_title}"',
                 ],
                 [
                     'label' => __('Minimal Text-Free Image', 'gpt3-ai-content-generator'),
-                    'prompt' => __('Create a minimalist featured image with no text.
+                    'prompt' => 'Create a minimalist featured image with no text.
 The image must:
 - Rely purely on visuals to convey meaning
 - Use clean colors and composition
@@ -1932,11 +1932,11 @@ The image must:
 Topic: "{topic}"
 Keywords: "{keywords}"
 Excerpt: "{excerpt}"
-Post Title: "{post_title}"', 'gpt3-ai-content-generator'),
+Post Title: "{post_title}"',
                 ],
                 [
                     'label' => __('High-Contrast Image', 'gpt3-ai-content-generator'),
-                    'prompt' => __('Generate a high-contrast featured image designed to stand out in blog grids.
+                    'prompt' => 'Generate a high-contrast featured image designed to stand out in blog grids.
 The image must:
 - Be visually bold without being aggressive
 - Maintain professional tone
@@ -1945,11 +1945,11 @@ The image must:
 Topic: "{topic}"
 Keywords: "{keywords}"
 Excerpt: "{excerpt}"
-Post Title: "{post_title}"', 'gpt3-ai-content-generator'),
+Post Title: "{post_title}"',
                 ],
                 [
                     'label' => __('Modern Web Aesthetic', 'gpt3-ai-content-generator'),
-                    'prompt' => __('Create a featured image aligned with modern web design aesthetics.
+                    'prompt' => 'Create a featured image aligned with modern web design aesthetics.
 The image must:
 - Feel current and polished
 - Work well with modern WordPress themes
@@ -1958,11 +1958,11 @@ The image must:
 Topic: "{topic}"
 Keywords: "{keywords}"
 Excerpt: "{excerpt}"
-Post Title: "{post_title}"', 'gpt3-ai-content-generator'),
+Post Title: "{post_title}"',
                 ],
                 [
                     'label' => __('Abstract Featured Image', 'gpt3-ai-content-generator'),
-                    'prompt' => __('Generate an abstract featured image related to the article topic.
+                    'prompt' => 'Generate an abstract featured image related to the article topic.
 The image must:
 - Represent ideas symbolically
 - Avoid literal illustrations
@@ -1971,11 +1971,11 @@ The image must:
 Topic: "{topic}"
 Keywords: "{keywords}"
 Excerpt: "{excerpt}"
-Post Title: "{post_title}"', 'gpt3-ai-content-generator'),
+Post Title: "{post_title}"',
                 ],
                 [
                     'label' => __('Illustrated Featured Image', 'gpt3-ai-content-generator'),
-                    'prompt' => __('Create a custom illustration-style featured image.
+                    'prompt' => 'Create a custom illustration-style featured image.
 The image must:
 - Be unique and non-stock-like
 - Use consistent illustration style
@@ -1984,11 +1984,11 @@ The image must:
 Topic: "{topic}"
 Keywords: "{keywords}"
 Excerpt: "{excerpt}"
-Post Title: "{post_title}"', 'gpt3-ai-content-generator'),
+Post Title: "{post_title}"',
                 ],
                 [
                     'label' => __('Brand-Safe Featured Image', 'gpt3-ai-content-generator'),
-                    'prompt' => __('Generate a brand-safe featured image suitable for agencies and businesses.
+                    'prompt' => 'Generate a brand-safe featured image suitable for agencies and businesses.
 The image must:
 - Avoid controversial or emotional imagery
 - Be neutral and professional
@@ -1997,11 +1997,11 @@ The image must:
 Topic: "{topic}"
 Keywords: "{keywords}"
 Excerpt: "{excerpt}"
-Post Title: "{post_title}"', 'gpt3-ai-content-generator'),
+Post Title: "{post_title}"',
                 ],
                 [
                     'label' => __('Evergreen Featured Image', 'gpt3-ai-content-generator'),
-                    'prompt' => __('Create an evergreen featured image designed for long-term use.
+                    'prompt' => 'Create an evergreen featured image designed for long-term use.
 The image must:
 - Avoid trends or time-specific visuals
 - Clearly relate to the article topic
@@ -2010,7 +2010,7 @@ The image must:
 Topic: "{topic}"
 Keywords: "{keywords}"
 Excerpt: "{excerpt}"
-Post Title: "{post_title}"', 'gpt3-ai-content-generator'),
+Post Title: "{post_title}"',
                 ],
             ],
         ];

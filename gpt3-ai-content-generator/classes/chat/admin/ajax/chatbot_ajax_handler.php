@@ -255,27 +255,14 @@ class ChatbotAjaxHandler extends BaseAjaxHandler {
             'post_status'            => ['publish', 'draft'],
             'posts_per_page'         => -1,
             'fields'                 => 'ids',
-            'meta_query'             => [
-                'relation' => 'AND',
-                [
-                    'key'     => '_aipkit_site_wide_enabled',
-                    'value'   => '1',
-                    'compare' => '=',
-                ],
-                [
-                    'key'     => '_aipkit_popup_enabled',
-                    'value'   => '1',
-                    'compare' => '=',
-                ],
-            ],
             'no_found_rows'          => true,
-            'update_post_meta_cache' => false,
+            'update_post_meta_cache' => true,
             'update_post_term_cache' => false,
         ]);
         $ids = [];
         foreach ( (array) $query->get_posts() as $id ) {
             $id = absint( $id );
-            if ( $id > 0 && $id !== $exclude_bot_id ) {
+            if ( $id > 0 && $id !== $exclude_bot_id && get_post_meta( $id, '_aipkit_site_wide_enabled', true ) === '1' && get_post_meta( $id, '_aipkit_popup_enabled', true ) === '1' ) {
                 $ids[] = $id;
             }
         }
@@ -506,19 +493,24 @@ class ChatbotAjaxHandler extends BaseAjaxHandler {
         update_post_meta( $new_bot_id, '_aipkit_enable_conversation_starters', BotSettingsManager::DEFAULT_ENABLE_CONVERSATION_STARTERS );
         update_post_meta( $new_bot_id, '_aipkit_conversation_starters', BotSettingsManager::get_default_conversation_starters_json() );
         // Normalize default markers so only one chatbot remains default.
-        $default_marker_ids = get_posts( [
-            'post_type'      => AdminSetup::POST_TYPE,
-            'post_status'    => 'publish',
-            'posts_per_page' => -1,
-            'fields'         => 'ids',
-            'orderby'        => 'date',
-            'order'          => 'ASC',
-            'meta_query'     => [[
-                'key'     => '_aipkit_default_bot',
-                'value'   => '1',
-                'compare' => '=',
-            ]],
+        $default_marker_candidates = get_posts( [
+            'post_type'              => AdminSetup::POST_TYPE,
+            'post_status'            => 'publish',
+            'posts_per_page'         => -1,
+            'fields'                 => 'ids',
+            'orderby'                => 'date',
+            'order'                  => 'ASC',
+            'no_found_rows'          => true,
+            'update_post_meta_cache' => true,
+            'update_post_term_cache' => false,
         ] );
+        $default_marker_ids = [];
+        foreach ( (array) $default_marker_candidates as $default_marker_candidate_id ) {
+            $default_marker_candidate_id = absint( $default_marker_candidate_id );
+            if ( $default_marker_candidate_id > 0 && get_post_meta( $default_marker_candidate_id, '_aipkit_default_bot', true ) === '1' ) {
+                $default_marker_ids[] = $default_marker_candidate_id;
+            }
+        }
         if ( is_array( $default_marker_ids ) && !empty( $default_marker_ids ) ) {
             $normalized_marker_ids = array_values( array_filter( array_map( 'absint', $default_marker_ids ) ) );
             if ( !empty( $normalized_marker_ids ) ) {

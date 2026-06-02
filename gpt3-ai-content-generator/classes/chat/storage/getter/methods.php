@@ -76,7 +76,7 @@ function get_general_bot_settings_logic(int $bot_id, string $bot_name, callable 
     $settings['greeting'] = $get_meta_fn('_aipkit_greeting_message', $default_greeting);
     $settings['subgreeting'] = $get_meta_fn('_aipkit_subgreeting_message', $default_subgreeting);
 
-    $default_instructions = __("You are a helpful AI Assistant. Please be friendly. Today's date is [date].", 'gpt3-ai-content-generator');
+    $default_instructions = "You are a helpful AI Assistant. Please be friendly. Today's date is [date].";
     $settings['instructions'] = $get_meta_fn('_aipkit_instructions', $default_instructions);
 
     return $settings;
