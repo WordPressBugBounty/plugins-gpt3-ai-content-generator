@@ -168,6 +168,8 @@ function render_popup_mode_html_logic(
                 aria-live="polite"
                 aria-atomic="true"
                 aria-hidden="true"
+                inert
+                hidden
                 data-bot-id="<?php echo esc_attr($bot_id); ?>"
             >
                 <span class="aipkit_popup_hint_text"><?php echo esc_html($hint_text); ?></span>
@@ -176,7 +178,7 @@ function render_popup_mode_html_logic(
                 <?php endif; ?>
             </div>
         <?php } // end hint_enabled ?>
-        <div class="aipkit_chat_container aipkit_popup_content aipkit-theme-<?php echo esc_attr($theme); ?> <?php echo esc_attr($custom_theme_class); ?> <?php echo esc_attr($has_main_footer_class); ?> aipkit_popup_position-<?php echo esc_attr($popup_position); ?> aipkit-sidebar-state-closed <?php echo esc_attr($voice_input_class); ?> <?php echo esc_attr($web_search_class); ?> <?php echo esc_attr($google_grounding_class); ?>" id="aipkit_chat_container_<?php echo esc_attr($bot_id); ?>" aria-hidden="true" <?php echo $custom_theme_data_attr; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped?> >
+        <div class="aipkit_chat_container aipkit_popup_content aipkit-theme-<?php echo esc_attr($theme); ?> <?php echo esc_attr($custom_theme_class); ?> <?php echo esc_attr($has_main_footer_class); ?> aipkit_popup_position-<?php echo esc_attr($popup_position); ?> aipkit-sidebar-state-closed <?php echo esc_attr($voice_input_class); ?> <?php echo esc_attr($web_search_class); ?> <?php echo esc_attr($google_grounding_class); ?>" id="aipkit_chat_container_<?php echo esc_attr($bot_id); ?>" aria-hidden="true" inert <?php echo $custom_theme_data_attr; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped?> >
             <div class="aipkit_chat_main">
                 <?php if ($feature_flags['show_header']): ?>
                     <?php $rendererInstance->render_header_html_internal($feature_flags, $frontend_config, true); ?>

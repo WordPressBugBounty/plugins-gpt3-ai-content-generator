@@ -10,7 +10,7 @@
  * @wordpress-plugin
  * Plugin Name:       AI Puffer – Chat. Create. Automate. (formerly AI Power)
  * Description:       Chat. Create. Automate. All your AI tools in one workspace.
- * Version:           2.4.38
+ * Version:           2.4.39
  * Author:            Senol Sahin
  * Author URI:        https://aipower.org
  * License:           GPL-2.0+
@@ -23,7 +23,7 @@
 if ( !defined( 'WPINC' ) ) {
     die;
 }
-define( 'WPAICG_VERSION', '2.4.38' );
+define( 'WPAICG_VERSION', '2.4.39' );
 define( 'WPAICG_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
 define( 'WPAICG_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
 define( 'WPAICG_LIB_DIR', WPAICG_PLUGIN_DIR . 'lib/' );
@@ -39,6 +39,7 @@ if ( function_exists( 'wpaicg_gacg_fs' ) ) {
             if ( !isset( $wpaicg_gacg_fs ) ) {
                 // Activate multisite network integration.
                 if ( !defined( 'WP_FS__PRODUCT_11606_MULTISITE' ) ) {
+                    // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedConstantFound -- Freemius requires this product-specific multisite constant name.
                     define( 'WP_FS__PRODUCT_11606_MULTISITE', true );
                 }
                 // Include Freemius SDK.
