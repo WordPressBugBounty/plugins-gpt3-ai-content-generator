@@ -35,7 +35,7 @@ class WP_AI_Content_Generator
     private $plugin_name;
     public const DB_VERSION_OPTION = 'aipkit_plugin_version'; // Option to store current DB version
     public const TOKEN_MANAGER_SCHEMA_VERSION_OPTION = 'aipkit_token_manager_schema_version';
-    public const TOKEN_MANAGER_SCHEMA_VERSION = '3';
+    public const TOKEN_MANAGER_SCHEMA_VERSION = '4';
     private const INSTALL_INTEGRITY_TRANSIENT = 'aipkit_install_integrity_checked';
 
     public static function get_instance(): WP_AI_Content_Generator

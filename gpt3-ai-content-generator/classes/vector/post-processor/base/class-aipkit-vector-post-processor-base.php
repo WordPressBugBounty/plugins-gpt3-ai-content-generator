@@ -412,6 +412,10 @@ abstract class AIPKit_Vector_Post_Processor_Base
         }
 
         $main_content = $post->post_content;
+        $should_execute_shortcodes = (bool) apply_filters('aipkit_knowledge_base_index_execute_shortcodes', false, $post);
+        if (!$should_execute_shortcodes) {
+            $main_content = strip_shortcodes($main_content);
+        }
         $main_content = apply_filters('the_content', $main_content);
         $main_content = wp_strip_all_tags($main_content, true);
         $main_content = strip_shortcodes($main_content);

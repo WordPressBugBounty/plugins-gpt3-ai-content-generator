@@ -201,7 +201,7 @@ function aipkit_create_automated_task_queue_table()
         added_at datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
         PRIMARY KEY  (id),
         KEY task_id (task_id),
-        KEY target_identifier (target_identifier),
+        KEY target_identifier (target_identifier(191)),
         KEY task_type (task_type),
         KEY status_added_at (status, added_at)
     ) $charset_collate;";
@@ -236,7 +236,7 @@ function aipkit_create_content_writer_templates_table()
         post_schedule datetime DEFAULT NULL,
         post_categories text DEFAULT NULL,
         PRIMARY KEY  (id),
-        UNIQUE KEY user_template_name_type (user_id, template_name, template_type),
+        UNIQUE KEY user_template_name_type (user_id, template_name(191), template_type),
         KEY user_id (user_id),
         KEY template_type (template_type),
         KEY is_default (is_default),
@@ -262,7 +262,7 @@ function aipkit_create_rss_history_table()
         item_guid varchar(255) NOT NULL,
         processed_at datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
         PRIMARY KEY  (id),
-        UNIQUE KEY unique_task_guid (task_id, item_guid),
+        UNIQUE KEY unique_task_guid (task_id, item_guid(191)),
         KEY task_id (task_id)
     ) $charset_collate;";
 
@@ -380,8 +380,8 @@ function aipkit_create_pricing_rules_table()
         created_at datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
         updated_at datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
         PRIMARY KEY  (id),
-        UNIQUE KEY unique_scope_rule (scope_type, scope_id, module, provider, model, operation),
-        KEY module_model_operation (module, provider, model, operation),
+        KEY scope_rule_lookup (scope_type, scope_id, module(32), provider(32), model(100), operation(32)),
+        KEY module_model_operation (module(32), provider(32), model(100), operation(32)),
         KEY scope_lookup (scope_type, scope_id),
         KEY enabled (enabled)
     ) {$charset_collate};";
@@ -425,7 +425,7 @@ function aipkit_create_token_ledger_table()
         KEY user_created_at (user_id, created_at),
         KEY session_created_at (session_id, created_at),
         KEY module_context_created_at (module, context_type, context_id, created_at),
-        KEY provider_model_operation (provider, model, operation),
+        KEY provider_model_operation (provider(32), model(100), operation(32)),
         KEY entry_type_created_at (entry_type, created_at)
     ) {$charset_collate};";
 
