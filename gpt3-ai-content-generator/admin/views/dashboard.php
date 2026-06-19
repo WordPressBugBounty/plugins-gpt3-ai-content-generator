@@ -147,6 +147,39 @@ $nav_modules = array(
         <?php endif; ?>
     </div>
 
+    <div class="aipkit_creator_note">
+        <p>
+            <?php
+            $pufferworks_link = '<a href="' . esc_url('https://pufferworks.com/') . '" target="_blank" rel="noopener noreferrer">' . esc_html__('PufferWorks', 'gpt3-ai-content-generator') . '</a>';
+            $pufferdesk_link = '<a href="' . esc_url(admin_url('plugin-install.php?tab=search&type=term&s=pufferdesk')) . '">' . esc_html__('PufferDesk', 'gpt3-ai-content-generator') . '</a>';
+            printf(
+                /* translators: 1: link to PufferWorks, 2: link to PufferDesk. */
+                esc_html__("Hey, it’s Senol 👋 If you're enjoying this plugin, you might like the other WordPress tools I'm building at %1\$s. You can also check out my latest plugin, %2\$s ✨", 'gpt3-ai-content-generator'),
+                wp_kses(
+                    $pufferworks_link,
+                    [
+                        'a' => [
+                            'href' => [],
+                            'target' => [],
+                            'rel' => [],
+                        ],
+                    ]
+                ),
+                wp_kses(
+                    $pufferdesk_link,
+                    [
+                        'a' => [
+                            'href' => [],
+                            'target' => [],
+                            'rel' => [],
+                        ],
+                    ]
+                )
+            );
+            ?>
+        </p>
+    </div>
+
     <div class="aipkit_main-content" id="aipkit_module-container">
     </div>
 </div>

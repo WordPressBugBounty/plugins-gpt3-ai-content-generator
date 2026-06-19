@@ -167,31 +167,42 @@ class AIPKit_Vector_Store_Pinecone_Ajax_Handler extends BaseDashboardAjaxHandler
         // --- End Pro Check ---
 
         $fn_file_path = WPAICG_LIB_DIR . 'vector-stores/file-upload/pinecone/fn-upload-file-and-upsert.php';
-        if (file_exists($fn_file_path)) {
-            require_once $fn_file_path;
-            $result = \WPAICG\Lib\VectorStores\FileUpload\Pinecone\_aipkit_pinecone_ajax_upload_file_and_upsert_logic(
-                $this->vector_store_manager,
-                $this->ai_caller,
-                $this->_get_pinecone_config(), // Ensure config is passed
-                $this // Pass the handler instance
-            );
-            if (is_wp_error($result)) {
-                // Log if error object contains log_data
-                $log_data_on_error = $result->get_error_data();
-                if (is_array($log_data_on_error) && isset($log_data_on_error['log_data'])) {
-                    $this->_log_vector_data_source_entry($log_data_on_error['log_data']);
-                }
-                $this->send_wp_error($result);
-            } else {
-                // Log the result from the Pro function's 'log_data'
-                if (isset($result['log_data']) && is_array($result['log_data'])) {
-                    $this->_log_vector_data_source_entry($result['log_data']);
-                }
-                unset($result['log_data']); // Don't send full log data back to client
-                wp_send_json_success($result);
+        if (!file_exists($fn_file_path)) {
+            $this->send_wp_error(new WP_Error(
+                'required_files_missing_pinecone_upload',
+                __('Some required files seem to be missing for Pinecone file uploads. Please reinstall the Pro version of AI Puffer and try again.', 'gpt3-ai-content-generator'),
+                ['status' => 500]
+            ));
+            return;
+        }
+
+        $pinecone_config = $this->_get_pinecone_config();
+        if (is_wp_error($pinecone_config)) {
+            $this->send_wp_error($pinecone_config);
+            return;
+        }
+
+        require_once $fn_file_path;
+        $result = \WPAICG\Lib\VectorStores\FileUpload\Pinecone\_aipkit_pinecone_ajax_upload_file_and_upsert_logic(
+            $this->vector_store_manager,
+            $this->ai_caller,
+            $pinecone_config,
+            $this // Pass the handler instance
+        );
+        if (is_wp_error($result)) {
+            // Log if error object contains log_data
+            $log_data_on_error = $result->get_error_data();
+            if (is_array($log_data_on_error) && isset($log_data_on_error['log_data'])) {
+                $this->_log_vector_data_source_entry($log_data_on_error['log_data']);
             }
+            $this->send_wp_error($result);
         } else {
-            $this->send_wp_error(new WP_Error('missing_file_upload_logic_pinecone', __('File upload processing component for Pinecone is missing.', 'gpt3-ai-content-generator'), ['status' => 500]));
+            // Log the result from the Pro function's 'log_data'
+            if (isset($result['log_data']) && is_array($result['log_data'])) {
+                $this->_log_vector_data_source_entry($result['log_data']);
+            }
+            unset($result['log_data']); // Don't send full log data back to client
+            wp_send_json_success($result);
         }
     }
     public function ajax_delete_index_pinecone()

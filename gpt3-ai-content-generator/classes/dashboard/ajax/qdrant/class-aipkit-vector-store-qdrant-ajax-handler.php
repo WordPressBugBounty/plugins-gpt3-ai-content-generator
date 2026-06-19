@@ -188,25 +188,29 @@ class AIPKit_Vector_Store_Qdrant_Ajax_Handler extends BaseDashboardAjaxHandler
         }
         // --- End Pro Check ---
 
+        $fn_file_path = WPAICG_LIB_DIR . 'vector-stores/file-upload/qdrant/fn-upload-file-and-upsert.php';
+        if (!file_exists($fn_file_path)) {
+            $this->send_wp_error(new WP_Error(
+                'required_files_missing_qdrant_upload',
+                __('Some required files seem to be missing for Qdrant file uploads. Please reinstall the Pro version of AI Puffer and try again.', 'gpt3-ai-content-generator'),
+                ['status' => 500]
+            ));
+            return;
+        }
+
         $qdrant_config = $this->_get_qdrant_config();
         if (is_wp_error($qdrant_config)) {
             $this->send_wp_error($qdrant_config);
             return;
         }
 
-        $fn_file_path = WPAICG_LIB_DIR . 'vector-stores/file-upload/qdrant/fn-upload-file-and-upsert.php';
-        if (file_exists($fn_file_path)) {
-            require_once $fn_file_path;
-            $result = \WPAICG\Lib\VectorStores\FileUpload\Qdrant\_aipkit_qdrant_ajax_upload_file_and_upsert_logic(
-                $this->vector_store_manager,
-                $this->ai_caller,
-                $qdrant_config,
-                $this
-            );
-            // *** END MODIFICATION ***
-        } else {
-            $result = new WP_Error('missing_file_upload_logic_qdrant_lib', __('File upload processing component for Qdrant is missing.', 'gpt3-ai-content-generator'), ['status' => 500]);
-        }
+        require_once $fn_file_path;
+        $result = \WPAICG\Lib\VectorStores\FileUpload\Qdrant\_aipkit_qdrant_ajax_upload_file_and_upsert_logic(
+            $this->vector_store_manager,
+            $this->ai_caller,
+            $qdrant_config,
+            $this
+        );
 
         if (is_wp_error($result)) {
             // Log if error object contains log_data

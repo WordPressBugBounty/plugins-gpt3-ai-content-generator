@@ -167,24 +167,29 @@ class AIPKit_Vector_Store_Chroma_Ajax_Handler extends BaseDashboardAjaxHandler
             return;
         }
 
+        $fn_file_path = WPAICG_LIB_DIR . 'vector-stores/file-upload/chroma/fn-upload-file-and-upsert.php';
+        if (!file_exists($fn_file_path)) {
+            $this->send_wp_error(new WP_Error(
+                'required_files_missing_chroma_upload',
+                __('Some required files seem to be missing for Chroma file uploads. Please reinstall the Pro version of AI Puffer and try again.', 'gpt3-ai-content-generator'),
+                ['status' => 500]
+            ));
+            return;
+        }
+
         $chroma_config = $this->_get_chroma_config();
         if (is_wp_error($chroma_config)) {
             $this->send_wp_error($chroma_config);
             return;
         }
 
-        $fn_file_path = WPAICG_LIB_DIR . 'vector-stores/file-upload/chroma/fn-upload-file-and-upsert.php';
-        if (file_exists($fn_file_path)) {
-            require_once $fn_file_path;
-            $result = \WPAICG\Lib\VectorStores\FileUpload\Chroma\_aipkit_chroma_ajax_upload_file_and_upsert_logic(
-                $this->vector_store_manager,
-                $this->ai_caller,
-                $chroma_config,
-                $this
-            );
-        } else {
-            $result = new WP_Error('missing_file_upload_logic_chroma_lib', __('File upload processing component for Chroma is missing.', 'gpt3-ai-content-generator'), ['status' => 500]);
-        }
+        require_once $fn_file_path;
+        $result = \WPAICG\Lib\VectorStores\FileUpload\Chroma\_aipkit_chroma_ajax_upload_file_and_upsert_logic(
+            $this->vector_store_manager,
+            $this->ai_caller,
+            $chroma_config,
+            $this
+        );
 
         if (is_wp_error($result)) {
             $log_data_on_error = $result->get_error_data();
