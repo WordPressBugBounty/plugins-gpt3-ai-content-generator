@@ -69,7 +69,9 @@ function render_popup_mode_html_logic(
 ) {
     $popup_position = $frontend_config['popupPosition'];
     $popup_icon_type = $frontend_config['popupIconType'] ?? BotSettingsManager::DEFAULT_POPUP_ICON_TYPE;
+    $popup_icon_type = in_array($popup_icon_type, ['default', 'custom'], true) ? $popup_icon_type : BotSettingsManager::DEFAULT_POPUP_ICON_TYPE;
     $popup_icon_style = $frontend_config['popupIconStyle'] ?? 'circle';
+    $popup_icon_style = in_array($popup_icon_style, ['circle', 'square', 'none'], true) ? $popup_icon_style : BotSettingsManager::DEFAULT_POPUP_ICON_STYLE;
     $popup_icon_value = $frontend_config['popupIconValue'] ?? BotSettingsManager::DEFAULT_POPUP_ICON_VALUE;
     $popup_icon_size  = (isset($frontend_config['popupIconSize']) && in_array($frontend_config['popupIconSize'], ['small','medium','large','xlarge'], true))
         ? $frontend_config['popupIconSize']
@@ -146,7 +148,7 @@ function render_popup_mode_html_logic(
     $wrapper_style_attr = !empty($trigger_inline_style) ? 'style="' . esc_attr($trigger_inline_style) . '"' : '';
     ?>
     <div class="<?php echo esc_attr($popup_wrapper_classes); ?>" id="aipkit_popup_wrapper_<?php echo esc_attr($bot_id); ?>" data-config='<?php echo esc_attr($json_encoded_data); ?>' data-bot-id="<?php echo esc_attr($bot_id); ?>" data-icon-size="<?php echo esc_attr($popup_icon_size); ?>" <?php echo $wrapper_style_attr; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
-        <button type="button" class="aipkit_popup_trigger aipkit_popup_position-<?php echo esc_attr($popup_position); ?> aipkit_popup_trigger--size-<?php echo esc_attr($popup_icon_size); ?>" id="aipkit_popup_trigger_<?php echo esc_attr($bot_id); ?>" aria-label="<?php esc_attr_e('Open Chat', 'gpt3-ai-content-generator'); ?>" title="<?php esc_attr_e('Open Chat', 'gpt3-ai-content-generator'); ?>" aria-haspopup="dialog" aria-controls="aipkit_chat_container_<?php echo esc_attr($bot_id); ?>" aria-expanded="false" data-icon-style="<?php echo esc_attr($popup_icon_style); ?>" data-label-open="<?php esc_attr_e('Open Chat', 'gpt3-ai-content-generator'); ?>" data-label-close="<?php esc_attr_e('Close Chat', 'gpt3-ai-content-generator'); ?>">
+        <button type="button" class="aipkit_popup_trigger aipkit_popup_position-<?php echo esc_attr($popup_position); ?> aipkit_popup_trigger--size-<?php echo esc_attr($popup_icon_size); ?>" id="aipkit_popup_trigger_<?php echo esc_attr($bot_id); ?>" aria-label="<?php esc_attr_e('Open Chat', 'gpt3-ai-content-generator'); ?>" title="<?php esc_attr_e('Open Chat', 'gpt3-ai-content-generator'); ?>" aria-haspopup="dialog" aria-controls="aipkit_chat_container_<?php echo esc_attr($bot_id); ?>" aria-expanded="false" data-icon-style="<?php echo esc_attr($popup_icon_style); ?>" data-icon-type="<?php echo esc_attr($popup_icon_type); ?>" data-label-open="<?php esc_attr_e('Open Chat', 'gpt3-ai-content-generator'); ?>" data-label-close="<?php esc_attr_e('Close Chat', 'gpt3-ai-content-generator'); ?>">
             <span class="aipkit_popup_icon aipkit_popup_icon--open">
                 <?php echo $icon_html; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped?>
             </span>
@@ -159,7 +161,7 @@ function render_popup_mode_html_logic(
             $hint_text = wp_strip_all_tags((string)$frontend_config['popupLabelText']);
             $hint_size = isset($frontend_config['popupLabelSize']) && in_array($frontend_config['popupLabelSize'], ['small','medium','large','xlarge'], true)
                 ? $frontend_config['popupLabelSize']
-                : 'medium';
+                : BotSettingsManager::DEFAULT_POPUP_LABEL_SIZE;
             ?>
             <div
                 class="aipkit_popup_hint aipkit_popup_position-<?php echo esc_attr($popup_position); ?> aipkit_popup_hint--size-<?php echo esc_attr($hint_size); ?>"

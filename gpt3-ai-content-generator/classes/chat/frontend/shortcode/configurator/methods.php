@@ -425,7 +425,7 @@ function build_config_array_logic(int $bot_id, \WP_Post $bot_post, array $settin
         })(),
         // Modes: 'always', 'on_delay', 'until_open', 'until_dismissed'
         'popupLabelMode' => in_array(($settings['popup_label_mode'] ?? 'on_delay'), ['always','on_delay','until_open','until_dismissed'], true) ? $settings['popup_label_mode'] : 'on_delay',
-        'popupLabelDelaySeconds' => max(0, absint($settings['popup_label_delay_seconds'] ?? 2)),
+        'popupLabelDelaySeconds' => max(0, absint($settings['popup_label_delay_seconds'] ?? BotSettingsManager::DEFAULT_POPUP_LABEL_DELAY_SECONDS)),
         // 0 = never auto-hide
         'popupLabelAutoHideSeconds' => max(0, absint($settings['popup_label_auto_hide_seconds'] ?? 0)),
         'popupLabelDismissible' => ($settings['popup_label_dismissible'] ?? '1') === '1',
@@ -435,7 +435,13 @@ function build_config_array_logic(int $bot_id, \WP_Post $bot_post, array $settin
         'popupLabelShowOnDesktop' => ($settings['popup_label_show_on_desktop'] ?? '1') === '1',
         // Bump this (any string) to re-show hints for everyone
         'popupLabelVersion' => isset($settings['popup_label_version']) ? (string)$settings['popup_label_version'] : '',
-        'popupLabelSize' => in_array(($settings['popup_label_size'] ?? 'medium'), ['small','medium','large','xlarge'], true) ? $settings['popup_label_size'] : 'medium',
+        'popupLabelSize' => (function() use ($settings) {
+            $fallback = class_exists(BotSettingsManager::class)
+                ? BotSettingsManager::DEFAULT_POPUP_LABEL_SIZE
+                : 'large';
+            $value = $settings['popup_label_size'] ?? $fallback;
+            return in_array($value, ['small','medium','large','xlarge'], true) ? $value : $fallback;
+        })(),
         'footerText' => $settings['footer_text'] ?? '',
         'headerAvatarType' => $settings['header_avatar_type'] ?? (class_exists(BotSettingsManager::class) ? BotSettingsManager::DEFAULT_HEADER_AVATAR_TYPE : 'default'),
         'headerAvatarValue' => $settings['header_avatar_value'] ?? (class_exists(BotSettingsManager::class) ? BotSettingsManager::DEFAULT_HEADER_AVATAR_VALUE : 'chat-bubble'),

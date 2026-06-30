@@ -28,7 +28,7 @@ class BotSettingsManager
     public const DEFAULT_MAX_COMPLETION_TOKENS = 4000;
     public const DEFAULT_MAX_MESSAGES = 15;
     public const DEFAULT_ENABLE_FULLSCREEN = '1';
-    public const DEFAULT_ENABLE_DOWNLOAD = '1';
+    public const DEFAULT_ENABLE_DOWNLOAD = '0';
     public const DEFAULT_ENABLE_COPY_BUTTON = '1';
     public const DEFAULT_ENABLE_FEEDBACK = '1';
     public const DEFAULT_ENABLE_CONSENT_COMPLIANCE = '0';
@@ -40,17 +40,17 @@ class BotSettingsManager
     public const DEFAULT_POPUP_ICON_VALUE = 'spark';
     public const DEFAULT_POPUP_ICON_SIZE = 'medium'; // allowed: small|medium|large|xlarge
     // --- Popup Hint/Label Defaults ---
-    public const DEFAULT_POPUP_LABEL_ENABLED = '0';
+    public const DEFAULT_POPUP_LABEL_ENABLED = '1';
     public const DEFAULT_POPUP_LABEL_TEXT = 'Need help? Ask me!';
     public const DEFAULT_POPUP_LABEL_MODE = 'on_delay'; // allowed: always|on_delay|until_open|until_dismissed
-    public const DEFAULT_POPUP_LABEL_DELAY_SECONDS = 2;
+    public const DEFAULT_POPUP_LABEL_DELAY_SECONDS = 1;
     public const DEFAULT_POPUP_LABEL_AUTO_HIDE_SECONDS = 0; // 0 = never auto-hide
     public const DEFAULT_POPUP_LABEL_DISMISSIBLE = '1';
     public const DEFAULT_POPUP_LABEL_FREQUENCY = 'once_per_visitor'; // allowed: always|once_per_session|once_per_visitor
     public const DEFAULT_POPUP_LABEL_SHOW_ON_MOBILE = '1';
     public const DEFAULT_POPUP_LABEL_SHOW_ON_DESKTOP = '1';
     public const DEFAULT_POPUP_LABEL_VERSION = '';
-    public const DEFAULT_POPUP_LABEL_SIZE = 'medium'; // allowed: small|medium|large|xlarge
+    public const DEFAULT_POPUP_LABEL_SIZE = 'large'; // allowed: small|medium|large|xlarge
     // --- Header Defaults ---
     public const DEFAULT_HEADER_AVATAR_URL = '';
     public const DEFAULT_HEADER_AVATAR_TYPE = 'default';
@@ -62,18 +62,18 @@ class BotSettingsManager
     public const DEFAULT_TOKEN_RESET_PERIOD = 'never';
     public const DEFAULT_TOKEN_LIMIT_MESSAGE = 'You have reached your quota for this period.';
     public const DEFAULT_TOKEN_LIMIT_MODE = 'general';
-    public const DEFAULT_TOKEN_LIMIT_PRIMARY_ACTION_TYPE = 'dashboard_usage';
-    public const DEFAULT_TOKEN_LIMIT_PRIMARY_ACTION_LABEL = 'View usage';
+    public const DEFAULT_TOKEN_LIMIT_PRIMARY_ACTION_TYPE = 'none';
+    public const DEFAULT_TOKEN_LIMIT_PRIMARY_ACTION_LABEL = '';
     public const DEFAULT_TOKEN_LIMIT_PRIMARY_ACTION_URL = '';
-    public const DEFAULT_TOKEN_LIMIT_SECONDARY_ACTION_TYPE = 'buy_credits';
-    public const DEFAULT_TOKEN_LIMIT_SECONDARY_ACTION_LABEL = 'Buy credits';
+    public const DEFAULT_TOKEN_LIMIT_SECONDARY_ACTION_TYPE = 'none';
+    public const DEFAULT_TOKEN_LIMIT_SECONDARY_ACTION_LABEL = '';
     public const DEFAULT_TOKEN_LIMIT_SECONDARY_ACTION_URL = '';
     public const DEFAULT_TTS_ENABLED = '0';
     public const DEFAULT_TTS_PROVIDER = 'Google';
     public const DEFAULT_TTS_OPENAI_MODEL_ID = 'tts-1';
     public const DEFAULT_TTS_ELEVENLABS_MODEL_ID = '';
     public const DEFAULT_TTS_AUTO_PLAY = '0';
-    public const DEFAULT_ENABLE_VOICE_INPUT = '1';
+    public const DEFAULT_ENABLE_VOICE_INPUT = '0';
     public const DEFAULT_STT_PROVIDER = 'OpenAI';
     public const DEFAULT_STT_OPENAI_MODEL_ID = 'whisper-1';
     public const DEFAULT_STT_AZURE_MODEL_ID = '';
@@ -356,10 +356,10 @@ class BotSettingsManager
     {
         return [
             'primary_type' => self::DEFAULT_TOKEN_LIMIT_PRIMARY_ACTION_TYPE,
-            'primary_label' => __('View usage', 'gpt3-ai-content-generator'),
+            'primary_label' => self::DEFAULT_TOKEN_LIMIT_PRIMARY_ACTION_LABEL,
             'primary_url' => self::DEFAULT_TOKEN_LIMIT_PRIMARY_ACTION_URL,
             'secondary_type' => self::DEFAULT_TOKEN_LIMIT_SECONDARY_ACTION_TYPE,
-            'secondary_label' => __('Buy credits', 'gpt3-ai-content-generator'),
+            'secondary_label' => self::DEFAULT_TOKEN_LIMIT_SECONDARY_ACTION_LABEL,
             'secondary_url' => self::DEFAULT_TOKEN_LIMIT_SECONDARY_ACTION_URL,
         ];
     }

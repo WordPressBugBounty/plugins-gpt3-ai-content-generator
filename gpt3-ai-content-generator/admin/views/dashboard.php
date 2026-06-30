@@ -52,34 +52,98 @@ $nav_modules = array(
     ),
 );
 
+$is_nav_module_enabled = static function ($option_key) use ($module_settings) {
+    return !isset($module_settings[$option_key]) || !empty($module_settings[$option_key]);
+};
+
+$visible_nav_module_count = 0;
+if ($can_access_dashboard) {
+    foreach ($nav_modules as $option_key => $module) {
+        if (
+            $is_nav_module_enabled($option_key) &&
+            AIPKit_Role_Manager::user_can_access_module($module['data_module'])
+        ) {
+            ++$visible_nav_module_count;
+        }
+    }
+}
+
+$default_module_slug = '';
+$default_module_label = '';
+if (
+    isset($nav_modules['chat_bot']) &&
+    $is_nav_module_enabled('chat_bot') &&
+    AIPKit_Role_Manager::user_can_access_module($nav_modules['chat_bot']['data_module'])
+) {
+    $default_module_slug = $nav_modules['chat_bot']['data_module'];
+    $default_module_label = $nav_modules['chat_bot']['label'];
+}
+
+if ($default_module_slug === '') {
+    foreach ($nav_modules as $option_key => $module) {
+        $module_slug = $module['data_module'];
+        if ($is_nav_module_enabled($option_key) && AIPKit_Role_Manager::user_can_access_module($module_slug)) {
+            $default_module_slug = $module_slug;
+            $default_module_label = $module['label'];
+            break;
+        }
+    }
+}
+
+if ($default_module_slug === '' && $can_access_settings) {
+    $default_module_slug = 'settings';
+    $default_module_label = __('Settings', 'gpt3-ai-content-generator');
+}
+
+$brand_label = $default_module_label !== '' ? $default_module_label : __('AI Puffer', 'gpt3-ai-content-generator');
+$module_tabs_classes = 'aipkit_module-tabs';
+if ($visible_nav_module_count === 0) {
+    $module_tabs_classes .= ' aipkit_module-tabs--modules-empty';
+}
+
 ?>
 <div class="wrap aipkit_wrap">
-    <div class="aipkit_module-tabs">
-        <nav class="aipkit_module-tabs_list" role="tablist" aria-label="<?php esc_attr_e('Main navigation', 'gpt3-ai-content-generator'); ?>">
-            <?php if ($can_access_dashboard): ?>
-                <a
-                    href="#"
-                    class="aipkit_module-tab aipkit_module-tab--home aipkit_module-link"
-                    data-module="dashboard-home"
-                    data-aipkit-open-module="dashboard-home"
-                    aria-label="<?php esc_attr_e('Dashboard', 'gpt3-ai-content-generator'); ?>"
-                    title="<?php esc_attr_e('Dashboard', 'gpt3-ai-content-generator'); ?>"
-                    role="tab"
-                >
-                    <span class="aipkit_module-tab_home-badge" aria-hidden="true">
-                        <img
-                            src="<?php echo esc_url(WPAICG_PLUGIN_URL . 'public/images/icon.svg'); ?>"
-                            alt=""
-                            class="aipkit_module-tab_home-logo"
-                        />
-                    </span>
-                    <span class="aipkit_module-tab_label"><?php esc_html_e('Home', 'gpt3-ai-content-generator'); ?></span>
-                </a>
+    <div class="<?php echo esc_attr($module_tabs_classes); ?>">
+        <?php if ($can_access_dashboard): ?>
+            <a
+                href="#"
+                class="aipkit_module-brand"
+                <?php if ($default_module_slug !== ''): ?>
+                    data-module="<?php echo esc_attr($default_module_slug); ?>"
+                    data-aipkit-open-module="<?php echo esc_attr($default_module_slug); ?>"
+                    <?php if ($default_module_slug === 'settings'): ?>
+                        data-aipkit-settings-page="modules"
+                    <?php endif; ?>
+                <?php endif; ?>
+                aria-label="<?php echo esc_attr($brand_label); ?>"
+                title="<?php echo esc_attr($brand_label); ?>"
+            >
+                <span class="aipkit_module-brand_logo" aria-hidden="true">
+                    <img
+                        src="<?php echo esc_url(WPAICG_PLUGIN_URL . 'public/images/icon.svg'); ?>"
+                        alt=""
+                    />
+                </span>
+                <span class="aipkit_module-brand_copy">
+                    <span class="aipkit_module-brand_title"><?php esc_html_e('AI Puffer', 'gpt3-ai-content-generator'); ?></span>
+                    <span class="aipkit_module-brand_meta"><?php esc_html_e('Chat. Create. Automate.', 'gpt3-ai-content-generator'); ?></span>
+                </span>
+            </a>
+        <?php endif; ?>
 
+        <nav
+            class="aipkit_module-tabs_list"
+            role="tablist"
+            aria-label="<?php esc_attr_e('Main navigation', 'gpt3-ai-content-generator'); ?>"
+            <?php if ($visible_nav_module_count === 0): ?>
+                aria-hidden="true"
+            <?php endif; ?>
+        >
+            <?php if ($can_access_dashboard): ?>
                 <?php foreach ($nav_modules as $option_key => $module): ?>
                     <?php
                     $module_slug = $module['data_module'];
-                    $is_enabled = !isset($module_settings[$option_key]) || !empty($module_settings[$option_key]);
+                    $is_enabled = $is_nav_module_enabled($option_key);
                     if (!AIPKit_Role_Manager::user_can_access_module($module_slug)) {
                         continue;
                     }
@@ -133,51 +197,18 @@ $nav_modules = array(
                     type="button" 
                     class="aipkit_module-tab aipkit_module-tab--settings aipkit_upgrade_btn" 
                     id="aipkit_upgradeBtn"
-                    title="<?php echo esc_attr__('Upgrade', 'gpt3-ai-content-generator'); ?>"
+                    title="<?php echo esc_attr__('Upgrade to Pro', 'gpt3-ai-content-generator'); ?>"
                 >
                     <span class="aipkit_upgrade_btn_icon">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                             <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
                         </svg>
                     </span>
-                    <span class="aipkit_module-tab_label aipkit_upgrade_btn_label"><?php esc_html_e('Upgrade', 'gpt3-ai-content-generator'); ?></span>
+                    <span class="aipkit_module-tab_label aipkit_upgrade_btn_label"><?php esc_html_e('Upgrade Pro', 'gpt3-ai-content-generator'); ?></span>
                 </button>
                 <?php endif; ?>
             </div>
         <?php endif; ?>
-    </div>
-
-    <div class="aipkit_creator_note">
-        <p>
-            <?php
-            $pufferworks_link = '<a href="' . esc_url('https://pufferworks.com/') . '" target="_blank" rel="noopener noreferrer">' . esc_html__('PufferWorks', 'gpt3-ai-content-generator') . '</a>';
-            $pufferdesk_link = '<a href="' . esc_url(admin_url('plugin-install.php?tab=search&type=term&s=pufferdesk')) . '">' . esc_html__('PufferDesk', 'gpt3-ai-content-generator') . '</a>';
-            printf(
-                /* translators: 1: link to PufferWorks, 2: link to PufferDesk. */
-                esc_html__("Hey, it’s Senol 👋 If you're enjoying this plugin, you might like the other WordPress tools I'm building at %1\$s. You can also check out my latest plugin, %2\$s ✨", 'gpt3-ai-content-generator'),
-                wp_kses(
-                    $pufferworks_link,
-                    [
-                        'a' => [
-                            'href' => [],
-                            'target' => [],
-                            'rel' => [],
-                        ],
-                    ]
-                ),
-                wp_kses(
-                    $pufferdesk_link,
-                    [
-                        'a' => [
-                            'href' => [],
-                            'target' => [],
-                            'rel' => [],
-                        ],
-                    ]
-                )
-            );
-            ?>
-        </p>
     </div>
 
     <div class="aipkit_main-content" id="aipkit_module-container">

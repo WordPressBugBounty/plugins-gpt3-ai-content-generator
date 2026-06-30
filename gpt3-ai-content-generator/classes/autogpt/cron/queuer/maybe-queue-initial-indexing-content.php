@@ -46,6 +46,35 @@ function maybe_queue_initial_indexing_content_logic(int $task_id, array $task_co
         return;
     }
 
+    $specific_post_ids = isset($task_config['specific_post_ids']) && is_array($task_config['specific_post_ids'])
+        ? array_values(array_filter(array_map('absint', $task_config['specific_post_ids'])))
+        : [];
+    if (!empty($specific_post_ids)) {
+        $args = [
+            'post_type'      => !empty($task_config['post_types']) ? $task_config['post_types'] : 'any',
+            'post_status'    => 'publish',
+            'post__in'       => $specific_post_ids,
+            'posts_per_page' => count($specific_post_ids),
+            'fields'         => 'ids',
+            'orderby'        => 'post__in',
+        ];
+
+        $query = new WP_Query($args);
+        if ($query->have_posts()) {
+            $item_config = Helpers\build_index_item_config_logic($task_config);
+            foreach ($query->posts as $post_id) {
+                Helpers\insert_item_into_queue_logic($wpdb, $queue_table_name, $task_id, $post_id, 'content_indexing', $item_config);
+            }
+        }
+
+        delete_transient($transient_key);
+        set_transient($completed_transient_key, 'yes', MONTH_IN_SECONDS);
+        if (!$force_all) {
+            Helpers\update_task_flag_logic($wpdb, $tasks_table_name, $task_id, $task_config);
+        }
+        return;
+    }
+
     $page_to_process = get_transient($transient_key);
     if ($page_to_process === false) {
         $page_to_process = 1; // Start from page 1 if transient not set

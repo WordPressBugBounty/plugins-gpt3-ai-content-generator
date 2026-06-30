@@ -271,12 +271,8 @@ function get_appearance_settings_logic(int $bot_id, string $bot_name, callable $
     $settings['enable_download'] = in_array($get_meta_fn('_aipkit_enable_download', BotSettingsManager::DEFAULT_ENABLE_DOWNLOAD), ['0','1'])
         ? $get_meta_fn('_aipkit_enable_download', BotSettingsManager::DEFAULT_ENABLE_DOWNLOAD)
         : BotSettingsManager::DEFAULT_ENABLE_DOWNLOAD;
-    $settings['enable_copy_button'] = in_array($get_meta_fn('_aipkit_enable_copy_button', BotSettingsManager::DEFAULT_ENABLE_COPY_BUTTON), ['0','1'])
-        ? $get_meta_fn('_aipkit_enable_copy_button', BotSettingsManager::DEFAULT_ENABLE_COPY_BUTTON)
-        : BotSettingsManager::DEFAULT_ENABLE_COPY_BUTTON;
-    $settings['enable_feedback'] = in_array($get_meta_fn('_aipkit_enable_feedback', BotSettingsManager::DEFAULT_ENABLE_FEEDBACK), ['0','1'])
-        ? $get_meta_fn('_aipkit_enable_feedback', BotSettingsManager::DEFAULT_ENABLE_FEEDBACK)
-        : BotSettingsManager::DEFAULT_ENABLE_FEEDBACK;
+    $settings['enable_copy_button'] = '1';
+    $settings['enable_feedback'] = '1';
     $settings['enable_consent_compliance'] = in_array($get_meta_fn('_aipkit_enable_consent_compliance', BotSettingsManager::DEFAULT_ENABLE_CONSENT_COMPLIANCE), ['0','1'])
         ? $get_meta_fn('_aipkit_enable_consent_compliance', BotSettingsManager::DEFAULT_ENABLE_CONSENT_COMPLIANCE)
         : BotSettingsManager::DEFAULT_ENABLE_CONSENT_COMPLIANCE;
@@ -762,11 +758,11 @@ function get_token_management_config_logic(int $bot_id, callable $get_meta_fn): 
     $default_action_settings = class_exists(BotSettingsManager::class)
         ? BotSettingsManager::get_default_token_limit_action_settings()
         : [
-            'primary_type' => 'dashboard_usage',
-            'primary_label' => __('View usage', 'gpt3-ai-content-generator'),
+            'primary_type' => 'none',
+            'primary_label' => '',
             'primary_url' => '',
-            'secondary_type' => 'buy_credits',
-            'secondary_label' => __('Buy credits', 'gpt3-ai-content-generator'),
+            'secondary_type' => 'none',
+            'secondary_label' => '',
             'secondary_url' => '',
         ];
 

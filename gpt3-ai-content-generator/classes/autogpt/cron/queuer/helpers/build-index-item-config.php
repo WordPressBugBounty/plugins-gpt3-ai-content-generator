@@ -20,5 +20,7 @@ function build_index_item_config_logic(array $task_config): array
         'target_store_provider' => $task_config['target_store_provider'] ?? 'openai',
         'embedding_provider' => $task_config['embedding_provider'] ?? null,
         'embedding_model'    => $task_config['embedding_model'] ?? null,
+        'source_context'     => $task_config['source_context'] ?? '',
+        'chatbot_id'         => isset($task_config['chatbot_id']) ? absint($task_config['chatbot_id']) : 0,
     ];
 }

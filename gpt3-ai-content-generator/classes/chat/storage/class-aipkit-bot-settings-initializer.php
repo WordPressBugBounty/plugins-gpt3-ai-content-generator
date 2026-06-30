@@ -197,17 +197,5 @@ class AIPKit_Bot_Settings_Initializer
 
         update_post_meta($post_id, $trigger_meta_key, '[]'); // Use the determined meta key
 
-        if (get_post_meta($post_id, '_aipkit_default_bot', true) === '1') {
-            update_post_meta($post_id, '_aipkit_theme', 'dark');
-            update_post_meta($post_id, '_aipkit_deploy_mode', 'inline');
-            update_post_meta($post_id, '_aipkit_popup_enabled', '0');
-            update_post_meta($post_id, '_aipkit_enable_fullscreen', BotSettingsManager::DEFAULT_ENABLE_FULLSCREEN);
-            update_post_meta($post_id, '_aipkit_enable_download', BotSettingsManager::DEFAULT_ENABLE_DOWNLOAD);
-            update_post_meta($post_id, '_aipkit_enable_copy_button', BotSettingsManager::DEFAULT_ENABLE_COPY_BUTTON);
-            update_post_meta($post_id, '_aipkit_enable_feedback', BotSettingsManager::DEFAULT_ENABLE_FEEDBACK);
-            update_post_meta($post_id, '_aipkit_enable_conversation_starters', BotSettingsManager::DEFAULT_ENABLE_CONVERSATION_STARTERS);
-            update_post_meta($post_id, '_aipkit_enable_conversation_sidebar', '1');
-            update_post_meta($post_id, '_aipkit_enable_voice_input', BotSettingsManager::DEFAULT_ENABLE_VOICE_INPUT);
-        }
     }
 }

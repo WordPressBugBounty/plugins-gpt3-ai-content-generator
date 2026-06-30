@@ -6,6 +6,7 @@
 use WPAICG\AIPKIT_AI_Settings;
 use WPAICG\AIPKit_Providers;
 use WPAICG\aipkit_dashboard;
+use WPAICG\AIPKit_Role_Manager;
 use WPAICG\Core\Providers\Google\GoogleSettingsHandler;
 use WPAICG\Images\AIPKit_Image_Settings_Ajax_Handler;
 
@@ -35,6 +36,8 @@ $all_api_keys = AIPKIT_AI_Settings::get_api_keys();
 $public_api_key = $all_api_keys['public_api_key'] ?? '';
 
 $is_pro = class_exists('\WPAICG\aipkit_dashboard') && aipkit_dashboard::is_pro_plan();
+$module_settings = aipkit_dashboard::get_module_settings();
+$can_manage_modules = AIPKit_Role_Manager::user_can_manage_settings();
 
 $safety_settings = class_exists(GoogleSettingsHandler::class) ? GoogleSettingsHandler::get_safety_settings() : [];
 $category_thresholds = array();
@@ -143,6 +146,18 @@ $provider_select_options = class_exists('\\WPAICG\\AIPKit_Provider_Model_List_Bu
                     data-aipkit-settings-page-link="ai"
                 >
                     <?php esc_html_e('AI', 'gpt3-ai-content-generator'); ?>
+                </button>
+                <button
+                    type="button"
+                    class="aipkit_settings_page_nav_link"
+                    id="aipkit_settings_page_tab_modules"
+                    role="tab"
+                    aria-selected="false"
+                    aria-controls="aipkit_settings_page_panel_modules"
+                    data-aipkit-settings-page-link="modules"
+                    tabindex="-1"
+                >
+                    <?php esc_html_e('Modules', 'gpt3-ai-content-generator'); ?>
                 </button>
                 <button
                     type="button"
@@ -312,6 +327,24 @@ $provider_select_options = class_exists('\\WPAICG\\AIPKit_Provider_Model_List_Bu
 
                 <div class="aipkit_settings_simple_form aipkit_settings_simple_form--apps">
                     <?php include __DIR__ . '/partials/settings-apps-page.php'; ?>
+                </div>
+            </section>
+
+            <section
+                class="aipkit_settings_page_section"
+                id="aipkit_settings_page_panel_modules"
+                role="tabpanel"
+                aria-labelledby="aipkit_settings_page_tab_modules"
+                data-aipkit-settings-page="modules"
+                hidden
+            >
+                <header class="aipkit_settings_page_header">
+                    <h3 class="aipkit_settings_page_title"><?php esc_html_e('Modules', 'gpt3-ai-content-generator'); ?></h3>
+                    <p class="aipkit_settings_page_helper"><?php esc_html_e('Choose which AI Puffer tools appear in the top navigation.', 'gpt3-ai-content-generator'); ?></p>
+                </header>
+
+                <div class="aipkit_settings_simple_form aipkit_settings_simple_form--modules">
+                    <?php include __DIR__ . '/partials/settings-modules-page.php'; ?>
                 </div>
             </section>
 

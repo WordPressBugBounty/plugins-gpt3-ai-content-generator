@@ -15,8 +15,13 @@ if (!defined('ABSPATH')) {
  */
 class DefaultBotSetup
 {
+    private static function get_default_bot_name(): string
+    {
+        return __('Customer Support', 'gpt3-ai-content-generator');
+    }
+
     /**
-     * Ensures we have a "Default Chatbot" in place.
+     * Ensures we have a default chatbot in place.
      * Checks if one exists; if not, creates it.
      * Only sets initial settings when creating or if marker is missing.
      */
@@ -43,6 +48,34 @@ class DefaultBotSetup
             if ($is_marked !== '1') {
                 update_post_meta($existing->ID, '_aipkit_default_bot', '1');
             }
+            if (trim((string) $existing->post_title) === 'Default') {
+                wp_update_post([
+                    'ID' => $existing->ID,
+                    'post_title' => self::get_default_bot_name(),
+                ]);
+            }
+            self::ensure_default_bot_hint_settings((int) $existing->ID);
+        }
+    }
+
+    /**
+     * Ensures launcher hint defaults for existing default bots.
+     */
+    private static function ensure_default_bot_hint_settings(int $bot_id): void
+    {
+        if (!metadata_exists('post', $bot_id, '_aipkit_popup_label_enabled')) {
+            update_post_meta($bot_id, '_aipkit_popup_label_enabled', BotSettingsManager::DEFAULT_POPUP_LABEL_ENABLED);
+        }
+
+        $stored_hint_text = get_post_meta($bot_id, '_aipkit_popup_label_text', true);
+        if (!is_string($stored_hint_text) || trim($stored_hint_text) === '') {
+            update_post_meta($bot_id, '_aipkit_popup_label_text', BotSettingsManager::DEFAULT_POPUP_LABEL_TEXT);
+        }
+
+        $allowed_hint_sizes = ['small', 'medium', 'large', 'xlarge'];
+        $stored_hint_size = get_post_meta($bot_id, '_aipkit_popup_label_size', true);
+        if (!is_string($stored_hint_size) || !in_array($stored_hint_size, $allowed_hint_sizes, true)) {
+            update_post_meta($bot_id, '_aipkit_popup_label_size', BotSettingsManager::DEFAULT_POPUP_LABEL_SIZE);
         }
     }
 
@@ -109,7 +142,7 @@ class DefaultBotSetup
             return new WP_Error('dependency_missing', 'BotSettingsManager class not found for default bot creation.');
         }
 
-        $botName = 'Default';
+        $botName = self::get_default_bot_name();
 
         $post_data = array(
             'post_title'  => $botName,
@@ -163,6 +196,7 @@ class DefaultBotSetup
         }
 
         $is_actually_default = (get_post_meta($bot_id, '_aipkit_default_bot', true) === '1');
+        $was_site_wide = (get_post_meta($bot_id, '_aipkit_site_wide_enabled', true) === '1');
 
         // *** Call the static method to reset settings ***
         BotSettingsManager::set_initial_bot_settings($bot_id, $bot_post->post_title);
@@ -174,7 +208,6 @@ class DefaultBotSetup
             update_post_meta($bot_id, '_aipkit_default_bot', '1');
         }
 
-        $was_site_wide = (get_post_meta($bot_id, '_aipkit_site_wide_enabled', true) === '1');
         if ($was_site_wide) {
             if (!class_exists('\\WPAICG\\Chat\\Storage\\SiteWideBotManager')) {
                 $site_wide_path = WPAICG_PLUGIN_DIR . 'classes/chat/storage/class-aipkit_site_wide_bot_manager.php';

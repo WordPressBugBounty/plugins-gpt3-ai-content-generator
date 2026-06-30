@@ -899,21 +899,13 @@ class ChatbotAjaxHandler extends BaseAjaxHandler {
             $enable_download = ( wp_unslash( $_POST['enable_download'] ) === '1' ? '1' : '0' );
             update_post_meta( $bot_id, '_aipkit_enable_download', $enable_download );
         }
-        if ( isset( $_POST['enable_copy_button'] ) ) {
-            // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Reason: Nonce verification is handled in check_module_access_permissions method.
-            $enable_copy_button = ( wp_unslash( $_POST['enable_copy_button'] ) === '1' ? '1' : '0' );
-            update_post_meta( $bot_id, '_aipkit_enable_copy_button', $enable_copy_button );
-        }
+        update_post_meta( $bot_id, '_aipkit_enable_copy_button', '1' );
         if ( isset( $_POST['enable_fullscreen'] ) ) {
             // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Reason: Nonce verification is handled in check_module_access_permissions method.
             $enable_fullscreen = ( wp_unslash( $_POST['enable_fullscreen'] ) === '1' ? '1' : '0' );
             update_post_meta( $bot_id, '_aipkit_enable_fullscreen', $enable_fullscreen );
         }
-        if ( isset( $_POST['enable_feedback'] ) ) {
-            // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Reason: Nonce verification is handled in check_module_access_permissions method.
-            $enable_feedback = ( wp_unslash( $_POST['enable_feedback'] ) === '1' ? '1' : '0' );
-            update_post_meta( $bot_id, '_aipkit_enable_feedback', $enable_feedback );
-        }
+        update_post_meta( $bot_id, '_aipkit_enable_feedback', '1' );
         if ( isset( $_POST['enable_consent_compliance'] ) ) {
             // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Reason: Nonce verification is handled in check_module_access_permissions method.
             $enable_consent = ( wp_unslash( $_POST['enable_consent_compliance'] ) === '1' ? '1' : '0' );
@@ -2172,6 +2164,420 @@ class ChatbotAjaxHandler extends BaseAjaxHandler {
         wp_send_json_success( [
             'count' => $count,
         ] );
+    }
+
+    /**
+     * AJAX: Returns durable training status for the active chatbot knowledge base.
+     * @since NEXT_VERSION
+     */
+    public function ajax_get_chatbot_training_status() {
+        $bot_id = $this->get_validated_chatbot_id_from_request();
+        if ( $bot_id <= 0 ) {
+            return;
+        }
+        $context = $this->get_chatbot_training_vector_context_from_request( $bot_id );
+        if ( empty( $context['enabled'] ) || empty( $context['provider_label'] ) || empty( $context['store_ids'] ) ) {
+            wp_send_json_success( [
+                'count'           => 0,
+                'queue'           => [
+                    'pending'    => 0,
+                    'processing' => 0,
+                    'failed'     => 0,
+                    'active'     => 0,
+                ],
+                'training_status' => $this->build_chatbot_training_status( 0, [] ),
+            ] );
+            return;
+        }
+        $count = $this->get_chatbot_training_source_count_for_context( (string) $context['provider_label'], (array) $context['store_ids'] );
+        $queue_summary = $this->get_chatbot_training_queue_summary_for_context( (string) $context['provider_key'], (array) $context['store_ids'], $bot_id );
+        wp_send_json_success( [
+            'count'           => $count,
+            'queue'           => $queue_summary,
+            'training_status' => $this->build_chatbot_training_status( $count, $queue_summary ),
+        ] );
+    }
+
+    /**
+     * AJAX: Stops pending background training work for the active chatbot.
+     * @since NEXT_VERSION
+     */
+    public function ajax_stop_chatbot_training() {
+        $bot_id = $this->get_validated_chatbot_id_from_request();
+        if ( $bot_id <= 0 ) {
+            return;
+        }
+        $context = $this->get_chatbot_training_vector_context_from_request( $bot_id );
+        if ( empty( $context['provider_label'] ) || empty( $context['store_ids'] ) ) {
+            wp_send_json_success( [
+                'stopped'         => false,
+                'stopped_items'   => 0,
+                'count'           => 0,
+                'queue'           => [
+                    'pending'    => 0,
+                    'processing' => 0,
+                    'failed'     => 0,
+                    'active'     => 0,
+                ],
+                'training_status' => $this->build_chatbot_training_status( 0, [] ),
+            ] );
+            return;
+        }
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Reason: Nonce verification is handled in check_module_access_permissions method.
+        $requested_task_id = ( isset( $_POST['task_id'] ) ? absint( $_POST['task_id'] ) : 0 );
+        $task_ids = $this->get_chatbot_training_task_ids_for_context(
+            $bot_id,
+            (string) $context['provider_key'],
+            (array) $context['store_ids'],
+            $requested_task_id
+        );
+        $stopped_items = 0;
+        if ( !empty( $task_ids ) ) {
+            $this->clear_chatbot_training_task_events( $task_ids );
+            global $wpdb;
+            $queue_table_name = $wpdb->prefix . 'aipkit_automated_task_queue';
+            $tasks_table_name = $wpdb->prefix . 'aipkit_automated_tasks';
+            $task_placeholders = implode( ',', array_fill( 0, count( $task_ids ), '%d' ) );
+            $status_placeholders = implode( ',', array_fill( 0, 2, '%s' ) );
+            $delete_params = array_merge( $task_ids, ['content_indexing', 'pending', 'processing'] );
+            // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter -- Admin stop action over plugin-owned queue table with prepared task IDs/statuses.
+            $deleted = $wpdb->query( $wpdb->prepare( "DELETE FROM {$queue_table_name} WHERE task_id IN ({$task_placeholders}) AND task_type = %s AND status IN ({$status_placeholders})", ...$delete_params ) );
+            $stopped_items = ( $deleted === false ? 0 : (int) $deleted );
+            $update_params = array_merge( ['paused', current_time( 'mysql', 1 )], $task_ids );
+            // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter -- Admin stop action over plugin-owned task table with prepared task IDs.
+            $wpdb->query( $wpdb->prepare( "UPDATE {$tasks_table_name} SET status = %s, next_run_time = NULL, updated_at = %s WHERE id IN ({$task_placeholders})", ...$update_params ) );
+            foreach ( $task_ids as $task_id ) {
+                delete_transient( 'aipkit_initial_queue_page_' . absint( $task_id ) );
+                set_transient( 'aipkit_initial_queue_done_' . absint( $task_id ), 'yes', MONTH_IN_SECONDS );
+            }
+        }
+        $count = $this->get_chatbot_training_source_count_for_context( (string) $context['provider_label'], (array) $context['store_ids'] );
+        $queue_summary = $this->get_chatbot_training_queue_summary_for_context( (string) $context['provider_key'], (array) $context['store_ids'], $bot_id );
+        wp_send_json_success( [
+            'stopped'         => !empty( $task_ids ),
+            'stopped_items'   => $stopped_items,
+            'count'           => $count,
+            'queue'           => $queue_summary,
+            'training_status' => $this->build_chatbot_training_status( $count, $queue_summary ),
+        ] );
+    }
+
+    private function get_chatbot_training_vector_context_from_request( int $bot_id ) : array {
+        if ( !class_exists( BotSettingsManager::class ) ) {
+            $manager_path = WPAICG_PLUGIN_DIR . 'classes/chat/storage/class-aipkit_bot_settings_manager.php';
+            if ( file_exists( $manager_path ) ) {
+                require_once $manager_path;
+            }
+        }
+        $settings_manager = ( class_exists( BotSettingsManager::class ) ? new BotSettingsManager() : null );
+        $settings = ( $settings_manager ? $settings_manager->get_chatbot_settings( $bot_id ) : [] );
+        // Optional overrides from UI (for instant reflection before autosave completes).
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Reason: Nonce verification is handled in check_module_access_permissions method.
+        $override_enable_vector_store = ( isset( $_POST['enable_vector_store'] ) ? sanitize_text_field( wp_unslash( $_POST['enable_vector_store'] ) ) : null );
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Reason: Nonce verification is handled in check_module_access_permissions method.
+        $override_provider = ( isset( $_POST['vector_store_provider'] ) ? sanitize_key( wp_unslash( $_POST['vector_store_provider'] ) ) : null );
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Reason: Nonce verification is handled in check_module_access_permissions method.
+        $has_openai_override = isset( $_POST['openai_vector_store_ids'] );
+        $override_openai_ids = ( $has_openai_override ? (array) wp_unslash( $_POST['openai_vector_store_ids'] ) : null );
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Reason: Nonce verification is handled in check_module_access_permissions method.
+        $has_pinecone_override = isset( $_POST['pinecone_index_name'] );
+        $override_pinecone_index = ( $has_pinecone_override ? sanitize_text_field( wp_unslash( $_POST['pinecone_index_name'] ) ) : null );
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Reason: Nonce verification is handled in check_module_access_permissions method.
+        $has_qdrant_override = isset( $_POST['qdrant_collection_names'] );
+        $override_qdrant_names = ( $has_qdrant_override ? (array) wp_unslash( $_POST['qdrant_collection_names'] ) : null );
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Reason: Nonce verification is handled in check_module_access_permissions method.
+        $has_chroma_override = isset( $_POST['chroma_collection_names'] );
+        $override_chroma_names = ( $has_chroma_override ? (array) wp_unslash( $_POST['chroma_collection_names'] ) : null );
+        $vector_store_enabled = $settings['enable_vector_store'] ?? BotSettingsManager::DEFAULT_ENABLE_VECTOR_STORE;
+        if ( $override_enable_vector_store !== null ) {
+            $vector_store_enabled = ( in_array( $override_enable_vector_store, ['0', '1'], true ) ? $override_enable_vector_store : $vector_store_enabled );
+        }
+        if ( $vector_store_enabled !== '1' ) {
+            return [
+                'enabled'        => false,
+                'provider_key'   => '',
+                'provider_label' => '',
+                'store_ids'      => [],
+            ];
+        }
+        $provider_key = $settings['vector_store_provider'] ?? BotSettingsManager::DEFAULT_VECTOR_STORE_PROVIDER;
+        if ( $override_provider && in_array( $override_provider, [
+            'openai',
+            'pinecone',
+            'qdrant',
+            'chroma',
+            'claude_files'
+        ], true ) ) {
+            $provider_key = $override_provider;
+        }
+        $provider_map = [
+            'openai'   => 'OpenAI',
+            'pinecone' => 'Pinecone',
+            'qdrant'   => 'Qdrant',
+            'chroma'   => 'Chroma',
+        ];
+        $provider_label = $provider_map[$provider_key] ?? '';
+        if ( $provider_label === '' ) {
+            return [
+                'enabled'        => true,
+                'provider_key'   => $provider_key,
+                'provider_label' => '',
+                'store_ids'      => [],
+            ];
+        }
+        $store_ids = [];
+        if ( $provider_key === 'openai' ) {
+            if ( $has_openai_override && is_array( $override_openai_ids ) ) {
+                $store_ids = array_filter( array_map( 'sanitize_text_field', $override_openai_ids ) );
+            } else {
+                $store_ids = $settings['openai_vector_store_ids'] ?? [];
+            }
+            if ( !is_array( $store_ids ) ) {
+                $store_ids = json_decode( (string) $store_ids, true );
+            }
+        } elseif ( $provider_key === 'pinecone' ) {
+            if ( $has_pinecone_override ) {
+                $store_ids = ( !empty( $override_pinecone_index ) ? [$override_pinecone_index] : [] );
+            } else {
+                $store_ids = ( !empty( $settings['pinecone_index_name'] ) ? [$settings['pinecone_index_name']] : [] );
+            }
+        } elseif ( $provider_key === 'qdrant' ) {
+            if ( $has_qdrant_override && is_array( $override_qdrant_names ) ) {
+                $store_ids = array_filter( array_map( 'sanitize_text_field', $override_qdrant_names ) );
+            } else {
+                $store_ids = $settings['qdrant_collection_names'] ?? [];
+            }
+            if ( !is_array( $store_ids ) ) {
+                $store_ids = json_decode( (string) $store_ids, true );
+            }
+            if ( empty( $store_ids ) && !empty( $settings['qdrant_collection_name'] ) && !$has_qdrant_override ) {
+                $store_ids = [$settings['qdrant_collection_name']];
+            }
+        } elseif ( $provider_key === 'chroma' ) {
+            if ( $has_chroma_override && is_array( $override_chroma_names ) ) {
+                $store_ids = array_filter( array_map( 'sanitize_text_field', $override_chroma_names ) );
+            } else {
+                $store_ids = $settings['chroma_collection_names'] ?? [];
+            }
+            if ( !is_array( $store_ids ) ) {
+                $store_ids = json_decode( (string) $store_ids, true );
+            }
+            if ( empty( $store_ids ) && !empty( $settings['chroma_collection_name'] ) && !$has_chroma_override ) {
+                $store_ids = [$settings['chroma_collection_name']];
+            }
+        }
+        $store_ids = array_filter( array_map( 'sanitize_text_field', (array) $store_ids ) );
+        $store_ids = array_values( array_unique( $store_ids ) );
+        return [
+            'enabled'        => true,
+            'provider_key'   => $provider_key,
+            'provider_label' => $provider_label,
+            'store_ids'      => $store_ids,
+        ];
+    }
+
+    private function get_chatbot_training_source_count_for_context( string $provider_label, array $store_ids ) : int {
+        $store_ids = array_values( array_filter( array_map( 'sanitize_text_field', $store_ids ) ) );
+        if ( $provider_label === '' || empty( $store_ids ) ) {
+            return 0;
+        }
+        global $wpdb;
+        $table_name = $wpdb->prefix . 'aipkit_vector_data_source';
+        $placeholders = implode( ',', array_fill( 0, count( $store_ids ), '%s' ) );
+        $params = array_merge( [$provider_label], $store_ids );
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter -- Admin status count over plugin-owned data source table with prepared placeholders.
+        return (int) $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM {$table_name} WHERE provider = %s AND vector_store_id IN ({$placeholders}) AND (post_id IS NOT NULL OR file_id IS NOT NULL OR indexed_content IS NOT NULL)", ...$params ) );
+    }
+
+    private function get_chatbot_training_task_ids_for_context(
+        int $bot_id,
+        string $provider_key,
+        array $store_ids,
+        int $requested_task_id = 0
+    ) : array {
+        $store_ids = array_values( array_filter( array_map( 'sanitize_text_field', $store_ids ) ) );
+        if ( $bot_id <= 0 || $provider_key === '' || empty( $store_ids ) ) {
+            return [];
+        }
+        global $wpdb;
+        $tasks_table_name = $wpdb->prefix . 'aipkit_automated_tasks';
+        if ( $requested_task_id > 0 ) {
+            // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Admin stop action over plugin-owned task table.
+            $rows = $wpdb->get_results( $wpdb->prepare( "SELECT id, task_name, task_type, task_config FROM {$tasks_table_name} WHERE id = %d LIMIT 1", $requested_task_id ), ARRAY_A );
+        } else {
+            // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Admin stop action over plugin-owned task table.
+            $rows = $wpdb->get_results( $wpdb->prepare( "SELECT id, task_name, task_type, task_config FROM {$tasks_table_name} WHERE task_type = %s ORDER BY id DESC LIMIT 500", 'content_indexing' ), ARRAY_A );
+        }
+        if ( empty( $rows ) ) {
+            return [];
+        }
+        $task_ids = [];
+        foreach ( $rows as $row ) {
+            $task_config = json_decode( (string) ($row['task_config'] ?? ''), true );
+            if ( !is_array( $task_config ) ) {
+                $task_config = [];
+            }
+            if ( !$this->is_chatbot_training_task_for_context(
+                $row,
+                $task_config,
+                $bot_id,
+                $provider_key,
+                $store_ids
+            ) ) {
+                continue;
+            }
+            $task_id = ( isset( $row['id'] ) ? absint( $row['id'] ) : 0 );
+            if ( $task_id > 0 ) {
+                $task_ids[] = $task_id;
+            }
+        }
+        return array_values( array_unique( $task_ids ) );
+    }
+
+    private function is_chatbot_training_task_for_context(
+        array $row,
+        array $task_config,
+        int $bot_id,
+        string $provider_key,
+        array $store_ids
+    ) : bool {
+        if ( (string) ($row['task_type'] ?? 'content_indexing') !== 'content_indexing' ) {
+            return false;
+        }
+        $task_provider = sanitize_key( (string) ($task_config['target_store_provider'] ?? '') );
+        $task_store_id = sanitize_text_field( (string) ($task_config['target_store_id'] ?? '') );
+        if ( $task_provider !== $provider_key || !in_array( $task_store_id, $store_ids, true ) ) {
+            return false;
+        }
+        return $this->is_chatbot_training_task_for_bot( $row, $task_config, $bot_id );
+    }
+
+    private function is_chatbot_training_task_for_bot( array $row, array $task_config, int $bot_id ) : bool {
+        $source_context = sanitize_key( (string) ($task_config['source_context'] ?? '') );
+        $task_bot_id = ( isset( $task_config['chatbot_id'] ) ? absint( $task_config['chatbot_id'] ) : 0 );
+        if ( $source_context !== '' || $task_bot_id > 0 ) {
+            return $source_context === 'chatbot_training' && $task_bot_id === $bot_id;
+        }
+        $task_name = sanitize_text_field( (string) ($row['task_name'] ?? '') );
+        return $task_name === sprintf( 'Chatbot %d website indexing', $bot_id );
+    }
+
+    private function get_chatbot_training_queue_summary_for_context( string $provider_key, array $store_ids, int $bot_id = 0 ) : array {
+        $summary = [
+            'pending'    => 0,
+            'processing' => 0,
+            'failed'     => 0,
+            'active'     => 0,
+        ];
+        $store_ids = array_values( array_filter( array_map( 'sanitize_text_field', $store_ids ) ) );
+        if ( $provider_key === '' || empty( $store_ids ) ) {
+            return $summary;
+        }
+        global $wpdb;
+        $queue_table_name = $wpdb->prefix . 'aipkit_automated_task_queue';
+        $tasks_table_name = $wpdb->prefix . 'aipkit_automated_tasks';
+        $statuses = ['pending', 'processing', 'failed'];
+        $status_placeholders = implode( ',', array_fill( 0, count( $statuses ), '%s' ) );
+        $store_like_clauses = [];
+        $params = array_merge( ['content_indexing'], $statuses );
+        foreach ( $store_ids as $store_id ) {
+            $store_like_clauses[] = 'item_config LIKE %s';
+            $params[] = '%' . $wpdb->esc_like( $store_id ) . '%';
+        }
+        $query = 'SELECT q.id, q.task_id, q.status, q.item_config, t.task_name, t.task_config FROM ' . esc_sql( $queue_table_name ) . ' q LEFT JOIN ' . esc_sql( $tasks_table_name ) . " t ON q.task_id = t.id WHERE q.task_type = %s AND q.status IN ({$status_placeholders}) AND (" . implode( ' OR ', $store_like_clauses ) . ') ORDER BY q.added_at DESC LIMIT 500';
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQL.NotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter -- Admin queue status aggregation over plugin-owned queue table with prepared scalar values.
+        $rows = $wpdb->get_results( $wpdb->prepare( $query, ...$params ), ARRAY_A );
+        if ( empty( $rows ) ) {
+            return $summary;
+        }
+        foreach ( $rows as $row ) {
+            $item_config = json_decode( (string) ($row['item_config'] ?? ''), true );
+            if ( !is_array( $item_config ) ) {
+                continue;
+            }
+            $item_provider = sanitize_key( (string) ($item_config['target_store_provider'] ?? '') );
+            $item_store_id = sanitize_text_field( (string) ($item_config['target_store_id'] ?? '') );
+            if ( $item_provider !== $provider_key || !in_array( $item_store_id, $store_ids, true ) ) {
+                continue;
+            }
+            if ( $bot_id > 0 && !$this->is_chatbot_training_queue_row_for_bot( $row, $item_config, $bot_id ) ) {
+                continue;
+            }
+            $status = sanitize_key( (string) ($row['status'] ?? '') );
+            if ( array_key_exists( $status, $summary ) ) {
+                $summary[$status]++;
+            }
+        }
+        $summary['active'] = $summary['pending'] + $summary['processing'];
+        return $summary;
+    }
+
+    private function is_chatbot_training_queue_row_for_bot( array $row, array $item_config, int $bot_id ) : bool {
+        $source_context = sanitize_key( (string) ($item_config['source_context'] ?? '') );
+        $item_bot_id = ( isset( $item_config['chatbot_id'] ) ? absint( $item_config['chatbot_id'] ) : 0 );
+        if ( $source_context !== '' || $item_bot_id > 0 ) {
+            return $source_context === 'chatbot_training' && $item_bot_id === $bot_id;
+        }
+        $task_config = json_decode( (string) ($row['task_config'] ?? ''), true );
+        if ( !is_array( $task_config ) ) {
+            $task_config = [];
+        }
+        return $this->is_chatbot_training_task_for_bot( $row, $task_config, $bot_id );
+    }
+
+    private function clear_chatbot_training_task_events( array $task_ids ) : void {
+        $scheduler_class = '\\WPAICG\\AutoGPT\\Cron\\AIPKit_Automated_Task_Scheduler';
+        if ( !class_exists( $scheduler_class ) ) {
+            $scheduler_path = WPAICG_PLUGIN_DIR . 'classes/autogpt/cron/class-aipkit-automated-task-scheduler.php';
+            if ( file_exists( $scheduler_path ) ) {
+                require_once $scheduler_path;
+            }
+        }
+        if ( !class_exists( $scheduler_class ) ) {
+            return;
+        }
+        foreach ( $task_ids as $task_id ) {
+            $scheduler_class::clear_task_event( absint( $task_id ) );
+        }
+    }
+
+    private function build_chatbot_training_status( int $count, array $queue_summary ) : array {
+        $pending_count = ( isset( $queue_summary['pending'] ) ? (int) $queue_summary['pending'] : 0 );
+        $processing_count = ( isset( $queue_summary['processing'] ) ? (int) $queue_summary['processing'] : 0 );
+        $failed_count = ( isset( $queue_summary['failed'] ) ? (int) $queue_summary['failed'] : 0 );
+        if ( $processing_count > 0 ) {
+            return [
+                'key'   => 'training',
+                'label' => __( 'Adding knowledge...', 'gpt3-ai-content-generator' ),
+                'type'  => 'loading',
+            ];
+        }
+        if ( $count > 0 ) {
+            return [
+                'key'   => 'trained',
+                'label' => __( 'Knowledge ready', 'gpt3-ai-content-generator' ),
+                'type'  => 'success',
+            ];
+        }
+        if ( $pending_count > 0 ) {
+            return [
+                'key'   => 'training',
+                'label' => __( 'Adding knowledge...', 'gpt3-ai-content-generator' ),
+                'type'  => 'loading',
+            ];
+        }
+        if ( $failed_count > 0 ) {
+            return [
+                'key'   => 'failed',
+                'label' => __( 'Failed', 'gpt3-ai-content-generator' ),
+                'type'  => 'error',
+            ];
+        }
+        return [
+            'key'   => 'not_trained',
+            'label' => __( 'No knowledge yet', 'gpt3-ai-content-generator' ),
+            'type'  => 'neutral',
+        ];
     }
 
     /**

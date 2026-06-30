@@ -171,8 +171,8 @@ function sanitize_settings_logic(array $raw_settings, int $bot_id): array
         : __('Online', 'gpt3-ai-content-generator');
     $sanitized['enable_fullscreen'] = (isset($raw_settings['enable_fullscreen']) && $raw_settings['enable_fullscreen'] === '1') ? '1' : '0';
     $sanitized['enable_download'] = (isset($raw_settings['enable_download']) && $raw_settings['enable_download'] === '1') ? '1' : '0';
-    $sanitized['enable_copy_button'] = (isset($raw_settings['enable_copy_button']) && $raw_settings['enable_copy_button'] === '1') ? '1' : '0';
-    $sanitized['enable_feedback'] = (isset($raw_settings['enable_feedback']) && $raw_settings['enable_feedback'] === '1') ? '1' : '0';
+    $sanitized['enable_copy_button'] = '1';
+    $sanitized['enable_feedback'] = '1';
     $sanitized['enable_consent_compliance'] = (isset($raw_settings['enable_consent_compliance']) && $raw_settings['enable_consent_compliance'] === '1') ? '1' : '0';
     $sanitized['consent_title'] = isset($raw_settings['consent_title']) ? sanitize_text_field($raw_settings['consent_title']) : '';
     $sanitized['consent_message'] = isset($raw_settings['consent_message']) ? wp_kses_post($raw_settings['consent_message']) : '';
@@ -233,11 +233,11 @@ function sanitize_settings_logic(array $raw_settings, int $bot_id): array
     $default_token_limit_actions = class_exists(BotSettingsManager::class)
         ? BotSettingsManager::get_default_token_limit_action_settings()
         : [
-            'primary_type' => 'dashboard_usage',
-            'primary_label' => __('View usage', 'gpt3-ai-content-generator'),
+            'primary_type' => 'none',
+            'primary_label' => '',
             'primary_url' => '',
-            'secondary_type' => 'buy_credits',
-            'secondary_label' => __('Buy credits', 'gpt3-ai-content-generator'),
+            'secondary_type' => 'none',
+            'secondary_label' => '',
             'secondary_url' => '',
         ];
     $sanitized['token_limit_primary_action_type'] = isset($raw_settings['token_limit_primary_action_type']) && in_array($raw_settings['token_limit_primary_action_type'], $allowed_token_limit_action_types, true)
@@ -503,7 +503,7 @@ function sanitize_settings_logic(array $raw_settings, int $bot_id): array
         ? $normalized_popup_label_mode
         : 'on_delay';
     $sanitized['popup_label_text'] = isset($raw_settings['popup_label_text']) ? sanitize_text_field($raw_settings['popup_label_text']) : '';
-    $sanitized['popup_label_delay_seconds'] = isset($raw_settings['popup_label_delay_seconds']) ? max(0, absint($raw_settings['popup_label_delay_seconds'])) : 2;
+    $sanitized['popup_label_delay_seconds'] = isset($raw_settings['popup_label_delay_seconds']) ? max(0, absint($raw_settings['popup_label_delay_seconds'])) : BotSettingsManager::DEFAULT_POPUP_LABEL_DELAY_SECONDS;
     $sanitized['popup_label_auto_hide_seconds'] = isset($raw_settings['popup_label_auto_hide_seconds']) ? max(0, absint($raw_settings['popup_label_auto_hide_seconds'])) : 0;
     $sanitized['popup_label_dismissible'] = (isset($raw_settings['popup_label_dismissible']) && $raw_settings['popup_label_dismissible'] === '1') ? '1' : '0';
     $allowed_freq = ['always','once_per_session','once_per_visitor'];
@@ -520,7 +520,7 @@ function sanitize_settings_logic(array $raw_settings, int $bot_id): array
     $allowed_sizes = ['small','medium','large','xlarge'];
     $sanitized['popup_label_size'] = isset($raw_settings['popup_label_size']) && in_array($raw_settings['popup_label_size'], $allowed_sizes, true)
         ? $raw_settings['popup_label_size']
-        : 'medium';
+        : BotSettingsManager::DEFAULT_POPUP_LABEL_SIZE;
 
     $raw_domains = isset($raw_settings['embed_allowed_domains']) ? trim($raw_settings['embed_allowed_domains']) : '';
     $domains_array = preg_split('/[\s,]+/', $raw_domains, -1, PREG_SPLIT_NO_EMPTY);

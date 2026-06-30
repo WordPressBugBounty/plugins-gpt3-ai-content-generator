@@ -28,7 +28,6 @@ if (!class_exists('\\WPAICG\\aipkit_dashboard')) {
             'image_generator' => true,
             'training'        => true,
             'sources'         => true,
-            'audio_converter' => false,
             'stats_viewer'    => true,
         );
 
@@ -148,12 +147,7 @@ if (!class_exists('\\WPAICG\\aipkit_dashboard')) {
                 return;
             }
 
-            if ($module === 'dashboard-home') {
-                if (!AIPKit_Role_Manager::user_can_access_dashboard_shell()) {
-                    wp_send_json_error(['message' => __('You do not have permission to access this module.', 'gpt3-ai-content-generator')], 403);
-                    return;
-                }
-            } elseif (!AIPKit_Role_Manager::user_can_access_module($module)) {
+            if (!AIPKit_Role_Manager::user_can_access_module($module)) {
                 wp_send_json_error(['message' => __('You do not have permission to access this module.', 'gpt3-ai-content-generator')], 403);
                 return;
             }

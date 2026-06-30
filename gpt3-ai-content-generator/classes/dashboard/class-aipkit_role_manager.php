@@ -47,7 +47,7 @@ class AIPKit_Role_Manager
         return [
             'core' => [
                 'label' => __('Core Modules', 'gpt3-ai-content-generator'),
-                'description' => __('Main AI Puffer workspaces in the admin dashboard.', 'gpt3-ai-content-generator'),
+                'description' => __('Main AI Puffer workspaces in the admin area.', 'gpt3-ai-content-generator'),
                 'modules' => [
                     'chatbot' => [
                         'label' => __('Chatbots', 'gpt3-ai-content-generator'),

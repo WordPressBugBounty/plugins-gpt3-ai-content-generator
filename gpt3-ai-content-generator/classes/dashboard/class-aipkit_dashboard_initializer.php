@@ -195,7 +195,7 @@ class Initializer
         if (file_exists($dashboard_path)) {
             include $dashboard_path;
         } else {
-            echo '<div class="wrap"><h2>Error</h2><p>Dashboard view file not found: ' . esc_html($dashboard_path) . '</p></div>';
+            echo '<div class="wrap"><h2>Error</h2><p>AI Puffer admin view file not found: ' . esc_html($dashboard_path) . '</p></div>';
         }
     }
     public function render_role_manager_page()

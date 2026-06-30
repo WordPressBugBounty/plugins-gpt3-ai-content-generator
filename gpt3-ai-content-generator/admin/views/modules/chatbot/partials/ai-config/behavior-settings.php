@@ -1,137 +1,320 @@
 <?php
 // phpcs:disable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- This file only uses local helper/template variables and does not define public globals.
 
-use WPAICG\Chat\Storage\BotSettingsManager;
-use WPAICG\Core\AIPKit_OpenAI_Reasoning;
-
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
 $bot_id = $initial_active_bot_id;
-$bot_settings = $active_bot_settings;
-$saved_temperature = isset($bot_settings['temperature'])
-    ? floatval($bot_settings['temperature'])
-    : BotSettingsManager::DEFAULT_TEMPERATURE;
-$saved_max_tokens = isset($bot_settings['max_completion_tokens'])
-    ? absint($bot_settings['max_completion_tokens'])
-    : BotSettingsManager::DEFAULT_MAX_COMPLETION_TOKENS;
-$saved_max_messages = isset($bot_settings['max_messages'])
-    ? absint($bot_settings['max_messages'])
-    : BotSettingsManager::DEFAULT_MAX_MESSAGES;
-$reasoning_effort = isset($bot_settings['reasoning_effort'])
-    ? sanitize_text_field($bot_settings['reasoning_effort'])
-    : BotSettingsManager::DEFAULT_REASONING_EFFORT;
-$reasoning_effort = AIPKit_OpenAI_Reasoning::sanitize_effort($reasoning_effort);
-$reasoning_options = ['none', 'low', 'medium', 'high', 'xhigh'];
-$reasoning_labels = [
-    __('none', 'gpt3-ai-content-generator'),
-    __('low', 'gpt3-ai-content-generator'),
-    __('med', 'gpt3-ai-content-generator'),
-    __('high', 'gpt3-ai-content-generator'),
-    __('xhigh', 'gpt3-ai-content-generator'),
-];
-if (!in_array($reasoning_effort, $reasoning_options, true)) {
-    $reasoning_effort = BotSettingsManager::DEFAULT_REASONING_EFFORT;
-}
-$reasoning_label_text = $current_provider_for_this_bot === 'Ollama'
-    ? __('Thinking', 'gpt3-ai-content-generator')
-    : __('Reasoning', 'gpt3-ai-content-generator');
-
-$saved_temperature = max(0.0, min($saved_temperature, 2.0));
-$saved_max_tokens = max(1, min($saved_max_tokens, 128000));
-$saved_max_messages = max(1, min($saved_max_messages, 1024));
 ?>
-<div class="aipkit_popover_options_list aipkit_behavior_compact_options">
-    <div class="aipkit_behavior_compact_row">
-        <div class="aipkit_behavior_compact_cell">
-            <label class="aipkit_popover_option_label" for="aipkit_bot_<?php echo esc_attr($bot_id); ?>_temperature">
-                <?php esc_html_e('Temperature', 'gpt3-ai-content-generator'); ?>
-            </label>
-            <input
-                type="number"
-                id="aipkit_bot_<?php echo esc_attr($bot_id); ?>_temperature"
-                name="temperature"
-                class="aipkit_form-input"
-                min="0"
-                max="2"
-                step="0.1"
-                value="<?php echo esc_attr($saved_temperature); ?>"
-            />
+<div class="aipkit_popover_options_list aipkit_behavior_compact_options aipkit_behavior_compact_options--general">
+    <div class="aipkit_chatbot_settings_section_heading">
+        <?php esc_html_e('Conversation', 'gpt3-ai-content-generator'); ?>
+    </div>
+    <div
+        class="aipkit_interface_feature_row aipkit_interface_feature_row--expandable aipkit_display_settings_row aipkit_general_settings_section_row aipkit_general_settings_section_row--chat-options"
+        data-aipkit-inline-settings-row
+        data-aipkit-static-inline-settings-row
+    >
+        <div class="aipkit_interface_feature_label">
+            <span class="aipkit_display_settings_icon" aria-hidden="true">
+                <span class="dashicons dashicons-admin-comments"></span>
+            </span>
+            <span class="aipkit_interface_feature_text">
+                <span class="aipkit_interface_feature_title aipkit_popover_option_label">
+                    <?php esc_html_e('Chat options', 'gpt3-ai-content-generator'); ?>
+                </span>
+                <span class="aipkit_interface_feature_hint">
+                    <?php esc_html_e('Choose what visitors can do in chat.', 'gpt3-ai-content-generator'); ?>
+                </span>
+            </span>
         </div>
-        <div class="aipkit_behavior_compact_cell">
-            <label class="aipkit_popover_option_label" for="aipkit_bot_<?php echo esc_attr($bot_id); ?>_max_completion_tokens">
-                <?php esc_html_e('Context', 'gpt3-ai-content-generator'); ?>
-            </label>
-            <input
-                type="number"
-                id="aipkit_bot_<?php echo esc_attr($bot_id); ?>_max_completion_tokens"
-                name="max_completion_tokens"
-                class="aipkit_form-input"
-                min="1"
-                max="128000"
-                step="1"
-                value="<?php echo esc_attr($saved_max_tokens); ?>"
-            />
-        </div>
-        <div class="aipkit_behavior_compact_cell">
-            <label class="aipkit_popover_option_label" for="aipkit_bot_<?php echo esc_attr($bot_id); ?>_max_messages">
-                <?php esc_html_e('Messages', 'gpt3-ai-content-generator'); ?>
-            </label>
-            <input
-                type="number"
-                id="aipkit_bot_<?php echo esc_attr($bot_id); ?>_max_messages"
-                name="max_messages"
-                class="aipkit_form-input"
-                min="1"
-                max="1024"
-                step="1"
-                value="<?php echo esc_attr($saved_max_messages); ?>"
-            />
+        <div class="aipkit_interface_feature_action">
+            <button
+                type="button"
+                class="aipkit_popover_option_btn aipkit_display_settings_toggle aipkit_interface_feature_expand_btn"
+                data-aipkit-inline-settings-toggle
+                data-aipkit-static-inline-settings-toggle
+                aria-expanded="false"
+                aria-controls="aipkit_general_chat_options_panel"
+            >
+                <span class="dashicons dashicons-plus-alt2" aria-hidden="true"></span>
+            </button>
         </div>
         <div
-            class="aipkit_behavior_compact_cell aipkit_stateful_convo_group"
-            style="<?php echo ($current_provider_for_this_bot === 'OpenAI') ? '' : 'display:none;'; ?>"
+            id="aipkit_general_chat_options_panel"
+            class="aipkit_interface_feature_inline_panel aipkit_display_inline_panel aipkit_general_settings_section_panel"
+            hidden
         >
-            <label
-                class="aipkit_popover_option_label"
-                for="aipkit_bot_<?php echo esc_attr($bot_id); ?>_openai_conversation_state_enabled_select"
-
-            >
-                <?php esc_html_e('Session memory', 'gpt3-ai-content-generator'); ?>
-            </label>
-            <select
-                id="aipkit_bot_<?php echo esc_attr($bot_id); ?>_openai_conversation_state_enabled_select"
-                name="openai_conversation_state_enabled"
-                class="aipkit_form-input aipkit_popover_option_select aipkit_openai_conversation_state_enable_toggle aipkit_stateful_convo_checkbox"
-            >
-                <option value="1" <?php selected($openai_conversation_state_enabled_val, '1'); ?>>
-                    <?php esc_html_e('Yes', 'gpt3-ai-content-generator'); ?>
-                </option>
-                <option value="0" <?php selected($openai_conversation_state_enabled_val, '0'); ?>>
-                    <?php esc_html_e('No', 'gpt3-ai-content-generator'); ?>
-                </option>
-            </select>
+            <?php include __DIR__ . '/interface-feature-settings.php'; ?>
         </div>
-        <div class="aipkit_behavior_compact_cell aipkit_reasoning_effort_field">
-            <label
-                class="aipkit_popover_option_label"
-                for="aipkit_bot_<?php echo esc_attr($bot_id); ?>_reasoning_effort"
-
+    </div>
+    <div
+        class="aipkit_interface_feature_row aipkit_interface_feature_row--expandable aipkit_display_settings_row aipkit_general_settings_section_row aipkit_general_settings_section_row--knowledge"
+        data-aipkit-inline-settings-row
+        data-aipkit-static-inline-settings-row
+    >
+        <div class="aipkit_interface_feature_label">
+            <span class="aipkit_display_settings_icon" aria-hidden="true">
+                <span class="dashicons dashicons-search"></span>
+            </span>
+            <span class="aipkit_interface_feature_text">
+                <span class="aipkit_interface_feature_title aipkit_popover_option_label">
+                    <?php esc_html_e('Knowledge', 'gpt3-ai-content-generator'); ?>
+                </span>
+                <span class="aipkit_interface_feature_hint">
+                    <?php esc_html_e('Choose how this chatbot uses your content.', 'gpt3-ai-content-generator'); ?>
+                </span>
+            </span>
+        </div>
+        <div class="aipkit_interface_feature_action">
+            <button
+                type="button"
+                class="aipkit_popover_option_btn aipkit_display_settings_toggle aipkit_interface_feature_expand_btn"
+                data-aipkit-inline-settings-toggle
+                data-aipkit-static-inline-settings-toggle
+                aria-expanded="false"
+                aria-controls="aipkit_general_knowledge_panel"
             >
-                <span class="aipkit_reasoning_effort_label_text"><?php echo esc_html($reasoning_label_text); ?></span>
-            </label>
-            <select
-                id="aipkit_bot_<?php echo esc_attr($bot_id); ?>_reasoning_effort"
-                name="reasoning_effort"
-                class="aipkit_form-input aipkit_popover_option_select aipkit_reasoning_effort_value"
+                <span class="dashicons dashicons-plus-alt2" aria-hidden="true"></span>
+            </button>
+        </div>
+        <div
+            id="aipkit_general_knowledge_panel"
+            class="aipkit_interface_feature_inline_panel aipkit_display_inline_panel aipkit_general_settings_section_panel"
+            hidden
+        >
+            <div class="aipkit_general_knowledge_section aipkit_settings_panel_body" data-aipkit-settings-panel="context">
+                <?php include __DIR__ . '/context-settings.php'; ?>
+            </div>
+        </div>
+    </div>
+    <div
+        class="aipkit_interface_feature_row aipkit_interface_feature_row--expandable aipkit_display_settings_row aipkit_general_settings_section_row aipkit_general_settings_section_row--capabilities"
+        data-aipkit-inline-settings-row
+        data-aipkit-static-inline-settings-row
+    >
+        <div class="aipkit_interface_feature_label">
+            <span class="aipkit_display_settings_icon" aria-hidden="true">
+                <span class="dashicons dashicons-admin-tools"></span>
+            </span>
+            <span class="aipkit_interface_feature_text">
+                <span class="aipkit_interface_feature_title aipkit_popover_option_label">
+                    <?php esc_html_e('Capabilities', 'gpt3-ai-content-generator'); ?>
+                </span>
+                <span class="aipkit_interface_feature_hint">
+                    <?php esc_html_e('Enable file, web, image, and voice features.', 'gpt3-ai-content-generator'); ?>
+                </span>
+            </span>
+        </div>
+        <div class="aipkit_interface_feature_action">
+            <button
+                type="button"
+                class="aipkit_popover_option_btn aipkit_display_settings_toggle aipkit_interface_feature_expand_btn"
+                data-aipkit-inline-settings-toggle
+                data-aipkit-static-inline-settings-toggle
+                aria-expanded="false"
+                aria-controls="aipkit_general_capabilities_panel"
             >
-                <?php foreach ($reasoning_options as $option_index => $option_value) : ?>
-                    <option value="<?php echo esc_attr($option_value); ?>" <?php selected($reasoning_effort, $option_value); ?>>
-                        <?php echo esc_html($reasoning_labels[$option_index]); ?>
-                    </option>
-                <?php endforeach; ?>
-            </select>
+                <span class="dashicons dashicons-plus-alt2" aria-hidden="true"></span>
+            </button>
+        </div>
+        <div
+            id="aipkit_general_capabilities_panel"
+            class="aipkit_interface_feature_inline_panel aipkit_display_inline_panel aipkit_general_settings_section_panel"
+            hidden
+        >
+            <div class="aipkit_general_capabilities_section aipkit_settings_panel_body" data-aipkit-settings-panel="tools">
+                <?php include __DIR__ . '/tools-settings.php'; ?>
+            </div>
+        </div>
+    </div>
+    <div class="aipkit_chatbot_settings_section_heading">
+        <?php esc_html_e('AI behavior', 'gpt3-ai-content-generator'); ?>
+    </div>
+    <div
+        class="aipkit_interface_feature_row aipkit_interface_feature_row--expandable aipkit_display_settings_row aipkit_general_settings_section_row aipkit_general_settings_section_row--model"
+        data-aipkit-inline-settings-row
+        data-aipkit-static-inline-settings-row
+    >
+        <div class="aipkit_interface_feature_label">
+            <span class="aipkit_display_settings_icon" aria-hidden="true">
+                <span class="dashicons dashicons-admin-generic"></span>
+            </span>
+            <span class="aipkit_interface_feature_text">
+                <span class="aipkit_interface_feature_title aipkit_popover_option_label">
+                    <?php esc_html_e('Model', 'gpt3-ai-content-generator'); ?>
+                </span>
+                <span class="aipkit_interface_feature_hint">
+                    <?php esc_html_e('Adjust response style, memory, and reasoning.', 'gpt3-ai-content-generator'); ?>
+                </span>
+            </span>
+        </div>
+        <div class="aipkit_interface_feature_action">
+            <button
+                type="button"
+                class="aipkit_popover_option_btn aipkit_display_settings_toggle aipkit_interface_feature_expand_btn"
+                data-aipkit-inline-settings-toggle
+                data-aipkit-static-inline-settings-toggle
+                aria-expanded="false"
+                aria-controls="aipkit_general_model_panel"
+            >
+                <span class="dashicons dashicons-plus-alt2" aria-hidden="true"></span>
+            </button>
+        </div>
+        <div
+            id="aipkit_general_model_panel"
+            class="aipkit_interface_feature_inline_panel aipkit_display_inline_panel aipkit_general_settings_section_panel aipkit_general_model_section_panel"
+            hidden
+        >
+            <div class="aipkit_builder_field aipkit_chatbot_response_settings">
+                <?php include __DIR__ . '/model-settings.php'; ?>
+            </div>
+        </div>
+    </div>
+    <div
+        class="aipkit_interface_feature_row aipkit_interface_feature_row--expandable aipkit_display_settings_row aipkit_general_settings_section_row aipkit_general_settings_section_row--limits"
+        data-aipkit-inline-settings-row
+        data-aipkit-static-inline-settings-row
+    >
+        <div class="aipkit_interface_feature_label">
+            <span class="aipkit_display_settings_icon" aria-hidden="true">
+                <span class="dashicons dashicons-chart-bar"></span>
+            </span>
+            <span class="aipkit_interface_feature_text">
+                <span class="aipkit_interface_feature_title aipkit_popover_option_label">
+                    <?php esc_html_e('Limits', 'gpt3-ai-content-generator'); ?>
+                </span>
+                <span
+                    class="aipkit_interface_feature_hint"
+                    data-aipkit-limits-section-summary
+                    data-default-summary="<?php echo esc_attr($limits_summary_fallback ?? __('Set visitor message limits.', 'gpt3-ai-content-generator')); ?>"
+                >
+                    <?php echo esc_html($limits_summary_text ?? __('Set visitor message limits.', 'gpt3-ai-content-generator')); ?>
+                </span>
+            </span>
+        </div>
+        <div class="aipkit_interface_feature_action">
+            <button
+                type="button"
+                class="aipkit_popover_option_btn aipkit_display_settings_toggle aipkit_interface_feature_expand_btn"
+                data-aipkit-inline-settings-toggle
+                data-aipkit-static-inline-settings-toggle
+                aria-expanded="false"
+                aria-controls="aipkit_general_limits_panel"
+            >
+                <span class="dashicons dashicons-plus-alt2" aria-hidden="true"></span>
+            </button>
+        </div>
+        <div
+            id="aipkit_general_limits_panel"
+            class="aipkit_interface_feature_inline_panel aipkit_display_inline_panel aipkit_general_settings_section_panel aipkit_general_limits_section_panel"
+            hidden
+        >
+            <div class="aipkit_general_limits_section aipkit_settings_panel_body" data-aipkit-settings-panel="limits">
+                <?php include __DIR__ . '/limits-settings.php'; ?>
+            </div>
+        </div>
+    </div>
+    <div class="aipkit_chatbot_settings_section_heading">
+        <?php esc_html_e('Automations', 'gpt3-ai-content-generator'); ?>
+    </div>
+    <div
+        class="aipkit_interface_feature_row aipkit_interface_feature_row--expandable aipkit_display_settings_row aipkit_general_settings_section_row aipkit_general_settings_section_row--apps"
+        data-aipkit-inline-settings-row
+        data-aipkit-static-inline-settings-row
+    >
+        <div class="aipkit_interface_feature_label">
+            <span class="aipkit_display_settings_icon" aria-hidden="true">
+                <span class="dashicons dashicons-share"></span>
+            </span>
+            <span class="aipkit_interface_feature_text">
+                <span class="aipkit_interface_feature_title aipkit_popover_option_label">
+                    <?php esc_html_e('Apps', 'gpt3-ai-content-generator'); ?>
+                    <?php if (!$is_pro_plan) : ?>
+                        <span class="aipkit_general_settings_section_badge aipkit_paid_feature_badge"><?php esc_html_e('Pro', 'gpt3-ai-content-generator'); ?></span>
+                    <?php endif; ?>
+                </span>
+                <span
+                    class="aipkit_interface_feature_hint"
+                    data-aipkit-connected-apps-section-summary
+                    data-default-summary="<?php esc_attr_e('Send chat activity to your tools.', 'gpt3-ai-content-generator'); ?>"
+                >
+                    <?php echo esc_html($connected_apps_summary_text ?: __('Send chat activity to your tools.', 'gpt3-ai-content-generator')); ?>
+                </span>
+            </span>
+        </div>
+        <div class="aipkit_interface_feature_action">
+            <button
+                type="button"
+                class="aipkit_popover_option_btn aipkit_display_settings_toggle aipkit_interface_feature_expand_btn"
+                data-aipkit-inline-settings-toggle
+                data-aipkit-static-inline-settings-toggle
+                aria-expanded="false"
+                aria-controls="aipkit_general_apps_panel"
+            >
+                <span class="dashicons dashicons-plus-alt2" aria-hidden="true"></span>
+            </button>
+        </div>
+        <div
+            id="aipkit_general_apps_panel"
+            class="aipkit_interface_feature_inline_panel aipkit_display_inline_panel aipkit_general_settings_section_panel aipkit_general_apps_section_panel"
+            hidden
+        >
+            <?php include __DIR__ . '/connected-apps-settings.php'; ?>
+        </div>
+    </div>
+    <div
+        class="aipkit_interface_feature_row aipkit_interface_feature_row--expandable aipkit_display_settings_row aipkit_general_settings_section_row aipkit_general_settings_section_row--rules"
+        data-aipkit-inline-settings-row
+        data-aipkit-static-inline-settings-row
+    >
+        <div class="aipkit_interface_feature_label">
+            <span class="aipkit_display_settings_icon" aria-hidden="true">
+                <span class="dashicons dashicons-controls-repeat"></span>
+            </span>
+            <span class="aipkit_interface_feature_text">
+                <span class="aipkit_interface_feature_title aipkit_popover_option_label">
+                    <?php esc_html_e('Rules', 'gpt3-ai-content-generator'); ?>
+                    <?php if (!$is_pro_plan) : ?>
+                        <span class="aipkit_general_settings_section_badge aipkit_paid_feature_badge"><?php esc_html_e('Pro', 'gpt3-ai-content-generator'); ?></span>
+                    <?php endif; ?>
+                </span>
+                <span
+                    class="aipkit_interface_feature_hint"
+                    data-aipkit-rules-section-summary
+                    data-default-summary="<?php esc_attr_e('Automate replies and actions.', 'gpt3-ai-content-generator'); ?>"
+                >
+                    <?php echo esc_html($rules_summary_text ?: __('Automate replies and actions.', 'gpt3-ai-content-generator')); ?>
+                </span>
+            </span>
+        </div>
+        <div class="aipkit_interface_feature_action">
+            <button
+                type="button"
+                class="aipkit_popover_option_btn aipkit_display_settings_toggle aipkit_interface_feature_expand_btn"
+                data-aipkit-inline-settings-toggle
+                data-aipkit-static-inline-settings-toggle
+                aria-expanded="false"
+                aria-controls="aipkit_general_rules_panel"
+            >
+                <span class="dashicons dashicons-plus-alt2" aria-hidden="true"></span>
+            </button>
+        </div>
+        <div
+            id="aipkit_general_rules_panel"
+            class="aipkit_interface_feature_inline_panel aipkit_display_inline_panel aipkit_general_settings_section_panel aipkit_general_rules_section_panel"
+            hidden
+        >
+            <button
+                type="button"
+                class="aipkit_chatbot_settings_action_btn aipkit_general_settings_manage_btn aipkit_builder_sheet_trigger"
+                data-sheet-title="<?php esc_attr_e('Rules', 'gpt3-ai-content-generator'); ?>"
+                data-sheet-description="<?php esc_attr_e('Create and manage rule-based automations for this chatbot.', 'gpt3-ai-content-generator'); ?>"
+                data-sheet-content="triggers"
+            >
+                <?php esc_html_e('Manage rules', 'gpt3-ai-content-generator'); ?>
+            </button>
         </div>
     </div>
 </div>

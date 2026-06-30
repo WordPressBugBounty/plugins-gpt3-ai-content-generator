@@ -373,6 +373,8 @@ class ChatAdminAssets extends AIPKit_Admin_Asset_Base
             ChatFrontendAssetsOrchestrator::register_public_chat_dependencies();
         }
 
+        wp_enqueue_media();
+
         $this->enqueue_styles();
         $this->enqueue_scripts();
         $this->ensure_dashboard_core_data();

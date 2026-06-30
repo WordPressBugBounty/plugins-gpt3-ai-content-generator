@@ -186,6 +186,8 @@ function register_hooks_admin_ajax_logic(
     add_action('wp_ajax_aipkit_update_chatbot_deploy_settings', [$chatbot_ajax_handler, 'ajax_update_chatbot_deploy_settings']);
     add_action('wp_ajax_aipkit_update_chatbot_triggers', [$chatbot_ajax_handler, 'ajax_update_chatbot_triggers']);
     add_action('wp_ajax_aipkit_get_chatbot_training_source_count', [$chatbot_ajax_handler, 'ajax_get_chatbot_training_source_count']);
+    add_action('wp_ajax_aipkit_get_chatbot_training_status', [$chatbot_ajax_handler, 'ajax_get_chatbot_training_status']);
+    add_action('wp_ajax_aipkit_stop_chatbot_training', [$chatbot_ajax_handler, 'ajax_stop_chatbot_training']);
     add_action('wp_ajax_aipkit_get_chatbot_training_sources', [$chatbot_ajax_handler, 'ajax_get_chatbot_training_sources']);
     add_action('wp_ajax_aipkit_get_chatbot_switch_state', [$chatbot_ajax_handler, 'ajax_get_chatbot_switch_state']);
 }

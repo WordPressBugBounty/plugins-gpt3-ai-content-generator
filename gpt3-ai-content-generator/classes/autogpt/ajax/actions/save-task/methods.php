@@ -66,13 +66,18 @@ function build_task_config_indexing_logic(array $post_data)
 {
     $task_config = [];
     $task_config['post_types'] = isset($post_data['post_types']) && is_array($post_data['post_types']) ? array_map('sanitize_key', $post_data['post_types']) : [];
+    $task_config['specific_post_ids'] = isset($post_data['specific_post_ids']) && is_array($post_data['specific_post_ids'])
+        ? array_values(array_filter(array_map('absint', $post_data['specific_post_ids'])))
+        : [];
     $task_config['target_store_provider'] = isset($post_data['target_store_provider']) ? sanitize_key($post_data['target_store_provider']) : 'openai';
     $task_config['target_store_id'] = isset($post_data['target_store_id']) ? sanitize_text_field($post_data['target_store_id']) : '';
     $task_config['indexing_frequency'] = isset($post_data['task_frequency']) ? sanitize_key($post_data['task_frequency']) : 'daily';
     $task_config['index_existing_now_flag'] = isset($post_data['index_existing_now_flag']) ? '1' : '0';
     $task_config['only_new_updated_flag'] = isset($post_data['only_new_updated_flag']) ? '1' : '0';
+    $task_config['source_context'] = isset($post_data['source_context']) ? sanitize_key($post_data['source_context']) : '';
+    $task_config['chatbot_id'] = isset($post_data['chatbot_id']) ? absint($post_data['chatbot_id']) : 0;
 
-    if (empty($task_config['post_types'])) {
+    if (empty($task_config['post_types']) && empty($task_config['specific_post_ids'])) {
         return new WP_Error('missing_post_types', __('Please select at least one post type for content indexing.', 'gpt3-ai-content-generator'), ['status' => 400]);
     }
     if (empty($task_config['target_store_id'])) {

@@ -42,9 +42,6 @@ if (!isset($providers) || !is_array($providers) || empty($providers)) {
 }
 
 $show_chatbot_selector = empty($is_next_layout) || !$is_next_layout;
-$active_bot_name_value = ($active_bot_post && isset($active_bot_post->post_title))
-    ? (string) $active_bot_post->post_title
-    : '';
 $provider_select_options = class_exists('\\WPAICG\\AIPKit_Provider_Model_List_Builder')
     ? \WPAICG\AIPKit_Provider_Model_List_Builder::get_provider_options($providers, (bool) ($is_pro ?? false))
     : [];
@@ -79,6 +76,7 @@ $render_simple_model_field = static function (array $config) use ($bot_id, $save
                     id="<?php echo esc_attr($field_id); ?>"
                     name="<?php echo esc_attr($field_name); ?>"
                     class="aipkit_form-input"
+                    data-aipkit-model-state-select="1"
                 >
                     <?php if (!empty($models)) : ?>
                         <?php foreach ($models as $model) :
@@ -129,10 +127,6 @@ $render_simple_model_field = static function (array $config) use ($bot_id, $save
                             <?php esc_html_e('No chatbots yet', 'gpt3-ai-content-generator'); ?>
                         </option>
                     <?php else : ?>
-                        <option value="__new__">
-                            <?php esc_html_e('+ New Bot', 'gpt3-ai-content-generator'); ?>
-                        </option>
-                        <option value="" disabled>----------</option>
                         <?php foreach ($all_bots_ordered_entries as $bot_entry) : ?>
                             <?php $bot_post = $bot_entry['post']; ?>
                             <option
@@ -148,26 +142,48 @@ $render_simple_model_field = static function (array $config) use ($bot_id, $save
         </div>
     <?php endif; ?>
 
-    <div
-        class="aipkit_form-group aipkit_form-col aipkit_chatbot_model_col aipkit_chatbot_model_col--name aipkit_bot_name_group"
-    >
+    <div class="aipkit_form-group aipkit_form-col aipkit_chatbot_model_col aipkit_chatbot_model_col--unified">
         <label
             class="aipkit_form-label"
-            for="aipkit_bot_<?php echo esc_attr($bot_id); ?>_name"
-            title="<?php echo esc_attr__('Chatbot name', 'gpt3-ai-content-generator'); ?>"
+            for="aipkit_bot_<?php echo esc_attr($bot_id); ?>_unified_model_trigger"
         >
-            <?php esc_html_e('Name', 'gpt3-ai-content-generator'); ?>
+            <?php esc_html_e('Model', 'gpt3-ai-content-generator'); ?>
         </label>
-        <input
-            type="text"
-            id="aipkit_bot_<?php echo esc_attr($bot_id); ?>_name"
-            name="bot_name"
-            class="aipkit_form-input aipkit_bot_name_input"
-            value="<?php echo esc_attr($active_bot_name_value); ?>"
-            title="<?php echo esc_attr__('Chatbot name', 'gpt3-ai-content-generator'); ?>"
-        />
+        <div class="aipkit_unified_model_selector" data-aipkit-unified-model-selector>
+            <button
+                type="button"
+                id="aipkit_bot_<?php echo esc_attr($bot_id); ?>_unified_model_trigger"
+                class="aipkit_unified_model_trigger"
+                aria-expanded="false"
+                data-aipkit-unified-model-trigger
+            >
+                <span class="aipkit_unified_model_logo" data-aipkit-unified-model-logo aria-hidden="true"></span>
+                <span class="aipkit_unified_model_name" data-aipkit-unified-model-name><?php echo esc_html($saved_model ?: __('Select model', 'gpt3-ai-content-generator')); ?></span>
+            </button>
+            <div
+                class="aipkit_unified_model_popover"
+                data-aipkit-unified-model-popover
+                hidden
+            >
+                <div class="aipkit_unified_model_search">
+                    <input
+                        type="search"
+                        class="aipkit_unified_model_search_input"
+                        placeholder="<?php esc_attr_e('Search models...', 'gpt3-ai-content-generator'); ?>"
+                        aria-label="<?php esc_attr_e('Search models', 'gpt3-ai-content-generator'); ?>"
+                        data-aipkit-unified-model-search
+                    />
+                    <span class="dashicons dashicons-search" aria-hidden="true"></span>
+                </div>
+                <div class="aipkit_unified_model_list" role="listbox" data-aipkit-unified-model-list></div>
+                <div class="aipkit_unified_model_empty" data-aipkit-unified-model-empty hidden>
+                    <?php esc_html_e('No models found', 'gpt3-ai-content-generator'); ?>
+                </div>
+            </div>
+        </div>
     </div>
 
+    <div class="aipkit_model_state_controls" aria-hidden="true">
     <div class="aipkit_form-group aipkit_form-col aipkit_chatbot_model_col aipkit_chatbot_model_col--provider">
         <label
             class="aipkit_form-label"
@@ -180,6 +196,7 @@ $render_simple_model_field = static function (array $config) use ($bot_id, $save
             name="provider"
             class="aipkit_form-input aipkit_chatbot_provider_select" <?php // JS targets this class?>
             data-aipkit-provider-notice-target="aipkit_provider_notice_chatbot"
+            data-aipkit-model-state-select="1"
         >
             <?php if (empty($provider_select_options)) :
                 foreach ($providers as $p_value) {
@@ -239,6 +256,7 @@ $render_simple_model_field = static function (array $config) use ($bot_id, $save
                     id="aipkit_bot_<?php echo esc_attr($bot_id); ?>_openai_model"
                     name="openai_model"
                     class="aipkit_form-input"
+                    data-aipkit-model-state-select="1"
                 >
                     <?php
                      // $grouped_openai_models now only contains chat models (already filtered if applicable)
@@ -319,6 +337,7 @@ $render_simple_model_field = static function (array $config) use ($bot_id, $save
                     id="aipkit_bot_<?php echo esc_attr($bot_id); ?>_openrouter_model"
                     name="openrouter_model"
                     class="aipkit_form-input"
+                    data-aipkit-model-state-select="1"
                 >
                     <?php
 $foundCurrentOR = false;
@@ -405,6 +424,7 @@ if (!$foundCurrentOR && !empty($saved_model) && $saved_provider === 'OpenRouter'
                     id="aipkit_bot_<?php echo esc_attr($bot_id); ?>_google_model"
                     name="google_model"
                     class="aipkit_form-input"
+                    data-aipkit-model-state-select="1"
                 >
                      <?php
 $foundCurrentGoogle = false;
@@ -486,6 +506,7 @@ if (!empty($google_model_list)): ?>
                     id="aipkit_bot_<?php echo esc_attr($bot_id); ?>_claude_model"
                     name="claude_model"
                     class="aipkit_form-input"
+                    data-aipkit-model-state-select="1"
                 >
                      <?php
 $foundCurrentClaude = false;
@@ -563,6 +584,7 @@ if (!empty($claude_model_list)): ?>
                     id="aipkit_bot_<?php echo esc_attr($bot_id); ?>_azure_deployment"
                     name="azure_deployment"
                     class="aipkit_form-input"
+                    data-aipkit-model-state-select="1"
                 >
                     <?php
                     $foundOldAzure = false;
@@ -615,5 +637,6 @@ if (!$foundOldAzure && !empty($saved_azure_deployment)) {
         ]);
         ?>
 
+    </div>
     </div>
 </div>
