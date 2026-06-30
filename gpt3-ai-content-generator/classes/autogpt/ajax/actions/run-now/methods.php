@@ -74,17 +74,8 @@ function run_now_content_indexing_logic(int $task_id, array $task_config): void
     }
 }
 
-// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- This file only uses local helper/template variables and does not define public globals.
-
-namespace WPAICG\AutoGPT\Ajax\Actions\RunNow;
-
-
 $modules_path = WPAICG_PLUGIN_DIR . 'classes/autogpt/cron/event-processor/trigger/module/';
 require_once $modules_path . 'methods.php';
-
-if (!defined('ABSPATH')) {
-    exit;
-}
 
 /**
  * Queues items for a "Run Now" action on a content writing task.
@@ -135,6 +126,7 @@ function run_now_content_writing_logic(int $task_id, array $task_config)
     $item_index = 0;
     foreach ($topics_to_queue as $index => $item_data) {
         $item_config = ContentWritingModules\prepare_item_config_logic($item_data, $task_config, $scraped_contexts);
+        $item_config['task_id'] = $task_id;
         if (empty($item_config['content_title'])) {
             continue;
         }
