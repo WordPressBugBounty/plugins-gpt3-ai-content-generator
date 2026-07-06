@@ -28,21 +28,15 @@ function schedule_task_event_logic(int $task_id, string $frequency, string $stat
     $hook = get_task_specific_cron_hook_logic($task_id);
     $current_schedule_args = [$task_id];
 
-    $event_details = \WPAICG\AutoGPT\Cron\Scheduler\Utils\get_current_cron_event_details_logic($hook, $current_schedule_args);
-    $current_event_timestamp = $event_details['timestamp'];
-    $current_frequency = $event_details['frequency'];
-
     if ($status === 'active') {
-        $should_reschedule = ($current_event_timestamp === false || $current_frequency !== $frequency);
-        if ($should_reschedule) {
-            wp_clear_scheduled_hook($hook, $current_schedule_args);
-            if ($frequency === 'one-time') {
-                // Schedule to run once, very soon.
-                wp_schedule_single_event(time() + 10, $hook, $current_schedule_args);
-            } else {
-                // wp_schedule_event's first run is immediate unless a timestamp is provided. Let's add a small delay.
-                wp_schedule_event(time() + (MINUTE_IN_SECONDS / 2), $frequency, $hook, $current_schedule_args);
-            }
+        clear_task_hook_events_logic($hook);
+
+        if ($frequency === 'one-time') {
+            // Schedule to run once, very soon.
+            wp_schedule_single_event(time() + 10, $hook, $current_schedule_args);
+        } else {
+            // wp_schedule_event's first run is immediate unless a timestamp is provided. Let's add a small delay.
+            wp_schedule_event(time() + (MINUTE_IN_SECONDS / 2), $frequency, $hook, $current_schedule_args);
         }
 
         // Always update the next_run_time column after scheduling/checking

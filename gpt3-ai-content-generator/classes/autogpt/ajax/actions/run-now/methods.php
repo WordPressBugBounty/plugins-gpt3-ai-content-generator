@@ -74,8 +74,8 @@ function run_now_content_indexing_logic(int $task_id, array $task_config): void
     }
 }
 
-$modules_path = WPAICG_PLUGIN_DIR . 'classes/autogpt/cron/event-processor/trigger/module/';
-require_once $modules_path . 'methods.php';
+$aipkit_autogpt_modules_path = WPAICG_PLUGIN_DIR . 'classes/autogpt/cron/event-processor/trigger/module/';
+require_once $aipkit_autogpt_modules_path . 'methods.php';
 
 /**
  * Queues items for a "Run Now" action on a content writing task.

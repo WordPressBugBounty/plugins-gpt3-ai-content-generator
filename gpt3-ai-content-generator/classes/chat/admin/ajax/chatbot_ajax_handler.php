@@ -79,6 +79,14 @@ class ChatbotAjaxHandler extends BaseAjaxHandler {
         return class_exists( '\\WPAICG\\aipkit_dashboard' ) && \WPAICG\aipkit_dashboard::is_pro_plan();
     }
 
+    private function get_validated_table_identifier( string $table_name ) : string {
+        $table_name = trim( $table_name );
+        if ( $table_name === '' || !preg_match( '/^[A-Za-z0-9_]+$/', $table_name ) ) {
+            return '';
+        }
+        return '`' . $table_name . '`';
+    }
+
     public function ajax_create_chatbot() {
         $permission_check = $this->check_module_access_permissions( 'chatbot' );
         if ( is_wp_error( $permission_check ) ) {
@@ -2237,15 +2245,23 @@ class ChatbotAjaxHandler extends BaseAjaxHandler {
             global $wpdb;
             $queue_table_name = $wpdb->prefix . 'aipkit_automated_task_queue';
             $tasks_table_name = $wpdb->prefix . 'aipkit_automated_tasks';
+            $queue_table_identifier = $this->get_validated_table_identifier( $queue_table_name );
+            $tasks_table_identifier = $this->get_validated_table_identifier( $tasks_table_name );
+            if ( $queue_table_identifier === '' || $tasks_table_identifier === '' ) {
+                wp_send_json_error( [
+                    'message' => __( 'Unable to stop chatbot training.', 'gpt3-ai-content-generator' ),
+                ], 500 );
+                return;
+            }
             $task_placeholders = implode( ',', array_fill( 0, count( $task_ids ), '%d' ) );
             $status_placeholders = implode( ',', array_fill( 0, 2, '%s' ) );
             $delete_params = array_merge( $task_ids, ['content_indexing', 'pending', 'processing'] );
             // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter -- Admin stop action over plugin-owned queue table with prepared task IDs/statuses.
-            $deleted = $wpdb->query( $wpdb->prepare( "DELETE FROM {$queue_table_name} WHERE task_id IN ({$task_placeholders}) AND task_type = %s AND status IN ({$status_placeholders})", ...$delete_params ) );
+            $deleted = $wpdb->query( $wpdb->prepare( "DELETE FROM {$queue_table_identifier} WHERE task_id IN ({$task_placeholders}) AND task_type = %s AND status IN ({$status_placeholders})", ...$delete_params ) );
             $stopped_items = ( $deleted === false ? 0 : (int) $deleted );
             $update_params = array_merge( ['paused', current_time( 'mysql', 1 )], $task_ids );
-            // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter -- Admin stop action over plugin-owned task table with prepared task IDs.
-            $wpdb->query( $wpdb->prepare( "UPDATE {$tasks_table_name} SET status = %s, next_run_time = NULL, updated_at = %s WHERE id IN ({$task_placeholders})", ...$update_params ) );
+            // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrongNumber, PluginCheck.Security.DirectDB.UnescapedDBParameter -- Admin stop action over plugin-owned task table with prepared task IDs.
+            $wpdb->query( $wpdb->prepare( "UPDATE {$tasks_table_identifier} SET status = %s, next_run_time = NULL, updated_at = %s WHERE id IN ({$task_placeholders})", ...$update_params ) );
             foreach ( $task_ids as $task_id ) {
                 delete_transient( 'aipkit_initial_queue_page_' . absint( $task_id ) );
                 set_transient( 'aipkit_initial_queue_done_' . absint( $task_id ), 'yes', MONTH_IN_SECONDS );
@@ -2401,12 +2417,16 @@ class ChatbotAjaxHandler extends BaseAjaxHandler {
         }
         global $wpdb;
         $tasks_table_name = $wpdb->prefix . 'aipkit_automated_tasks';
+        $tasks_table_identifier = $this->get_validated_table_identifier( $tasks_table_name );
+        if ( $tasks_table_identifier === '' ) {
+            return [];
+        }
         if ( $requested_task_id > 0 ) {
-            // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Admin stop action over plugin-owned task table.
-            $rows = $wpdb->get_results( $wpdb->prepare( "SELECT id, task_name, task_type, task_config FROM {$tasks_table_name} WHERE id = %d LIMIT 1", $requested_task_id ), ARRAY_A );
+            // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter -- Admin stop action over a validated plugin-owned task table.
+            $rows = $wpdb->get_results( $wpdb->prepare( "SELECT id, task_name, task_type, task_config FROM {$tasks_table_identifier} WHERE id = %d LIMIT 1", $requested_task_id ), ARRAY_A );
         } else {
-            // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Admin stop action over plugin-owned task table.
-            $rows = $wpdb->get_results( $wpdb->prepare( "SELECT id, task_name, task_type, task_config FROM {$tasks_table_name} WHERE task_type = %s ORDER BY id DESC LIMIT 500", 'content_indexing' ), ARRAY_A );
+            // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter -- Admin stop action over a validated plugin-owned task table.
+            $rows = $wpdb->get_results( $wpdb->prepare( "SELECT id, task_name, task_type, task_config FROM {$tasks_table_identifier} WHERE task_type = %s ORDER BY id DESC LIMIT 500", 'content_indexing' ), ARRAY_A );
         }
         if ( empty( $rows ) ) {
             return [];

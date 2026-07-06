@@ -482,6 +482,12 @@ function save_task_to_database_logic(string $task_name, string $task_type, array
     $formats = ['%s', '%s', '%s', '%s', '%s'];
 
     if ($task_id > 0) {
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Reason: Direct lookup in a custom table before updating a task.
+        $existing_task_id = (int) $wpdb->get_var($wpdb->prepare("SELECT id FROM " . esc_sql($tasks_table_name) . " WHERE id = %d", $task_id));
+        if ($existing_task_id <= 0) {
+            return new WP_Error('task_not_found', __('Task not found.', 'gpt3-ai-content-generator'), ['status' => 404]);
+        }
+
         // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Reason: Direct update to a custom table. Caching is handled at the read level.
         $result = $wpdb->update($tasks_table_name, $data, ['id' => $task_id], $formats, ['%d']);
         if ($result === false) {

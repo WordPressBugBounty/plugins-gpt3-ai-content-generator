@@ -11,7 +11,7 @@ if (!defined('ABSPATH')) {
 
 // Variables required: $module_settings, $can_manage_modules.
 
-$settings_modules = array(
+$aipkit_settings_modules = array(
     'chat_bot' => array(
         'label'       => __('Chatbots', 'gpt3-ai-content-generator'),
         'description' => __('Create and manage site chatbots.', 'gpt3-ai-content-generator'),
@@ -51,30 +51,30 @@ $settings_modules = array(
 ?>
 <div class="aipkit_settings_modules" id="aipkit_settings_modules">
     <div class="aipkit_settings_modules_list">
-        <?php foreach ($settings_modules as $option_key => $module): ?>
+        <?php foreach ($aipkit_settings_modules as $aipkit_option_key => $aipkit_module): ?>
             <?php
-            if (!AIPKit_Role_Manager::user_can_access_module($module['data_module'])) {
+            if (!AIPKit_Role_Manager::user_can_access_module($aipkit_module['data_module'])) {
                 continue;
             }
-            $is_enabled = !isset($module_settings[$option_key]) || !empty($module_settings[$option_key]);
-            $field_id = 'aipkit_settings_module_' . $option_key;
+            $aipkit_is_enabled = !isset($module_settings[$aipkit_option_key]) || !empty($module_settings[$aipkit_option_key]);
+            $aipkit_field_id = 'aipkit_settings_module_' . $aipkit_option_key;
             ?>
             <div
-                class="aipkit_form-group aipkit_settings_simple_row aipkit_settings_module_row<?php echo $is_enabled ? '' : ' is-disabled'; ?>"
-                data-module="<?php echo esc_attr($module['data_module']); ?>"
+                class="aipkit_form-group aipkit_settings_simple_row aipkit_settings_module_row<?php echo $aipkit_is_enabled ? '' : ' is-disabled'; ?>"
+                data-module="<?php echo esc_attr($aipkit_module['data_module']); ?>"
             >
-                <label class="aipkit_form-label" for="<?php echo esc_attr($field_id); ?>">
-                    <?php echo esc_html($module['label']); ?>
-                    <span class="aipkit_form-label-helper"><?php echo esc_html($module['description']); ?></span>
+                <label class="aipkit_form-label" for="<?php echo esc_attr($aipkit_field_id); ?>">
+                    <?php echo esc_html($aipkit_module['label']); ?>
+                    <span class="aipkit_form-label-helper"><?php echo esc_html($aipkit_module['description']); ?></span>
                 </label>
-                <label class="aipkit_settings_big_checkbox aipkit_settings_module_control" for="<?php echo esc_attr($field_id); ?>">
+                <label class="aipkit_settings_big_checkbox aipkit_settings_module_control" for="<?php echo esc_attr($aipkit_field_id); ?>">
                     <input
                         type="checkbox"
-                        id="<?php echo esc_attr($field_id); ?>"
+                        id="<?php echo esc_attr($aipkit_field_id); ?>"
                         class="aipkit_settings_module_toggle_input"
-                        data-option-key="<?php echo esc_attr($option_key); ?>"
-                        data-module="<?php echo esc_attr($module['data_module']); ?>"
-                        <?php checked($is_enabled); ?>
+                        data-option-key="<?php echo esc_attr($aipkit_option_key); ?>"
+                        data-module="<?php echo esc_attr($aipkit_module['data_module']); ?>"
+                        <?php checked($aipkit_is_enabled); ?>
                         <?php disabled(!$can_manage_modules); ?>
                     />
                     <span class="aipkit_settings_big_checkbox_box" aria-hidden="true">

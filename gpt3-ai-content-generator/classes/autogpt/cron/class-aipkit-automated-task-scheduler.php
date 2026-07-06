@@ -20,6 +20,7 @@ require_once $scheduler_base_path . 'schedule/get-task-specific-cron-hook.php';
 require_once $scheduler_base_path . 'schedule/clear-task-event.php';
 require_once $scheduler_base_path . 'schedule/schedule-task-event.php';
 require_once $scheduler_base_path . 'batch/clear-all-task-events.php';
+require_once $scheduler_base_path . 'batch/prune-orphaned-task-events.php';
 require_once $scheduler_base_path . 'batch/reschedule-all-active-tasks.php';
 // The utils file is loaded by schedule-task-event.php, no need to load it here again.
 
@@ -60,6 +61,14 @@ class AIPKit_Automated_Task_Scheduler
     public static function clear_all_task_events()
     {
         Batch\clear_all_task_events_logic();
+    }
+
+    /**
+    * Removes task-specific cron events that no longer belong to active tasks.
+    */
+    public static function prune_orphaned_task_events()
+    {
+        Batch\prune_orphaned_task_events_logic();
     }
 
     /**

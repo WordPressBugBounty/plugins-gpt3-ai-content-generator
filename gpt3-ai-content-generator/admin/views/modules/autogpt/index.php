@@ -15,6 +15,7 @@ if (!defined('ABSPATH')) {
 use WPAICG\AIPKit_Providers; // For AI models
 use WPAICG\AIPKIT_AI_Settings; // For AI parameters
 use WPAICG\aipkit_dashboard; // For addon status
+use WPAICG\AutoGPT\Cron\AIPKit_Automated_Task_Scheduler;
 
 // --- Variable Definitions for Partials ---
 $post_types_args = ['public' => true];
@@ -112,11 +113,27 @@ $aipkit_task_statuses_for_select = [ // This was used for the task status dropdo
 ];
 
 // --- AutoGPT Cron Summary (Global Card) ---
+global $wpdb;
+
+if (class_exists(AIPKit_Automated_Task_Scheduler::class)) {
+    AIPKit_Automated_Task_Scheduler::prune_orphaned_task_events();
+}
+
 $aipkit_cron_disabled = defined('DISABLE_WP_CRON') && DISABLE_WP_CRON;
 $aipkit_cron_alternate = defined('ALTERNATE_WP_CRON') && ALTERNATE_WP_CRON;
 $aipkit_cron_task_hook_prefix = 'aipkit_automated_task_';
 $aipkit_cron_task_hooks = [];
 $aipkit_cron_next_timestamp = null;
+$aipkit_cron_active_task_ids = [];
+$aipkit_tasks_table_name = $wpdb->prefix . 'aipkit_automated_tasks';
+
+// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Reason: Direct query to a custom table for scheduler status.
+$aipkit_tasks_table_exists = $wpdb->get_var($wpdb->prepare('SHOW TABLES LIKE %s', $aipkit_tasks_table_name));
+if ($aipkit_tasks_table_exists === $aipkit_tasks_table_name) {
+    // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Reason: Direct query to a custom table for scheduler status.
+    $aipkit_cron_active_task_ids = $wpdb->get_col($wpdb->prepare('SELECT id FROM ' . esc_sql($aipkit_tasks_table_name) . ' WHERE status = %s', 'active'));
+    $aipkit_cron_active_task_ids = array_flip(array_filter(array_map('absint', (array) $aipkit_cron_active_task_ids)));
+}
 
 if (function_exists('_get_cron_array')) {
     $aipkit_cron_events = _get_cron_array();
@@ -126,7 +143,11 @@ if (function_exists('_get_cron_array')) {
                 continue;
             }
             foreach ($events as $hook => $hook_events) {
-                if (strpos($hook, $aipkit_cron_task_hook_prefix) === 0) {
+                if (preg_match('/^' . preg_quote($aipkit_cron_task_hook_prefix, '/') . '(\d+)$/', (string) $hook, $aipkit_cron_hook_matches)) {
+                    $aipkit_cron_task_id = absint($aipkit_cron_hook_matches[1]);
+                    if ($aipkit_cron_task_id <= 0 || !isset($aipkit_cron_active_task_ids[$aipkit_cron_task_id])) {
+                        continue;
+                    }
                     if (!isset($aipkit_cron_task_hooks[$hook]) || $timestamp < $aipkit_cron_task_hooks[$hook]) {
                         $aipkit_cron_task_hooks[$hook] = $timestamp;
                     }

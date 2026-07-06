@@ -50,6 +50,10 @@ class AIPKit_Automated_Task_Cron
             return;
         }
 
+        if (class_exists(AIPKit_Automated_Task_Scheduler::class)) {
+            AIPKit_Automated_Task_Scheduler::prune_orphaned_task_events();
+        }
+
         // 4. Evaluate current task status vs saved option to see if main cron needs an update
         $status_flags = Init\evaluate_status_flags_logic($wpdb, $tasks_table_name);
 

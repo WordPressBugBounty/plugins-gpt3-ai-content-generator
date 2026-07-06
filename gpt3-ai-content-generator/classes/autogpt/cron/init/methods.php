@@ -45,9 +45,11 @@ function check_module_status_logic(string $main_cron_hook): bool
     $was_autogpt_active = (bool) get_option($option_key_autogpt_active, false);
 
     if (!$is_autogpt_currently_active) {
-        // Only clear the cron if it was previously active and is now disabled.
-        if ($was_autogpt_active && wp_next_scheduled($main_cron_hook)) {
+        if (wp_next_scheduled($main_cron_hook)) {
             wp_clear_scheduled_hook($main_cron_hook);
+        }
+        if (class_exists(AIPKit_Automated_Task_Scheduler::class)) {
+            AIPKit_Automated_Task_Scheduler::clear_all_task_events();
         }
         update_option($option_key_autogpt_active, false, 'no');
         return false; // Stop further initialization
@@ -77,6 +79,9 @@ function ensure_table_exists_logic(\wpdb $wpdb, string $tasks_table_name, string
     if ($table_exists !== $tasks_table_name) {
         if (wp_next_scheduled($main_cron_hook)) {
             wp_clear_scheduled_hook($main_cron_hook);
+        }
+        if (class_exists(AIPKit_Automated_Task_Scheduler::class)) {
+            AIPKit_Automated_Task_Scheduler::clear_all_task_events();
         }
         return false;
     }
@@ -154,8 +159,7 @@ function register_main_cron_hook_logic(string $main_cron_hook, int $active_task_
     $has_work_to_do = ($active_task_count > 0) || ($pending_queue_count > 0);
 
     if (!$has_work_to_do) {
-        // Only clear the cron if tasks existed before but now there are none AND no pending queue items.
-        if ($did_active_tasks_exist && wp_next_scheduled($main_cron_hook)) {
+        if (wp_next_scheduled($main_cron_hook)) {
             wp_clear_scheduled_hook($main_cron_hook);
         }
         update_option($option_key_tasks_exist, false, 'no');
