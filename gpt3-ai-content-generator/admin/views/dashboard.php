@@ -105,30 +105,53 @@ if ($visible_nav_module_count === 0) {
 <div class="wrap aipkit_wrap">
     <div class="<?php echo esc_attr($module_tabs_classes); ?>">
         <?php if ($can_access_dashboard): ?>
-            <a
-                href="#"
-                class="aipkit_module-brand"
-                <?php if ($default_module_slug !== ''): ?>
-                    data-module="<?php echo esc_attr($default_module_slug); ?>"
-                    data-aipkit-open-module="<?php echo esc_attr($default_module_slug); ?>"
-                    <?php if ($default_module_slug === 'settings'): ?>
-                        data-aipkit-settings-page="modules"
+            <div class="aipkit_module-brand">
+                <a
+                    href="#"
+                    class="aipkit_module-brand_home"
+                    <?php if ($default_module_slug !== ''): ?>
+                        data-module="<?php echo esc_attr($default_module_slug); ?>"
+                        data-aipkit-open-module="<?php echo esc_attr($default_module_slug); ?>"
+                        <?php if ($default_module_slug === 'settings'): ?>
+                            data-aipkit-settings-page="modules"
+                        <?php endif; ?>
                     <?php endif; ?>
-                <?php endif; ?>
-                aria-label="<?php echo esc_attr($brand_label); ?>"
-                title="<?php echo esc_attr($brand_label); ?>"
-            >
-                <span class="aipkit_module-brand_logo" aria-hidden="true">
-                    <img
-                        src="<?php echo esc_url(WPAICG_PLUGIN_URL . 'public/images/icon.svg'); ?>"
-                        alt=""
-                    />
-                </span>
+                    aria-label="<?php echo esc_attr($brand_label); ?>"
+                    title="<?php echo esc_attr($brand_label); ?>"
+                >
+                    <span class="aipkit_module-brand_logo" aria-hidden="true">
+                        <img
+                            src="<?php echo esc_url(WPAICG_PLUGIN_URL . 'public/images/icon.svg'); ?>"
+                            alt=""
+                        />
+                    </span>
+                </a>
                 <span class="aipkit_module-brand_copy">
-                    <span class="aipkit_module-brand_title"><?php esc_html_e('AI Puffer', 'gpt3-ai-content-generator'); ?></span>
-                    <span class="aipkit_module-brand_meta"><?php esc_html_e('Chat. Create. Automate.', 'gpt3-ai-content-generator'); ?></span>
+                    <a
+                        href="#"
+                        class="aipkit_module-brand_title aipkit_module-brand_home"
+                        <?php if ($default_module_slug !== ''): ?>
+                            data-module="<?php echo esc_attr($default_module_slug); ?>"
+                            data-aipkit-open-module="<?php echo esc_attr($default_module_slug); ?>"
+                            <?php if ($default_module_slug === 'settings'): ?>
+                                data-aipkit-settings-page="modules"
+                            <?php endif; ?>
+                        <?php endif; ?>
+                        aria-label="<?php echo esc_attr($brand_label); ?>"
+                        title="<?php echo esc_attr($brand_label); ?>"
+                    >
+                        <?php esc_html_e('AI Puffer', 'gpt3-ai-content-generator'); ?>
+                    </a>
+                    <a
+                        class="aipkit_module-brand_meta"
+                        href="https://pufferworks.com/"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                    >
+                        <?php esc_html_e('By PufferWorks', 'gpt3-ai-content-generator'); ?>
+                    </a>
                 </span>
-            </a>
+            </div>
         <?php endif; ?>
 
         <nav

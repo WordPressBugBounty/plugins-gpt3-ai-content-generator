@@ -351,6 +351,12 @@ class SettingsAssets extends AIPKit_Admin_Asset_Base
 
         $this->enqueue_admin_main_script();
         $this->ensure_dashboard_core_data();
+
+        if (current_user_can('install_plugins')) {
+            add_thickbox();
+            wp_enqueue_script('plugin-install');
+            wp_enqueue_script('updates');
+        }
     }
 }
 
