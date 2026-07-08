@@ -22,6 +22,28 @@ if (!defined('ABSPATH')) {
                             <?php include __DIR__ . '/shared/category-selector.php'; ?>
                         </div>
                         <div class="aipkit_autogpt_form_main aipkit_autogpt_form_shell">
+                            <div class="aipkit_autogpt_form_titlebar">
+                                <div class="aipkit_autogpt_header_title_editor" id="aipkit_autogpt_header_title_editor" style="display: none;">
+                                    <button
+                                        type="button"
+                                        class="aipkit_autogpt_title_display"
+                                        id="aipkit_autogpt_title_display"
+                                        aria-label="<?php esc_attr_e('Edit task name', 'gpt3-ai-content-generator'); ?>"
+                                    >
+                                        <span class="aipkit_autogpt_title_text" id="aipkit_autogpt_title_text" data-default-label="<?php esc_attr_e('New Task', 'gpt3-ai-content-generator'); ?>">
+                                            <?php esc_html_e('New Task', 'gpt3-ai-content-generator'); ?>
+                                        </span>
+                                        <span class="dashicons dashicons-edit" aria-hidden="true"></span>
+                                    </button>
+                                    <input
+                                        type="text"
+                                        id="aipkit_autogpt_task_title_input"
+                                        class="aipkit_form-input aipkit_autogpt_title_input"
+                                        placeholder="<?php esc_attr_e('New Task', 'gpt3-ai-content-generator'); ?>"
+                                        style="display: none;"
+                                    >
+                                </div>
+                            </div>
                             <div class="aipkit_autogpt_form_shell_body">
                                 <div class="aipkit_wizard_content_step" data-content-id="task_form_setup">
                                     <?php include __DIR__ . '/task-form-setup.php'; ?>
