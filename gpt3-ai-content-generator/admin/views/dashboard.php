@@ -35,16 +35,19 @@ $nav_modules = array(
         'icon'        => 'feedback',
         'data_module' => 'ai-forms',
     ),
-    'image_generator' => array(
-        'label'       => __('Images', 'gpt3-ai-content-generator'),
-        'icon'        => 'format-image',
-        'data_module' => 'image-generator',
-    ),
     'sources' => array(
         'label'       => __('Knowledge Base', 'gpt3-ai-content-generator'),
         'icon'        => 'media-document',
         'data_module' => 'sources',
     ),
+    'image_generator' => array(
+        'label'       => __('Images', 'gpt3-ai-content-generator'),
+        'icon'        => 'format-image',
+        'data_module' => 'image-generator',
+    ),
+);
+
+$utility_nav_modules = array(
     'stats_viewer' => array(
         'label'       => __('Usage', 'gpt3-ai-content-generator'),
         'icon'        => 'chart-bar',
@@ -81,6 +84,17 @@ if (
 
 if ($default_module_slug === '') {
     foreach ($nav_modules as $option_key => $module) {
+        $module_slug = $module['data_module'];
+        if ($is_nav_module_enabled($option_key) && AIPKit_Role_Manager::user_can_access_module($module_slug)) {
+            $default_module_slug = $module_slug;
+            $default_module_label = $module['label'];
+            break;
+        }
+    }
+}
+
+if ($default_module_slug === '') {
+    foreach ($utility_nav_modules as $option_key => $module) {
         $module_slug = $module['data_module'];
         if ($is_nav_module_enabled($option_key) && AIPKit_Role_Manager::user_can_access_module($module_slug)) {
             $default_module_slug = $module_slug;
@@ -178,6 +192,7 @@ if ($visible_nav_module_count === 0) {
                         data-option-key="<?php echo esc_attr($option_key); ?>"
                         data-aipkit-open-module="<?php echo esc_attr($module_slug); ?>"
                         role="tab"
+                        aria-label="<?php echo esc_attr($module['label']); ?>"
                         title="<?php echo esc_attr($module['label']); ?>"
                         <?php if (!$is_enabled): ?>
                             hidden
@@ -194,6 +209,34 @@ if ($visible_nav_module_count === 0) {
 
         <?php if ($can_access_dashboard): ?>
             <div class="aipkit_module-tabs_actions">
+                <?php foreach ($utility_nav_modules as $option_key => $module): ?>
+                    <?php
+                    $module_slug = $module['data_module'];
+                    $is_enabled = $is_nav_module_enabled($option_key);
+                    if (!AIPKit_Role_Manager::user_can_access_module($module_slug)) {
+                        continue;
+                    }
+                    ?>
+                    <a
+                        href="#"
+                        class="aipkit_module-tab aipkit_module-tab--settings aipkit_module-tab--utility aipkit_module-link<?php echo $is_enabled ? '' : ' aipkit_module-tab--is-hidden'; ?>"
+                        data-module="<?php echo esc_attr($module_slug); ?>"
+                        data-option-key="<?php echo esc_attr($option_key); ?>"
+                        data-aipkit-open-module="<?php echo esc_attr($module_slug); ?>"
+                        role="tab"
+                        aria-label="<?php echo esc_attr($module['label']); ?>"
+                        title="<?php echo esc_attr($module['label']); ?>"
+                        <?php if (!$is_enabled): ?>
+                            hidden
+                            aria-hidden="true"
+                            tabindex="-1"
+                        <?php endif; ?>
+                    >
+                        <span class="dashicons dashicons-<?php echo esc_attr($module['icon']); ?>" aria-hidden="true"></span>
+                        <span class="aipkit_module-tab_label"><?php echo esc_html($module['label']); ?></span>
+                    </a>
+                <?php endforeach; ?>
+
                 <?php if ($can_access_settings): ?>
                 <a
                     href="#"
@@ -201,6 +244,7 @@ if ($visible_nav_module_count === 0) {
                     data-module="settings"
                     data-aipkit-open-module="settings"
                     role="tab"
+                    aria-label="<?php esc_attr_e('Settings', 'gpt3-ai-content-generator'); ?>"
                     title="<?php esc_attr_e('Settings', 'gpt3-ai-content-generator'); ?>"
                 >
                     <svg class="aipkit_settings-link-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="16" height="16">
@@ -220,6 +264,7 @@ if ($visible_nav_module_count === 0) {
                     type="button" 
                     class="aipkit_module-tab aipkit_module-tab--settings aipkit_upgrade_btn" 
                     id="aipkit_upgradeBtn"
+                    aria-label="<?php echo esc_attr__('Upgrade to Pro', 'gpt3-ai-content-generator'); ?>"
                     title="<?php echo esc_attr__('Upgrade to Pro', 'gpt3-ai-content-generator'); ?>"
                 >
                     <span class="aipkit_upgrade_btn_icon">

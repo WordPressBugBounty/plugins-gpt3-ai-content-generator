@@ -341,7 +341,7 @@ $provider_select_options = class_exists('\\WPAICG\\AIPKit_Provider_Model_List_Bu
                 >
                     <header class="aipkit_settings_page_header">
                         <h3 class="aipkit_settings_page_title"><?php esc_html_e('Modules', 'gpt3-ai-content-generator'); ?></h3>
-                        <p class="aipkit_settings_page_helper"><?php esc_html_e('Choose which AI Puffer tools appear in the top navigation.', 'gpt3-ai-content-generator'); ?></p>
+                        <p class="aipkit_settings_page_helper"><?php esc_html_e('Choose which AI Puffer tools appear in navigation.', 'gpt3-ai-content-generator'); ?></p>
                     </header>
 
                     <div class="aipkit_settings_simple_form aipkit_settings_simple_form--modules">

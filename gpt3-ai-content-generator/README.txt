@@ -4,7 +4,7 @@ Tags: ai, chatbot, openai, ai writer, automation
 Requires at least: 6.0
 Tested up to: 7.0
 Requires PHP: 7.4
-Stable tag: 2.4.46
+Stable tag: 2.4.47
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -125,6 +125,12 @@ Yes. AIP supports GPT-5, GPT-4o, GPT-4 Turbo, Google Gemini 1.5, Imagen 4.0, and
 ---
 
 == Changelog ==
+
+= 2.4.47 =
+
+- Improved the AI Puffer top navigation so module links, Usage, Settings, and Upgrade adapt more cleanly across desktop, tablet, and narrow responsive widths.
+- Moved Usage into the utility navigation area and kept the main module navigation focused on the primary tools.
+- Updated default module visibility so Chatbots, Content Writer, Automations, AI Forms, and Knowledge Base are enabled by default, while Images can be enabled from Settings > Modules when needed.
 
 = 2.4.46 =
 

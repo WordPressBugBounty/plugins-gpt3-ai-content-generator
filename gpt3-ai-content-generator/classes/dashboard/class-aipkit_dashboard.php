@@ -25,9 +25,9 @@ if (!class_exists('\\WPAICG\\aipkit_dashboard')) {
             'content_writer'  => true,
             'autogpt'         => true,
             'ai_forms'        => true,
-            'image_generator' => true,
-            'training'        => true,
             'sources'         => true,
+            'image_generator' => false,
+            'training'        => true,
             'stats_viewer'    => true,
         );
 

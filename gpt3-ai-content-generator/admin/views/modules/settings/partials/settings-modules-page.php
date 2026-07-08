@@ -32,19 +32,19 @@ $aipkit_settings_modules = array(
         'description' => __('Build AI-powered forms and responses.', 'gpt3-ai-content-generator'),
         'data_module' => 'ai-forms',
     ),
-    'image_generator' => array(
-        'label'       => __('Images', 'gpt3-ai-content-generator'),
-        'description' => __('Generate images when this tool is enabled.', 'gpt3-ai-content-generator'),
-        'data_module' => 'image-generator',
-    ),
     'sources' => array(
         'label'       => __('Knowledge Base', 'gpt3-ai-content-generator'),
         'description' => __('Manage sources, embeddings, and retrieval.', 'gpt3-ai-content-generator'),
         'data_module' => 'sources',
     ),
+    'image_generator' => array(
+        'label'       => __('Images', 'gpt3-ai-content-generator'),
+        'description' => __('Generate images when this tool is enabled.', 'gpt3-ai-content-generator'),
+        'data_module' => 'image-generator',
+    ),
     'stats_viewer' => array(
         'label'       => __('Usage', 'gpt3-ai-content-generator'),
-        'description' => __('Review token usage and activity trends.', 'gpt3-ai-content-generator'),
+        'description' => __('Show usage and activity trends in the utility navigation.', 'gpt3-ai-content-generator'),
         'data_module' => 'stats',
     ),
 );
