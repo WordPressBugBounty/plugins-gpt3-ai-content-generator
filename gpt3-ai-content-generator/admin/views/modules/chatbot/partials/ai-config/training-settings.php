@@ -137,17 +137,28 @@ $default_training_post_types = ['page', 'post'];
                                 <?php esc_html_e('Adding knowledge', 'gpt3-ai-content-generator'); ?>
                             </div>
                             <div class="aipkit_training_state_report">
-                                <span><?php esc_html_e('Knowledge entries', 'gpt3-ai-content-generator'); ?></span>
-                                <strong data-aipkit-training-report-trained>0</strong>
-                                <span><?php esc_html_e('Queued', 'gpt3-ai-content-generator'); ?></span>
-                                <strong data-aipkit-training-report-queued>0</strong>
-                                <span><?php esc_html_e('Processing', 'gpt3-ai-content-generator'); ?></span>
-                                <strong data-aipkit-training-report-processing>0</strong>
-                                <span><?php esc_html_e('Failed', 'gpt3-ai-content-generator'); ?></span>
-                                <strong data-aipkit-training-report-failed>0</strong>
+                                <div class="aipkit_training_state_total">
+                                    <strong data-aipkit-training-report-trained>0</strong>
+                                    <span><?php esc_html_e('Knowledge entries', 'gpt3-ai-content-generator'); ?></span>
+                                </div>
+                                <div class="aipkit_training_state_metrics">
+                                    <div class="aipkit_training_state_metric aipkit_training_state_metric--queued">
+                                        <strong data-aipkit-training-report-queued>0</strong>
+                                        <span><?php esc_html_e('Queued', 'gpt3-ai-content-generator'); ?></span>
+                                    </div>
+                                    <div class="aipkit_training_state_metric aipkit_training_state_metric--processing">
+                                        <strong data-aipkit-training-report-processing>0</strong>
+                                        <span><?php esc_html_e('Processing', 'gpt3-ai-content-generator'); ?></span>
+                                    </div>
+                                    <div class="aipkit_training_state_metric aipkit_training_state_metric--failed">
+                                        <strong data-aipkit-training-report-failed>0</strong>
+                                        <span><?php esc_html_e('Failed', 'gpt3-ai-content-generator'); ?></span>
+                                    </div>
+                                </div>
                             </div>
                             <button type="button" class="aipkit_training_state_sources" data-aipkit-view-training-sources>
-                                <?php esc_html_e('View knowledge', 'gpt3-ai-content-generator'); ?>
+                                <span><?php esc_html_e('View knowledge', 'gpt3-ai-content-generator'); ?></span>
+                                <span class="dashicons dashicons-arrow-right-alt2" aria-hidden="true"></span>
                             </button>
                             <button type="button" class="aipkit_training_state_stop" data-aipkit-stop-training>
                                 <?php esc_html_e('Stop training', 'gpt3-ai-content-generator'); ?>

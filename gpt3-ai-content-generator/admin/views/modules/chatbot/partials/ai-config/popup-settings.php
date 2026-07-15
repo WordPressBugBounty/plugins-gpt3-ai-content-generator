@@ -146,7 +146,7 @@ $aipkit_current_popup_delay = absint($popup_delay);
                     </span>
                     <span class="aipkit_interface_feature_text">
                         <span class="aipkit_interface_feature_title aipkit_popover_option_label">
-                            <?php esc_html_e('Launcher', 'gpt3-ai-content-generator'); ?>
+                            <?php esc_html_e('Popup', 'gpt3-ai-content-generator'); ?>
                         </span>
                         <span class="aipkit_interface_feature_hint">
                             <?php esc_html_e('Set position, size, and auto-open behavior.', 'gpt3-ai-content-generator'); ?>

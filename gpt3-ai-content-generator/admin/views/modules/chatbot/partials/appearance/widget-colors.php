@@ -240,13 +240,13 @@ $render_widget_color_radio = static function (array $option, string $variant) us
 ?>
 
 <div class="aipkit_widget_color_block">
-    <span class="aipkit_widget_designer_label"><?php esc_html_e('Widget colors', 'gpt3-ai-content-generator'); ?></span>
+    <span class="aipkit_widget_designer_label"><?php esc_html_e('Widget color', 'gpt3-ai-content-generator'); ?></span>
     <div
         class="aipkit_popover_multiselect aipkit_interface_theme_dropdown aipkit_widget_color_picker"
         data-aipkit-theme-dropdown
         data-placeholder="<?php echo esc_attr__('Select color', 'gpt3-ai-content-generator'); ?>"
     >
-        <div class="aipkit_widget_color_choices" role="radiogroup" aria-label="<?php esc_attr_e('Widget colors', 'gpt3-ai-content-generator'); ?>">
+        <div class="aipkit_widget_color_choices" role="radiogroup" aria-label="<?php esc_attr_e('Widget color', 'gpt3-ai-content-generator'); ?>">
             <?php foreach ($visible_widget_color_options as $option) : ?>
                 <label class="aipkit_widget_color_choice" title="<?php echo esc_attr($option['label']); ?>">
                     <?php $render_widget_color_radio($option, 'swatch'); ?>
@@ -280,6 +280,7 @@ $render_widget_color_radio = static function (array $option, string $variant) us
                                     <div class="aipkit_popover_multiselect_item aipkit_interface_theme_item aipkit_interface_theme_item--custom aipkit_widget_color_menu_item aipkit_widget_color_menu_item--custom">
                                         <label class="aipkit_widget_color_menu_item_main">
                                             <?php $render_widget_color_radio($option, 'menu'); ?>
+                                            <span class="aipkit_widget_color_menu_check dashicons dashicons-yes" aria-hidden="true"></span>
                                         </label>
                                         <button
                                             type="button"
@@ -287,15 +288,18 @@ $render_widget_color_radio = static function (array $option, string $variant) us
                                             aria-expanded="false"
                                             aria-controls="aipkit_custom_theme_flyout"
                                             data-aipkit-theme-custom-edit
+                                            title="<?php esc_attr_e('Edit custom colors', 'gpt3-ai-content-generator'); ?>"
                                             <?php echo $custom_theme_disabled ? 'hidden' : ''; ?>
                                             <?php disabled($custom_theme_disabled); ?>
                                         >
-                                            <?php esc_html_e('Edit', 'gpt3-ai-content-generator'); ?>
+                                            <span class="dashicons dashicons-edit" aria-hidden="true"></span>
+                                            <span><?php esc_html_e('Edit', 'gpt3-ai-content-generator'); ?></span>
                                         </button>
                                     </div>
                                 <?php else : ?>
                                     <label class="aipkit_popover_multiselect_item aipkit_interface_theme_item aipkit_widget_color_menu_item">
                                         <?php $render_widget_color_radio($option, 'menu'); ?>
+                                        <span class="aipkit_widget_color_menu_check dashicons dashicons-yes" aria-hidden="true"></span>
                                     </label>
                                 <?php endif; ?>
                             <?php endforeach; ?>

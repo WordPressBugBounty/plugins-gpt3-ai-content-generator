@@ -250,7 +250,14 @@ class BotSettingsManager
         return $this->settings_saver->save($botId, $settings);
     }
 
-    public static function set_initial_bot_settings(int $post_id, string $botName)
+    /**
+     * Apply factory settings to a chatbot.
+     *
+     * @param int    $post_id     Chatbot post ID.
+     * @param string $botName     Chatbot name.
+     * @param string $deploy_mode Initial deployment mode: popup or inline.
+     */
+    public static function set_initial_bot_settings(int $post_id, string $botName, string $deploy_mode = 'popup')
     {
         $initializer_path = __DIR__ . '/class-aipkit-bot-settings-initializer.php';
         if (!class_exists(AIPKit_Bot_Settings_Initializer::class)) {
@@ -260,7 +267,7 @@ class BotSettingsManager
                 return;
             }
         }
-        AIPKit_Bot_Settings_Initializer::initialize($post_id, $botName);
+        AIPKit_Bot_Settings_Initializer::initialize($post_id, $botName, $deploy_mode);
     }
 
     /**

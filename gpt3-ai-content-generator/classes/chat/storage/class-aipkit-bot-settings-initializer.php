@@ -12,7 +12,14 @@ if (!defined('ABSPATH')) {
 
 class AIPKit_Bot_Settings_Initializer
 {
-    public static function initialize(int $post_id, string $botName)
+    /**
+     * Initialize a chatbot with its factory settings.
+     *
+     * @param int    $post_id     Chatbot post ID.
+     * @param string $botName     Chatbot name.
+     * @param string $deploy_mode Initial deployment mode: popup or inline.
+     */
+    public static function initialize(int $post_id, string $botName, string $deploy_mode = 'popup')
     {
         if (!class_exists('\WPAICG\AIPKit_Providers')) {
             $providers_path = WPAICG_PLUGIN_DIR . 'classes/dashboard/class-aipkit_providers.php';
@@ -59,8 +66,10 @@ class AIPKit_Bot_Settings_Initializer
         update_post_meta($post_id, '_aipkit_theme_preset_key', '');
         $default_instructions = "You are a helpful AI Assistant. Please be friendly. Today's date is [date].";
         update_post_meta($post_id, '_aipkit_instructions', $default_instructions);
-        update_post_meta($post_id, '_aipkit_deploy_mode', 'popup');
-        update_post_meta($post_id, '_aipkit_popup_enabled', '1');
+        $deploy_mode = ($deploy_mode === 'inline') ? 'inline' : 'popup';
+        $popup_enabled = ($deploy_mode === 'popup') ? '1' : '0';
+        update_post_meta($post_id, '_aipkit_deploy_mode', $deploy_mode);
+        update_post_meta($post_id, '_aipkit_popup_enabled', $popup_enabled);
         update_post_meta($post_id, '_aipkit_popup_position', 'bottom-right');
         update_post_meta($post_id, '_aipkit_popup_delay', BotSettingsManager::DEFAULT_POPUP_DELAY);
         update_post_meta($post_id, '_aipkit_site_wide_enabled', '0');

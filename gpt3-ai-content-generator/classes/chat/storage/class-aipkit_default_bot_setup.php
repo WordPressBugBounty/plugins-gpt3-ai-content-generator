@@ -157,7 +157,7 @@ class DefaultBotSetup
         }
 
         update_post_meta($post_id, '_aipkit_default_bot', '1');
-        BotSettingsManager::set_initial_bot_settings($post_id, $botName); // Set defaults for new
+        BotSettingsManager::set_initial_bot_settings($post_id, $botName, 'inline');
         return $post_id;
     }
 
@@ -198,8 +198,9 @@ class DefaultBotSetup
         $is_actually_default = (get_post_meta($bot_id, '_aipkit_default_bot', true) === '1');
         $was_site_wide = (get_post_meta($bot_id, '_aipkit_site_wide_enabled', true) === '1');
 
-        // *** Call the static method to reset settings ***
-        BotSettingsManager::set_initial_bot_settings($bot_id, $bot_post->post_title);
+        // The built-in chatbot defaults to on-page; user-created bots default to popup.
+        $default_deploy_mode = $is_actually_default ? 'inline' : 'popup';
+        BotSettingsManager::set_initial_bot_settings($bot_id, $bot_post->post_title, $default_deploy_mode);
 
         if (!$is_actually_default) {
             delete_post_meta($bot_id, '_aipkit_default_bot');
