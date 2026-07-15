@@ -29,6 +29,13 @@ $aipkit_more_tools = [
         'slug' => 'pufferdesk',
         'repo_url' => 'https://wordpress.org/plugins/pufferdesk/',
     ],
+    [
+        'name' => __('Pufferbay', 'gpt3-ai-content-generator'),
+        'summary' => __('Collect feature ideas, publish a roadmap, gather votes, and share changelogs inside WordPress.', 'gpt3-ai-content-generator'),
+        'icon_url' => $aipkit_plugin_icon_base_url . 'pufferbay.svg',
+        'slug' => 'pufferbay',
+        'repo_url' => 'https://wordpress.org/plugins/pufferbay/',
+    ],
 ];
 ?>
 

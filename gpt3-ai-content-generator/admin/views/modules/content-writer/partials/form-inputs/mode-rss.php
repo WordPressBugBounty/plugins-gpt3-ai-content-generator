@@ -22,17 +22,20 @@ if ($is_pro && file_exists($aipkit_premium_partial)) {
 
 $aipkit_feature_promo_class = 'aipkit_feature_promo--rss';
 $aipkit_feature_promo_dashicon = 'dashicons-rss';
-$aipkit_feature_promo_title = __('RSS Feed Content Generation', 'gpt3-ai-content-generator');
-$aipkit_feature_promo_subtitle = __('Automatically turn RSS feeds into unique, AI-written posts — hands-free.', 'gpt3-ai-content-generator');
+$aipkit_feature_promo_title = __('RSS feed content generation', 'gpt3-ai-content-generator');
+$aipkit_feature_promo_subtitle = __('Turn RSS feeds into unique, AI-written posts — hands-free.', 'gpt3-ai-content-generator');
 $aipkit_feature_promo_steps = [
-    __('Add your RSS feed URLs', 'gpt3-ai-content-generator'),
+    __('Add feed URLs', 'gpt3-ai-content-generator'),
     __('AI rewrites each item', 'gpt3-ai-content-generator'),
-    __('Auto-publish to WordPress', 'gpt3-ai-content-generator'),
+    __('Publish automatically', 'gpt3-ai-content-generator'),
 ];
 $aipkit_feature_promo_cards = [
-    ['icon' => '⊞', 'color' => '#c2410c', 'label' => __('Multiple Feeds', 'gpt3-ai-content-generator')],
-    ['icon' => '⚙', 'color' => '#16a34a', 'label' => __('Smart Parsing', 'gpt3-ai-content-generator')],
-    ['icon' => '⏱', 'color' => '#2563eb', 'label' => __('Auto-Schedule', 'gpt3-ai-content-generator')],
+    ['dashicon' => 'dashicons-screenoptions', 'label' => __('Multiple feeds', 'gpt3-ai-content-generator')],
+    ['dashicon' => 'dashicons-admin-generic', 'label' => __('Smart parsing', 'gpt3-ai-content-generator')],
+    ['dashicon' => 'dashicons-clock', 'label' => __('Auto-schedule', 'gpt3-ai-content-generator')],
 ];
+$aipkit_feature_promo_compact = true;
+$aipkit_feature_promo_show_pro_badge = true;
+$aipkit_feature_promo_upgrade_label = __('Upgrade to Pro', 'gpt3-ai-content-generator');
 $aipkit_feature_promo_upgrade_url = function_exists('wpaicg_gacg_fs') ? wpaicg_gacg_fs()->get_upgrade_url() : '#';
 include WPAICG_PLUGIN_DIR . 'admin/views/modules/shared/feature-promo.php';

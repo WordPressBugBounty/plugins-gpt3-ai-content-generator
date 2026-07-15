@@ -4,7 +4,7 @@ Tags: ai, chatbot, openai, ai writer, automation
 Requires at least: 6.0
 Tested up to: 7.0
 Requires PHP: 7.4
-Stable tag: 2.4.48
+Stable tag: 2.4.49
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -125,6 +125,14 @@ Yes. AIP supports GPT-5, GPT-4o, GPT-4 Turbo, Google Gemini 1.5, Imagen 4.0, and
 ---
 
 == Changelog ==
+
+= 2.4.49 =
+
+- Redesigned Automations with a compact, guided setup experience for creating content, rewriting posts, building knowledge bases, and replying to comments.
+- Made task creation faster with inline topic entry, Batch Editor, Quick Paste, CSV, RSS, URL, and Google Sheets workflows, plus a quick-create option using recommended defaults.
+- Unified text, image, and embedding model selection with clearer provider setup guidance and smarter available-model defaults.
+- Refined task editing, image and SEO controls, scheduling, publishing settings, validation, and prompt customization for a more consistent workflow.
+- Modernized the Tasks and Queue screens with clearer statuses, schedules, cron health, queue tools, and safer deletion confirmations.
 
 = 2.4.48 =
 

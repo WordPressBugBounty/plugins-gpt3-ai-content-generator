@@ -21,17 +21,20 @@ if ($is_pro && file_exists($aipkit_premium_partial)) {
 
 $aipkit_feature_promo_class = 'aipkit_feature_promo--url';
 $aipkit_feature_promo_dashicon = 'dashicons-admin-links';
-$aipkit_feature_promo_title = __('URL Content Extraction', 'gpt3-ai-content-generator');
-$aipkit_feature_promo_subtitle = __('Paste any URL and let AI extract, rewrite, and publish the content for you.', 'gpt3-ai-content-generator');
+$aipkit_feature_promo_title = __('URL content extraction', 'gpt3-ai-content-generator');
+$aipkit_feature_promo_subtitle = __('Turn web pages into fresh, AI-written content.', 'gpt3-ai-content-generator');
 $aipkit_feature_promo_steps = [
-    __('Paste website URLs', 'gpt3-ai-content-generator'),
-    __('AI extracts key content', 'gpt3-ai-content-generator'),
-    __('Generate unique posts', 'gpt3-ai-content-generator'),
+    __('Add page URLs', 'gpt3-ai-content-generator'),
+    __('AI extracts the content', 'gpt3-ai-content-generator'),
+    __('Create unique posts', 'gpt3-ai-content-generator'),
 ];
 $aipkit_feature_promo_cards = [
-    ['icon' => '🌐', 'color' => '#2563eb', 'label' => __('Any Website', 'gpt3-ai-content-generator')],
-    ['icon' => '✦', 'color' => '#9333ea', 'label' => __('Smart Extraction', 'gpt3-ai-content-generator')],
-    ['icon' => '⚡', 'color' => '#c2410c', 'label' => __('Bulk Processing', 'gpt3-ai-content-generator')],
+    ['dashicon' => 'dashicons-admin-site-alt3', 'label' => __('Any website', 'gpt3-ai-content-generator')],
+    ['dashicon' => 'dashicons-filter', 'label' => __('Smart extraction', 'gpt3-ai-content-generator')],
+    ['dashicon' => 'dashicons-update', 'label' => __('Bulk processing', 'gpt3-ai-content-generator')],
 ];
+$aipkit_feature_promo_compact = true;
+$aipkit_feature_promo_show_pro_badge = true;
+$aipkit_feature_promo_upgrade_label = __('Upgrade to Pro', 'gpt3-ai-content-generator');
 $aipkit_feature_promo_upgrade_url = function_exists('wpaicg_gacg_fs') ? wpaicg_gacg_fs()->get_upgrade_url() : '#';
 include WPAICG_PLUGIN_DIR . 'admin/views/modules/shared/feature-promo.php';

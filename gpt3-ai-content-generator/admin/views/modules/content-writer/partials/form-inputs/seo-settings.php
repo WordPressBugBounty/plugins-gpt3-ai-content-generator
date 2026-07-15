@@ -116,6 +116,7 @@ $upgrade_url = function_exists('wpaicg_gacg_fs')
 $aipkit_smart_seo_rules_popover_id = 'aipkit_cw_smart_seo_rules_popover';
 $aipkit_smart_seo_rules_profile_key = $seo_profile_key;
 $aipkit_smart_seo_rules_profile_label = $seo_profile_label;
+$aipkit_smart_seo_rules_modal_mode = false;
 $aipkit_smart_seo_rules_popover_path = defined('WPAICG_LIB_DIR') ? WPAICG_LIB_DIR . 'views/modules/shared/smart-seo-rules-popover.php' : '';
 if ($is_pro && $seo_rules_available && $aipkit_smart_seo_rules_popover_path !== '' && file_exists($aipkit_smart_seo_rules_popover_path)) {
     include $aipkit_smart_seo_rules_popover_path;

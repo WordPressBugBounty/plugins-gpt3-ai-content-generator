@@ -13,7 +13,7 @@ if (!defined('ABSPATH')) {
 }
 
 $aipkit_cron_state = !empty($aipkit_autogpt_cron_summary['state']) ? (string) $aipkit_autogpt_cron_summary['state'] : 'enabled';
-$aipkit_cron_chip_status = __('OK', 'gpt3-ai-content-generator');
+$aipkit_cron_chip_status = __('ok', 'gpt3-ai-content-generator');
 
 if ($aipkit_cron_state === 'disabled') {
     $aipkit_cron_chip_status = __('Off', 'gpt3-ai-content-generator');
@@ -22,7 +22,7 @@ if ($aipkit_cron_state === 'disabled') {
 }
 ?>
 <div id="aipkit_automated_task_queue_wrapper">
-        <div class="aipkit_container-header">
+    <div class="aipkit_container-header">
         <div class="aipkit_container-header-left">
             <div class="aipkit_autogpt_header_copy">
                 <div class="aipkit_autogpt_header_title_row">
@@ -42,6 +42,8 @@ if ($aipkit_cron_state === 'disabled') {
                     id="aipkit_autogpt_cron_info_trigger"
                     aria-controls="aipkit_autogpt_cron_status"
                     aria-label="<?php esc_attr_e('Cron Status', 'gpt3-ai-content-generator'); ?>"
+                    aria-expanded="false"
+                    title="<?php esc_attr_e('View cron status', 'gpt3-ai-content-generator'); ?>"
                 >
                     <span class="aipkit_autogpt_cron_chip_indicator" aria-hidden="true"></span>
                     <span class="aipkit_autogpt_cron_chip_label">
@@ -67,17 +69,28 @@ if ($aipkit_cron_state === 'disabled') {
                 <summary
                     class="aipkit_autogpt_header_tool aipkit_autogpt_header_tool--icon aipkit_autogpt_queue_tools_toggle"
                     aria-label="<?php esc_attr_e('Queue Tools', 'gpt3-ai-content-generator'); ?>"
+                    aria-controls="aipkit_autogpt_queue_tools_panel"
+                    aria-expanded="false"
+                    title="<?php esc_attr_e('Queue tools', 'gpt3-ai-content-generator'); ?>"
                 >
                     <span class="dashicons dashicons-ellipsis" aria-hidden="true"></span>
                 </summary>
-                <div class="aipkit_autogpt_queue_tools_panel">
-                    <div class="aipkit_autogpt_queue_tools_section">
-                        <label class="aipkit_autogpt_queue_tools_label" for="aipkit_task_queue_search_input"><?php esc_html_e('Search', 'gpt3-ai-content-generator'); ?></label>
-                        <input type="search" id="aipkit_task_queue_search_input" class="aipkit_sources_search_input" placeholder="<?php esc_attr_e('Search queue...', 'gpt3-ai-content-generator'); ?>">
+                <div
+                    class="aipkit_autogpt_queue_tools_panel"
+                    id="aipkit_autogpt_queue_tools_panel"
+                    role="region"
+                    aria-label="<?php esc_attr_e('Queue tools', 'gpt3-ai-content-generator'); ?>"
+                >
+                    <div class="aipkit_autogpt_queue_tools_header">
+                        <h3><?php esc_html_e('Queue tools', 'gpt3-ai-content-generator'); ?></h3>
                     </div>
-                    <div class="aipkit_autogpt_queue_tools_section">
+                    <div class="aipkit_autogpt_queue_tools_section aipkit_autogpt_queue_tools_section--search">
+                        <label class="screen-reader-text" for="aipkit_task_queue_search_input"><?php esc_html_e('Search queue items', 'gpt3-ai-content-generator'); ?></label>
+                        <input type="search" id="aipkit_task_queue_search_input" name="aipkit_task_queue_search" class="aipkit_sources_search_input" placeholder="<?php esc_attr_e('Search items...', 'gpt3-ai-content-generator'); ?>" autocomplete="off">
+                    </div>
+                    <div class="aipkit_autogpt_queue_tools_section aipkit_autogpt_queue_tools_section--inline">
                         <label class="aipkit_autogpt_queue_tools_label" for="aipkit_task_queue_status_filter"><?php esc_html_e('Status', 'gpt3-ai-content-generator'); ?></label>
-                        <select id="aipkit_task_queue_status_filter" class="aipkit_sources_filter_select">
+                        <select id="aipkit_task_queue_status_filter" name="aipkit_task_queue_status" class="aipkit_sources_filter_select">
                             <option value="all"><?php esc_html_e('All Statuses', 'gpt3-ai-content-generator'); ?></option>
                             <option value="pending"><?php esc_html_e('Pending', 'gpt3-ai-content-generator'); ?></option>
                             <option value="processing"><?php esc_html_e('Processing', 'gpt3-ai-content-generator'); ?></option>
@@ -88,7 +101,7 @@ if ($aipkit_cron_state === 'disabled') {
                     <div class="aipkit_autogpt_queue_tools_actions">
                         <button id="aipkit_delete_queue_by_status_btn" class="aipkit_btn aipkit_btn-danger" title="<?php esc_attr_e('Delete filtered items', 'gpt3-ai-content-generator'); ?>">
                             <span class="dashicons dashicons-trash"></span>
-                            <span class="aipkit_autogpt_queue_tools_btn_text"><?php esc_html_e('Delete', 'gpt3-ai-content-generator'); ?></span>
+                            <span class="aipkit_autogpt_queue_tools_btn_text"><?php esc_html_e('Delete filtered items', 'gpt3-ai-content-generator'); ?></span>
                             <span class="aipkit_spinner" style="display:none;"></span>
                         </button>
                     </div>

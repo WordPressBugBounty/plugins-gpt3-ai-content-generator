@@ -15,10 +15,22 @@ if ($aipkit_image_display_settings_id_prefix === '') {
 $aipkit_image_display_settings_render_mode = isset($aipkit_image_display_settings_render_mode)
     ? (string) $aipkit_image_display_settings_render_mode
     : 'both';
-$aipkit_image_display_settings_render_trigger = $aipkit_image_display_settings_render_mode !== 'popover';
-$aipkit_image_display_settings_render_popover = $aipkit_image_display_settings_render_mode !== 'trigger';
+$aipkit_image_display_settings_render_trigger = in_array($aipkit_image_display_settings_render_mode, ['both', 'trigger'], true);
+$aipkit_image_display_settings_render_popover = in_array($aipkit_image_display_settings_render_mode, ['both', 'popover'], true);
+$aipkit_image_display_settings_render_inline = $aipkit_image_display_settings_render_mode === 'inline';
 $aipkit_image_display_settings_autosave_class = !empty($aipkit_image_display_settings_autosave) ? 'aipkit_autosave_trigger' : '';
 $aipkit_image_display_settings_trigger_hidden_attr = !empty($aipkit_image_display_settings_trigger_hidden) ? 'hidden' : '';
+$aipkit_image_display_settings_trigger_label = isset($aipkit_image_display_settings_trigger_label)
+    ? (string) $aipkit_image_display_settings_trigger_label
+    : __('Image settings', 'gpt3-ai-content-generator');
+$aipkit_image_display_settings_popover_title = isset($aipkit_image_display_settings_popover_title)
+    ? (string) $aipkit_image_display_settings_popover_title
+    : __('Image settings', 'gpt3-ai-content-generator');
+$aipkit_image_display_settings_labeled_trigger = !empty($aipkit_image_display_settings_labeled_trigger);
+$aipkit_image_display_settings_excluded_common_fields = isset($aipkit_image_display_settings_excluded_common_fields)
+    && is_array($aipkit_image_display_settings_excluded_common_fields)
+    ? array_map('strval', $aipkit_image_display_settings_excluded_common_fields)
+    : [];
 $aipkit_image_display_settings_placement_extra_class = isset($aipkit_image_display_settings_placement_extra_class)
     ? sanitize_html_class((string) $aipkit_image_display_settings_placement_extra_class)
     : '';
@@ -457,29 +469,58 @@ $aipkit_image_display_settings_provider_fields = [
 <?php if ($aipkit_image_display_settings_render_trigger) : ?>
 <button
     type="button"
-    class="aipkit_cw_settings_icon_trigger"
+    class="aipkit_cw_settings_icon_trigger<?php echo $aipkit_image_display_settings_labeled_trigger ? ' aipkit_cw_settings_icon_trigger--labeled' : ''; ?>"
     id="<?php echo esc_attr($aipkit_image_display_settings_id('image_display_settings_trigger')); ?>"
     data-aipkit-popover-target="<?php echo esc_attr($aipkit_image_display_settings_id('image_display_settings_popover')); ?>"
     data-aipkit-popover-placement="top"
     aria-controls="<?php echo esc_attr($aipkit_image_display_settings_id('image_display_settings_popover')); ?>"
     aria-expanded="false"
-    aria-label="<?php esc_attr_e('Image settings', 'gpt3-ai-content-generator'); ?>"
-    title="<?php esc_attr_e('Image settings', 'gpt3-ai-content-generator'); ?>"
+    aria-label="<?php echo esc_attr($aipkit_image_display_settings_trigger_label); ?>"
+    title="<?php echo esc_attr($aipkit_image_display_settings_trigger_label); ?>"
     <?php echo esc_attr($aipkit_image_display_settings_trigger_hidden_attr); ?>
 >
     <span class="dashicons dashicons-admin-settings" aria-hidden="true"></span>
+    <?php if ($aipkit_image_display_settings_labeled_trigger) : ?>
+        <span class="aipkit_cw_settings_trigger_label"><?php echo esc_html($aipkit_image_display_settings_trigger_label); ?></span>
+    <?php endif; ?>
 </button>
+<?php endif; ?>
+
+<?php if ($aipkit_image_display_settings_render_inline) : ?>
+<div class="aipkit_image_display_settings_inline" data-aipkit-image-inline-settings>
+    <div class="aipkit_popover_options_list">
+        <?php foreach ($aipkit_image_display_settings_fields as $field) : ?>
+            <?php if (in_array((string) ($field['id'] ?? ''), $aipkit_image_display_settings_excluded_common_fields, true)) continue; ?>
+            <?php $aipkit_image_display_settings_row($field); ?>
+        <?php endforeach; ?>
+
+        <div id="<?php echo esc_attr($aipkit_image_display_settings_id('image_provider_options_block')); ?>" hidden>
+            <?php foreach (['openai', 'azure', 'google', 'openrouter', 'xai', 'replicate'] as $provider) : ?>
+                <?php
+                $aipkit_image_display_settings_provider(
+                    $provider . '_options',
+                    $aipkit_image_display_settings_provider_fields[$provider],
+                    ['data-aipkit-image-provider-options' => $provider]
+                );
+                ?>
+            <?php endforeach; ?>
+            <?php $aipkit_image_display_settings_provider('pexels_options', $aipkit_image_display_settings_provider_fields['pexels']); ?>
+            <?php $aipkit_image_display_settings_provider('pixabay_options', $aipkit_image_display_settings_provider_fields['pixabay']); ?>
+        </div>
+    </div>
+</div>
 <?php endif; ?>
 
 <?php if ($aipkit_image_display_settings_render_popover) : ?>
 <div class="aipkit_model_settings_popover aipkit_cw_settings_popover" id="<?php echo esc_attr($aipkit_image_display_settings_id('image_display_settings_popover')); ?>" aria-hidden="true">
-    <div class="aipkit_model_settings_popover_panel aipkit_cw_settings_popover_panel aipkit_cw_image_settings_popover_panel" role="dialog" aria-label="<?php esc_attr_e('Image settings', 'gpt3-ai-content-generator'); ?>">
+    <div class="aipkit_model_settings_popover_panel aipkit_cw_settings_popover_panel aipkit_cw_image_settings_popover_panel" role="dialog" aria-label="<?php echo esc_attr($aipkit_image_display_settings_popover_title); ?>">
         <div class="aipkit_model_settings_popover_header aipkit_cw_settings_sheet_header">
-            <span class="aipkit_model_settings_popover_title"><?php esc_html_e('Image settings', 'gpt3-ai-content-generator'); ?></span>
+            <span class="aipkit_model_settings_popover_title"><?php echo esc_html($aipkit_image_display_settings_popover_title); ?></span>
         </div>
         <div class="aipkit_model_settings_popover_body aipkit_cw_settings_popover_body aipkit_cw_settings_sheet_body">
             <div class="aipkit_popover_options_list">
                 <?php foreach ($aipkit_image_display_settings_fields as $field) : ?>
+                    <?php if (in_array((string) ($field['id'] ?? ''), $aipkit_image_display_settings_excluded_common_fields, true)) continue; ?>
                     <?php $aipkit_image_display_settings_row($field); ?>
                 <?php endforeach; ?>
 

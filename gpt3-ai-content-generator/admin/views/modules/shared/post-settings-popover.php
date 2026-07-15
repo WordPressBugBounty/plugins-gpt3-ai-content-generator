@@ -6,6 +6,8 @@ if (!defined('ABSPATH')) {
 // phpcs:disable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- Shared template variables are configured by wrapper partials.
 $aipkit_post_settings_post_type_helper = $aipkit_post_settings_post_type_helper ?? __('Choose post type.', 'gpt3-ai-content-generator');
 $aipkit_post_settings_include_author_login_attr = !empty($aipkit_post_settings_include_author_login_attr);
+$aipkit_post_settings_include_seo_options = !isset($aipkit_post_settings_include_seo_options)
+    || (bool) $aipkit_post_settings_include_seo_options;
 ?>
 
 <div class="aipkit_model_settings_popover_header aipkit_cw_settings_sheet_header">
@@ -121,46 +123,48 @@ $aipkit_post_settings_include_author_login_attr = !empty($aipkit_post_settings_i
             </div>
         </div>
 
-        <div class="aipkit_popover_option_row">
-            <div class="aipkit_popover_option_main">
-                <div class="aipkit_cw_settings_option_text">
-                    <label class="aipkit_popover_option_label" for="<?php echo esc_attr($aipkit_post_settings_toc_id); ?>">
-                        <?php esc_html_e('Table of Contents', 'gpt3-ai-content-generator'); ?>
-                    </label>
-                    <span class="aipkit_popover_option_helper">
-                        <?php esc_html_e('Add navigation at the beginning.', 'gpt3-ai-content-generator'); ?>
-                    </span>
+        <?php if ($aipkit_post_settings_include_seo_options) : ?>
+            <div class="aipkit_popover_option_row">
+                <div class="aipkit_popover_option_main">
+                    <div class="aipkit_cw_settings_option_text">
+                        <label class="aipkit_popover_option_label" for="<?php echo esc_attr($aipkit_post_settings_toc_id); ?>">
+                            <?php esc_html_e('Table of Contents', 'gpt3-ai-content-generator'); ?>
+                        </label>
+                        <span class="aipkit_popover_option_helper">
+                            <?php esc_html_e('Add navigation at the beginning.', 'gpt3-ai-content-generator'); ?>
+                        </span>
+                    </div>
+                    <select
+                        id="<?php echo esc_attr($aipkit_post_settings_toc_id); ?>"
+                        name="generate_toc"
+                        class="aipkit_post_settings_select aipkit_form-input aipkit_autosave_trigger aipkit_popover_option_select aipkit_popover_option_select--fit aipkit_cw_blended_chevron_select"
+                    >
+                        <option value="1"><?php esc_html_e('Yes', 'gpt3-ai-content-generator'); ?></option>
+                        <option value="0" selected><?php esc_html_e('No', 'gpt3-ai-content-generator'); ?></option>
+                    </select>
                 </div>
-                <select
-                    id="<?php echo esc_attr($aipkit_post_settings_toc_id); ?>"
-                    name="generate_toc"
-                    class="aipkit_post_settings_select aipkit_form-input aipkit_autosave_trigger aipkit_popover_option_select aipkit_popover_option_select--fit aipkit_cw_blended_chevron_select"
-                >
-                    <option value="1"><?php esc_html_e('Yes', 'gpt3-ai-content-generator'); ?></option>
-                    <option value="0" selected><?php esc_html_e('No', 'gpt3-ai-content-generator'); ?></option>
-                </select>
             </div>
-        </div>
 
-        <div class="aipkit_popover_option_row">
-            <div class="aipkit_popover_option_main">
-                <div class="aipkit_cw_settings_option_text">
-                    <label class="aipkit_popover_option_label" for="<?php echo esc_attr($aipkit_post_settings_slug_id); ?>">
-                        <?php esc_html_e('Optimize URL', 'gpt3-ai-content-generator'); ?>
-                    </label>
-                    <span class="aipkit_popover_option_helper">
-                        <?php esc_html_e('Generate an SEO-friendly slug.', 'gpt3-ai-content-generator'); ?>
-                    </span>
+            <div class="aipkit_popover_option_row">
+                <div class="aipkit_popover_option_main">
+                    <div class="aipkit_cw_settings_option_text">
+                        <label class="aipkit_popover_option_label" for="<?php echo esc_attr($aipkit_post_settings_slug_id); ?>">
+                            <?php esc_html_e('Optimize URL', 'gpt3-ai-content-generator'); ?>
+                        </label>
+                        <span class="aipkit_popover_option_helper">
+                            <?php esc_html_e('Generate an SEO-friendly slug.', 'gpt3-ai-content-generator'); ?>
+                        </span>
+                    </div>
+                    <select
+                        id="<?php echo esc_attr($aipkit_post_settings_slug_id); ?>"
+                        name="generate_seo_slug"
+                        class="aipkit_post_settings_select aipkit_form-input aipkit_autosave_trigger aipkit_popover_option_select aipkit_popover_option_select--fit aipkit_cw_blended_chevron_select"
+                    >
+                        <option value="1"><?php esc_html_e('Yes', 'gpt3-ai-content-generator'); ?></option>
+                        <option value="0" selected><?php esc_html_e('No', 'gpt3-ai-content-generator'); ?></option>
+                    </select>
                 </div>
-                <select
-                    id="<?php echo esc_attr($aipkit_post_settings_slug_id); ?>"
-                    name="generate_seo_slug"
-                    class="aipkit_post_settings_select aipkit_form-input aipkit_autosave_trigger aipkit_popover_option_select aipkit_popover_option_select--fit aipkit_cw_blended_chevron_select"
-                >
-                    <option value="1"><?php esc_html_e('Yes', 'gpt3-ai-content-generator'); ?></option>
-                    <option value="0" selected><?php esc_html_e('No', 'gpt3-ai-content-generator'); ?></option>
-                </select>
             </div>
-        </div>
+        <?php endif; ?>
     </div>
 </div>

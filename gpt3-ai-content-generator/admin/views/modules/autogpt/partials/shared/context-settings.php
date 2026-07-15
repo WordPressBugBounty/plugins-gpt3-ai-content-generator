@@ -52,8 +52,6 @@ $aipkit_autogpt_context_openai_select_id = $aipkit_autogpt_context_base . '_open
 $aipkit_autogpt_context_pinecone_select_id = $aipkit_autogpt_context_base . '_pinecone_index_name';
 $aipkit_autogpt_context_qdrant_select_id = $aipkit_autogpt_context_base . '_qdrant_collection_name';
 $aipkit_autogpt_context_chroma_select_id = $aipkit_autogpt_context_base . '_chroma_collection_name';
-$aipkit_autogpt_context_settings_trigger_id = $aipkit_autogpt_context_base . '_kb_settings_trigger';
-$aipkit_autogpt_context_settings_popover_id = $aipkit_autogpt_context_base . '_kb_settings_popover';
 $aipkit_autogpt_context_embedding_section_id = $aipkit_autogpt_context_base . '_kb_embedding_section';
 $aipkit_autogpt_context_embedding_provider_id = $aipkit_autogpt_context_base . '_vector_embedding_provider';
 $aipkit_autogpt_context_embedding_model_id = $aipkit_autogpt_context_base . '_vector_embedding_model';
@@ -79,9 +77,9 @@ $aipkit_autogpt_context_autosave_class = $aipkit_autogpt_context_use_autosave ? 
         value="openai"
     >
 
-    <div class="aipkit_cw_kb_row aipkit_cw_kb_row--mode">
-        <label class="aipkit_cw_panel_label" for="<?php echo esc_attr($aipkit_autogpt_context_mode_control_id); ?>">
-            <?php esc_html_e('Context', 'gpt3-ai-content-generator'); ?>
+    <div class="aipkit_cw_kb_row aipkit_autogpt_question_row aipkit_cw_kb_row--mode">
+        <label class="aipkit_cw_panel_label aipkit_autogpt_question" for="<?php echo esc_attr($aipkit_autogpt_context_mode_control_id); ?>">
+            <?php esc_html_e('Knowledge source', 'gpt3-ai-content-generator'); ?>
         </label>
         <div class="aipkit_cw_kb_control">
             <select
@@ -97,13 +95,13 @@ $aipkit_autogpt_context_autosave_class = $aipkit_autogpt_context_use_autosave ? 
         </div>
     </div>
 
-    <div class="aipkit_cw_kb_row aipkit_cw_kb_row--source" id="<?php echo esc_attr($aipkit_autogpt_context_source_row_id); ?>" hidden>
+    <div class="aipkit_cw_kb_row aipkit_autogpt_question_row aipkit_cw_kb_row--source" id="<?php echo esc_attr($aipkit_autogpt_context_source_row_id); ?>" hidden>
         <label
-            class="aipkit_cw_panel_label"
+            class="aipkit_cw_panel_label aipkit_autogpt_question"
             id="<?php echo esc_attr($aipkit_autogpt_context_source_label_id); ?>"
             for="<?php echo esc_attr($aipkit_autogpt_context_openai_select_id); ?>"
         >
-            <?php esc_html_e('Source', 'gpt3-ai-content-generator'); ?>
+            <?php esc_html_e('Vector stores', 'gpt3-ai-content-generator'); ?>
         </label>
         <div class="aipkit_cw_kb_control aipkit_cw_kb_control--selection">
             <div class="aipkit_cw_kb_selection_inline">
@@ -232,127 +230,146 @@ $aipkit_autogpt_context_autosave_class = $aipkit_autogpt_context_use_autosave ? 
                         </select>
                     </div>
                 </div>
-
-                <button
-                    type="button"
-                    class="aipkit_cw_settings_icon_trigger"
-                    id="<?php echo esc_attr($aipkit_autogpt_context_settings_trigger_id); ?>"
-                    data-aipkit-popover-target="<?php echo esc_attr($aipkit_autogpt_context_settings_popover_id); ?>"
-                    data-aipkit-popover-placement="left"
-                    aria-controls="<?php echo esc_attr($aipkit_autogpt_context_settings_popover_id); ?>"
-                    aria-expanded="false"
-                    aria-label="<?php esc_attr_e('Context settings', 'gpt3-ai-content-generator'); ?>"
-                    title="<?php esc_attr_e('Context settings', 'gpt3-ai-content-generator'); ?>"
-                >
-                    <span class="dashicons dashicons-admin-settings" aria-hidden="true"></span>
-                </button>
             </div>
         </div>
     </div>
-</div>
 
-<div class="aipkit_model_settings_popover aipkit_cw_settings_popover" id="<?php echo esc_attr($aipkit_autogpt_context_settings_popover_id); ?>" aria-hidden="true">
-    <div class="aipkit_model_settings_popover_panel aipkit_cw_settings_popover_panel aipkit_cw_kb_settings_popover_panel" role="dialog" aria-label="<?php esc_attr_e('Context settings', 'gpt3-ai-content-generator'); ?>">
-        <div class="aipkit_model_settings_popover_header aipkit_cw_settings_sheet_header">
-            <span class="aipkit_model_settings_popover_title"><?php esc_html_e('Context settings', 'gpt3-ai-content-generator'); ?></span>
-        </div>
-        <div class="aipkit_model_settings_popover_body aipkit_cw_settings_popover_body aipkit_cw_settings_sheet_body">
-            <div class="aipkit_popover_options_list">
-                <div id="<?php echo esc_attr($aipkit_autogpt_context_embedding_section_id); ?>" hidden>
-                    <div class="aipkit_popover_option_row aipkit_popover_option_row--force-divider">
-                        <div class="aipkit_popover_option_main">
-                            <div class="aipkit_cw_settings_option_text">
-                                <label class="aipkit_popover_option_label" for="<?php echo esc_attr($aipkit_autogpt_context_embedding_provider_id); ?>">
-                                    <?php esc_html_e('Embedding Provider', 'gpt3-ai-content-generator'); ?>
-                                </label>
-                                <span class="aipkit_popover_option_helper">
-                                    <?php esc_html_e('Provider for embeddings.', 'gpt3-ai-content-generator'); ?>
-                                </span>
-                            </div>
-                            <select
-                                id="<?php echo esc_attr($aipkit_autogpt_context_embedding_provider_id); ?>"
-                                name="<?php echo esc_attr($aipkit_autogpt_context_name_prefix . 'vector_embedding_provider'); ?>"
-                                class="<?php echo esc_attr('aipkit_popover_option_select aipkit_popover_option_select--fit aipkit_cw_blended_chevron_select' . $aipkit_autogpt_context_autosave_class); ?>"
-                            >
-                                <?php foreach ($embedding_provider_options as $provider_key => $provider_label) : ?>
-                                    <option value="<?php echo esc_attr($provider_key); ?>" <?php selected($provider_key, $default_embedding_provider_key); ?>>
-                                        <?php echo esc_html($provider_label); ?>
-                                    </option>
-                                <?php endforeach; ?>
-                            </select>
-                        </div>
-                    </div>
+    <div class="aipkit_cw_kb_inline_settings" data-aipkit-kb-inline-settings hidden>
+        <div class="aipkit_cw_kb_inline_rows">
+            <div id="<?php echo esc_attr($aipkit_autogpt_context_embedding_section_id); ?>" hidden>
+                    <select
+                        id="<?php echo esc_attr($aipkit_autogpt_context_embedding_provider_id); ?>"
+                        name="<?php echo esc_attr($aipkit_autogpt_context_name_prefix . 'vector_embedding_provider'); ?>"
+                        class="<?php echo esc_attr(ltrim($aipkit_autogpt_context_autosave_class)); ?>"
+                        hidden
+                        aria-hidden="true"
+                        tabindex="-1"
+                    >
+                        <?php foreach ($embedding_provider_options as $provider_key => $provider_label) : ?>
+                            <option value="<?php echo esc_attr($provider_key); ?>" <?php selected($provider_key, $default_embedding_provider_key); ?>>
+                                <?php echo esc_html($provider_label); ?>
+                            </option>
+                        <?php endforeach; ?>
+                    </select>
 
                     <div class="aipkit_popover_option_row aipkit_popover_option_row--force-divider">
                         <div class="aipkit_popover_option_main">
                             <div class="aipkit_cw_settings_option_text">
-                                <label class="aipkit_popover_option_label" for="<?php echo esc_attr($aipkit_autogpt_context_embedding_model_id); ?>">
-                                    <?php esc_html_e('Embedding Model', 'gpt3-ai-content-generator'); ?>
+                                <label class="aipkit_popover_option_label" for="<?php echo esc_attr($aipkit_autogpt_context_embedding_model_id . '_trigger'); ?>">
+                                    <?php esc_html_e('Embedding model', 'gpt3-ai-content-generator'); ?>
                                 </label>
                                 <span class="aipkit_popover_option_helper">
-                                    <?php esc_html_e('Model for embeddings.', 'gpt3-ai-content-generator'); ?>
+                                    <?php esc_html_e('Provider and model for embeddings.', 'gpt3-ai-content-generator'); ?>
                                 </span>
                             </div>
                             <select
                                 id="<?php echo esc_attr($aipkit_autogpt_context_embedding_model_id); ?>"
                                 name="<?php echo esc_attr($aipkit_autogpt_context_name_prefix . 'vector_embedding_model'); ?>"
-                                class="<?php echo esc_attr('aipkit_popover_option_select aipkit_popover_option_select--fit aipkit_cw_blended_chevron_select' . $aipkit_autogpt_context_autosave_class); ?>"
+                                class="<?php echo esc_attr(ltrim($aipkit_autogpt_context_autosave_class)); ?>"
+                                data-aipkit-unified-model-source
+                                hidden
+                                aria-hidden="true"
+                                tabindex="-1"
                                 disabled
                             >
                                 <option value=""><?php esc_html_e('Select provider first', 'gpt3-ai-content-generator'); ?></option>
                             </select>
+                            <?php
+                            $aipkit_unified_model_selector_config = [
+                                'trigger_id' => $aipkit_autogpt_context_embedding_model_id . '_trigger',
+                                'source_id' => $aipkit_autogpt_context_embedding_model_id,
+                                'initial_label' => __('Select provider first', 'gpt3-ai-content-generator'),
+                                'class_name' => 'aipkit_autogpt_unified_model_selector aipkit_autogpt_unified_model_selector--compact',
+                                'search_placeholder' => __('Search embedding models...', 'gpt3-ai-content-generator'),
+                                'empty_text' => __('No embedding models found', 'gpt3-ai-content-generator'),
+                            ];
+                            include dirname(__DIR__, 3) . '/shared/unified-model-selector.php';
+                            ?>
                         </div>
                     </div>
-                </div>
+            </div>
 
-                <div class="aipkit_popover_option_row">
+            <div class="aipkit_popover_option_row">
                     <div class="aipkit_popover_option_main">
                         <div class="aipkit_cw_settings_option_text">
                             <label class="aipkit_popover_option_label" for="<?php echo esc_attr($aipkit_autogpt_context_top_k_id); ?>">
-                                <?php esc_html_e('Results Limit', 'gpt3-ai-content-generator'); ?>
+                                <?php esc_html_e('Results limit', 'gpt3-ai-content-generator'); ?>
                             </label>
                             <span class="aipkit_popover_option_helper">
                                 <?php esc_html_e('How many matches to use.', 'gpt3-ai-content-generator'); ?>
                             </span>
                         </div>
-                        <input
-                            type="number"
-                            id="<?php echo esc_attr($aipkit_autogpt_context_top_k_id); ?>"
-                            name="<?php echo esc_attr($aipkit_autogpt_context_name_prefix . 'vector_store_top_k'); ?>"
-                            class="<?php echo esc_attr('aipkit_form-input aipkit_popover_option_input aipkit_popover_option_input--compact' . $aipkit_autogpt_context_autosave_class); ?>"
-                            value="<?php echo esc_attr($aipkit_autogpt_context_top_k_default); ?>"
-                            min="1"
-                            max="20"
-                            step="1"
-                        >
+                        <span class="aipkit_cw_kb_number_control aipkit_autogpt_result_limit_control">
+                            <button
+                                type="button"
+                                data-aipkit-result-limit-step="-1"
+                                aria-label="<?php esc_attr_e('Use fewer results', 'gpt3-ai-content-generator'); ?>"
+                            >−</button>
+                            <input
+                                type="number"
+                                id="<?php echo esc_attr($aipkit_autogpt_context_top_k_id); ?>"
+                                name="<?php echo esc_attr($aipkit_autogpt_context_name_prefix . 'vector_store_top_k'); ?>"
+                                class="<?php echo esc_attr('aipkit_form-input aipkit_popover_option_input aipkit_popover_option_input--compact' . $aipkit_autogpt_context_autosave_class); ?>"
+                                data-aipkit-result-limit-input
+                                value="<?php echo esc_attr($aipkit_autogpt_context_top_k_default); ?>"
+                                min="1"
+                                max="20"
+                                step="1"
+                            >
+                            <button
+                                type="button"
+                                data-aipkit-result-limit-step="1"
+                                aria-label="<?php esc_attr_e('Use more results', 'gpt3-ai-content-generator'); ?>"
+                            >+</button>
+                        </span>
                     </div>
-                </div>
+            </div>
 
-                <?php if ($aipkit_autogpt_context_show_confidence) : ?>
-                    <div class="aipkit_popover_option_row">
+            <?php if ($aipkit_autogpt_context_show_confidence) : ?>
+                <div class="aipkit_popover_option_row">
                         <div class="aipkit_popover_option_main">
                             <div class="aipkit_cw_settings_option_text">
                                 <label class="aipkit_popover_option_label" for="<?php echo esc_attr($aipkit_autogpt_context_confidence_id); ?>">
-                                    <?php esc_html_e('Confidence Threshold', 'gpt3-ai-content-generator'); ?>
+                                    <?php esc_html_e('Confidence threshold', 'gpt3-ai-content-generator'); ?>
                                 </label>
                                 <span class="aipkit_popover_option_helper">
                                     <?php esc_html_e('Minimum confidence to include.', 'gpt3-ai-content-generator'); ?>
                                 </span>
                             </div>
-                            <input
-                                type="number"
-                                id="<?php echo esc_attr($aipkit_autogpt_context_confidence_id); ?>"
-                                name="<?php echo esc_attr($aipkit_autogpt_context_name_prefix . 'vector_store_confidence_threshold'); ?>"
-                                class="<?php echo esc_attr('aipkit_form-input aipkit_popover_option_input aipkit_popover_option_input--compact' . $aipkit_autogpt_context_autosave_class); ?>"
-                                value="<?php echo esc_attr($aipkit_autogpt_context_confidence_default); ?>"
-                                min="0"
-                                max="100"
-                                step="1"
-                            >
+                            <div class="aipkit_autogpt_confidence_control">
+                                <div class="aipkit_autogpt_confidence_header" aria-hidden="true">
+                                    <span><?php esc_html_e('Broader', 'gpt3-ai-content-generator'); ?></span>
+                                    <output
+                                        id="<?php echo esc_attr($aipkit_autogpt_context_confidence_id . '_value'); ?>"
+                                        class="aipkit_autogpt_confidence_value"
+                                        for="<?php echo esc_attr($aipkit_autogpt_context_confidence_id); ?>"
+                                        data-aipkit-confidence-value
+                                    ><?php echo esc_html($aipkit_autogpt_context_confidence_default); ?>%</output>
+                                    <span><?php esc_html_e('Stricter', 'gpt3-ai-content-generator'); ?></span>
+                                </div>
+                                <input
+                                    type="range"
+                                    id="<?php echo esc_attr($aipkit_autogpt_context_confidence_id); ?>"
+                                    name="<?php echo esc_attr($aipkit_autogpt_context_name_prefix . 'vector_store_confidence_threshold'); ?>"
+                                    class="<?php echo esc_attr('aipkit_form-input aipkit_autogpt_confidence_slider' . $aipkit_autogpt_context_autosave_class); ?>"
+                                    value="<?php echo esc_attr($aipkit_autogpt_context_confidence_default); ?>"
+                                    min="0"
+                                    max="100"
+                                    step="1"
+                                    data-aipkit-confidence-slider
+                                    data-recommended-value="<?php echo esc_attr($aipkit_autogpt_context_confidence_default); ?>"
+                                >
+                                <p
+                                    class="aipkit_autogpt_confidence_warning"
+                                    data-aipkit-confidence-warning
+                                    role="status"
+                                    aria-live="polite"
+                                    hidden
+                                ></p>
+                            </div>
                         </div>
-                    </div>
-                <?php endif; ?>
-            </div>
+                </div>
+            <?php endif; ?>
         </div>
     </div>
 </div>

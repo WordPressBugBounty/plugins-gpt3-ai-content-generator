@@ -18,17 +18,20 @@ if (!empty($is_pro) && file_exists($aipkit_premium_partial)) {
 
 $aipkit_feature_promo_class = 'aipkit_feature_promo--content-enhance';
 $aipkit_feature_promo_dashicon = 'dashicons-update';
-$aipkit_feature_promo_title = __('Bulk Content Enhancement', 'gpt3-ai-content-generator');
-$aipkit_feature_promo_subtitle = __('Automatically refresh and improve your existing posts with AI — at scale.', 'gpt3-ai-content-generator');
+$aipkit_feature_promo_title = __('Rewrite existing content', 'gpt3-ai-content-generator');
+$aipkit_feature_promo_subtitle = __('Refresh and improve existing WordPress content automatically.', 'gpt3-ai-content-generator');
 $aipkit_feature_promo_steps = [
-    __('Select posts to update', 'gpt3-ai-content-generator'),
-    __('AI enhances content', 'gpt3-ai-content-generator'),
-    __('Posts updated automatically', 'gpt3-ai-content-generator'),
+    __('Choose existing posts', 'gpt3-ai-content-generator'),
+    __('AI rewrites the content', 'gpt3-ai-content-generator'),
+    __('Update automatically', 'gpt3-ai-content-generator'),
 ];
 $aipkit_feature_promo_cards = [
-    ['icon' => '✏', 'color' => '#2563eb', 'label' => __('Rewrite & Polish', 'gpt3-ai-content-generator')],
-    ['icon' => '⚙', 'color' => '#16a34a', 'label' => __('Custom Prompts', 'gpt3-ai-content-generator')],
-    ['icon' => '⚡', 'color' => '#9333ea', 'label' => __('Bulk Processing', 'gpt3-ai-content-generator')],
+    ['dashicon' => 'dashicons-edit', 'label' => __('Rewrite and polish', 'gpt3-ai-content-generator')],
+    ['dashicon' => 'dashicons-admin-generic', 'label' => __('Custom instructions', 'gpt3-ai-content-generator')],
+    ['dashicon' => 'dashicons-update', 'label' => __('Bulk processing', 'gpt3-ai-content-generator')],
 ];
 $aipkit_feature_promo_upgrade_url = function_exists('wpaicg_gacg_fs') ? wpaicg_gacg_fs()->get_upgrade_url() : '#';
+$aipkit_feature_promo_compact = true;
+$aipkit_feature_promo_show_pro_badge = true;
+$aipkit_feature_promo_upgrade_label = __('Upgrade to Pro', 'gpt3-ai-content-generator');
 include WPAICG_PLUGIN_DIR . 'admin/views/modules/shared/feature-promo.php';

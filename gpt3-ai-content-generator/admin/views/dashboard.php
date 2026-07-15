@@ -27,7 +27,7 @@ $nav_modules = array(
     ),
     'autogpt' => array(
         'label'       => __('Automations', 'gpt3-ai-content-generator'),
-        'icon'        => 'airplane',
+        'icon_text'   => '⚡︎',
         'data_module' => 'autogpt',
     ),
     'ai_forms' => array(
@@ -200,7 +200,11 @@ if ($visible_nav_module_count === 0) {
                             tabindex="-1"
                         <?php endif; ?>
                     >
-                        <span class="dashicons dashicons-<?php echo esc_attr($module['icon']); ?>" aria-hidden="true"></span>
+                        <?php if (!empty($module['icon_text'])): ?>
+                            <span class="aipkit_module-tab_icon-glyph" aria-hidden="true"><?php echo esc_html($module['icon_text']); ?></span>
+                        <?php else: ?>
+                            <span class="dashicons dashicons-<?php echo esc_attr($module['icon']); ?>" aria-hidden="true"></span>
+                        <?php endif; ?>
                         <span class="aipkit_module-tab_label"><?php echo esc_html($module['label']); ?></span>
                     </a>
                 <?php endforeach; ?>
@@ -289,17 +293,23 @@ $is_pro_plan_for_modal = class_exists('\\WPAICG\\aipkit_dashboard') ? \WPAICG\ai
 if (!$is_pro_plan_for_modal && AIPKit_Role_Manager::user_can_manage_settings()):
     $upgrade_url = function_exists('wpaicg_gacg_fs') ? wpaicg_gacg_fs()->get_upgrade_url() : admin_url('admin.php?page=wpaicg-pricing');
 ?>
-<div class="aipkit_upgrade_modal" id="aipkit_upgradeModal">
+<div
+    class="aipkit_upgrade_modal"
+    id="aipkit_upgradeModal"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="aipkit_upgradeModalTitle"
+>
     <div class="aipkit_modal_backdrop" data-close-modal></div>
     <div class="aipkit_modal aipkit_upgrade_modal_content">
         <div class="aipkit_modal_header">
-            <h2 class="aipkit_modal_title">
+            <h2 class="aipkit_modal_title" id="aipkit_upgradeModalTitle">
                 <span class="aipkit_upgrade_modal_icon">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
                     </svg>
                 </span>
-                <?php esc_html_e('Unlock Pro Features', 'gpt3-ai-content-generator'); ?>
+                <?php esc_html_e('Unlock Pro features', 'gpt3-ai-content-generator'); ?>
             </h2>
             <button type="button" class="aipkit_modal_close" data-close-modal aria-label="<?php esc_attr_e('Close', 'gpt3-ai-content-generator'); ?>">
                 <span class="dashicons dashicons-no-alt"></span>
@@ -312,16 +322,14 @@ if (!$is_pro_plan_for_modal && AIPKit_Role_Manager::user_can_manage_settings()):
                         <h3 class="aipkit_plan_name"><?php esc_html_e('Free', 'gpt3-ai-content-generator'); ?></h3>
                         <span class="aipkit_plan_badge aipkit_plan_badge--current"><?php esc_html_e('Current', 'gpt3-ai-content-generator'); ?></span>
                     </div>
-                    <ul class="aipkit_plan_features">
-                        <li><span class="dashicons dashicons-yes-alt"></span><?php esc_html_e('Chatbot', 'gpt3-ai-content-generator'); ?></li>
-                        <li><span class="dashicons dashicons-yes-alt"></span><?php esc_html_e('Content Writer', 'gpt3-ai-content-generator'); ?></li>
-                        <li><span class="dashicons dashicons-yes-alt"></span><?php esc_html_e('Image Generator', 'gpt3-ai-content-generator'); ?></li>
-                        <li><span class="dashicons dashicons-yes-alt"></span><?php esc_html_e('AI Forms', 'gpt3-ai-content-generator'); ?></li>
-                        <li><span class="dashicons dashicons-yes-alt"></span><?php esc_html_e('WooCommerce Writer', 'gpt3-ai-content-generator'); ?></li>
-                        <li><span class="dashicons dashicons-yes-alt"></span><?php esc_html_e('Knowledge Base', 'gpt3-ai-content-generator'); ?></li>
-                        <li><span class="dashicons dashicons-yes-alt"></span><?php esc_html_e('OpenAI, Google, Azure, and DeepSeek', 'gpt3-ai-content-generator'); ?></li>
-                        <li><span class="dashicons dashicons-yes-alt"></span><?php esc_html_e('Semantic Search & Vector Stores', 'gpt3-ai-content-generator'); ?></li>
-                        <li><span class="dashicons dashicons-yes-alt"></span><?php esc_html_e('Basic Automation Tasks', 'gpt3-ai-content-generator'); ?></li>
+                    <ul class="aipkit_plan_features aipkit_plan_features--free">
+                        <li><?php esc_html_e('Chatbot', 'gpt3-ai-content-generator'); ?></li>
+                        <li><?php esc_html_e('Content writer', 'gpt3-ai-content-generator'); ?></li>
+                        <li><?php esc_html_e('Image generator', 'gpt3-ai-content-generator'); ?></li>
+                        <li><?php esc_html_e('AI forms', 'gpt3-ai-content-generator'); ?></li>
+                        <li><?php esc_html_e('WooCommerce writer', 'gpt3-ai-content-generator'); ?></li>
+                        <li><?php esc_html_e('Knowledge base', 'gpt3-ai-content-generator'); ?></li>
+                        <li><?php esc_html_e('Basic automation', 'gpt3-ai-content-generator'); ?></li>
                     </ul>
                 </div>
 
@@ -335,27 +343,44 @@ if (!$is_pro_plan_for_modal && AIPKit_Role_Manager::user_can_manage_settings()):
                         <span class="aipkit_plan_price_callout_term"><?php esc_html_e('/ month', 'gpt3-ai-content-generator'); ?></span>
                     </div>
                     <a href="<?php echo esc_url($upgrade_url); ?>" class="aipkit_btn aipkit_btn--primary aipkit_btn--upgrade aipkit_plan_cta">
-                        <span class="aipkit_plan_cta_label"><?php esc_html_e('Purchase now', 'gpt3-ai-content-generator'); ?></span>
+                        <span class="aipkit_plan_cta_label"><?php esc_html_e('Upgrade to Pro', 'gpt3-ai-content-generator'); ?></span>
                     </a>
-                    <ul class="aipkit_plan_features">
-                        <li class="aipkit_plan_feature--highlight"><span class="dashicons dashicons-yes-alt"></span><?php esc_html_e('Priority Email Support', 'gpt3-ai-content-generator'); ?></li>
-                        <li class="aipkit_plan_feature--highlight"><span class="dashicons dashicons-yes-alt"></span><?php esc_html_e('Slack, HubSpot, Notion, Pipedrive, Zapier, Make, n8n integrations', 'gpt3-ai-content-generator'); ?></li>
-                        <li class="aipkit_plan_feature--highlight"><span class="dashicons dashicons-yes-alt"></span><?php esc_html_e('Ollama Integration', 'gpt3-ai-content-generator'); ?></li>
-                        <li class="aipkit_plan_feature--highlight"><span class="dashicons dashicons-yes-alt"></span><?php esc_html_e('Chatbot Triggers & Automation', 'gpt3-ai-content-generator'); ?></li>
-                        <li class="aipkit_plan_feature--highlight"><span class="dashicons dashicons-yes-alt"></span><?php esc_html_e('Realtime Voice Agent', 'gpt3-ai-content-generator'); ?></li>
-                        <li class="aipkit_plan_feature--highlight"><span class="dashicons dashicons-yes-alt"></span><?php esc_html_e('File Upload for Context (PDF, TXT)', 'gpt3-ai-content-generator'); ?></li>
-                        <li class="aipkit_plan_feature--highlight"><span class="dashicons dashicons-yes-alt"></span><?php esc_html_e('Embed Chatbot External Sites', 'gpt3-ai-content-generator'); ?></li>
-                        <li class="aipkit_plan_feature--highlight"><span class="dashicons dashicons-yes-alt"></span><?php esc_html_e('PDF Download of Transcripts', 'gpt3-ai-content-generator'); ?></li>
-                        <li class="aipkit_plan_feature--highlight"><span class="dashicons dashicons-yes-alt"></span><?php esc_html_e('Consent Compliance', 'gpt3-ai-content-generator'); ?></li>
-                        <li class="aipkit_plan_feature--highlight"><span class="dashicons dashicons-yes-alt"></span><?php esc_html_e('AI Forms Conditional Steps', 'gpt3-ai-content-generator'); ?></li>
-                        <li class="aipkit_plan_feature--highlight"><span class="dashicons dashicons-yes-alt"></span><?php esc_html_e('Index Custom Post Types', 'gpt3-ai-content-generator'); ?></li>
-                        <li class="aipkit_plan_feature--highlight"><span class="dashicons dashicons-yes-alt"></span><?php esc_html_e('Content Generation via RSS, URL, and Google Sheets', 'gpt3-ai-content-generator'); ?></li>
-                    </ul>
+                    <p class="aipkit_plan_includes"><?php esc_html_e('Everything in Free, plus', 'gpt3-ai-content-generator'); ?></p>
+                    <div class="aipkit_plan_feature_groups">
+                        <div class="aipkit_plan_feature_group">
+                            <h4><?php esc_html_e('Integrations', 'gpt3-ai-content-generator'); ?></h4>
+                            <ul class="aipkit_plan_features aipkit_plan_features--pro">
+                                <li><span class="dashicons dashicons-yes" aria-hidden="true"></span><?php esc_html_e('Slack, HubSpot, Notion, and Pipedrive', 'gpt3-ai-content-generator'); ?></li>
+                                <li><span class="dashicons dashicons-yes" aria-hidden="true"></span><?php esc_html_e('Zapier, Make, and n8n', 'gpt3-ai-content-generator'); ?></li>
+                                <li><span class="dashicons dashicons-yes" aria-hidden="true"></span><?php esc_html_e('Ollama integration', 'gpt3-ai-content-generator'); ?></li>
+                            </ul>
+                        </div>
+                        <div class="aipkit_plan_feature_group">
+                            <h4><?php esc_html_e('Chatbot and voice', 'gpt3-ai-content-generator'); ?></h4>
+                            <ul class="aipkit_plan_features aipkit_plan_features--pro">
+                                <li><span class="dashicons dashicons-yes" aria-hidden="true"></span><?php esc_html_e('Triggers and automation', 'gpt3-ai-content-generator'); ?></li>
+                                <li><span class="dashicons dashicons-yes" aria-hidden="true"></span><?php esc_html_e('Realtime voice agent', 'gpt3-ai-content-generator'); ?></li>
+                                <li><span class="dashicons dashicons-yes" aria-hidden="true"></span><?php esc_html_e('File context (PDF and TXT)', 'gpt3-ai-content-generator'); ?></li>
+                                <li><span class="dashicons dashicons-yes" aria-hidden="true"></span><?php esc_html_e('Embed on external sites', 'gpt3-ai-content-generator'); ?></li>
+                                <li><span class="dashicons dashicons-yes" aria-hidden="true"></span><?php esc_html_e('PDF transcripts', 'gpt3-ai-content-generator'); ?></li>
+                            </ul>
+                        </div>
+                        <div class="aipkit_plan_feature_group">
+                            <h4><?php esc_html_e('Content and admin', 'gpt3-ai-content-generator'); ?></h4>
+                            <ul class="aipkit_plan_features aipkit_plan_features--pro">
+                                <li><span class="dashicons dashicons-yes" aria-hidden="true"></span><?php esc_html_e('RSS, URL, and Google Sheets', 'gpt3-ai-content-generator'); ?></li>
+                                <li><span class="dashicons dashicons-yes" aria-hidden="true"></span><?php esc_html_e('Custom post types', 'gpt3-ai-content-generator'); ?></li>
+                                <li><span class="dashicons dashicons-yes" aria-hidden="true"></span><?php esc_html_e('Conditional AI forms', 'gpt3-ai-content-generator'); ?></li>
+                                <li><span class="dashicons dashicons-yes" aria-hidden="true"></span><?php esc_html_e('Consent compliance', 'gpt3-ai-content-generator'); ?></li>
+                                <li><span class="dashicons dashicons-yes" aria-hidden="true"></span><?php esc_html_e('Priority email support', 'gpt3-ai-content-generator'); ?></li>
+                            </ul>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
         <p class="aipkit_upgrade_modal_footer_note">
-            <?php esc_html_e('Purchasing our plugin does not provide any API credits. It only unlocks the Pro features.', 'gpt3-ai-content-generator'); ?>
+            <?php esc_html_e('Purchasing does not include API credits. It only unlocks Pro features.', 'gpt3-ai-content-generator'); ?>
         </p>
     </div>
 </div>

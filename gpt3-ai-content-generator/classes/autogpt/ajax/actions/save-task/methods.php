@@ -23,6 +23,170 @@ if (!defined('ABSPATH')) {
 require_once WPAICG_PLUGIN_DIR . 'classes/autogpt/helpers/task-type-access.php';
 
 /**
+ * Checks whether manual content-writing input contains at least one real topic.
+ *
+ * Manual rows can include pipe-separated metadata after the topic:
+ * topic | keywords | category | author | post type | schedule.
+ * Only the first column should count as the required topic input.
+ *
+ * @param string $value Raw manual topic input.
+ * @return bool True when at least one line has a non-empty topic.
+ */
+function content_writing_has_manual_topic(string $value): bool
+{
+    $lines = preg_split('/\r?\n/', trim($value));
+    if (!is_array($lines)) {
+        return false;
+    }
+
+    foreach ($lines as $line) {
+        $parts = array_map('trim', explode('|', (string) $line));
+        if (($parts[0] ?? '') !== '') {
+            return true;
+        }
+    }
+
+    return false;
+}
+
+/**
+ * Checks whether the settings required by a provider are present.
+ *
+ * This is intentionally a local setup check, not a remote credential test.
+ *
+ * @param string $provider_key Normalized provider key.
+ * @return bool|null True/false for known providers, null for unknown providers.
+ */
+function provider_setup_is_present(string $provider_key): ?bool
+{
+    if (!class_exists(AIPKit_Providers::class)) {
+        return null;
+    }
+
+    $provider_key = strtolower(sanitize_key($provider_key));
+    $provider_names = [
+        'openai' => 'OpenAI',
+        'google' => 'Google',
+        'claude' => 'Claude',
+        'openrouter' => 'OpenRouter',
+        'azure' => 'Azure',
+        'ollama' => 'Ollama',
+        'deepseek' => 'DeepSeek',
+        'xai' => 'xAI',
+        'replicate' => 'Replicate',
+        'pexels' => 'Pexels',
+        'pixabay' => 'Pixabay',
+        'pinecone' => 'Pinecone',
+        'qdrant' => 'Qdrant',
+        'chroma' => 'Chroma',
+    ];
+    if (!isset($provider_names[$provider_key])) {
+        return null;
+    }
+
+    $data = AIPKit_Providers::get_provider_data($provider_names[$provider_key]);
+    if ($provider_key === 'azure') {
+        return !empty($data['api_key']) && !empty($data['endpoint']);
+    }
+    if ($provider_key === 'ollama') {
+        return !empty($data['base_url']);
+    }
+    if ($provider_key === 'qdrant') {
+        return !empty($data['api_key']) && !empty($data['url']);
+    }
+    if ($provider_key === 'chroma') {
+        return !empty($data['url']);
+    }
+
+    return !empty($data['api_key']);
+}
+
+/**
+ * Returns a save-time setup error for a provider, if one is known to be missing.
+ *
+ * @param string $provider_key Provider key from the request.
+ * @return WP_Error|null Error when setup is missing; otherwise null.
+ */
+function provider_setup_error(string $provider_key): ?WP_Error
+{
+    $provider_key = strtolower(sanitize_key($provider_key));
+    if ($provider_key === '' || provider_setup_is_present($provider_key) !== false) {
+        return null;
+    }
+
+    $labels = [
+        'openai' => 'OpenAI', 'google' => 'Google', 'claude' => 'Anthropic',
+        'openrouter' => 'OpenRouter', 'azure' => 'Azure', 'ollama' => 'Ollama',
+        'deepseek' => 'DeepSeek', 'xai' => 'xAI', 'replicate' => 'Replicate',
+        'pexels' => 'Pexels', 'pixabay' => 'Pixabay', 'pinecone' => 'Pinecone',
+        'qdrant' => 'Qdrant', 'chroma' => 'Chroma',
+    ];
+    $label = $labels[$provider_key] ?? ucfirst($provider_key);
+
+    return new WP_Error(
+        'provider_setup_required',
+        sprintf(
+            /* translators: %s: provider name. */
+            __('Set up %s before using it in this automation.', 'gpt3-ai-content-generator'),
+            $label
+        ),
+        ['status' => 400, 'provider' => $provider_key]
+    );
+}
+
+/**
+ * Validates provider setup for the task configuration being saved.
+ *
+ * @param string $task_type Task type.
+ * @param array  $post_data Submitted task data.
+ * @return WP_Error|null Error when a selected provider needs setup.
+ */
+function validate_task_provider_setup(string $task_type, array $post_data): ?WP_Error
+{
+    $providers = [];
+
+    if (strpos($task_type, 'content_writing') === 0) {
+        $providers[] = $post_data['ai_provider'] ?? '';
+        if (($post_data['generate_images_enabled'] ?? '0') === '1' || ($post_data['generate_featured_image'] ?? '0') === '1') {
+            $providers[] = $post_data['image_provider'] ?? '';
+        }
+        if (($post_data['enable_vector_store'] ?? '0') === '1') {
+            $vector_provider = (string) ($post_data['vector_store_provider'] ?? 'openai');
+            $providers[] = $vector_provider;
+            if (in_array(strtolower($vector_provider), ['pinecone', 'qdrant', 'chroma'], true)) {
+                $providers[] = $post_data['vector_embedding_provider'] ?? '';
+            }
+        }
+    } elseif ($task_type === 'enhance_existing_content') {
+        $providers[] = $post_data['ai_provider'] ?? '';
+        if (($post_data['enable_vector_store'] ?? '0') === '1') {
+            $vector_provider = (string) ($post_data['vector_store_provider'] ?? 'openai');
+            $providers[] = $vector_provider;
+            if (in_array(strtolower($vector_provider), ['pinecone', 'qdrant', 'chroma'], true)) {
+                $providers[] = $post_data['vector_embedding_provider'] ?? '';
+            }
+        }
+    } elseif ($task_type === 'community_reply_comments') {
+        $providers[] = $post_data['cc_ai_provider'] ?? '';
+    } elseif ($task_type === 'content_indexing') {
+        $vector_provider = (string) ($post_data['target_store_provider'] ?? 'openai');
+        $providers[] = $vector_provider;
+        if (in_array(strtolower($vector_provider), ['pinecone', 'qdrant', 'chroma'], true)) {
+            $providers[] = $post_data['embedding_provider'] ?? '';
+        }
+    }
+
+    foreach (array_unique(array_filter(array_map('strval', $providers))) as $provider) {
+        $error = provider_setup_error($provider);
+        if (is_wp_error($error)) {
+            return $error;
+        }
+    }
+
+    return null;
+}
+
+/**
 * Validates the AJAX request for saving an automated task.
 *
 * @param AIPKit_Save_Automated_Task_Action $handler The handler instance.
@@ -46,6 +210,10 @@ function validate_task_request_logic(AIPKit_Save_Automated_Task_Action $handler,
     }
     if (Helpers\task_type_requires_pro_plan($task_type) && !Helpers\is_pro_plan_active()) {
         return new WP_Error('task_type_requires_pro_plan', __('This is a Pro feature.', 'gpt3-ai-content-generator'), ['status' => 403]);
+    }
+    $provider_setup_error = validate_task_provider_setup($task_type, $post_data);
+    if (is_wp_error($provider_setup_error)) {
+        return $provider_setup_error;
     }
 
     return [
@@ -82,6 +250,9 @@ function build_task_config_indexing_logic(array $post_data)
     }
     if (empty($task_config['target_store_id'])) {
         return new WP_Error('missing_target_store', __('Target vector store/index is required for content indexing.', 'gpt3-ai-content-generator'), ['status' => 400]);
+    }
+    if ($task_config['index_existing_now_flag'] !== '1' && $task_config['only_new_updated_flag'] !== '1') {
+        return new WP_Error('missing_indexing_behavior', __('Choose whether to index existing content, keep future content in sync, or both.', 'gpt3-ai-content-generator'), ['status' => 400]);
     }
 
     if (
@@ -234,11 +405,35 @@ function build_task_config_writing_logic(array $post_data)
             }
         }
 
-        // Handle content_title mapping from bulk field
-        if (!empty($content_writer_config['content_title_bulk'])) {
-            $content_writer_config['content_title'] = $content_writer_config['content_title_bulk'];
-            unset($content_writer_config['content_title_bulk']);
+        $task_type = sanitize_key($post_data['task_type'] ?? 'content_writing_bulk');
+        $mode = str_replace('content_writing_', '', $task_type);
+        if ($mode === 'content_writing') {
+            $mode = 'bulk';
+        } // The base type means bulk
+
+        // Keep exactly one content source. Inactive source values may still be
+        // present in the form so users can switch back without losing drafts.
+        $source_keys_by_mode = [
+            'bulk' => ['content_title_bulk'],
+            'csv' => ['content_title'],
+            'rss' => ['rss_feeds', 'rss_include_keywords', 'rss_exclude_keywords'],
+            'url' => ['url_list'],
+            'gsheets' => ['gsheets_sheet_id', 'gsheets_credentials'],
+        ];
+        $all_source_keys = array_unique(array_merge(...array_values($source_keys_by_mode)));
+        $active_source_keys = $source_keys_by_mode[$mode] ?? $source_keys_by_mode['bulk'];
+        foreach ($all_source_keys as $source_key) {
+            if (!in_array($source_key, $active_source_keys, true)) {
+                unset($content_writer_config[$source_key]);
+            }
         }
+
+        // Bulk rows use a separate form field; normalize it only when Batch
+        // Editor is the selected source so it can never overwrite CSV data.
+        if ($mode === 'bulk' && !empty($content_writer_config['content_title_bulk'])) {
+            $content_writer_config['content_title'] = $content_writer_config['content_title_bulk'];
+        }
+        unset($content_writer_config['content_title_bulk']);
 
         $image_provider = sanitize_key((string) ($content_writer_config['image_provider'] ?? 'openai'));
         $allowed_image_providers = ['openai', 'openrouter', 'google', 'azure', 'xai', 'replicate', 'pexels', 'pixabay'];
@@ -255,12 +450,11 @@ function build_task_config_writing_logic(array $post_data)
             $content_writer_config['image_model'] = $image_model;
         }
 
-        $task_type = $post_data['task_type'] ?? 'content_writing_bulk';
-        $mode = str_replace('content_writing_', '', $task_type);
-        if ($mode === 'content_writing') {
-            $mode = 'bulk';
-        } // The base type means bulk
         $content_writer_config['cw_generation_mode'] = $mode;
+
+        if ($mode === 'bulk' && !content_writing_has_manual_topic((string) ($content_writer_config['content_title'] ?? ''))) {
+            return new WP_Error('missing_content_title_cw', __('Please add at least one topic.', 'gpt3-ai-content-generator'), ['status' => 400]);
+        }
 
         $content_writer_config['task_frequency'] = isset($post_data['task_frequency']) ? sanitize_key($post_data['task_frequency']) : 'daily';
         $content_writer_config['task_status_on_creation'] = isset($post_data['task_status']) ? sanitize_key($post_data['task_status']) : 'active';
@@ -268,6 +462,23 @@ function build_task_config_writing_logic(array $post_data)
         $content_writer_config = AIPKit_Content_Writer_Template_Manager::finalize_task_config($content_writer_config);
         if (is_wp_error($content_writer_config)) {
             return $content_writer_config;
+        }
+
+        if (($content_writer_config['enable_vector_store'] ?? '0') === '1') {
+            $vector_provider = $content_writer_config['vector_store_provider'] ?? 'openai';
+            $has_vector_source = false;
+            if ($vector_provider === 'openai') {
+                $has_vector_source = !empty($content_writer_config['openai_vector_store_ids']);
+            } elseif ($vector_provider === 'pinecone') {
+                $has_vector_source = !empty($content_writer_config['pinecone_index_name']);
+            } elseif ($vector_provider === 'qdrant') {
+                $has_vector_source = !empty($content_writer_config['qdrant_collection_name']);
+            } elseif ($vector_provider === 'chroma') {
+                $has_vector_source = !empty($content_writer_config['chroma_collection_name']);
+            }
+            if (!$has_vector_source) {
+                return new WP_Error('missing_vector_source', __('Please select a knowledge source before enabling context.', 'gpt3-ai-content-generator'), ['status' => 400]);
+            }
         }
     }
     return $content_writer_config;
@@ -324,7 +535,7 @@ function build_task_config_comment_reply_logic(array $post_data)
 
     // Comment-specific settings
     $task_config['post_types_for_comments'] = isset($post_data['post_types_for_comments']) && is_array($post_data['post_types_for_comments']) ? array_map('sanitize_key', $post_data['post_types_for_comments']) : [];
-    $task_config['reply_action'] = isset($post_data['reply_action']) && in_array($post_data['reply_action'], ['approve', 'hold']) ? $post_data['reply_action'] : 'approve';
+    $task_config['reply_action'] = isset($post_data['reply_action']) && in_array($post_data['reply_action'], ['approve', 'hold'], true) ? $post_data['reply_action'] : 'hold';
     $task_config['no_reply_to_replies'] = isset($post_data['no_reply_to_replies']) ? '1' : '0';
 
     // Filters
@@ -441,6 +652,20 @@ function build_task_config_enhancement_logic(array $post_data)
         ) {
             $task_config['vector_embedding_provider'] = isset($post_data['vector_embedding_provider']) ? sanitize_key($post_data['vector_embedding_provider']) : 'openai';
             $task_config['vector_embedding_model'] = isset($post_data['vector_embedding_model']) ? sanitize_text_field($post_data['vector_embedding_model']) : '';
+        }
+
+        $has_vector_source = false;
+        if ($task_config['vector_store_provider'] === 'openai') {
+            $has_vector_source = !empty($task_config['openai_vector_store_ids']);
+        } elseif ($task_config['vector_store_provider'] === 'pinecone') {
+            $has_vector_source = !empty($task_config['pinecone_index_name']);
+        } elseif ($task_config['vector_store_provider'] === 'qdrant') {
+            $has_vector_source = !empty($task_config['qdrant_collection_name']);
+        } elseif ($task_config['vector_store_provider'] === 'chroma') {
+            $has_vector_source = !empty($task_config['chroma_collection_name']);
+        }
+        if (!$has_vector_source) {
+            return new WP_Error('missing_vector_source_enhance', __('Please select a knowledge source before enabling context.', 'gpt3-ai-content-generator'), ['status' => 400]);
         }
     }
     // --- END: NEW ---

@@ -11,7 +11,6 @@ if (!defined('ABSPATH')) {
 // phpcs:disable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- This file only uses local helper/template variables and does not define public globals.
 // Variables from parent: $task_categories, $frequencies, $aipkit_task_statuses_for_select, etc.
 ?>
-<label class="screen-reader-text" for="aipkit_automated_task_category"><?php esc_html_e('Category', 'gpt3-ai-content-generator'); ?></label>
 <select id="aipkit_automated_task_category" name="task_category" class="aipkit_form-input" hidden aria-hidden="true" tabindex="-1">
     <?php foreach ($task_categories as $cat_key => $cat_label) : ?>
         <option value="<?php echo esc_attr($cat_key); ?>"><?php echo esc_html($cat_label); ?></option>
@@ -36,8 +35,9 @@ if (!defined('ABSPATH')) {
         $rss_partial = WPAICG_PLUGIN_DIR . 'admin/views/modules/content-writer/partials/form-inputs/mode-rss.php';
         if (file_exists($rss_partial)) {
             $aipkit_show_rss_fetch_button = true;
+            $aipkit_autogpt_source_mode = true;
             include $rss_partial;
-            unset($aipkit_show_rss_fetch_button);
+            unset($aipkit_show_rss_fetch_button, $aipkit_autogpt_source_mode);
         } else {
             echo '<p>This is a Pro feature. Please upgrade to access the RSS feature.</p>';
         }
@@ -49,7 +49,9 @@ if (!defined('ABSPATH')) {
         <?php
 $url_partial = WPAICG_PLUGIN_DIR . 'admin/views/modules/content-writer/partials/form-inputs/mode-url.php';
 if (file_exists($url_partial)) {
+    $aipkit_autogpt_source_mode = true;
     include $url_partial;
+    unset($aipkit_autogpt_source_mode);
 } else {
     echo '<p>This is a Pro feature. Please upgrade to access the URL feature.</p>';
 }
@@ -61,7 +63,9 @@ if (file_exists($url_partial)) {
         <?php
 $gsheets_partial = WPAICG_PLUGIN_DIR . 'admin/views/modules/content-writer/partials/form-inputs/mode-gsheets.php';
 if (file_exists($gsheets_partial)) {
+    $aipkit_autogpt_source_mode = true;
     include $gsheets_partial;
+    unset($aipkit_autogpt_source_mode);
 } else {
     echo '<p>This is a Pro feature. Please upgrade to access the Google Sheets feature.</p>';
 }

@@ -239,7 +239,7 @@ if (!empty($aipkit_autogpt_cron_summary)) {
     </button>
 </div>
 <?php endif; ?>
-<div class="aipkit_module_autogpt" id="aipkit_autogpt_container">
+<div class="aipkit_module_autogpt" id="aipkit_autogpt_container" data-workspace-state="checking" aria-busy="true">
     <div
         id="aipkit_automated_task_form_status"
         class="aipkit_training_status aipkit_global_status_area"

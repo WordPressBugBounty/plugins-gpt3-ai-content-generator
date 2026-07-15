@@ -149,38 +149,13 @@ $render_simple_model_field = static function (array $config) use ($bot_id, $save
         >
             <?php esc_html_e('Model', 'gpt3-ai-content-generator'); ?>
         </label>
-        <div class="aipkit_unified_model_selector" data-aipkit-unified-model-selector>
-            <button
-                type="button"
-                id="aipkit_bot_<?php echo esc_attr($bot_id); ?>_unified_model_trigger"
-                class="aipkit_unified_model_trigger"
-                aria-expanded="false"
-                data-aipkit-unified-model-trigger
-            >
-                <span class="aipkit_unified_model_logo" data-aipkit-unified-model-logo aria-hidden="true"></span>
-                <span class="aipkit_unified_model_name" data-aipkit-unified-model-name><?php echo esc_html($saved_model ?: __('Select model', 'gpt3-ai-content-generator')); ?></span>
-            </button>
-            <div
-                class="aipkit_unified_model_popover"
-                data-aipkit-unified-model-popover
-                hidden
-            >
-                <div class="aipkit_unified_model_search">
-                    <input
-                        type="search"
-                        class="aipkit_unified_model_search_input"
-                        placeholder="<?php esc_attr_e('Search models...', 'gpt3-ai-content-generator'); ?>"
-                        aria-label="<?php esc_attr_e('Search models', 'gpt3-ai-content-generator'); ?>"
-                        data-aipkit-unified-model-search
-                    />
-                    <span class="dashicons dashicons-search" aria-hidden="true"></span>
-                </div>
-                <div class="aipkit_unified_model_list" role="listbox" data-aipkit-unified-model-list></div>
-                <div class="aipkit_unified_model_empty" data-aipkit-unified-model-empty hidden>
-                    <?php esc_html_e('No models found', 'gpt3-ai-content-generator'); ?>
-                </div>
-            </div>
-        </div>
+        <?php
+        $aipkit_unified_model_selector_config = [
+            'trigger_id' => 'aipkit_bot_' . $bot_id . '_unified_model_trigger',
+            'initial_label' => $saved_model ?: __('Select model', 'gpt3-ai-content-generator'),
+        ];
+        include dirname(__DIR__, 3) . '/shared/unified-model-selector.php';
+        ?>
     </div>
 
     <div class="aipkit_model_state_controls" aria-hidden="true">

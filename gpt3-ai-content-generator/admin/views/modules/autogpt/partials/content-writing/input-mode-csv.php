@@ -11,11 +11,6 @@ if (!defined('ABSPATH')) {
 ?>
 <div id="aipkit_task_cw_input_mode_csv" class="aipkit_task_cw_input_mode_section">
     <div class="aipkit_csv_import_container aipkit_cw_source_mode_shell aipkit_cw_source_mode_shell--csv">
-        <div class="aipkit_cw_source_mode_header">
-            <h3 class="aipkit_cw_source_mode_title"><?php esc_html_e('Import CSV', 'gpt3-ai-content-generator'); ?></h3>
-            <p class="aipkit_cw_source_mode_desc"><?php esc_html_e('Upload a CSV of topics and optional metadata to generate content in bulk.', 'gpt3-ai-content-generator'); ?></p>
-        </div>
-
         <div class="aipkit_cw_source_mode_stage">
             <div class="aipkit_csv_upload_zone" data-csv-upload-zone>
                 <label for="aipkit_task_cw_csv_file_input" class="aipkit_csv_dropzone">
@@ -55,42 +50,9 @@ if (!defined('ABSPATH')) {
         <?php // This hidden textarea will be populated by JS with the parsed CSV data (pipe-separated) ?>
         <textarea name="content_title" id="aipkit_task_cw_csv_data_holder" class="aipkit_csv_data_holder" style="display: none;" readonly></textarea>
 
-        <div class="aipkit_cw_source_mode_footer aipkit_csv_help_content" data-csv-help>
-            <div class="aipkit_cw_source_mode_footer_label"><?php esc_html_e('Expected columns', 'gpt3-ai-content-generator'); ?></div>
-            <div class="aipkit_csv_columns_row">
-                <div class="aipkit_csv_column_chip">
-                    <span class="aipkit_csv_column_label"><?php esc_html_e('Topic', 'gpt3-ai-content-generator'); ?></span>
-                </div>
-                <span class="aipkit_csv_column_divider">→</span>
-                <div class="aipkit_csv_column_chip">
-                    <span class="aipkit_csv_column_label"><?php esc_html_e('Keywords', 'gpt3-ai-content-generator'); ?></span>
-                </div>
-                <span class="aipkit_csv_column_divider">→</span>
-                <div class="aipkit_csv_column_chip">
-                    <span class="aipkit_csv_column_label"><?php esc_html_e('Category', 'gpt3-ai-content-generator'); ?></span>
-                </div>
-                <span class="aipkit_csv_column_divider">→</span>
-                <div class="aipkit_csv_column_chip">
-                    <span class="aipkit_csv_column_label"><?php esc_html_e('Author Login', 'gpt3-ai-content-generator'); ?></span>
-                </div>
-                <span class="aipkit_csv_column_divider">→</span>
-                <div class="aipkit_csv_column_chip">
-                    <span class="aipkit_csv_column_label"><?php esc_html_e('Post Type', 'gpt3-ai-content-generator'); ?></span>
-                </div>
-                <span class="aipkit_csv_column_divider">→</span>
-                <div class="aipkit_csv_column_chip">
-                    <span class="aipkit_csv_column_label"><?php esc_html_e('Schedule', 'gpt3-ai-content-generator'); ?></span>
-                </div>
-                <a
-                    href="https://docs.google.com/spreadsheets/d/1WOnO_UKkbRCoyjRxQnDDTy0i-RsnrY_MDKD3Ks09JJk/edit?usp=sharing"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    class="aipkit_csv_sample_link"
-                >
-                    <span class="dashicons dashicons-download" aria-hidden="true"></span>
-                    <?php esc_html_e('Download sample CSV', 'gpt3-ai-content-generator'); ?>
-                </a>
-            </div>
-        </div>
+        <p class="aipkit_cw_source_format_hint">
+            <span><?php esc_html_e('Topic | Keywords | Category ID | Author Login | Post Type | Schedule.', 'gpt3-ai-content-generator'); ?></span>
+            <a href="https://docs.google.com/spreadsheets/d/1WOnO_UKkbRCoyjRxQnDDTy0i-RsnrY_MDKD3Ks09JJk/edit?usp=sharing" target="_blank" rel="noopener noreferrer" class="aipkit_cw_paste_sample_link"><?php esc_html_e('View sample CSV', 'gpt3-ai-content-generator'); ?></a>
+        </p>
     </div>
 </div>

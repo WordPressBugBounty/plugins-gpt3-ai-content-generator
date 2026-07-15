@@ -21,17 +21,20 @@ if ($is_pro && file_exists($aipkit_premium_partial)) {
 
 $aipkit_feature_promo_class = 'aipkit_feature_promo--gsheets';
 $aipkit_feature_promo_dashicon = 'dashicons-media-spreadsheet';
-$aipkit_feature_promo_title = __('Google Sheets Import', 'gpt3-ai-content-generator');
-$aipkit_feature_promo_subtitle = __('Connect a spreadsheet, map columns to prompts, and bulk-generate content.', 'gpt3-ai-content-generator');
+$aipkit_feature_promo_title = __('Google Sheets content import', 'gpt3-ai-content-generator');
+$aipkit_feature_promo_subtitle = __('Turn spreadsheet rows into ready-to-publish WordPress posts.', 'gpt3-ai-content-generator');
 $aipkit_feature_promo_steps = [
-    __('Connect your Google Sheet', 'gpt3-ai-content-generator'),
-    __('Map columns to fields', 'gpt3-ai-content-generator'),
-    __('Bulk-generate content', 'gpt3-ai-content-generator'),
+    __('Connect a sheet', 'gpt3-ai-content-generator'),
+    __('Map your columns', 'gpt3-ai-content-generator'),
+    __('Generate in bulk', 'gpt3-ai-content-generator'),
 ];
 $aipkit_feature_promo_cards = [
-    ['icon' => '↻', 'color' => '#16a34a', 'label' => __('Live Sync', 'gpt3-ai-content-generator')],
-    ['icon' => '⊞', 'color' => '#2563eb', 'label' => __('Column Mapping', 'gpt3-ai-content-generator')],
-    ['icon' => '⚡', 'color' => '#9333ea', 'label' => __('Bulk Generation', 'gpt3-ai-content-generator')],
+    ['dashicon' => 'dashicons-update', 'label' => __('Live sync', 'gpt3-ai-content-generator')],
+    ['dashicon' => 'dashicons-editor-table', 'label' => __('Column mapping', 'gpt3-ai-content-generator')],
+    ['dashicon' => 'dashicons-controls-repeat', 'label' => __('Bulk generation', 'gpt3-ai-content-generator')],
 ];
+$aipkit_feature_promo_compact = true;
+$aipkit_feature_promo_show_pro_badge = true;
+$aipkit_feature_promo_upgrade_label = __('Upgrade to Pro', 'gpt3-ai-content-generator');
 $aipkit_feature_promo_upgrade_url = function_exists('wpaicg_gacg_fs') ? wpaicg_gacg_fs()->get_upgrade_url() : '#';
 include WPAICG_PLUGIN_DIR . 'admin/views/modules/shared/feature-promo.php';

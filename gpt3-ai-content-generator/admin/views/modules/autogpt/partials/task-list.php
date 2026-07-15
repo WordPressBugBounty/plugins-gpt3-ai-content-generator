@@ -22,7 +22,7 @@ if (!defined('ABSPATH')) {
         </div>
         <div class="aipkit_container-actions aipkit_autogpt_overview_header_actions">
             <button id="aipkit_add_new_task_btn" class="aipkit_btn aipkit_btn-primary">
-                <?php esc_html_e('New Task', 'gpt3-ai-content-generator'); ?>
+                <?php esc_html_e('New automation', 'gpt3-ai-content-generator'); ?>
             </button>
         </div>
     </div>
