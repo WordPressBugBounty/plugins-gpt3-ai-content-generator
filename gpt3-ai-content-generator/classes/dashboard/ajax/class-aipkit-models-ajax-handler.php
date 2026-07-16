@@ -563,6 +563,17 @@ class ModelsAjaxHandler extends BaseDashboardAjaxHandler
 
         AIPKit_Providers::clear_model_caches();
 
+        // Keep one trustworthy freshness timestamp per synced provider. This is
+        // written only after the provider request and model-list persistence
+        // both succeed, so UI surfaces never report a failed sync as current.
+        $synced_at = time();
+        $model_sync_timestamps = get_option('aipkit_model_sync_timestamps', []);
+        if (!is_array($model_sync_timestamps)) {
+            $model_sync_timestamps = [];
+        }
+        $model_sync_timestamps[$provider] = $synced_at;
+        update_option('aipkit_model_sync_timestamps', $model_sync_timestamps, 'no');
+
         $recommended_models = $this->get_recommended_models_for_response(
             $provider,
             $response_models,
@@ -580,6 +591,7 @@ class ModelsAjaxHandler extends BaseDashboardAjaxHandler
                     'message' => $success_message,
                     'models'  => $response_models,
                     'recommended_models' => $recommended_models,
+                    'synced_at' => $synced_at,
                 ],
                 $extra_response_payload
             )

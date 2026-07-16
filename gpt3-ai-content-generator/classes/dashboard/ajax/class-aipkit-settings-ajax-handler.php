@@ -56,6 +56,7 @@ class SettingsAjaxHandler extends BaseDashboardAjaxHandler
         'aipkit_qdrant_collection_list',
         'aipkit_chroma_collection_list',
         'aipkit_replicate_model_list',
+        'aipkit_model_sync_timestamps',
     ];
 
     public function ajax_save_settings()

@@ -985,14 +985,16 @@ if ( $active_bot_post ) {
                                                 hidden
                                             >
                                                 <button type="button" class="aipkit_widget_bot_actions_item aipkit_widget_bot_duplicate_btn" data-aipkit-bot-action="duplicate" role="menuitem">
-                                                    <?php 
+                                                    <span class="dashicons dashicons-admin-page" aria-hidden="true"></span>
+                                                    <span class="aipkit_widget_bot_actions_label"><?php 
     esc_html_e( 'Duplicate', 'gpt3-ai-content-generator' );
-    ?>
+    ?></span>
                                                 </button>
                                                 <button type="button" class="aipkit_widget_bot_actions_item aipkit_widget_bot_reset_btn" data-aipkit-bot-action="reset" role="menuitem">
-                                                    <?php 
+                                                    <span class="dashicons dashicons-update" aria-hidden="true"></span>
+                                                    <span class="aipkit_widget_bot_actions_label"><?php 
     esc_html_e( 'Restore defaults', 'gpt3-ai-content-generator' );
-    ?>
+    ?></span>
                                                 </button>
                                                 <button
                                                     type="button"
@@ -1003,9 +1005,10 @@ if ( $active_bot_post ) {
     echo ( (string) $initial_active_bot_id === (string) $default_bot_id ? 'disabled aria-disabled="true"' : 'aria-disabled="false"' );
     ?>
                                                 >
-                                                    <?php 
+                                                    <span class="dashicons dashicons-trash" aria-hidden="true"></span>
+                                                    <span class="aipkit_widget_bot_actions_label"><?php 
     esc_html_e( 'Delete', 'gpt3-ai-content-generator' );
-    ?>
+    ?></span>
                                                 </button>
                                             </div>
                                         </div>
@@ -1303,9 +1306,15 @@ if ( $active_bot_post ) {
                                     aria-expanded="false"
                                 >
                                     <span class="aipkit_chatbot_advanced_trigger_label">
+                                        <span class="aipkit_chatbot_advanced_trigger_icon" aria-hidden="true">
+                                            <span class="dashicons dashicons-admin-settings"></span>
+                                        </span>
                                         <span class="aipkit_chatbot_advanced_trigger_text">
                                             <span class="aipkit_chatbot_advanced_trigger_title"><?php 
     esc_html_e( 'Behavior, display, and tools', 'gpt3-ai-content-generator' );
+    ?></span>
+                                            <span class="aipkit_chatbot_advanced_trigger_description"><?php 
+    esc_html_e( 'Conversation, knowledge, and automations', 'gpt3-ai-content-generator' );
     ?></span>
                                         </span>
                                     </span>
@@ -2118,273 +2127,6 @@ esc_html_e( 'This panel will contain the selected settings section.', 'gpt3-ai-c
 ?>
                     </p>
                 </div>
-                <div class="aipkit_builder_sheet_section aipkit_training_other_sheet" data-sheet="other-sources" hidden>
-                    <div class="aipkit_training_other_source" data-aipkit-training-other hidden>
-                        <span class="screen-reader-text" id="aipkit_training_other_source_label">
-                            <?php 
-esc_html_e( 'Content type', 'gpt3-ai-content-generator' );
-?>
-                        </span>
-                        <div
-                            class="aipkit_training_other_source_options"
-                            role="group"
-                            aria-labelledby="aipkit_training_other_source_label"
-                        >
-                            <button
-                                type="button"
-                                class="aipkit_training_other_source_option is-active"
-                                data-aipkit-training-source-option="qa"
-                                aria-pressed="true"
-                            >
-                                <span class="dashicons dashicons-format-chat" aria-hidden="true"></span>
-                                <span><?php 
-esc_html_e( 'Q&A', 'gpt3-ai-content-generator' );
-?></span>
-                            </button>
-                            <button
-                                type="button"
-                                class="aipkit_training_other_source_option"
-                                data-aipkit-training-source-option="text"
-                                aria-pressed="false"
-                            >
-                                <span class="dashicons dashicons-media-text" aria-hidden="true"></span>
-                                <span><?php 
-esc_html_e( 'Text', 'gpt3-ai-content-generator' );
-?></span>
-                            </button>
-                            <button
-                                type="button"
-                                class="aipkit_training_other_source_option"
-                                data-aipkit-training-source-option="files"
-                                aria-pressed="false"
-                            >
-                                <span class="dashicons dashicons-media-document" aria-hidden="true"></span>
-                                <span><?php 
-esc_html_e( 'Files', 'gpt3-ai-content-generator' );
-?></span>
-                            </button>
-                        </div>
-                        <select
-                            id="aipkit_training_other_source_type"
-                            class="aipkit_form-input aipkit_training_other_source_select"
-                            data-aipkit-training-source-select
-                            aria-hidden="true"
-                            tabindex="-1"
-                        >
-                            <option value="qa"><?php 
-esc_html_e( 'Q&A', 'gpt3-ai-content-generator' );
-?></option>
-                            <option value="text"><?php 
-esc_html_e( 'Text', 'gpt3-ai-content-generator' );
-?></option>
-                            <option value="files"><?php 
-esc_html_e( 'Files', 'gpt3-ai-content-generator' );
-?></option>
-                        </select>
-                    </div>
-
-                    <div class="aipkit_builder_tab_panels aipkit_builder_tab_panels--training aipkit_training_other_panels">
-                        <div class="aipkit_builder_tab_panel" data-aipkit-panel="qa" hidden>
-                            <div class="aipkit_builder_training_qa">
-                                <div class="aipkit_training_field">
-                                    <div class="aipkit_training_field_heading">
-                                        <label class="aipkit_training_field_label" for="aipkit_training_qa_question">
-                                            <?php 
-esc_html_e( 'Question', 'gpt3-ai-content-generator' );
-?>
-                                        </label>
-                                        <span class="aipkit_training_field_help">
-                                            <?php 
-esc_html_e( 'What visitors may ask.', 'gpt3-ai-content-generator' );
-?>
-                                        </span>
-                                    </div>
-                                    <textarea
-                                        id="aipkit_training_qa_question"
-                                        class="aipkit_builder_textarea aipkit_training_textarea"
-                                        rows="3"
-                                        placeholder="<?php 
-esc_attr_e( 'What is your return policy?', 'gpt3-ai-content-generator' );
-?>"
-                                    ></textarea>
-                                    <div class="aipkit_training_common_questions">
-                                        <button
-                                            type="button"
-                                            class="aipkit_training_common_toggle"
-                                            data-aipkit-common-questions-toggle
-                                            aria-expanded="false"
-                                            aria-controls="aipkit_training_common_questions_list"
-                                        >
-                                            <span class="dashicons dashicons-plus-alt2" aria-hidden="true"></span>
-                                            <span><?php 
-esc_html_e( 'Add from common questions', 'gpt3-ai-content-generator' );
-?></span>
-                                        </button>
-                                        <div
-                                            id="aipkit_training_common_questions_list"
-                                            class="aipkit_training_common_panel"
-                                            data-aipkit-common-questions-panel
-                                            hidden
-                                        >
-                                            <?php 
-$aipkit_common_training_questions = [
-    __( 'What is your return policy?', 'gpt3-ai-content-generator' ),
-    __( 'What is your refund policy?', 'gpt3-ai-content-generator' ),
-    __( 'What is your shipping info?', 'gpt3-ai-content-generator' ),
-    __( 'What is your warranty info?', 'gpt3-ai-content-generator' ),
-    __( 'What are your payment options?', 'gpt3-ai-content-generator' ),
-    __( "What's your phone number?", 'gpt3-ai-content-generator' ),
-    __( 'What is your address?', 'gpt3-ai-content-generator' ),
-    __( 'What is your email?', 'gpt3-ai-content-generator' ),
-    __( 'What are your business hours?', 'gpt3-ai-content-generator' )
-];
-foreach ( $aipkit_common_training_questions as $aipkit_common_training_question ) {
-    ?>
-                                                <button
-                                                    type="button"
-                                                    class="aipkit_training_common_question"
-                                                    data-aipkit-common-question="<?php 
-    echo esc_attr( $aipkit_common_training_question );
-    ?>"
-                                                >
-                                                    <?php 
-    echo esc_html( $aipkit_common_training_question );
-    ?>
-                                                </button>
-                                            <?php 
-}
-?>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="aipkit_training_field">
-                                    <div class="aipkit_training_field_heading">
-                                        <label class="aipkit_training_field_label" for="aipkit_training_qa_answer">
-                                            <?php 
-esc_html_e( 'Answer', 'gpt3-ai-content-generator' );
-?>
-                                        </label>
-                                        <span class="aipkit_training_field_help">
-                                            <?php 
-esc_html_e( 'The response your chatbot should give.', 'gpt3-ai-content-generator' );
-?>
-                                        </span>
-                                    </div>
-                                    <textarea
-                                        id="aipkit_training_qa_answer"
-                                        class="aipkit_builder_textarea aipkit_training_textarea"
-                                        rows="3"
-                                        placeholder="<?php 
-esc_attr_e( 'Answer: We offer refunds within 30 days of purchase.', 'gpt3-ai-content-generator' );
-?>"
-                                    ></textarea>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="aipkit_builder_tab_panel" data-aipkit-panel="text" hidden>
-                            <div class="aipkit_training_field">
-                                <div class="aipkit_training_field_heading">
-                                    <label class="aipkit_training_field_label" for="aipkit_training_text_input">
-                                        <?php 
-esc_html_e( 'Text', 'gpt3-ai-content-generator' );
-?>
-                                    </label>
-                                    <span class="aipkit_training_field_help">
-                                        <?php 
-esc_html_e( 'Content your chatbot can use when answering.', 'gpt3-ai-content-generator' );
-?>
-                                    </span>
-                                </div>
-                                <textarea
-                                    id="aipkit_training_text_input"
-                                    name="training_text"
-                                    class="aipkit_builder_textarea aipkit_training_textarea aipkit_training_text_input"
-                                    rows="4"
-                                    placeholder="<?php 
-esc_attr_e( 'Paste content your chatbot should know.', 'gpt3-ai-content-generator' );
-?>"
-                                ></textarea>
-                            </div>
-                        </div>
-                        <div class="aipkit_builder_tab_panel" data-aipkit-panel="files" hidden>
-                            <div class="aipkit_training_field">
-                                <div class="aipkit_builder_dropzone aipkit_training_dropzone">
-                                    <div class="aipkit_builder_dropzone_inner">
-                                        <span class="dashicons dashicons-upload aipkit_training_dropzone_icon" aria-hidden="true"></span>
-                                        <div class="aipkit_training_dropzone_copy">
-                                            <strong><?php 
-esc_html_e( 'Upload knowledge files', 'gpt3-ai-content-generator' );
-?></strong>
-                                            <span><?php 
-esc_html_e( 'PDF, DOCX, TXT, MD, CSV, or JSON', 'gpt3-ai-content-generator' );
-?></span>
-                                        </div>
-                                        <?php 
-if ( $is_pro_plan ) {
-    ?>
-                                            <input
-                                                id="aipkit_training_files_input"
-                                                class="aipkit_training_files_input"
-                                                type="file"
-                                                multiple
-                                                accept=".pdf,.docx,.txt,.md,.csv,.json"
-                                                hidden
-                                            >
-                                            <button
-                                                type="button"
-                                                class="aipkit_btn aipkit_btn-secondary aipkit_builder_action_btn aipkit_training_files_button"
-                                            >
-                                                <?php 
-    esc_html_e( 'Choose files', 'gpt3-ai-content-generator' );
-    ?>
-                                            </button>
-                                        <?php 
-} else {
-    ?>
-                                            <a
-                                                class="aipkit_btn aipkit_btn-primary aipkit_builder_action_btn aipkit_training_files_button aipkit_upgrade_cta aipkit_upgrade_cta--panel"
-                                                href="<?php 
-    echo esc_url( $pricing_url );
-    ?>"
-                                                target="_blank"
-                                                rel="noopener noreferrer"
-                                            >
-                                                <?php 
-    esc_html_e( 'Upgrade Pro', 'gpt3-ai-content-generator' );
-    ?>
-                                            </a>
-                                        <?php 
-}
-?>
-                                    </div>
-                                </div>
-                            </div>
-                            <div
-                                class="aipkit_training_file_list"
-                                id="aipkit_training_file_list"
-                                data-upgrade-url="<?php 
-echo esc_url( $pricing_url );
-?>"
-                            ></div>
-                        </div>
-                    </div>
-
-                    <div class="aipkit_training_sheet_footer">
-                        <span class="aipkit_training_status aipkit_training_sheet_status" data-aipkit-training-status aria-live="polite"></span>
-                        <button
-                            type="button"
-                            class="aipkit_training_action_btn aipkit_training_decision_start aipkit_training_sheet_start"
-                            data-training-action="add"
-                            data-aipkit-training-start
-                            data-aipkit-training-sheet-action
-                        >
-                            <span class="aipkit_training_action_spinner" aria-hidden="true"></span>
-                            <span class="aipkit_training_action_text"><?php 
-esc_html_e( 'Train', 'gpt3-ai-content-generator' );
-?></span>
-                        </button>
-                    </div>
-                </div>
                 <div class="aipkit_builder_sheet_section aipkit_builder_sheet_section--rules" data-sheet="triggers" hidden>
                     <span class="aipkit_popover_status_inline aipkit_triggers_status" aria-live="polite"></span>
                     <?php 
@@ -2602,24 +2344,12 @@ if ( $triggers_available && $active_bot_post && $bot_id > 0 ) {
 if ( $active_bot_post ) {
     ?>
                         <div class="aipkit_sources_sheet_toolbar">
-                            <div class="aipkit_sources_meta">
-                                <span class="aipkit_sources_context_item aipkit_sources_context_item--provider">
-                                    <span class="aipkit_sources_meta_label"><?php 
-    esc_html_e( 'Provider', 'gpt3-ai-content-generator' );
-    ?></span>
-                                    <span class="aipkit_sources_meta_value" id="aipkit_sources_provider_label">—</span>
-                                </span>
-                                <span class="aipkit_sources_context_item aipkit_sources_context_item--store">
-                                    <span class="aipkit_sources_meta_label"><?php 
-    esc_html_e( 'Store', 'gpt3-ai-content-generator' );
-    ?></span>
-                                    <span class="aipkit_sources_meta_value" id="aipkit_sources_store_label">—</span>
-                                </span>
-                            </div>
                             <div class="aipkit_sources_toolbar">
                                 <div class="aipkit_sources_toolbar_group aipkit_sources_toolbar_group--search">
                                     <input
                                         type="search"
+                                        id="aipkit_chatbot_sources_search"
+                                        name="aipkit_chatbot_sources_search"
                                         class="aipkit_popover_option_input aipkit_sources_search_input"
                                         placeholder="<?php 
     esc_attr_e( 'Search knowledge', 'gpt3-ai-content-generator' );
@@ -2630,7 +2360,23 @@ if ( $active_bot_post ) {
                                     >
                                 </div>
                                 <div class="aipkit_sources_toolbar_group aipkit_sources_toolbar_group--right">
-                                    <select class="aipkit_popover_select aipkit_sources_filter_select" aria-label="<?php 
+                                    <select id="aipkit_chatbot_sources_type" name="aipkit_chatbot_sources_type" class="aipkit_popover_select aipkit_sources_type_filter" aria-label="<?php 
+    esc_attr_e( 'Filter by source type', 'gpt3-ai-content-generator' );
+    ?>">
+                                        <option value=""><?php 
+    esc_html_e( 'All types', 'gpt3-ai-content-generator' );
+    ?></option>
+                                        <option value="site"><?php 
+    esc_html_e( 'Website', 'gpt3-ai-content-generator' );
+    ?></option>
+                                        <option value="text"><?php 
+    esc_html_e( 'Text & Q&A', 'gpt3-ai-content-generator' );
+    ?></option>
+                                        <option value="file"><?php 
+    esc_html_e( 'Files', 'gpt3-ai-content-generator' );
+    ?></option>
+                                    </select>
+                                    <select id="aipkit_chatbot_sources_status_filter" name="aipkit_chatbot_sources_status_filter" class="aipkit_popover_select aipkit_sources_filter_select" aria-label="<?php 
     esc_attr_e( 'Filter by status', 'gpt3-ai-content-generator' );
     ?>">
                                         <option value=""><?php 
@@ -2647,9 +2393,10 @@ if ( $active_bot_post ) {
     ?></option>
                                     </select>
                                     <button type="button" class="aipkit_btn aipkit_btn-secondary aipkit_sources_refresh_btn">
-                                        <?php 
+                                        <span class="dashicons dashicons-update" aria-hidden="true"></span>
+                                        <span><?php 
     esc_html_e( 'Refresh', 'gpt3-ai-content-generator' );
-    ?>
+    ?></span>
                                     </button>
                                 </div>
                             </div>
@@ -2666,9 +2413,6 @@ if ( $active_bot_post ) {
     esc_html_e( 'Item', 'gpt3-ai-content-generator' );
     ?></th>
                                         <th><?php 
-    esc_html_e( 'Type', 'gpt3-ai-content-generator' );
-    ?></th>
-                                        <th><?php 
     esc_html_e( 'Updated', 'gpt3-ai-content-generator' );
     ?></th>
                                         <th class="aipkit_actions_cell_header"><?php 
@@ -2678,7 +2422,7 @@ if ( $active_bot_post ) {
                                 </thead>
                                 <tbody id="aipkit_sources_table_body">
                                     <tr>
-                                        <td colspan="5" class="aipkit_text-center">
+                                        <td colspan="4" class="aipkit_text-center">
                                             <?php 
     esc_html_e( 'Train content to view it here.', 'gpt3-ai-content-generator' );
     ?>

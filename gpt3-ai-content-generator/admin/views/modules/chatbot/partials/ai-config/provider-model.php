@@ -45,6 +45,10 @@ $show_chatbot_selector = empty($is_next_layout) || !$is_next_layout;
 $provider_select_options = class_exists('\\WPAICG\\AIPKit_Provider_Model_List_Builder')
     ? \WPAICG\AIPKit_Provider_Model_List_Builder::get_provider_options($providers, (bool) ($is_pro ?? false))
     : [];
+$model_sync_timestamps = get_option('aipkit_model_sync_timestamps', []);
+if (!is_array($model_sync_timestamps)) {
+    $model_sync_timestamps = [];
+}
 
 $render_simple_model_field = static function (array $config) use ($bot_id, $saved_model, $saved_provider): void {
     $provider = (string) ($config['provider'] ?? '');
@@ -143,12 +147,28 @@ $render_simple_model_field = static function (array $config) use ($bot_id, $save
     <?php endif; ?>
 
     <div class="aipkit_form-group aipkit_form-col aipkit_chatbot_model_col aipkit_chatbot_model_col--unified">
-        <label
-            class="aipkit_form-label"
-            for="aipkit_bot_<?php echo esc_attr($bot_id); ?>_unified_model_trigger"
-        >
-            <?php esc_html_e('Model', 'gpt3-ai-content-generator'); ?>
-        </label>
+        <div class="aipkit_chatbot_model_label_row">
+            <label
+                class="aipkit_form-label"
+                for="aipkit_bot_<?php echo esc_attr($bot_id); ?>_unified_model_trigger"
+            >
+                <?php esc_html_e('Model', 'gpt3-ai-content-generator'); ?>
+            </label>
+            <?php if (!empty($is_next_layout)) : ?>
+            <button
+                type="button"
+                class="aipkit_chatbot_model_sync_btn"
+                data-aipkit-chatbot-sync-models
+                data-aipkit-syncing-label="<?php esc_attr_e('Syncing…', 'gpt3-ai-content-generator'); ?>"
+                data-aipkit-model-sync-times="<?php echo esc_attr(wp_json_encode($model_sync_timestamps)); ?>"
+                aria-label="<?php esc_attr_e('Sync models for the selected provider', 'gpt3-ai-content-generator'); ?>"
+                aria-busy="false"
+            >
+                <span class="dashicons dashicons-update" aria-hidden="true"></span>
+                <span class="aipkit_btn-text"><?php esc_html_e('Sync models', 'gpt3-ai-content-generator'); ?></span>
+            </button>
+            <?php endif; ?>
+        </div>
         <?php
         $aipkit_unified_model_selector_config = [
             'trigger_id' => 'aipkit_bot_' . $bot_id . '_unified_model_trigger',
@@ -156,6 +176,14 @@ $render_simple_model_field = static function (array $config) use ($bot_id, $save
         ];
         include dirname(__DIR__, 3) . '/shared/unified-model-selector.php';
         ?>
+        <?php if (!empty($is_next_layout)) : ?>
+        <span
+            class="aipkit_chatbot_model_last_synced"
+            data-aipkit-model-last-synced
+            aria-live="polite"
+            hidden
+        ></span>
+        <?php endif; ?>
     </div>
 
     <div class="aipkit_model_state_controls" aria-hidden="true">
