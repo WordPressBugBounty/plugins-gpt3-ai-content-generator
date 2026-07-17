@@ -269,6 +269,85 @@ class LogManager
     }
 
     /**
+     * Returns exact aggregate metrics for the filtered conversation set.
+     * Rows are processed in batches to avoid loading an entire log history into memory.
+     */
+    public function get_log_summary(array $filters = []): array
+    {
+        $summary = [
+            'conversations' => 0,
+            'messages' => 0,
+            'tokens_used' => 0,
+            'active_users' => 0,
+        ];
+        $active_users = [];
+        $batch_size = 250;
+        $offset = 0;
+
+        do {
+            $query_parts = $this->query_helper->build_conversation_query_parts(
+                $filters,
+                'id',
+                'ASC',
+                $batch_size,
+                $offset,
+                true
+            );
+            $query = "SELECT {$this->table_name}.id, {$this->table_name}.user_id, {$this->table_name}.session_id,
+                             {$this->table_name}.message_count, {$this->table_name}.messages
+                      FROM {$this->table_name}
+                      {$query_parts['join_sql']}
+                      WHERE {$query_parts['where_sql']}
+                      ORDER BY {$query_parts['orderby']} {$query_parts['order']}
+                      {$query_parts['limit_sql']}";
+
+            if (!empty($query_parts['params'])) {
+                // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- Query fragments and placeholders are built by LogQueryHelper.
+                $query = $this->wpdb->prepare($query, $query_parts['params']);
+            }
+
+            // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.NotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter -- Read-only aggregate over the plugin's custom log table. The table name and query fragments are controlled internally.
+            $rows = $this->wpdb->get_results($query, ARRAY_A) ?: [];
+
+            foreach ($rows as $row) {
+                $summary['conversations']++;
+                $summary['messages'] += isset($row['message_count']) ? (int) $row['message_count'] : 0;
+
+                if (!empty($row['user_id'])) {
+                    $active_users['user:' . (int) $row['user_id']] = true;
+                } elseif (!empty($row['session_id'])) {
+                    $active_users['guest:' . (string) $row['session_id']] = true;
+                } else {
+                    $active_users['unknown'] = true;
+                }
+
+                $conversation_data = json_decode($row['messages'] ?? '[]', true);
+                $messages = [];
+                if (is_array($conversation_data) && isset($conversation_data['messages']) && is_array($conversation_data['messages'])) {
+                    $messages = $conversation_data['messages'];
+                } elseif (is_array($conversation_data)) {
+                    $messages = $conversation_data;
+                }
+
+                foreach ($messages as $message) {
+                    if (isset($message['usage']['total_tokens']) && is_numeric($message['usage']['total_tokens'])) {
+                        $summary['tokens_used'] += (int) $message['usage']['total_tokens'];
+                    } elseif (isset($message['usage']['totalTokenCount']) && is_numeric($message['usage']['totalTokenCount'])) {
+                        $summary['tokens_used'] += (int) $message['usage']['totalTokenCount'];
+                    }
+                }
+            }
+
+            $row_count = count($rows);
+            $offset += $row_count;
+        } while ($row_count === $batch_size);
+
+        $summary['active_users'] = count($active_users);
+
+        return $summary;
+    }
+
+    /**
      * Deletes conversation rows older than X days (based on last_message_ts).
      * @return int|false
      */

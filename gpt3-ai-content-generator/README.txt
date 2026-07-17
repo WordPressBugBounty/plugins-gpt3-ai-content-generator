@@ -4,7 +4,7 @@ Tags: ai, chatbot, openai, ai writer, automation
 Requires at least: 6.0
 Tested up to: 7.0
 Requires PHP: 7.4
-Stable tag: 2.4.52
+Stable tag: 2.4.53
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -125,6 +125,10 @@ Yes. AIP supports GPT-5, GPT-4o, GPT-4 Turbo, Google Gemini 1.5, Imagen 4.0, and
 ---
 
 == Changelog ==
+
+= 2.4.53 =
+
+- Improved log details, retention controls, billing workflows.
 
 = 2.4.52 =
 
@@ -254,132 +258,3 @@ Read more: [WordPress AI Connectors](https://docs.aipower.org/wordpress-ai-conne
 - Fixed long-content chunking for Pinecone, Qdrant, and Chroma so large WordPress posts can be embedded in safe chunks.
 - Improved Qdrant strict-mode filters.
 - Improved Chroma collection lookup/delete reliability.
-
-= 2.4.23 =
-
-DeepSeek api improvements.
-
-= 2.4.22 =
-
-Smart SEO improvements in Content Writer and Automated tasks.
-
-= 2.4.21 =
-
-I made two improvements for AI forms.
-
-* Image upload: You can now upload images in AI Forms.
-* Workflows: You can now connect multiple AI Forms, pass outputs and submitted answers from one form to the next, and build multi-step AI workflows.
-
-Read more: [AI Forms Workflow](https://docs.aipower.org/ai-forms#workflow)
-
-= 2.4.20 =
-
-* Added DeepSeek V4 Flash and DeepSeek V4 Pro, and removed deprecated `deepseek-chat` / `deepseek-reasoner` aliases from model lists.
-* Improved image generation in Content Writer and Automated Tasks with provider-specific options and expanded model support.
-
-= 2.4.19 =
-
-Added Smart SEO for Content Writer and Automated Tasks.
-
-Smart SEO audits generated content against the active SEO plugin and can automatically improve its SEO score.
-
-Learn more: https://docs.aipower.org/content-writer#smart-seo
-
-= 2.4.18 =
-* Improved performance for chatbots using OpenAI Vector Stores.
-* Fixed frontend chatbot file uploads for OpenAI Vector Stores so uploaded files are only made available to chat after OpenAI finishes indexing them.
-
-= 2.4.17 =
-* Improved performance for chatbots using OpenAI Vector Stores.
-* Fixed frontend chatbot file uploads for OpenAI Vector Stores so uploaded files are only made available to chat after OpenAI finishes indexing them.
-
-= 2.4.16 =
-
-Added xAI as a new provider.
-
-Capabilities:
-
-- Generate text in Chatbots, AI Forms, Content Writer, Automations, REST API, and bulk assistant flows through the xAI Responses API.
-- Use xAI web search in Chatbots and AI Forms.
-- Analyze uploaded images in Chatbots with xAI vision-capable Grok models.
-- Generate images with xAI image models in Chatbots, Content Writer, Automations, and Image Generator.
-
-More info: https://docs.aipower.org/ai-providers#xai
-
-= 2.4.15 =
-
-Added batch embedding support for Google.
-
-More info: https://docs.aipower.org/knowledge-base#embedding-batches
-
-= 2.4.14 =
-
-General bug fixes and improvements in ai forms module.
-
-= 2.4.13 =
-
-New Vector integration: Chroma!
-
-Check it's documentation here: https://docs.aipower.org/knowledge-base#chroma
-
-= 2.4.12 =
-
-- Improved Knowledge Base file uploads and chunk progress.
-
-= 2.4.11 =
-
-General bug fixes and improvements in Knowledge Base module.
-
-= 2.4.10 =
-
-General bug fixes and performance improvements.
-
-= 2.4.9 =
-
-- **Fixed**: Chatbot theme conflicts for some WordPress themes.
-- **Fixed**: Content Writer search reset when switching optimize modes.
-- **Changed**: PDF exports now use browser print for lighter downloads.
-
-= 2.4.8 =
-
-- **Added**: `gpt-image-2` is now the default OpenAI image model across Chatbot, Content Writer, AutoGPT, and Image Generator.
-- **Deprecation**: Removed `dall-e-2` and `dall-e-3` from the plugin because OpenAI is deprecating them.
-
-= 2.4.7 =
-
-- **Added**: `gpt-image-2` is now the default OpenAI image model across Chatbot, Content Writer, AutoGPT, and Image Generator.
-- **Deprecation**: Removed `dall-e-2` and `dall-e-3` from the plugin because OpenAI is deprecating them.
-
-= 2.4.6 =
-
-- Added a stop button with elapsed timer while chatbot responses are streaming.
-- Improved chatbot popup UX: the launcher now hides while the popup is open, the popup takes the launcher position, desktop close behavior is clearer, and popup dragging is supported on desktop.
-- Improved popup/mobile behavior with better viewport handling, safer fullscreen mobile presentation.
-
-= 2.4.5 =
-
-- You can now customize buy, purchase buttons in the chatbot, ai forms and image generator modules.
-- Fixed an issue with external chatbot embedding.
-- General bug fixes and performance improvements.
-
-= 2.4.4 =
-
-- Fixed an issue with Ollama model syncing.
-- Fixed an issue with external chatbot embedding.
-- General bug fixes and performance improvements.
-
-= 2.4.3 =
-
-- **Improved**: Automated tasks.
-- **Fixed**: CSV parsing deprecation warning on newer PHP versions.
-- General bug fixes and performance improvements.
-
-= 2.4.2 =
-
-- **Fixed**: WooCommerce issue.
-- **Fixed**: Content Writer starter template reset.
-- **Fixed**: AI Forms column width deprecation warning.
-
-= 2.4.1 =
-
-Bug fix.

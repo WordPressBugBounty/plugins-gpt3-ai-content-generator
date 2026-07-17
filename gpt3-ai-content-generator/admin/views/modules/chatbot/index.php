@@ -1049,8 +1049,8 @@ if ( $active_bot_post ) {
         ?>
                                                 <span class="aipkit_widget_avatar_icon" aria-hidden="true">
                                                     <?php 
-        echo $quick_header_avatar_icon_html;
         // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+        echo $quick_header_avatar_icon_html;
         ?>
                                                 </span>
                                             <?php 
@@ -1176,8 +1176,8 @@ if ( $active_bot_post ) {
                                                     />
                                                     <span class="aipkit_widget_icon_choice_visual" aria-hidden="true">
                                                         <?php 
-            echo $svg_html;
             // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+            echo $svg_html;
             ?>
                                                     </span>
                                                 </label>

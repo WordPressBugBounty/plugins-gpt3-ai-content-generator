@@ -23,15 +23,15 @@ class LogConfig
     public static function get_retention_periods(): array
     {
         return [
-            1 => __('1 Day', 'gpt3-ai-content-generator'),
-            3 => __('3 Days', 'gpt3-ai-content-generator'),
-            7 => __('7 Days', 'gpt3-ai-content-generator'),
-            15 => __('15 Days', 'gpt3-ai-content-generator'),
-            30 => __('30 Days', 'gpt3-ai-content-generator'),
-            60 => __('60 Days', 'gpt3-ai-content-generator'),
-            90 => __('90 Days', 'gpt3-ai-content-generator'),
-            180 => __('6 Months', 'gpt3-ai-content-generator'),
-            365 => __('1 Year', 'gpt3-ai-content-generator')
+            1 => __('1 day', 'gpt3-ai-content-generator'),
+            3 => __('3 days', 'gpt3-ai-content-generator'),
+            7 => __('7 days', 'gpt3-ai-content-generator'),
+            15 => __('15 days', 'gpt3-ai-content-generator'),
+            30 => __('30 days', 'gpt3-ai-content-generator'),
+            60 => __('60 days', 'gpt3-ai-content-generator'),
+            90 => __('90 days', 'gpt3-ai-content-generator'),
+            180 => __('6 months', 'gpt3-ai-content-generator'),
+            365 => __('1 year', 'gpt3-ai-content-generator')
         ];
     }
 

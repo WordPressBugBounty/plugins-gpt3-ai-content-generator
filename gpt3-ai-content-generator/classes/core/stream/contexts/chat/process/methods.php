@@ -218,10 +218,6 @@ function run_content_moderation_logic(
     ?string $session_id
 ) {
 
-    if (empty($user_message_text)) {
-        return true; // If no text (e.g., only image upload), skip text moderation.
-    }
-
     if (!class_exists(AIPKit_Content_Moderator::class)) {
         return true; // Fail open if moderator class is missing.
     }

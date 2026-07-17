@@ -151,6 +151,55 @@ class AIPKit_Global_Security_Settings
     }
 
     /**
+     * Returns whether an exact IP address is present in the global blocklist.
+     */
+    public static function is_ip_blocked(string $ip_address): bool
+    {
+        $ip_address = trim($ip_address);
+        if (filter_var($ip_address, FILTER_VALIDATE_IP) === false) {
+            return false;
+        }
+
+        $settings = self::get_settings();
+        $blocked_ips = isset($settings['blocklists']['banned_ips'])
+            ? array_map('trim', explode(',', (string) $settings['blocklists']['banned_ips']))
+            : [];
+
+        return in_array($ip_address, array_filter($blocked_ips), true);
+    }
+
+    /**
+     * Adds or removes an exact IP address from the global blocklist.
+     */
+    public static function set_ip_blocked(string $ip_address, bool $blocked): bool
+    {
+        $ip_address = trim($ip_address);
+        if (filter_var($ip_address, FILTER_VALIDATE_IP) === false) {
+            return false;
+        }
+
+        $settings = self::get_settings();
+        $blocked_ips = isset($settings['blocklists']['banned_ips'])
+            ? array_values(array_filter(array_map('trim', explode(',', (string) $settings['blocklists']['banned_ips']))))
+            : [];
+
+        if ($blocked) {
+            if (!in_array($ip_address, $blocked_ips, true)) {
+                $blocked_ips[] = $ip_address;
+            }
+        } else {
+            $blocked_ips = array_values(array_filter($blocked_ips, static function ($candidate) use ($ip_address): bool {
+                return $candidate !== $ip_address;
+            }));
+        }
+
+        $settings['blocklists']['banned_ips'] = implode(',', array_unique($blocked_ips));
+        self::save_settings($settings);
+
+        return self::is_ip_blocked($ip_address) === $blocked;
+    }
+
+    /**
      * Sanitizes raw global security settings.
      *
      * @param mixed $raw_settings

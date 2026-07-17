@@ -192,6 +192,9 @@ class Ajax_Hooks_Registrar
         if (method_exists($core_ajax_handler, 'ajax_get_stats_log_detail')) {
             add_action('wp_ajax_aipkit_stats_get_log_detail', [$core_ajax_handler, 'ajax_get_stats_log_detail']);
         }
+        if (method_exists($core_ajax_handler, 'ajax_set_stats_ip_block')) {
+            add_action('wp_ajax_aipkit_stats_set_ip_block', [$core_ajax_handler, 'ajax_set_stats_ip_block']);
+        }
         if (method_exists($core_ajax_handler, 'ajax_export_stats_logs')) {
             add_action('wp_ajax_aipkit_stats_export_logs', [$core_ajax_handler, 'ajax_export_stats_logs']);
         }

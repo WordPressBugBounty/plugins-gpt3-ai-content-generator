@@ -71,6 +71,13 @@ class LogStorage {
     }
 
     /**
+     * Returns aggregate metrics for conversation rows matching the filters.
+     */
+    public function get_log_summary(array $filters = []): array {
+        return $this->manager->get_log_summary($filters);
+    }
+
+    /**
      * Deletes conversation rows older than X days. Delegates to LogManager.
      * @return int|false
      */

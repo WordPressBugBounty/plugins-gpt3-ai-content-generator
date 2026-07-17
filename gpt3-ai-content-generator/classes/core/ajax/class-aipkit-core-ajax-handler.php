@@ -16,6 +16,8 @@ use WPAICG\Chat\Storage\LogCronManager;
 use WPAICG\Chat\Utils\LogConfig;
 use WPAICG\Stats\AIPKit_Stats;
 use WPAICG\Core\TokenManager\AIPKit_Token_Manager;
+use WPAICG\Core\Moderation\AIPKit_Global_Security_Settings;
+use WPAICG\AIPKit_Role_Manager;
 use WP_Error; // For WP_Error usage
 
 if (!defined('ABSPATH')) {
@@ -988,6 +990,47 @@ class AIPKit_Core_Ajax_Handler extends BaseDashboardAjaxHandler
         return wp_unslash($_POST);
     }
 
+    /**
+     * Builds the privacy-safe IP blocking state for a conversation detail response.
+     * The raw address is never returned to the browser.
+     *
+     * @param array<string,mixed> $log_row
+     * @return array{can_block:bool,is_blocked:bool,reason:string}
+     */
+    private function build_stats_ip_block_state(array $log_row): array
+    {
+        $state = [
+            'can_block' => false,
+            'is_blocked' => false,
+            'reason' => '',
+        ];
+
+        if (!class_exists(AIPKit_Role_Manager::class) || !AIPKit_Role_Manager::user_can_manage_settings()) {
+            $state['reason'] = 'permission_denied';
+            return $state;
+        }
+
+        if (!class_exists(AIPKit_Global_Security_Settings::class)) {
+            $state['reason'] = 'security_settings_unavailable';
+            return $state;
+        }
+
+        if (AIPKit_Global_Security_Settings::is_ip_anonymization_enabled()) {
+            $state['reason'] = 'ip_anonymization_enabled';
+            return $state;
+        }
+
+        $ip_address = isset($log_row['ip_address']) ? trim((string) $log_row['ip_address']) : '';
+        if (filter_var($ip_address, FILTER_VALIDATE_IP) === false) {
+            $state['reason'] = 'ip_unavailable';
+            return $state;
+        }
+
+        $state['can_block'] = true;
+        $state['is_blocked'] = AIPKit_Global_Security_Settings::is_ip_blocked($ip_address);
+        return $state;
+    }
+
     public function ajax_get_stats_logs()
     {
         $post_data = $this->get_stats_post_data();
@@ -1038,10 +1081,13 @@ class AIPKit_Core_Ajax_Handler extends BaseDashboardAjaxHandler
         $log_storage = new LogStorage();
         $logs = $log_storage->get_logs($filters, $per_page, $offset);
         $total_logs = $log_storage->count_logs($filters);
+        $summary = $log_storage->get_log_summary($filters);
+        $summary['conversations'] = (int) $total_logs;
         $total_pages = $per_page > 0 ? (int) ceil($total_logs / $per_page) : 1;
 
         wp_send_json_success([
             'logs' => $logs ?: [],
+            'summary' => $summary,
             'pagination' => [
                 'total_logs' => (int) $total_logs,
                 'total_pages' => $total_pages,
@@ -1092,8 +1138,74 @@ class AIPKit_Core_Ajax_Handler extends BaseDashboardAjaxHandler
         $messages = $this->hydrate_stats_vector_score_chunks($messages);
         $log_row['messages'] = $messages;
         $log_row['message_count'] = $log_row['message_count'] ?? count($messages);
+        $log_row['ip_block'] = $this->build_stats_ip_block_state($log_row);
+        unset($log_row['ip_address']);
 
         wp_send_json_success($log_row);
+    }
+
+    /**
+     * Blocks or unblocks the IP stored on a selected conversation log.
+     */
+    public function ajax_set_stats_ip_block()
+    {
+        $post_data = $this->get_stats_post_data();
+        if ($post_data === null) {
+            return;
+        }
+
+        if (!class_exists(AIPKit_Role_Manager::class) || !AIPKit_Role_Manager::user_can_manage_settings()) {
+            $this->send_wp_error(new WP_Error('permission_denied', __('You do not have permission to manage blocked IP addresses.', 'gpt3-ai-content-generator')));
+            return;
+        }
+
+        if (!class_exists(AIPKit_Global_Security_Settings::class)) {
+            $this->send_wp_error(new WP_Error('security_settings_unavailable', __('Security settings are unavailable.', 'gpt3-ai-content-generator')));
+            return;
+        }
+
+        if (AIPKit_Global_Security_Settings::is_ip_anonymization_enabled()) {
+            $this->send_wp_error(new WP_Error('ip_anonymization_enabled', __('IP blocking from conversation logs is unavailable while IP anonymization is enabled.', 'gpt3-ai-content-generator')));
+            return;
+        }
+
+        $log_id = isset($post_data['log_id']) ? absint($post_data['log_id']) : 0;
+        $block_action = isset($post_data['block_action']) ? sanitize_key($post_data['block_action']) : '';
+        if (!$log_id || !in_array($block_action, ['block', 'unblock'], true)) {
+            $this->send_wp_error(new WP_Error('invalid_ip_block_request', __('A valid conversation and action are required.', 'gpt3-ai-content-generator')));
+            return;
+        }
+
+        if (!class_exists(LogStorage::class)) {
+            $this->send_wp_error(new WP_Error('missing_log_storage', __('Log storage is unavailable.', 'gpt3-ai-content-generator')));
+            return;
+        }
+
+        $log_storage = new LogStorage();
+        $log_row = $log_storage->get_log_by_id($log_id);
+        if (!$log_row) {
+            $this->send_wp_error(new WP_Error('log_not_found', __('Log entry not found.', 'gpt3-ai-content-generator')));
+            return;
+        }
+
+        $ip_address = isset($log_row['ip_address']) ? trim((string) $log_row['ip_address']) : '';
+        if (filter_var($ip_address, FILTER_VALIDATE_IP) === false) {
+            $this->send_wp_error(new WP_Error('ip_unavailable', __('This conversation does not contain a valid IP address.', 'gpt3-ai-content-generator')));
+            return;
+        }
+
+        $should_block = $block_action === 'block';
+        if (!AIPKit_Global_Security_Settings::set_ip_blocked($ip_address, $should_block)) {
+            $this->send_wp_error(new WP_Error('ip_block_update_failed', __('The blocked IP list could not be updated.', 'gpt3-ai-content-generator')));
+            return;
+        }
+
+        wp_send_json_success([
+            'message' => $should_block
+                ? __('IP address blocked.', 'gpt3-ai-content-generator')
+                : __('IP address unblocked.', 'gpt3-ai-content-generator'),
+            'ip_block' => $this->build_stats_ip_block_state($log_row),
+        ]);
     }
 
     /**
@@ -1371,7 +1483,9 @@ class AIPKit_Core_Ajax_Handler extends BaseDashboardAjaxHandler
             $retention_period = 90;
         }
 
-        $is_pro = class_exists('\\WPAICG\\aipkit_dashboard') ? \WPAICG\aipkit_dashboard::is_pro_plan() : false;
+        $is_pro = class_exists('\\WPAICG\\aipkit_dashboard')
+            ? \WPAICG\aipkit_dashboard::is_pro_plan()
+            : false;
         if ($enable_pruning && !$is_pro) {
             $this->send_wp_error(new WP_Error('pro_required', __('Auto-delete logs is a Pro feature.', 'gpt3-ai-content-generator')));
             return;
@@ -1414,9 +1528,18 @@ class AIPKit_Core_Ajax_Handler extends BaseDashboardAjaxHandler
 
         $log_settings = LogConfig::get_log_settings();
         $enable_pruning = (bool) ($log_settings['enable_pruning'] ?? false);
+        $is_pro = class_exists('\\WPAICG\\aipkit_dashboard') ? \WPAICG\aipkit_dashboard::is_pro_plan() : false;
 
         $cron_hook = LogCronManager::HOOK_NAME;
         $next_scheduled = wp_next_scheduled($cron_hook);
+
+        // Repair a missing event when pruning is enabled so the UI reflects an
+        // actionable schedule instead of contradicting the saved setting.
+        if ($enable_pruning && $is_pro && $next_scheduled === false) {
+            LogCronManager::schedule_event();
+            $next_scheduled = wp_next_scheduled($cron_hook);
+        }
+
         $is_cron_active = $next_scheduled !== false;
 
         $state = 'disabled';
@@ -1424,26 +1547,32 @@ class AIPKit_Core_Ajax_Handler extends BaseDashboardAjaxHandler
         if ($enable_pruning) {
             if ($is_cron_active) {
                 $state = 'scheduled';
-                $status_text = __('Scheduled', 'gpt3-ai-content-generator');
+                $status_text = (int) $next_scheduled <= time()
+                    ? __('Next run is due', 'gpt3-ai-content-generator')
+                    : sprintf(
+                        /* translators: %s: time until the next log-pruning run. */
+                        __('Next run in %s', 'gpt3-ai-content-generator'),
+                        human_time_diff(time(), (int) $next_scheduled)
+                    );
             } else {
-                $state = 'not-scheduled';
-                $status_text = __('Not Scheduled', 'gpt3-ai-content-generator');
+                $state = 'pending';
+                $status_text = __('Scheduling next run…', 'gpt3-ai-content-generator');
             }
         }
 
         $last_run_option = get_option('aipkit_log_pruning_last_run', '');
         $last_run_label = $last_run_option
-            ? wp_date(get_option('date_format') . ' ' . get_option('time_format'), strtotime($last_run_option))
-            : __('Never', 'gpt3-ai-content-generator');
+            ? sprintf(
+                /* translators: %s: last log-pruning run time. */
+                __('Last run %s', 'gpt3-ai-content-generator'),
+                wp_date(get_option('date_format') . ' ' . get_option('time_format'), strtotime($last_run_option))
+            )
+            : __('No cleanup has run yet', 'gpt3-ai-content-generator');
 
         wp_send_json_success([
             'state' => $state,
             'status_text' => $status_text,
-            'last_run_label' => sprintf(
-                /* translators: %s: last run time */
-                __('Last run: %s', 'gpt3-ai-content-generator'),
-                $last_run_label
-            ),
+            'last_run_label' => $last_run_label,
         ]);
     }
 

@@ -66,7 +66,10 @@ $aipkit_current_popup_delay = absint($popup_delay);
                         value="<?php echo esc_attr($icon_key); ?>"
                         <?php checked($icon_checked); ?>
                     />
-                    <?php echo $svg_html; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
+                    <?php
+                    // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+                    echo $svg_html;
+                    ?>
                 </label>
             <?php endforeach; ?>
             <?php $popup_custom_radio_id = 'aipkit_bot_' . absint($bot_id) . '_popup_icon_deploy_custom'; ?>
@@ -102,7 +105,10 @@ $aipkit_current_popup_delay = absint($popup_delay);
                         value="<?php echo esc_attr($icon_key); ?>"
                         <?php checked($icon_checked); ?>
                     />
-                    <?php echo $svg_html; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
+                    <?php
+                    // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+                    echo $svg_html;
+                    ?>
                 </label>
             <?php endforeach; ?>
             <?php $header_custom_radio_id = 'aipkit_bot_' . absint($bot_id) . '_header_avatar_icon_deploy_custom'; ?>

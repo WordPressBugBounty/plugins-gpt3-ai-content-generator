@@ -51,6 +51,13 @@ class AIPKit_Content_Moderator {
             return $ip_check_result;
         }
 
+        // IP blocking also applies to requests that contain only an image or
+        // another non-text input. Skip the text-specific checks after the IP
+        // check so empty input never triggers an external moderation request.
+        if (trim($text) === '') {
+            return null;
+        }
+
         $banned_words_settings = isset($global_blocklists['banned_words_settings']) && is_array($global_blocklists['banned_words_settings'])
             ? $global_blocklists['banned_words_settings']
             : ['words' => '', 'message' => ''];
