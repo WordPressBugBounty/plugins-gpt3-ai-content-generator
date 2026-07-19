@@ -7,6 +7,7 @@ use WPAICG\Dashboard\Ajax\BaseDashboardAjaxHandler;
 use WPAICG\Core\AIPKit_AI_Caller; // For AI Caller
 use WPAICG\AIPKit_Providers;
 use WPAICG\Vector\AIPKit_Vector_Store_Manager;
+use WPAICG\Vector\AIPKit_Vector_Store_Registry;
 use WPAICG\Vector\PostProcessor\OpenAI\OpenAIPostProcessor;
 use WPAICG\Vector\PostProcessor\Pinecone\PineconePostProcessor;
 use WPAICG\Vector\PostProcessor\Qdrant\QdrantPostProcessor;
@@ -382,8 +383,37 @@ class AIPKit_Core_Ajax_Handler extends BaseDashboardAjaxHandler
         // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrongNumber, PluginCheck.Security.DirectDB.UnescapedDBParameter -- $table_name and assembled WHERE clause are internal and scalar values are prepared below.
         $logs = $wpdb->get_results($wpdb->prepare("SELECT id, timestamp, provider, status, message, indexed_content, post_id, post_title, file_id, batch_id, embedding_provider, embedding_model, vector_store_id, vector_store_name FROM {$table_name} WHERE {$where_sql} ORDER BY timestamp DESC LIMIT %d OFFSET %d", ...$logs_params), ARRAY_A);
         if (is_array($logs)) {
+            $openai_store_names = [];
+            if (class_exists(AIPKit_Vector_Store_Registry::class)) {
+                foreach (AIPKit_Vector_Store_Registry::get_registered_stores_by_provider('OpenAI') as $store) {
+                    if (is_object($store)) {
+                        $store = (array) $store;
+                    }
+                    if (!is_array($store)) {
+                        continue;
+                    }
+                    $store_id = isset($store['id']) ? (string) $store['id'] : '';
+                    $store_name = isset($store['name']) ? (string) $store['name'] : '';
+                    if ($store_id !== '' && $store_name !== '') {
+                        $openai_store_names[$store_id] = $store_name;
+                    }
+                }
+            }
+
             foreach ($logs as &$log) {
                 $log['is_user_upload'] = $this->is_vector_source_user_upload($log);
+
+                $provider = strtolower((string) ($log['provider'] ?? ''));
+                $store_id = (string) ($log['vector_store_id'] ?? '');
+                $stored_name = (string) ($log['vector_store_name'] ?? '');
+                if (
+                    $provider === 'openai'
+                    && $store_id !== ''
+                    && ($stored_name === '' || $stored_name === $store_id)
+                    && isset($openai_store_names[$store_id])
+                ) {
+                    $log['vector_store_name'] = $openai_store_names[$store_id];
+                }
             }
             unset($log);
         }
@@ -1092,6 +1122,7 @@ class AIPKit_Core_Ajax_Handler extends BaseDashboardAjaxHandler
                 'total_logs' => (int) $total_logs,
                 'total_pages' => $total_pages,
                 'current_page' => $page,
+                'per_page' => $per_page,
             ],
         ]);
     }

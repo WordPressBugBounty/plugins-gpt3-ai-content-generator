@@ -146,7 +146,7 @@ $aipkit_default_training_post_types = ['page', 'post'];
                         <div class="aipkit_training_common_questions">
                             <button type="button" class="aipkit_training_common_toggle" data-aipkit-common-questions-toggle aria-expanded="false" aria-controls="aipkit_training_common_questions_list">
                                 <span class="dashicons dashicons-plus-alt2" aria-hidden="true"></span>
-                                <span><?php esc_html_e('Add from common questions', 'gpt3-ai-content-generator'); ?></span>
+                                <span class="aipkit_training_common_toggle_label"><?php esc_html_e('Add from common questions', 'gpt3-ai-content-generator'); ?></span>
                             </button>
                             <div id="aipkit_training_common_questions_list" class="aipkit_training_common_panel" data-aipkit-common-questions-panel hidden>
                                 <?php
@@ -235,6 +235,32 @@ $aipkit_default_training_post_types = ['page', 'post'];
                 <span class="aipkit_training_action_spinner" aria-hidden="true"></span>
                 <span class="aipkit_training_action_text"><?php esc_html_e('Add source', 'gpt3-ai-content-generator'); ?></span>
             </button>
+        </div>
+    </div>
+    <div
+        class="aipkit_training_discard_prompt"
+        data-aipkit-training-discard-prompt
+        role="alertdialog"
+        aria-modal="false"
+        aria-labelledby="aipkit_chatbot_training_discard_title"
+        aria-describedby="aipkit_chatbot_training_discard_message"
+        hidden
+    >
+        <div class="aipkit_training_discard_panel">
+            <h3 class="aipkit_training_discard_title" id="aipkit_chatbot_training_discard_title">
+                <?php esc_html_e('Discard this source?', 'gpt3-ai-content-generator'); ?>
+            </h3>
+            <p class="aipkit_training_discard_message" id="aipkit_chatbot_training_discard_message">
+                <?php esc_html_e('Your source has not been added yet and will be lost.', 'gpt3-ai-content-generator'); ?>
+            </p>
+            <div class="aipkit_training_discard_actions">
+                <button type="button" class="aipkit_btn aipkit_btn-secondary aipkit_training_discard_keep">
+                    <?php esc_html_e('Keep editing', 'gpt3-ai-content-generator'); ?>
+                </button>
+                <button type="button" class="aipkit_btn aipkit_btn-danger aipkit_training_discard_confirm">
+                    <?php esc_html_e('Discard', 'gpt3-ai-content-generator'); ?>
+                </button>
+            </div>
         </div>
     </div>
 </div>

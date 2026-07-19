@@ -110,6 +110,31 @@ class SettingsAjaxHandler extends BaseDashboardAjaxHandler
     }
 
     /**
+     * Saves only Semantic Search settings.
+     *
+     * Semantic Search is exposed from both the global Settings module and the
+     * Knowledge Base module, so either module permission is sufficient here.
+     */
+    public function ajax_save_semantic_search_settings()
+    {
+        $permission_check = $this->check_any_module_access_permissions(['settings', 'sources']);
+        if (is_wp_error($permission_check)) {
+            $this->send_wp_error($permission_check);
+            return;
+        }
+
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce is checked in check_any_module_access_permissions().
+        $post_data = wp_unslash($_POST);
+        $changed = $this->save_semantic_search_settings($post_data);
+
+        wp_send_json_success([
+            'message' => $changed
+                ? __('Settings saved successfully.', 'gpt3-ai-content-generator')
+                : __('No changes detected.', 'gpt3-ai-content-generator'),
+        ]);
+    }
+
+    /**
      * Saves the main AI provider selection.
      * Calls AIPKit_Providers::save_current_provider which handles its own update_option.
      */
@@ -503,7 +528,7 @@ class SettingsAjaxHandler extends BaseDashboardAjaxHandler
      *
      * @param array $post_data The $_POST data array.
      */
-    private function save_semantic_search_settings(array $post_data): void
+    private function save_semantic_search_settings(array $post_data): bool
     {
         // Check if any semantic search data was submitted
         $semantic_keys_exist = array_filter(array_keys($post_data), function ($key) {
@@ -511,7 +536,7 @@ class SettingsAjaxHandler extends BaseDashboardAjaxHandler
         });
 
         if (empty($semantic_keys_exist)) {
-            return; // No settings to save
+            return false; // No settings to save.
         }
 
         $opts = get_option('aipkit_options');
@@ -556,7 +581,10 @@ class SettingsAjaxHandler extends BaseDashboardAjaxHandler
         if (wp_json_encode($current_settings) !== wp_json_encode($new_settings)) {
             $opts['semantic_search'] = $new_settings;
             update_option('aipkit_options', $opts, 'no');
+            return true;
         }
+
+        return false;
     }
 
     /**

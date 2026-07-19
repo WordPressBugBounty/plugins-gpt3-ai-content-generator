@@ -177,6 +177,7 @@ if ($woo_active) {
                 aria-controls="aipkit_stats_logs_panel"
                 data-aipkit-stats-tab="logs"
             >
+                <span class="dashicons dashicons-list-view" aria-hidden="true"></span>
                 <?php esc_html_e('Logs', 'gpt3-ai-content-generator'); ?>
             </button>
             <button
@@ -189,6 +190,7 @@ if ($woo_active) {
                 data-aipkit-stats-tab="pricing"
                 tabindex="-1"
             >
+                <span class="dashicons dashicons-tag" aria-hidden="true"></span>
                 <?php esc_html_e('Pricing', 'gpt3-ai-content-generator'); ?>
             </button>
             <button
@@ -201,6 +203,7 @@ if ($woo_active) {
                 data-aipkit-stats-tab="activity"
                 tabindex="-1"
             >
+                <span class="dashicons dashicons-chart-bar" aria-hidden="true"></span>
                 <?php esc_html_e('Activity', 'gpt3-ai-content-generator'); ?>
             </button>
             <button
@@ -213,6 +216,7 @@ if ($woo_active) {
                 data-aipkit-stats-tab="balances"
                 tabindex="-1"
             >
+                <span class="dashicons dashicons-money-alt" aria-hidden="true"></span>
                 <?php esc_html_e('Balances', 'gpt3-ai-content-generator'); ?>
             </button>
             <button
@@ -225,6 +229,7 @@ if ($woo_active) {
                 data-aipkit-stats-tab="woocommerce"
                 tabindex="-1"
             >
+                <span class="dashicons dashicons-cart" aria-hidden="true"></span>
                 <?php esc_html_e('WooCommerce', 'gpt3-ai-content-generator'); ?>
             </button>
         </div>
@@ -368,16 +373,46 @@ if ($woo_active) {
                         </div>
                         <div class="aipkit_data-table aipkit_stats_table">
                             <table class="aipkit_data-table__table">
+                                <colgroup>
+                                    <col class="aipkit_stats_log_col_select" />
+                                    <col class="aipkit_stats_log_col_time" />
+                                    <col class="aipkit_stats_log_col_item" />
+                                    <col class="aipkit_stats_log_col_tokens" />
+                                </colgroup>
                                 <thead>
-                                    <tr>
-                                        <th><?php esc_html_e('User', 'gpt3-ai-content-generator'); ?></th>
-                                        <th><?php esc_html_e('Tokens', 'gpt3-ai-content-generator'); ?></th>
-                                        <th><?php esc_html_e('Message', 'gpt3-ai-content-generator'); ?></th>
+                                    <tr id="aipkit_stats_logs_table_header">
+                                        <th class="aipkit_stats_log_select_cell">
+                                            <input
+                                                type="checkbox"
+                                                id="aipkit_stats_logs_select_all"
+                                                aria-label="<?php esc_attr_e('Select all conversations on this page', 'gpt3-ai-content-generator'); ?>"
+                                            />
+                                        </th>
+                                        <th><?php esc_html_e('Time', 'gpt3-ai-content-generator'); ?></th>
+                                        <th><?php esc_html_e('Item', 'gpt3-ai-content-generator'); ?></th>
+                                        <th class="aipkit_stats_log_tokens_cell"><?php esc_html_e('Tokens', 'gpt3-ai-content-generator'); ?></th>
+                                    </tr>
+                                    <tr id="aipkit_stats_logs_selection_header" class="aipkit_stats_logs_selection_header" hidden>
+                                        <th colspan="4">
+                                            <div class="aipkit_stats_logs_selection_toolbar">
+                                                <span class="aipkit_stats_logs_selection_count" id="aipkit_stats_logs_selection_count"></span>
+                                                <span class="aipkit_stats_logs_selection_actions">
+                                                    <button type="button" class="aipkit_stats_logs_selection_action aipkit_stats_logs_selection_action--danger" id="aipkit_stats_logs_bulk_delete">
+                                                        <span class="dashicons dashicons-trash" aria-hidden="true"></span>
+                                                        <?php esc_html_e('Delete', 'gpt3-ai-content-generator'); ?>
+                                                    </button>
+                                                    <button type="button" class="aipkit_stats_logs_selection_action" id="aipkit_stats_logs_selection_clear">
+                                                        <span class="dashicons dashicons-no-alt" aria-hidden="true"></span>
+                                                        <?php esc_html_e('Clear', 'gpt3-ai-content-generator'); ?>
+                                                    </button>
+                                                </span>
+                                            </div>
+                                        </th>
                                     </tr>
                                 </thead>
                                 <tbody id="aipkit_stats_table_body">
                                     <tr>
-                                        <td colspan="3" class="aipkit_stats_table_placeholder">
+                                        <td colspan="4" class="aipkit_stats_table_placeholder">
                                             <?php esc_html_e('Loading logs...', 'gpt3-ai-content-generator'); ?>
                                         </td>
                                     </tr>
