@@ -1056,6 +1056,7 @@ class AIPKit_Autogpt_Assets extends AIPKit_Admin_Asset_Base
             'task_types' => [
                 'content_indexing' => [
                     'label' => __('Index WordPress Content', 'gpt3-ai-content-generator'),
+                    'icon' => 'dashicons-database',
                     'category' => 'knowledge_base',
                     'description' => __('Index WordPress posts, pages, or products into a vector store for RAG.', 'gpt3-ai-content-generator'),
                     'ui' => [
@@ -1072,6 +1073,7 @@ class AIPKit_Autogpt_Assets extends AIPKit_Admin_Asset_Base
                 ],
                 'content_writing_bulk' => [
                     'label' => __('List', 'gpt3-ai-content-generator'),
+                    'icon' => 'dashicons-list-view',
                     'category' => 'content_creation',
                     'description' => __('Generate full articles from a list of titles and optional keywords.', 'gpt3-ai-content-generator'),
                     'ui' => [
@@ -1090,6 +1092,7 @@ class AIPKit_Autogpt_Assets extends AIPKit_Admin_Asset_Base
                 ],
                 'content_writing_csv' => [
                     'label' => __('CSV', 'gpt3-ai-content-generator'),
+                    'icon' => 'dashicons-media-spreadsheet',
                     'category' => 'content_creation',
                     'description' => __('Generate articles by importing topics and metadata from a CSV file.', 'gpt3-ai-content-generator'),
                     'ui' => [
@@ -1108,6 +1111,7 @@ class AIPKit_Autogpt_Assets extends AIPKit_Admin_Asset_Base
                 ],
                 'content_writing_rss' => [
                     'label' => __('RSS', 'gpt3-ai-content-generator'),
+                    'icon' => 'dashicons-rss',
                     'category' => 'content_creation',
                     'description' => __('Automatically generate articles from new items in one or more RSS feeds.', 'gpt3-ai-content-generator'),
                     'pro' => true,
@@ -1127,6 +1131,7 @@ class AIPKit_Autogpt_Assets extends AIPKit_Admin_Asset_Base
                 ],
                 'content_writing_url' => [
                     'label' => __('URL', 'gpt3-ai-content-generator'),
+                    'icon' => 'dashicons-admin-links',
                     'category' => 'content_creation',
                     'description' => __('Generate articles by scraping content from a list of URLs to use as context.', 'gpt3-ai-content-generator'),
                     'pro' => true,
@@ -1146,6 +1151,7 @@ class AIPKit_Autogpt_Assets extends AIPKit_Admin_Asset_Base
                 ],
                 'content_writing_gsheets' => [
                     'label' => __('Google Sheets', 'gpt3-ai-content-generator'),
+                    'icon' => 'dashicons-table-col-before',
                     'category' => 'content_creation',
                     'description' => __('Generate articles from a list of topics in a Google Sheets spreadsheet.', 'gpt3-ai-content-generator'),
                     'pro' => true,
@@ -1165,6 +1171,7 @@ class AIPKit_Autogpt_Assets extends AIPKit_Admin_Asset_Base
                 ],
                 'enhance_existing_content' => [
                     'label' => __('Update Existing Content', 'gpt3-ai-content-generator'),
+                    'icon' => 'dashicons-update',
                     'category' => 'content_enhancement',
                     'description' => __('Automatically update titles, excerpts, or meta descriptions for existing posts based on your custom prompts.', 'gpt3-ai-content-generator'),
                     'pro' => true,
@@ -1185,6 +1192,7 @@ class AIPKit_Autogpt_Assets extends AIPKit_Admin_Asset_Base
                 ],
                 'community_reply_comments' => [
                     'label' => __('Auto-Reply to Comments', 'gpt3-ai-content-generator'),
+                    'icon' => 'dashicons-admin-comments',
                     'category' => 'community_engagement',
                     'description' => __('Automatically generate and post replies to new comments.', 'gpt3-ai-content-generator'),
                     'disabled' => false,
@@ -1273,9 +1281,6 @@ class AIPKit_Autogpt_Assets extends AIPKit_Admin_Asset_Base
                 'scheduled_for_label' => __('Scheduled', 'gpt3-ai-content-generator'),
                 'item_singular' => __('item', 'gpt3-ai-content-generator'),
                 'item_plural' => __('items', 'gpt3-ai-content-generator'),
-                'queue_summary_pending' => __('Pending', 'gpt3-ai-content-generator'),
-                'queue_summary_running' => __('Running', 'gpt3-ai-content-generator'),
-                'queue_summary_failed' => __('Failed', 'gpt3-ai-content-generator'),
                 'page_label' => __('Page', 'gpt3-ai-content-generator'),
                 'of_label' => __('of', 'gpt3-ai-content-generator'),
                 'previous_button' => __('Previous', 'gpt3-ai-content-generator'),
@@ -1283,20 +1288,24 @@ class AIPKit_Autogpt_Assets extends AIPKit_Admin_Asset_Base
                 'confirm_delete_queue_item_title' => __('Remove item from queue', 'gpt3-ai-content-generator'),
                 /* translators: %s: queue item name. */
                 'confirm_delete_queue_item' => __('This removes “%s” from the queue. This cannot be undone.', 'gpt3-ai-content-generator'),
-                'confirm_delete_queue_all_title' => __('Clear queue', 'gpt3-ai-content-generator'),
-                /* translators: %s: queue status label. */
-                'confirm_delete_queue_status_title' => __('Delete %s queue items', 'gpt3-ai-content-generator'),
-                /* translators: %s: queue status label. */
-                'confirmDeleteQueueByStatus' => __('This permanently removes all %s items from the queue. This cannot be undone.', 'gpt3-ai-content-generator'),
-                'confirmDeleteQueueAll' => __('This permanently removes every item from the queue. This cannot be undone.', 'gpt3-ai-content-generator'),
+                'select_queue_item' => __('Select queue item', 'gpt3-ai-content-generator'),
+                /* translators: %d: Number of selected queue items. */
+                'queue_item_selected' => __('%d item selected', 'gpt3-ai-content-generator'),
+                /* translators: %d: Number of selected queue items. */
+                'queue_items_selected' => __('%d items selected', 'gpt3-ai-content-generator'),
+                'confirm_delete_selected_queue_items_title' => __('Delete queue items', 'gpt3-ai-content-generator'),
+                /* translators: %d: Number of selected queue items. */
+                'confirm_delete_selected_queue_items' => __('This permanently deletes %d selected queue items. This cannot be undone.', 'gpt3-ai-content-generator'),
                 'queue_item_deleted' => __('Queue item deleted.', 'gpt3-ai-content-generator'),
+                'queue_items_deleted' => __('Selected queue items deleted.', 'gpt3-ai-content-generator'),
                 'error_deleting_queue_item' => __('Error deleting item:', 'gpt3-ai-content-generator'),
-                'errorDeletingAllItems' => __('Error deleting items:', 'gpt3-ai-content-generator'),
+                'error_deleting_queue_items' => __('Error deleting queue items:', 'gpt3-ai-content-generator'),
                 'retry_button' => __('Retry', 'gpt3-ai-content-generator'),
                 'item_marked_retry' => __('Item marked for retry. Queue processing will pick it up.', 'gpt3-ai-content-generator'),
                 'error_retrying_item' => __('Error retrying item:', 'gpt3-ai-content-generator'),
                 'task_singular' => __('task', 'gpt3-ai-content-generator'),
                 'task_plural' => __('tasks', 'gpt3-ai-content-generator'),
+                'rows_per_page' => __('Rows per page', 'gpt3-ai-content-generator'),
             ],
         ]);
     }

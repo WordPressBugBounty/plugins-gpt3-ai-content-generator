@@ -708,7 +708,7 @@ class Automated_Task_Ajax_Handlers_Loader
             'class-aipkit-run-automated-task-now-action.php',
             'class-aipkit-get-automated-task-queue-items-action.php',
             'class-aipkit-delete-automated-task-queue-item-action.php',
-            'class-aipkit-delete-automated-task-queue-items-by-status-action.php',
+            'class-aipkit-delete-automated-task-queue-items-action.php',
             'class-aipkit-retry-automated-task-queue-item-action.php',
         ];
         foreach ($ajax_actions as $file) {
