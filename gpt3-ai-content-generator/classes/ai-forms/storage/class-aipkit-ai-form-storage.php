@@ -2,11 +2,6 @@
 
 namespace WPAICG\AIForms\Storage;
 
-use WPAICG\AIForms\Admin\AIPKit_AI_Form_Admin_Setup;
-use WPAICG\AIPKit_Providers;
-use WP_Error;
-use WP_Query;
-
 if (!defined('ABSPATH')) {
     exit; // Exit if accessed directly
 }
@@ -77,13 +72,4 @@ class AIPKit_AI_Form_Storage
         return Methods\get_forms_list_logic($this, $args);
     }
 
-    /**
-     * Deletes all AI Form CPTs.
-     *
-     * @return int|WP_Error The number of posts deleted, or WP_Error on failure.
-     */
-    public function delete_all_forms()
-    {
-        return Methods\delete_all_forms_logic($this);
-    }
 }

@@ -527,37 +527,39 @@ $all_selectable_post_types = array_filter($all_selectable_post_types, function (
                     </button>
                 </div>
             </div>
-            <div class="aipkit_data-table aipkit_sources_table">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>
-                                <span class="aipkit_sources_status_header">
-                                    <input
-                                        type="checkbox"
-                                        id="aipkit_sources_select_all"
-                                        class="aipkit_sources_select_all"
-                                        aria-label="<?php esc_attr_e('Select all deletable sources', 'gpt3-ai-content-generator'); ?>"
-                                        disabled
-                                    />
-                                    <span><?php esc_html_e('Status', 'gpt3-ai-content-generator'); ?></span>
-                                </span>
-                            </th>
-                            <th><?php esc_html_e('Item', 'gpt3-ai-content-generator'); ?></th>
-                            <th><?php esc_html_e('Updated', 'gpt3-ai-content-generator'); ?></th>
-                            <th class="aipkit_actions_cell_header"><?php esc_html_e('Actions', 'gpt3-ai-content-generator'); ?></th>
-                        </tr>
-                    </thead>
-                    <tbody id="aipkit_sources_table_body">
-                        <tr>
-                            <td colspan="4" class="aipkit_text-center">
-                                <?php esc_html_e('Sources will appear here.', 'gpt3-ai-content-generator'); ?>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
+            <div class="aipkit_data-table-frame aipkit_sources_data_table_frame">
+                <div class="aipkit_data-table aipkit_sources_table">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>
+                                    <span class="aipkit_sources_status_header">
+                                        <input
+                                            type="checkbox"
+                                            id="aipkit_sources_select_all"
+                                            class="aipkit_sources_select_all"
+                                            aria-label="<?php esc_attr_e('Select all deletable sources', 'gpt3-ai-content-generator'); ?>"
+                                            disabled
+                                        />
+                                        <span><?php esc_html_e('Status', 'gpt3-ai-content-generator'); ?></span>
+                                    </span>
+                                </th>
+                                <th><?php esc_html_e('Item', 'gpt3-ai-content-generator'); ?></th>
+                                <th><?php esc_html_e('Updated', 'gpt3-ai-content-generator'); ?></th>
+                                <th class="aipkit_actions_cell_header"><?php esc_html_e('Actions', 'gpt3-ai-content-generator'); ?></th>
+                            </tr>
+                        </thead>
+                        <tbody id="aipkit_sources_table_body">
+                            <tr>
+                                <td colspan="4" class="aipkit_text-center">
+                                    <?php esc_html_e('Sources will appear here.', 'gpt3-ai-content-generator'); ?>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div id="aipkit_sources_pagination" class="aipkit_logs_pagination_container aipkit_data-table-footer"></div>
             </div>
-            <div id="aipkit_sources_pagination" class="aipkit_logs_pagination_container"></div>
             </div>
             <div
                 id="aipkit_sources_stores_panel"

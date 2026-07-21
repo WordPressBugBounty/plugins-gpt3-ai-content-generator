@@ -2801,7 +2801,7 @@ class ChatbotAjaxHandler extends BaseAjaxHandler {
         $total_logs = (int) $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM {$table_name} WHERE {$where_sql}", ...$params ) );
         $logs_params = array_merge( $params, [$per_page, $offset] );
         // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrongNumber, PluginCheck.Security.DirectDB.UnescapedDBParameter -- $table_name and assembled WHERE clause are internal and scalar values are prepared below.
-        $logs = $wpdb->get_results( $wpdb->prepare( "SELECT id, timestamp, status, message, indexed_content, post_id, post_title, file_id, batch_id, embedding_provider, embedding_model, vector_store_id, vector_store_name FROM {$table_name} WHERE {$where_sql} ORDER BY timestamp DESC LIMIT %d OFFSET %d", ...$logs_params ), ARRAY_A );
+        $logs = $wpdb->get_results( $wpdb->prepare( "SELECT id, timestamp, provider, status, message, indexed_content, post_id, post_title, file_id, batch_id, embedding_provider, embedding_model, vector_store_id, vector_store_name FROM {$table_name} WHERE {$where_sql} ORDER BY timestamp DESC LIMIT %d OFFSET %d", ...$logs_params ), ARRAY_A );
         $total_pages = ( $per_page > 0 ? (int) ceil( $total_logs / $per_page ) : 0 );
         wp_send_json_success( [
             'logs'       => ( $logs ?: [] ),

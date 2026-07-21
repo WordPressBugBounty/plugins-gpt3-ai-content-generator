@@ -38,7 +38,7 @@ $upgrade_url = isset($upgrade_url) && !empty($upgrade_url)
         <div class="aipkit_ai_form_conversation_ui_settings">
             <div class="aipkit_popover_option_row">
                 <div class="aipkit_popover_option_main aipkit_popover_option_main--stacked">
-                    <p class="aipkit_form-help"><?php esc_html_e('Hover a row in the builder and click the chat bubble to configure each step.', 'gpt3-ai-content-generator'); ?></p>
+                    <p class="aipkit_form-help"><?php esc_html_e('Use the chat action in each layout toolbar to configure its step.', 'gpt3-ai-content-generator'); ?></p>
                 </div>
             </div>
             <div class="aipkit_popover_option_row">
@@ -61,7 +61,7 @@ $upgrade_url = isset($upgrade_url) && !empty($upgrade_url)
                     <span class="aipkit_popover_option_label"><?php esc_html_e('Turn forms into guided step-by-step flows.', 'gpt3-ai-content-generator'); ?></span>
                     <p class="aipkit_form-help"><?php esc_html_e('Show one step at a time with navigation and conditional branching.', 'gpt3-ai-content-generator'); ?></p>
                 </div>
-                <a id="aipkit_ai_form_multistep_upgrade_btn" class="aipkit_btn aipkit_btn-primary aipkit_ai_form_upgrade_btn" href="<?php echo esc_url($upgrade_url); ?>" target="_blank" rel="noopener noreferrer">
+                <a id="aipkit_ai_form_multistep_upgrade_btn" class="aipkit_btn aipkit_ai_form_upgrade_btn" href="<?php echo esc_url($upgrade_url); ?>" target="_blank" rel="noopener noreferrer">
                     <?php esc_html_e('Upgrade', 'gpt3-ai-content-generator'); ?>
                 </a>
             </div>

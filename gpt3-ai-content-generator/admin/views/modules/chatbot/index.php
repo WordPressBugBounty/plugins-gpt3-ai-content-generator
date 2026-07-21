@@ -762,7 +762,7 @@ if ( class_exists( aipkit_dashboard::class ) ) {
 }
 $file_upload_toggle_value = ( $can_enable_file_upload && $enable_file_upload === '1' ? '1' : '0' );
 $grouped_openai_models = get_option( 'aipkit_openai_model_list', [] );
-$openrouter_model_list = get_option( 'aipkit_openrouter_model_list', [] );
+$openrouter_model_list = AIPKit_Providers::get_openrouter_models();
 $google_model_list = get_option( 'aipkit_google_model_list', [] );
 $azure_deployment_list = AIPKit_Providers::get_azure_deployments();
 $claude_model_list = AIPKit_Providers::get_claude_models();

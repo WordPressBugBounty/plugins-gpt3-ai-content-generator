@@ -4,7 +4,7 @@ Tags: ai, chatbot, openai, ai writer, automation
 Requires at least: 6.0
 Tested up to: 7.0
 Requires PHP: 7.4
-Stable tag: 2.4.55
+Stable tag: 2.4.56
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -125,6 +125,16 @@ Yes. AIP supports GPT-5, GPT-4o, GPT-4 Turbo, Google Gemini 1.5, Imagen 4.0, and
 ---
 
 == Changelog ==
+
+= 2.4.56 =
+
+- Redesigned AI Forms with a cleaner overview, five ready-made templates, and a more compact form editor.
+- Improved form building with persistent layout controls, resizable columns, clearer drop targets, streamlined field settings, and automatic prompt-variable names for newly added fields.
+- Added model syncing, modern model, knowledge base, and web search settings dialogs, stronger prompt validation, and preview support for any form containing fields.
+- Added checkbox-based bulk export and deletion, one-off shortcode options, and clearer import and export actions.
+- Standardized table headers, footers, pagination, dialogs, buttons across AI Forms and related admin screens.
+- Stopped creating legacy default forms on activation or update; existing forms remain available.
+- Fixed Chatbot Manage Sources updates incorrectly reporting a missing OpenAI API key.
 
 = 2.4.55 =
 

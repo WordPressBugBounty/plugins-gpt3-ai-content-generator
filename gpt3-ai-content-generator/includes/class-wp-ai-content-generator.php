@@ -140,11 +140,6 @@ class WP_AI_Content_Generator
             \WPAICG\ContentWriter\AIPKit_Content_Writer_Template_Manager::ensure_default_template_exists();
         }
 
-        // Ensure Default AI Forms exist
-        if (class_exists('\\WPAICG\\AIForms\\Admin\\AIPKit_AI_Form_Defaults')) {
-            \WPAICG\AIForms\Admin\AIPKit_AI_Form_Defaults::ensure_default_forms_exist();
-        }
-
         // Ensure Cron Jobs are scheduled
         if (class_exists('\\WPAICG\\Core\\TokenManager\\AIPKit_Token_Manager')) {
             \WPAICG\Core\TokenManager\AIPKit_Token_Manager::schedule_token_reset_event();

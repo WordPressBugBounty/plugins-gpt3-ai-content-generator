@@ -83,12 +83,12 @@ $aipkit_feature_promo_classes = trim(
     </div>
 
     <div class="aipkit_feature_promo_cta">
-        <a class="aipkit_btn aipkit_btn-primary aipkit_feature_promo_btn" href="<?php echo esc_url($aipkit_feature_promo_upgrade_url); ?>" target="_blank" rel="noopener noreferrer">
+        <a class="aipkit_btn aipkit_feature_promo_btn" href="<?php echo esc_url($aipkit_feature_promo_upgrade_url); ?>" target="_blank" rel="noopener noreferrer">
             <?php echo esc_html($aipkit_feature_promo_upgrade_label); ?>
         </a>
         <a class="aipkit_feature_promo_link" href="<?php echo esc_url($aipkit_feature_promo_docs_url); ?>" target="_blank" rel="noopener noreferrer">
-            <?php esc_html_e('Learn more', 'gpt3-ai-content-generator'); ?>
-            <span aria-hidden="true">&rarr;</span>
+            <span class="aipkit_feature_promo_link_label"><?php esc_html_e('Learn more', 'gpt3-ai-content-generator'); ?></span>
+            <span class="aipkit_feature_promo_link_arrow" aria-hidden="true">&rarr;</span>
         </a>
     </div>
 </div>

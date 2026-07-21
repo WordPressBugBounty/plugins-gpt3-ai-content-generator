@@ -31,9 +31,6 @@ class AIPKit_AI_Form_Initializer
             add_action('init', [$admin_setup, 'register_cpt']);
         }
 
-        // The default form creation is now called from the main plugin activator to ensure it runs
-        // on new installs, reactivations, and version updates.
-
         if (class_exists(AIPKit_AI_Form_Shortcode::class)) {
             $shortcode_handler = new AIPKit_AI_Form_Shortcode();
             add_shortcode('aipkit_ai_form', [$shortcode_handler, 'render_shortcode']);

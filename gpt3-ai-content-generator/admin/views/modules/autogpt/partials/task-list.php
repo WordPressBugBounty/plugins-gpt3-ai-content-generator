@@ -81,7 +81,7 @@ if ($aipkit_cron_state === 'disabled') {
         <div class="aipkit_autogpt_section_header">
             <h2 id="aipkit_autogpt_tasks_heading"><?php esc_html_e('Tasks', 'gpt3-ai-content-generator'); ?></h2>
         </div>
-        <div class="aipkit_autogpt_table_frame">
+        <div class="aipkit_autogpt_table_frame aipkit_data-table-frame">
             <div class="aipkit_data-table aipkit_autogpt_tasks_table">
                 <table>
                 <colgroup class="aipkit_autogpt_tasks_columns">
@@ -105,7 +105,7 @@ if ($aipkit_cron_state === 'disabled') {
                 </tbody>
                 </table>
             </div>
-            <div id="aipkit_automated_task_list_pagination" class="aipkit_pagination"></div>
+            <div id="aipkit_automated_task_list_pagination" class="aipkit_pagination aipkit_data-table-footer"></div>
         </div>
     </section>
 </div>

@@ -419,7 +419,7 @@ if ($woo_active) {
                                 </tbody>
                             </table>
                         </div>
-                        <div id="aipkit_stats_pagination" class="aipkit_logs_pagination_container"></div>
+                        <div id="aipkit_stats_pagination" class="aipkit_logs_pagination_container aipkit_data-table-footer"></div>
                     </div>
 
                     <div class="aipkit_stats_detail_shell">

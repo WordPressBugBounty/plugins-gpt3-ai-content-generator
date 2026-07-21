@@ -82,6 +82,7 @@ function get_form_data_logic(\WPAICG\AIForms\Storage\AIPKit_AI_Form_Storage $sto
         'id' => $form_id,
         'title' => $post->post_title,
         'status' => $post->post_status,
+        'template_key' => sanitize_key((string) get_post_meta($form_id, '_aipkit_ai_form_template_key', true)),
         'prompt_template' => get_post_meta($form_id, '_aipkit_ai_form_prompt_template', true) ?: '',
         'structure' => $form_structure,
         'ai_provider' => get_post_meta($form_id, '_aipkit_ai_form_ai_provider', true) ?: ($default_provider_config['provider'] ?? 'OpenAI'),
@@ -254,6 +255,15 @@ function aipkit_structure_has_elements($structure): bool
  */
 function save_form_settings_logic(\WPAICG\AIForms\Storage\AIPKit_AI_Form_Storage $storageInstance, int $form_id, array $settings): bool
 {
+    if (array_key_exists('template_key', $settings)) {
+        $allowed_template_keys = ['lead_capture', 'customer_feedback', 'book_appointment', 'support_request', 'waitlist_signup'];
+        $template_key = sanitize_key((string) $settings['template_key']);
+        if (in_array($template_key, $allowed_template_keys, true)) {
+            update_post_meta($form_id, '_aipkit_ai_form_template_key', $template_key);
+        } else {
+            delete_post_meta($form_id, '_aipkit_ai_form_template_key');
+        }
+    }
     if (isset($settings['prompt_template'])) {
         update_post_meta($form_id, '_aipkit_ai_form_prompt_template', AIPKit_Prompt_Sanitizer::sanitize($settings['prompt_template']));
     }
@@ -626,6 +636,7 @@ function get_forms_list_logic(\WPAICG\AIForms\Storage\AIPKit_AI_Form_Storage $st
                 '_aipkit_ai_form_ai_provider',
                 '_aipkit_ai_form_ai_model',
                 '_aipkit_ai_form_submission_count',
+                '_aipkit_ai_form_template_key',
             ];
             $meta_key_placeholders = implode(', ', array_fill(0, count($meta_keys_to_fetch), '%s'));
 
@@ -666,6 +677,7 @@ function get_forms_list_logic(\WPAICG\AIForms\Storage\AIPKit_AI_Form_Storage $st
                 'status' => $post->post_status,
                 'provider' => $meta_map[$form_id]['_aipkit_ai_form_ai_provider'] ?? null,
                 'model' => $meta_map[$form_id]['_aipkit_ai_form_ai_model'] ?? null,
+                'template_key' => $meta_map[$form_id]['_aipkit_ai_form_template_key'] ?? '',
                 'updated_at' => $updated_at,
                 'submissions_count' => $submission_count,
             ];
@@ -682,39 +694,4 @@ function get_forms_list_logic(\WPAICG\AIForms\Storage\AIPKit_AI_Form_Storage $st
             'total_pages' => (int) $query->max_num_pages,
         ]
     ];
-}
-
-/**
- * Logic for deleting all AI Form CPTs.
- *
- * @param \WPAICG\AIForms\Storage\AIPKit_AI_Form_Storage $storageInstance The instance of the storage class.
- * @return int|WP_Error The number of posts deleted, or WP_Error on failure.
- */
-function delete_all_forms_logic(\WPAICG\AIForms\Storage\AIPKit_AI_Form_Storage $storageInstance)
-{
-    if (!class_exists(AIPKit_AI_Form_Admin_Setup::class)) {
-        return new WP_Error('dependency_missing', 'AI Form Admin Setup class not found for CPT deletion.');
-    }
-
-    $args = array(
-        'post_type'      => AIPKit_AI_Form_Admin_Setup::POST_TYPE,
-        'posts_per_page' => -1,
-        'post_status'    => ['publish', 'draft', 'trash'], // Also get from trash
-        'fields'         => 'ids',
-    );
-    $all_forms = get_posts($args);
-
-    if (empty($all_forms)) {
-        return 0; // No forms to delete
-    }
-
-    $deleted_count = 0;
-    foreach ($all_forms as $form_id) {
-        $deleted = wp_delete_post($form_id, true); // true to force delete, bypassing trash
-        if ($deleted) {
-            $deleted_count++;
-        }
-    }
-
-    return $deleted_count;
 }

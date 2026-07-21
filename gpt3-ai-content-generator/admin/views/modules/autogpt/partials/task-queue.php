@@ -61,7 +61,7 @@ if (!defined('ABSPATH')) {
             </span>
         </div>
     </div>
-    <div class="aipkit_autogpt_table_frame">
+    <div class="aipkit_autogpt_table_frame aipkit_data-table-frame">
         <div id="aipkit_automated_task_queue_viewer_area" class="aipkit_data-table aipkit_autogpt_queue_table">
             <table>
                 <colgroup>
@@ -89,7 +89,7 @@ if (!defined('ABSPATH')) {
                 </tbody>
             </table>
         </div>
-        <div id="aipkit_automated_task_queue_pagination" class="aipkit_pagination"></div>
+        <div id="aipkit_automated_task_queue_pagination" class="aipkit_pagination aipkit_data-table-footer"></div>
     </div>
     </section>
 </div>

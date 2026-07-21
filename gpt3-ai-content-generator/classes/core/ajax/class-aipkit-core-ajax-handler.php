@@ -153,12 +153,12 @@ class AIPKit_Core_Ajax_Handler extends BaseDashboardAjaxHandler
         $post_data = wp_unslash($_POST);
 
         $provider_raw = isset($post_data['provider']) ? sanitize_text_field($post_data['provider']) : '';
+        $provider = AIPKit_Providers::normalize_provider_label($provider_raw);
         $allowed_providers = ['OpenAI', 'Pinecone', 'Qdrant', 'Chroma'];
-        if (!in_array($provider_raw, $allowed_providers, true)) {
+        if (!in_array($provider, $allowed_providers, true)) {
             $this->send_wp_error(new WP_Error('invalid_provider_delete_vector', __('Invalid or unsupported provider for this action.', 'gpt3-ai-content-generator')));
             return;
         }
-        $provider = $provider_raw;
         
         $store_id   = isset($post_data['store_id']) ? sanitize_text_field($post_data['store_id']) : '';
         $vector_id  = isset($post_data['vector_id']) ? sanitize_text_field($post_data['vector_id']) : '';
@@ -272,7 +272,8 @@ class AIPKit_Core_Ajax_Handler extends BaseDashboardAjaxHandler
         // Sanitize all inputs.
         // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce is verified by check_module_access_permissions() above.
         $post_data = wp_unslash($_POST);
-        $provider = isset($post_data['provider']) ? sanitize_text_field($post_data['provider']) : '';
+        $provider_raw = isset($post_data['provider']) ? sanitize_text_field($post_data['provider']) : '';
+        $provider = AIPKit_Providers::normalize_provider_label($provider_raw);
         $store_id = isset($post_data['store_id']) ? sanitize_text_field($post_data['store_id']) : '';
         $vector_id = isset($post_data['vector_id']) ? sanitize_text_field($post_data['vector_id']) : '';
         $log_id = isset($post_data['log_id']) ? absint($post_data['log_id']) : 0;

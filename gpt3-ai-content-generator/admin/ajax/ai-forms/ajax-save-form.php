@@ -63,6 +63,11 @@ function do_ajax_save_form_logic(AIPKit_AI_Form_Ajax_Handler $handler_instance):
     $form_id = isset($post_data['form_id']) && !empty($post_data['form_id']) ? absint($post_data['form_id']) : null;
     $allow_empty_structure = isset($post_data['allow_empty_structure']) && $post_data['allow_empty_structure'] === '1';
     $title = isset($post_data['title']) ? sanitize_text_field($post_data['title']) : '';
+    $template_key = isset($post_data['template_key']) ? sanitize_key($post_data['template_key']) : '';
+    $allowed_template_keys = ['lead_capture', 'customer_feedback', 'book_appointment', 'support_request', 'waitlist_signup'];
+    if (!in_array($template_key, $allowed_template_keys, true)) {
+        $template_key = '';
+    }
     $prompt_template = isset($post_data['prompt_template']) ? AIPKit_Prompt_Sanitizer::sanitize($post_data['prompt_template']) : '';
     $form_structure_json = isset($post_data['form_structure']) ? wp_kses_post($post_data['form_structure']) : '[]';
 
@@ -257,6 +262,7 @@ function do_ajax_save_form_logic(AIPKit_AI_Form_Ajax_Handler $handler_instance):
     }
 
     $settings = [
+        'template_key' => $template_key,
         'prompt_template' => $prompt_template,
         'form_structure'  => $form_structure_json,
         'ai_provider' => $ai_provider,

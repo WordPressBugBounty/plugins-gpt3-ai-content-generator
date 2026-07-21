@@ -20,6 +20,23 @@ $aipkit_token_limits_reset_period_row_extra_class = isset($aipkit_token_limits_r
 $aipkit_token_limits_reset_period_row_extra_class = $aipkit_token_limits_reset_period_row_extra_class !== ''
     ? ' ' . $aipkit_token_limits_reset_period_row_extra_class
     : '';
+$aipkit_settings_section_is_modern = isset($aipkit_settings_section_variant)
+    && $aipkit_settings_section_variant === 'ai-forms-modern';
+$aipkit_settings_section_classes = $aipkit_settings_section_is_modern
+    ? 'aipkit_ai_forms_settings_surface aipkit_ai_forms_settings_tab_panel'
+    : 'aipkit_ai_forms_settings_block aipkit_settings_module_tab_panel';
+$aipkit_settings_section_header_class = $aipkit_settings_section_is_modern
+    ? 'aipkit_ai_forms_settings_surface_header'
+    : 'aipkit_ai_forms_settings_block_header';
+$aipkit_settings_section_title_class = $aipkit_settings_section_is_modern
+    ? 'aipkit_ai_forms_settings_surface_title'
+    : 'aipkit_ai_forms_settings_block_title';
+$aipkit_settings_section_helper_class = $aipkit_settings_section_is_modern
+    ? 'aipkit_ai_forms_settings_surface_helper'
+    : 'aipkit_ai_forms_settings_block_helper';
+$aipkit_settings_section_body_class = $aipkit_settings_section_is_modern
+    ? 'aipkit_ai_forms_settings_surface_body'
+    : 'aipkit_ai_forms_settings_block_body';
 
 $aipkit_token_limits_id = static function (string $suffix) use ($aipkit_token_limits_field_id_prefix): string {
     return $aipkit_token_limits_field_id_prefix . '_' . $suffix;
@@ -32,19 +49,19 @@ $aipkit_token_limits_default_label = static function (string $action_type): stri
 };
 ?>
 <section
-    class="aipkit_ai_forms_settings_block aipkit_settings_module_tab_panel"
+    class="<?php echo esc_attr($aipkit_settings_section_classes); ?>"
     id="<?php echo esc_attr($aipkit_token_limits_section_id_prefix . '_limits'); ?>"
     role="tabpanel"
     aria-labelledby="<?php echo esc_attr($aipkit_token_limits_section_id_prefix . '_tab_limits'); ?>"
     data-aipkit-settings-module-tab-panel="limits"
 >
-    <div class="aipkit_ai_forms_settings_block_header">
+    <div class="<?php echo esc_attr($aipkit_settings_section_header_class); ?>">
         <div>
-            <h3 class="aipkit_ai_forms_settings_block_title"><?php esc_html_e('Limits', 'gpt3-ai-content-generator'); ?></h3>
-            <p class="aipkit_ai_forms_settings_block_helper"><?php esc_html_e('Quotas and reset rules.', 'gpt3-ai-content-generator'); ?></p>
+            <h3 class="<?php echo esc_attr($aipkit_settings_section_title_class); ?>"><?php esc_html_e('Limits', 'gpt3-ai-content-generator'); ?></h3>
+            <p class="<?php echo esc_attr($aipkit_settings_section_helper_class); ?>"><?php esc_html_e('Quotas and reset rules.', 'gpt3-ai-content-generator'); ?></p>
         </div>
     </div>
-    <div class="aipkit_ai_forms_settings_block_body">
+    <div class="<?php echo esc_attr($aipkit_settings_section_body_class); ?>">
         <div class="aipkit_ai_forms_settings_row">
             <label class="aipkit_form-label" for="<?php echo esc_attr($aipkit_token_limits_id('guest_limit')); ?>">
                 <?php esc_html_e('Guest quota', 'gpt3-ai-content-generator'); ?>

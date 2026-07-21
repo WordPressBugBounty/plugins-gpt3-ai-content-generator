@@ -70,15 +70,6 @@ class WP_AI_Content_Generator_Activator
             }
         }
 
-        // Ensure Default AI Forms exist.
-        $ai_form_defaults_path = WPAICG_PLUGIN_DIR . 'classes/ai-forms/admin/class-aipkit-ai-form-defaults.php';
-        if (file_exists($ai_form_defaults_path)) {
-            require_once $ai_form_defaults_path;
-            if (class_exists('\\WPAICG\\AIForms\\Admin\\AIPKit_AI_Form_Defaults')) {
-                \WPAICG\AIForms\Admin\AIPKit_AI_Form_Defaults::ensure_default_forms_exist();
-            }
-        }
-
         // Schedule cron jobs (methods are idempotent, so it's safe to run).
         if (class_exists(AIPKit_Token_Manager::class)) {
             AIPKit_Token_Manager::schedule_token_reset_event();

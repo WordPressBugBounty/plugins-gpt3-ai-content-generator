@@ -37,10 +37,11 @@ class AIPKit_AI_Form_Ajax_Handler extends BaseDashboardAjaxHandler
         add_action('wp_ajax_aipkit_get_ai_form', [$this, 'ajax_get_ai_form']);
         add_action('wp_ajax_aipkit_generate_ai_form_from_prompt', [$this, 'ajax_generate_ai_form_from_prompt']);
         add_action('wp_ajax_aipkit_delete_ai_form', [$this, 'ajax_delete_ai_form']);
+        add_action('wp_ajax_aipkit_delete_selected_ai_forms', [$this, 'ajax_delete_selected_ai_forms']);
         add_action('wp_ajax_aipkit_duplicate_ai_form', [$this, 'ajax_duplicate_ai_form']);
         add_action('wp_ajax_aipkit_get_form_preview', [$this, 'ajax_get_form_preview']);
-        add_action('wp_ajax_aipkit_delete_all_ai_forms', [$this, 'ajax_delete_all_ai_forms']);
         add_action('wp_ajax_aipkit_export_all_ai_forms', [$this, 'ajax_export_all_ai_forms']);
+        add_action('wp_ajax_aipkit_export_selected_ai_forms', [$this, 'ajax_export_selected_ai_forms']);
         add_action('wp_ajax_aipkit_import_ai_forms', [$this, 'ajax_import_ai_forms']);
     }
 
@@ -129,6 +130,21 @@ class AIPKit_AI_Form_Ajax_Handler extends BaseDashboardAjaxHandler
     }
 
     /**
+     * AJAX: Deletes the explicitly selected AI Forms.
+     */
+    public function ajax_delete_selected_ai_forms()
+    {
+        $permission_check = $this->check_module_access_permissions('ai-forms', 'aipkit_manage_ai_forms_nonce');
+        if (is_wp_error($permission_check)) {
+            $this->send_wp_error($permission_check);
+            return;
+        }
+
+        require_once WPAICG_PLUGIN_DIR . 'admin/ajax/ai-forms/ajax-delete-selected-forms.php';
+        \WPAICG\Admin\Ajax\AIForms\do_ajax_delete_selected_forms_logic($this);
+    }
+
+    /**
      * AJAX: Duplicates an AI Form.
      */
     public function ajax_duplicate_ai_form()
@@ -157,6 +173,21 @@ class AIPKit_AI_Form_Ajax_Handler extends BaseDashboardAjaxHandler
 
         require_once WPAICG_PLUGIN_DIR . 'admin/ajax/ai-forms/ajax-export-all-forms.php';
         \WPAICG\Admin\Ajax\AIForms\do_ajax_export_all_forms_logic($this);
+    }
+
+    /**
+     * AJAX: Exports the explicitly selected AI Forms.
+     */
+    public function ajax_export_selected_ai_forms()
+    {
+        $permission_check = $this->check_module_access_permissions('ai-forms', 'aipkit_manage_ai_forms_nonce');
+        if (is_wp_error($permission_check)) {
+            $this->send_wp_error($permission_check);
+            return;
+        }
+
+        require_once WPAICG_PLUGIN_DIR . 'admin/ajax/ai-forms/ajax-export-all-forms.php';
+        \WPAICG\Admin\Ajax\AIForms\do_ajax_export_selected_forms_logic($this);
     }
 
 
@@ -271,21 +302,6 @@ class AIPKit_AI_Form_Ajax_Handler extends BaseDashboardAjaxHandler
             'config' => $public_config,
             'models' => $models, // Add models to response
         ]);
-    }
-
-    /**
-     * AJAX: Deletes all AI Forms.
-     */
-    public function ajax_delete_all_ai_forms()
-    {
-        $permission_check = $this->check_module_access_permissions('ai-forms', 'aipkit_manage_ai_forms_nonce');
-        if (is_wp_error($permission_check)) {
-            $this->send_wp_error($permission_check);
-            return;
-        }
-
-        require_once WPAICG_PLUGIN_DIR . 'admin/ajax/ai-forms/ajax-delete-all-forms.php';
-        \WPAICG\Admin\Ajax\AIForms\do_ajax_delete_all_forms_logic($this);
     }
 
     /**

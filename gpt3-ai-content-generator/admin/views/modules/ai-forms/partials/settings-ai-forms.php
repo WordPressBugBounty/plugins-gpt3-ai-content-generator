@@ -76,21 +76,22 @@ $secondary_action_show_url = $token_limit_secondary_action_type === 'custom_url'
 <form id="aipkit_ai_forms_settings_form" class="aipkit_ai_forms_settings_form">
     <input type="hidden" name="_ajax_nonce" value="<?php echo esc_attr($settings_nonce); ?>">
     <div class="aipkit_ai_forms_settings_page" data-aipkit-settings-module-tab-scope="ai-forms">
-        <div class="aipkit_settings_module_tabs" role="tablist" aria-label="<?php esc_attr_e('AI Forms settings', 'gpt3-ai-content-generator'); ?>" data-aipkit-settings-module-tabs="ai-forms">
+        <div class="aipkit_ai_forms_settings_tabs" role="tablist" aria-label="<?php esc_attr_e('AI Forms settings', 'gpt3-ai-content-generator'); ?>" data-aipkit-settings-module-tabs="ai-forms">
             <button
                 type="button"
-                class="aipkit_settings_module_tab aipkit_active"
+                class="aipkit_ai_forms_settings_tab aipkit_active"
                 id="aipkit_ai_forms_settings_section_tab_limits"
                 role="tab"
                 aria-selected="true"
                 aria-controls="aipkit_ai_forms_settings_section_limits"
                 data-aipkit-settings-module-tab="limits"
             >
-                <?php esc_html_e('Limits', 'gpt3-ai-content-generator'); ?>
+                <span class="dashicons dashicons-chart-pie" aria-hidden="true"></span>
+                <span><?php esc_html_e('Limits', 'gpt3-ai-content-generator'); ?></span>
             </button>
             <button
                 type="button"
-                class="aipkit_settings_module_tab"
+                class="aipkit_ai_forms_settings_tab"
                 id="aipkit_ai_forms_settings_section_tab_custom_css"
                 role="tab"
                 aria-selected="false"
@@ -98,11 +99,12 @@ $secondary_action_show_url = $token_limit_secondary_action_type === 'custom_url'
                 data-aipkit-settings-module-tab="custom-css"
                 tabindex="-1"
             >
-                <?php esc_html_e('Custom CSS', 'gpt3-ai-content-generator'); ?>
+                <span class="dashicons dashicons-editor-code" aria-hidden="true"></span>
+                <span><?php esc_html_e('Custom CSS', 'gpt3-ai-content-generator'); ?></span>
             </button>
             <button
                 type="button"
-                class="aipkit_settings_module_tab"
+                class="aipkit_ai_forms_settings_tab"
                 id="aipkit_ai_forms_settings_section_tab_frontend_models"
                 role="tab"
                 aria-selected="false"
@@ -110,10 +112,13 @@ $secondary_action_show_url = $token_limit_secondary_action_type === 'custom_url'
                 data-aipkit-settings-module-tab="frontend-models"
                 tabindex="-1"
             >
-                <?php esc_html_e('Frontend Models', 'gpt3-ai-content-generator'); ?>
+                <span class="dashicons dashicons-admin-network" aria-hidden="true"></span>
+                <span><?php esc_html_e('Frontend Models', 'gpt3-ai-content-generator'); ?></span>
             </button>
         </div>
+        <div id="aipkit_ai_forms_settings_content" class="aipkit_ai_forms_settings_content">
         <?php
+        $aipkit_settings_section_variant = 'ai-forms-modern';
         $aipkit_token_limits_section_id_prefix = 'aipkit_ai_forms_settings_section';
         $aipkit_token_limits_field_id_prefix = 'aipkit_aiforms_token';
         $aipkit_token_limits_field_name_prefix = 'aiforms_token';
@@ -136,6 +141,8 @@ $secondary_action_show_url = $token_limit_secondary_action_type === 'custom_url'
         $aipkit_frontend_models_selector_id = 'aipkit_ai_forms_models_selector';
         unset($aipkit_frontend_models_empty_all_selected);
         include WPAICG_PLUGIN_DIR . 'admin/views/modules/shared/frontend-models-settings-section.php';
+        unset($aipkit_settings_section_variant);
         ?>
+        </div>
     </div>
 </form>
