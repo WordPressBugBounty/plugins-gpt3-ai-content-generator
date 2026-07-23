@@ -39,6 +39,7 @@ if ($aipkit_cw_socket_timeout > 0 && $aipkit_cw_socket_timeout <= 30) {
 ?>
 <?php
 $aipkit_notice_id = 'aipkit_provider_notice_content_writer';
+$aipkit_notice_context = __('write content', 'gpt3-ai-content-generator');
 include WPAICG_PLUGIN_DIR . 'admin/views/shared/provider-key-notice.php';
 include WPAICG_PLUGIN_DIR . 'admin/views/shared/seo-plugin-conflict-notice.php';
 ?>

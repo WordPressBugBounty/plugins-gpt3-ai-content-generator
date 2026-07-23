@@ -54,7 +54,7 @@ foreach ($recipe_connections as $connection) {
     $connection_status = sanitize_key((string) ($connection['status'] ?? 'draft'));
     $connection_enabled = !array_key_exists('is_enabled', $connection) || !empty($connection['is_enabled']);
     $recipe_connection_options[$connection_id] = [
-        'label' => $connection_name !== '' ? $connection_name : __('Untitled Connection', 'gpt3-ai-content-generator'),
+        'label' => $connection_name !== '' ? $connection_name : __('Untitled connection', 'gpt3-ai-content-generator'),
         'app_slug' => $connection_app_slug,
         'status' => $connection_status,
         'is_enabled' => $connection_enabled,
@@ -120,8 +120,8 @@ if (is_array($source_groups_by_event) && !empty($source_groups_by_event)) {
 }
 
 if (empty($recipe_mapping_source_option_groups)) {
-    $recipe_mapping_source_option_groups[__('Core Sources', 'gpt3-ai-content-generator')] = [
-        'label' => __('Core Sources', 'gpt3-ai-content-generator'),
+    $recipe_mapping_source_option_groups[__('Core sources', 'gpt3-ai-content-generator')] = [
+        'label' => __('Core sources', 'gpt3-ai-content-generator'),
         'options' => [],
     ];
 
@@ -132,14 +132,14 @@ if (empty($recipe_mapping_source_option_groups)) {
 
         foreach ($source_options as $source_path => $source_label) {
             $source_key = (string) $source_path;
-            if (!isset($recipe_mapping_source_option_groups[__('Core Sources', 'gpt3-ai-content-generator')]['options'][$source_key])) {
-                $recipe_mapping_source_option_groups[__('Core Sources', 'gpt3-ai-content-generator')]['options'][$source_key] = [
+            if (!isset($recipe_mapping_source_option_groups[__('Core sources', 'gpt3-ai-content-generator')]['options'][$source_key])) {
+                $recipe_mapping_source_option_groups[__('Core sources', 'gpt3-ai-content-generator')]['options'][$source_key] = [
                     'label' => (string) $source_label,
                     'event_names' => [],
                 ];
             }
 
-            $recipe_mapping_source_option_groups[__('Core Sources', 'gpt3-ai-content-generator')]['options'][$source_key]['event_names'][] = (string) $event_name;
+            $recipe_mapping_source_option_groups[__('Core sources', 'gpt3-ai-content-generator')]['options'][$source_key]['event_names'][] = (string) $event_name;
         }
     }
 }
@@ -182,14 +182,14 @@ $render_recipe_mapping_row = static function (
     ?>
     <div class="aipkit_settings_recipe_mapping_row" data-aipkit-recipe-mapping-row>
         <label class="aipkit_settings_recipe_mapping_field">
-            <span class="aipkit_settings_recipe_field_label"><?php esc_html_e('Target Field', 'gpt3-ai-content-generator'); ?></span>
+            <span class="aipkit_settings_recipe_field_label"><?php esc_html_e('Target field', 'gpt3-ai-content-generator'); ?></span>
             <select
                 name="native_app_recipes[recipes][<?php echo esc_attr($recipe_index); ?>][mapping][fields][<?php echo esc_attr($mapping_index); ?>][target_field]"
                 class="aipkit_form-input aipkit_autosave_trigger"
                 data-aipkit-recipe-mapping-field="target_field"
                 data-aipkit-recipe-mapping-target-select
             >
-                <option value=""><?php esc_html_e('-- Select Target --', 'gpt3-ai-content-generator'); ?></option>
+                <option value=""><?php esc_html_e('Select a target', 'gpt3-ai-content-generator'); ?></option>
                 <?php foreach ($recipe_mapping_target_options_flat as $target_key => $target_data) : ?>
                     <option
                         value="<?php echo esc_attr($target_key); ?>"
@@ -202,14 +202,14 @@ $render_recipe_mapping_row = static function (
             </select>
         </label>
         <label class="aipkit_settings_recipe_mapping_field">
-            <span class="aipkit_settings_recipe_field_label"><?php esc_html_e('Source Field', 'gpt3-ai-content-generator'); ?></span>
+            <span class="aipkit_settings_recipe_field_label"><?php esc_html_e('Source field', 'gpt3-ai-content-generator'); ?></span>
             <select
                 name="native_app_recipes[recipes][<?php echo esc_attr($recipe_index); ?>][mapping][fields][<?php echo esc_attr($mapping_index); ?>][source_path]"
                 class="aipkit_form-input aipkit_autosave_trigger"
                 data-aipkit-recipe-mapping-field="source_path"
                 data-aipkit-recipe-mapping-source-select
             >
-                <option value=""><?php esc_html_e('-- Select Source --', 'gpt3-ai-content-generator'); ?></option>
+                <option value=""><?php esc_html_e('Select a source', 'gpt3-ai-content-generator'); ?></option>
                 <?php foreach ($recipe_mapping_source_option_groups as $group_data) : ?>
                     <?php
                     $group_label = sanitize_text_field((string) ($group_data['label'] ?? ''));
@@ -247,14 +247,14 @@ $render_recipe_mapping_row = static function (
             </select>
         </label>
         <label class="aipkit_settings_recipe_mapping_field">
-            <span class="aipkit_settings_recipe_field_label"><?php esc_html_e('Fallback Value', 'gpt3-ai-content-generator'); ?></span>
+            <span class="aipkit_settings_recipe_field_label"><?php esc_html_e('Fallback value', 'gpt3-ai-content-generator'); ?></span>
             <input
                 type="text"
                 name="native_app_recipes[recipes][<?php echo esc_attr($recipe_index); ?>][mapping][fields][<?php echo esc_attr($mapping_index); ?>][fallback_value]"
                 value="<?php echo esc_attr($fallback_value); ?>"
                 class="aipkit_form-input aipkit_autosave_trigger"
                 data-aipkit-recipe-mapping-field="fallback_value"
-                placeholder="<?php esc_attr_e('Optional fallback.', 'gpt3-ai-content-generator'); ?>"
+                placeholder="<?php esc_attr_e('Optional fallback', 'gpt3-ai-content-generator'); ?>"
             />
         </label>
         <label class="aipkit_settings_recipe_mapping_toggle">
@@ -269,8 +269,14 @@ $render_recipe_mapping_row = static function (
             <span><?php esc_html_e('Required', 'gpt3-ai-content-generator'); ?></span>
         </label>
         <div class="aipkit_settings_recipe_mapping_actions">
-            <button type="button" class="button aipkit_btn aipkit_btn-danger" data-aipkit-remove-recipe-mapping>
-                <?php esc_html_e('Remove', 'gpt3-ai-content-generator'); ?>
+            <button
+                type="button"
+                class="aipkit_settings_row_icon_button aipkit_settings_row_icon_button--danger"
+                data-aipkit-remove-recipe-mapping
+                aria-label="<?php esc_attr_e('Remove mapping', 'gpt3-ai-content-generator'); ?>"
+                title="<?php esc_attr_e('Remove mapping', 'gpt3-ai-content-generator'); ?>"
+            >
+                <span class="dashicons dashicons-trash" aria-hidden="true"></span>
             </button>
         </div>
     </div>
@@ -288,6 +294,7 @@ $render_recipe = static function (
     $recipe_action_options_by_app,
     $recipe_chatbot_scope_options,
     $recipe_ai_form_scope_options,
+    $recipe_template_definitions,
     $recipe_mapping_definitions,
     $recipe_connection_records,
     $recipe_validator_class,
@@ -296,6 +303,21 @@ $render_recipe = static function (
     $recipe_index = (string) $index;
     $recipe_id = sanitize_text_field((string) ($recipe['id'] ?? ''));
     $recipe_name = (string) ($recipe['name'] ?? '');
+    $recipe_template_slug = sanitize_key((string) ($recipe['template_slug'] ?? ''));
+    $recipe_template_definition = $recipe_template_definitions[$recipe_template_slug] ?? [];
+    if (
+        $recipe_template_slug !== ''
+        && $recipe_name === $recipe_template_slug
+        && is_array($recipe_template_definition)
+    ) {
+        $recipe_name = sanitize_text_field(
+            (string) (
+                $recipe_template_definition['name']
+                ?? $recipe_template_definition['label']
+                ?? $recipe_name
+            )
+        );
+    }
     $recipe_connection_id = sanitize_text_field((string) ($recipe['connection_id'] ?? ''));
     $recipe_app_slug = sanitize_key((string) ($recipe['app_slug'] ?? 'slack'));
     if (!isset($recipe_app_options[$recipe_app_slug])) {
@@ -395,11 +417,13 @@ $render_recipe = static function (
         $recipe_validation_status = 'warning';
     }
     $recipe_validation_summary = sanitize_text_field((string) ($recipe_validation_state['summary'] ?? __('Validation unavailable.', 'gpt3-ai-content-generator')));
+    $recipe_validation_id = 'aipkit_recipe_validation_' . sanitize_html_class($recipe_index);
+    $recipe_can_enable = $recipe_enabled || !in_array($recipe_validation_status, ['error', 'reauth_required'], true);
     $recipe_status_badge_labels = [
         'ready' => __('Ready', 'gpt3-ai-content-generator'),
         'warning' => __('Warning', 'gpt3-ai-content-generator'),
         'error' => __('Error', 'gpt3-ai-content-generator'),
-        'reauth_required' => __('Reauth Required', 'gpt3-ai-content-generator'),
+        'reauth_required' => __('Reauth required', 'gpt3-ai-content-generator'),
     ];
     ?>
     <article class="aipkit_settings_recipe_card" data-aipkit-recipe-card data-recipe-index="<?php echo esc_attr($recipe_index); ?>">
@@ -427,26 +451,39 @@ $render_recipe = static function (
         <input
             type="hidden"
             name="native_app_recipes[recipes][<?php echo esc_attr($recipe_index); ?>][template_slug]"
-            value="<?php echo esc_attr((string) ($recipe['template_slug'] ?? '')); ?>"
+            value="<?php echo esc_attr($recipe_template_slug); ?>"
             class="aipkit_autosave_trigger"
             data-aipkit-recipe-field="template_slug"
         />
 
         <div class="aipkit_settings_recipe_card_header">
-            <div class="aipkit_settings_recipe_card_heading">
-                <strong class="aipkit_settings_recipe_card_title" data-aipkit-recipe-title>
-                    <?php echo esc_html($recipe_name !== '' ? $recipe_name : __('Untitled Recipe', 'gpt3-ai-content-generator')); ?>
-                </strong>
-                <span class="aipkit_settings_recipe_card_index" data-aipkit-recipe-number></span>
-                <span class="aipkit_settings_recipe_status aipkit_settings_recipe_status--<?php echo esc_attr($recipe_validation_status); ?>" data-aipkit-recipe-status-badge>
-                    <?php echo esc_html($recipe_status_badge_labels[$recipe_validation_status] ?? __('Warning', 'gpt3-ai-content-generator')); ?>
-                </span>
-                <span class="aipkit_settings_recipe_enabled_flag aipkit_settings_recipe_enabled_flag--<?php echo $recipe_enabled ? 'enabled' : 'disabled'; ?>" data-aipkit-recipe-enabled-flag>
-                    <?php echo $recipe_enabled ? esc_html__('Enabled', 'gpt3-ai-content-generator') : esc_html__('Disabled', 'gpt3-ai-content-generator'); ?>
-                </span>
+            <div class="aipkit_settings_recipe_card_identity">
+                <div class="aipkit_settings_recipe_card_heading">
+                    <strong class="aipkit_settings_recipe_card_title" data-aipkit-recipe-title>
+                        <?php echo esc_html($recipe_name !== '' ? $recipe_name : __('Untitled recipe', 'gpt3-ai-content-generator')); ?>
+                    </strong>
+                    <span class="aipkit_settings_recipe_card_index" data-aipkit-recipe-number></span>
+                    <span class="aipkit_settings_recipe_status aipkit_settings_recipe_status--<?php echo esc_attr($recipe_validation_status); ?>" data-aipkit-recipe-status-badge>
+                        <?php echo esc_html($recipe_status_badge_labels[$recipe_validation_status] ?? __('Warning', 'gpt3-ai-content-generator')); ?>
+                    </span>
+                    <span class="aipkit_settings_recipe_enabled_flag aipkit_settings_recipe_enabled_flag--<?php echo $recipe_enabled ? 'enabled' : 'disabled'; ?>" data-aipkit-recipe-enabled-flag>
+                        <?php echo $recipe_enabled ? esc_html__('Enabled', 'gpt3-ai-content-generator') : esc_html__('Disabled', 'gpt3-ai-content-generator'); ?>
+                    </span>
+                </div>
+                <code
+                    class="aipkit_settings_recipe_technical_reference"
+                    data-aipkit-recipe-technical-reference
+                    <?php if ($recipe_template_slug === '') : ?>hidden<?php endif; ?>
+                ><?php echo esc_html($recipe_template_slug); ?></code>
             </div>
             <div class="aipkit_settings_recipe_card_actions">
-                <button type="button" class="button button-primary aipkit_btn aipkit_btn-primary" data-aipkit-recipe-edit-toggle>
+                <button
+                    type="button"
+                    class="button aipkit_btn aipkit_settings_card_toggle"
+                    data-aipkit-recipe-edit-toggle
+                    aria-expanded="false"
+                    aria-label="<?php esc_attr_e('Edit recipe', 'gpt3-ai-content-generator'); ?>"
+                >
                     <?php esc_html_e('Edit', 'gpt3-ai-content-generator'); ?>
                 </button>
             </div>
@@ -456,26 +493,36 @@ $render_recipe = static function (
             <?php echo esc_html(implode(' | ', $recipe_summary_parts)); ?>
         </p>
         <p
+            id="<?php echo esc_attr($recipe_validation_id); ?>"
             class="aipkit_settings_recipe_card_validation aipkit_settings_recipe_card_validation--<?php echo esc_attr($recipe_validation_status); ?>"
             data-aipkit-recipe-validation
             data-status-key="<?php echo esc_attr($recipe_validation_status); ?>"
         >
-            <?php echo esc_html($recipe_validation_summary); ?>
+            <span class="dashicons dashicons-warning" aria-hidden="true"></span>
+            <span data-aipkit-recipe-validation-text><?php echo esc_html($recipe_validation_summary); ?></span>
         </p>
 
         <div class="aipkit_settings_recipe_card_body" data-aipkit-recipe-body hidden>
             <div class="aipkit_settings_recipe_card_actions aipkit_settings_recipe_card_actions--body">
-                <button type="button" class="button button-primary aipkit_btn aipkit_btn-primary" data-aipkit-recipe-duplicate>
-                    <?php esc_html_e('Duplicate', 'gpt3-ai-content-generator'); ?>
-                </button>
-                <button type="button" class="button button-primary aipkit_btn aipkit_btn-primary" data-aipkit-recipe-toggle-enabled>
+                <button
+                    type="button"
+                    class="button button-primary aipkit_btn aipkit_btn-primary"
+                    data-aipkit-recipe-toggle-enabled
+                    aria-describedby="<?php echo esc_attr($recipe_validation_id); ?>"
+                    <?php disabled(!$recipe_can_enable); ?>
+                    <?php if (!$recipe_can_enable) : ?>title="<?php echo esc_attr($recipe_validation_summary); ?>"<?php endif; ?>
+                >
                     <?php echo $recipe_enabled ? esc_html__('Disable', 'gpt3-ai-content-generator') : esc_html__('Enable', 'gpt3-ai-content-generator'); ?>
                 </button>
-                <button type="button" class="button aipkit_btn aipkit_btn-danger" data-aipkit-remove-recipe>
+                <button type="button" class="button aipkit_btn" data-aipkit-recipe-duplicate>
+                    <?php esc_html_e('Duplicate', 'gpt3-ai-content-generator'); ?>
+                </button>
+                <button type="button" class="button aipkit_btn aipkit_btn-danger aipkit_btn-danger--quiet" data-aipkit-remove-recipe>
                     <?php esc_html_e('Delete', 'gpt3-ai-content-generator'); ?>
                 </button>
             </div>
 
+            <h4 class="aipkit_settings_recipe_section_label"><?php esc_html_e('Configuration', 'gpt3-ai-content-generator'); ?></h4>
             <div class="aipkit_settings_recipe_builder_flow">
                 <label class="aipkit_settings_recipe_field aipkit_settings_recipe_field--step">
                     <span class="aipkit_settings_recipe_field_label"><?php esc_html_e('Event', 'gpt3-ai-content-generator'); ?></span>
@@ -544,7 +591,7 @@ $render_recipe = static function (
                         data-aipkit-recipe-field="connection_id"
                         data-aipkit-recipe-connection-select
                     >
-                        <option value=""><?php esc_html_e('-- Select Connection --', 'gpt3-ai-content-generator'); ?></option>
+                        <option value=""><?php esc_html_e('Select a connection', 'gpt3-ai-content-generator'); ?></option>
                         <?php foreach ($recipe_connection_options as $connection_id => $connection_data) : ?>
                             <option
                                 value="<?php echo esc_attr($connection_id); ?>"
@@ -569,7 +616,7 @@ $render_recipe = static function (
                         value="<?php echo esc_attr($recipe_name); ?>"
                         class="aipkit_form-input aipkit_autosave_trigger"
                         data-aipkit-recipe-field="name"
-                        placeholder="<?php esc_attr_e('New Recipe', 'gpt3-ai-content-generator'); ?>"
+                        placeholder="<?php esc_attr_e('Untitled recipe', 'gpt3-ai-content-generator'); ?>"
                     />
                 </label>
                 <label
@@ -577,7 +624,7 @@ $render_recipe = static function (
                     data-aipkit-recipe-chatbot-scope-row
                     <?php echo strpos($recipe_event_name, 'chatbot.') === 0 ? '' : 'hidden'; ?>
                 >
-                    <span class="aipkit_settings_recipe_field_label"><?php esc_html_e('Chatbot Scope', 'gpt3-ai-content-generator'); ?></span>
+                    <span class="aipkit_settings_recipe_field_label"><?php esc_html_e('Chatbot scope', 'gpt3-ai-content-generator'); ?></span>
                     <span class="aipkit_settings_recipe_field_hint"><?php esc_html_e('Optionally limit this recipe to one chatbot.', 'gpt3-ai-content-generator'); ?></span>
                     <select
                         name="native_app_recipes[recipes][<?php echo esc_attr($recipe_index); ?>][filters][chatbot][bot_ids][0]"
@@ -598,8 +645,8 @@ $render_recipe = static function (
                     data-aipkit-recipe-ai-form-scope-row
                     <?php echo $recipe_event_name === 'form.submitted' ? '' : 'hidden'; ?>
                 >
-                    <span class="aipkit_settings_recipe_field_label"><?php esc_html_e('AI Form Scope', 'gpt3-ai-content-generator'); ?></span>
-                    <span class="aipkit_settings_recipe_field_hint"><?php esc_html_e('Optionally limit this recipe to one AI Form.', 'gpt3-ai-content-generator'); ?></span>
+                    <span class="aipkit_settings_recipe_field_label"><?php esc_html_e('AI form scope', 'gpt3-ai-content-generator'); ?></span>
+                    <span class="aipkit_settings_recipe_field_hint"><?php esc_html_e('Optionally limit this recipe to one AI form.', 'gpt3-ai-content-generator'); ?></span>
                     <select
                         name="native_app_recipes[recipes][<?php echo esc_attr($recipe_index); ?>][filters][ai_form][form_ids][0]"
                         class="aipkit_form-input aipkit_autosave_trigger"
@@ -619,7 +666,7 @@ $render_recipe = static function (
             <div class="aipkit_settings_recipe_mapping">
                 <div class="aipkit_settings_recipe_mapping_header">
                     <div class="aipkit_settings_recipe_mapping_heading">
-                        <strong><?php esc_html_e('Field Mapping', 'gpt3-ai-content-generator'); ?></strong>
+                        <strong><?php esc_html_e('Field mapping', 'gpt3-ai-content-generator'); ?></strong>
                         <span data-aipkit-recipe-mapping-object-label>
                             <?php
                             echo esc_html(
@@ -632,8 +679,8 @@ $render_recipe = static function (
                             ?>
                         </span>
                     </div>
-                    <button type="button" class="button button-primary aipkit_btn aipkit_btn-primary" data-aipkit-add-recipe-mapping>
-                        <?php esc_html_e('Add Mapping', 'gpt3-ai-content-generator'); ?>
+                    <button type="button" class="button aipkit_btn" data-aipkit-add-recipe-mapping>
+                        <?php esc_html_e('Add mapping', 'gpt3-ai-content-generator'); ?>
                     </button>
                 </div>
                 <div class="aipkit_settings_recipe_mapping_list" data-aipkit-recipe-mapping-list>
@@ -660,12 +707,12 @@ $render_recipe = static function (
         <div class="aipkit_settings_recipes_main">
             <div class="aipkit_settings_recipes_toolbar">
                 <button type="button" class="button button-secondary aipkit_btn" id="aipkit_add_recipe_btn">
-                    <?php esc_html_e('Add Blank', 'gpt3-ai-content-generator'); ?>
+                    <?php esc_html_e('Add recipe', 'gpt3-ai-content-generator'); ?>
                 </button>
                 <?php if (!empty($recipe_template_groups)) : ?>
                     <div class="aipkit_settings_recipes_template_picker">
                         <select class="aipkit_form-input" id="aipkit_recipe_template_picker">
-                            <option value=""><?php esc_html_e('Start With Template', 'gpt3-ai-content-generator'); ?></option>
+                            <option value=""><?php esc_html_e('Start with a template', 'gpt3-ai-content-generator'); ?></option>
                             <?php foreach ($recipe_template_groups as $group_label => $group_templates) : ?>
                                 <optgroup label="<?php echo esc_attr($group_label); ?>">
                                     <?php foreach ($group_templates as $template_slug => $template_definition) : ?>
@@ -682,7 +729,7 @@ $render_recipe = static function (
                             id="aipkit_add_recipe_template_btn"
                             disabled
                         >
-                            <?php esc_html_e('Use Template', 'gpt3-ai-content-generator'); ?>
+                            <?php esc_html_e('Use template', 'gpt3-ai-content-generator'); ?>
                         </button>
                     </div>
                 <?php endif; ?>

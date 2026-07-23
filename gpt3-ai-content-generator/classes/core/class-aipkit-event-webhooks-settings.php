@@ -48,6 +48,9 @@ class AIPKit_Event_Webhooks_Settings
             : [];
 
         $merged = self::merge_settings($defaults, $existing);
+        if ($merged['enabled'] === '1' && trim((string) $merged['signing_secret']) === '') {
+            $merged['signing_secret'] = self::generate_signing_secret();
+        }
         if ($merged !== $existing) {
             $options['event_webhooks'] = $merged;
             update_option('aipkit_options', $options, 'no');
@@ -167,7 +170,6 @@ class AIPKit_Event_Webhooks_Settings
 
         $settings = self::get_defaults();
         $settings['enabled'] = isset($raw_settings['enabled']) && (string) $raw_settings['enabled'] === '1' ? '1' : '0';
-        $settings['signing_secret'] = sanitize_text_field((string) ($raw_settings['signing_secret'] ?? ''));
 
         $event_field_key_map = self::get_event_field_key_map();
         $raw_endpoints = isset($raw_settings['endpoints']) && is_array($raw_settings['endpoints'])
@@ -193,16 +195,81 @@ class AIPKit_Event_Webhooks_Settings
     public static function save_settings($raw_settings): array
     {
         $sanitized = self::sanitize_settings_input($raw_settings);
+        $existing = self::get_settings();
+
+        // The signing secret is server-owned. Generic settings autosave may
+        // update endpoint configuration and the enabled flag, but it must never
+        // accept an arbitrary replacement secret from form data.
+        $sanitized['signing_secret'] = sanitize_text_field((string) ($existing['signing_secret'] ?? ''));
+        if ($sanitized['enabled'] === '1' && $sanitized['signing_secret'] === '') {
+            $sanitized['signing_secret'] = self::generate_signing_secret();
+        }
+
+        self::persist_settings($sanitized);
+
+        return $sanitized;
+    }
+
+    /**
+     * Enables or disables outbound webhooks, generating the secret on first use.
+     *
+     * @return array<string, mixed>
+     */
+    public static function set_enabled(bool $enabled): array
+    {
+        $settings = self::get_settings();
+        $settings['enabled'] = $enabled ? '1' : '0';
+        if ($enabled && trim((string) ($settings['signing_secret'] ?? '')) === '') {
+            $settings['signing_secret'] = self::generate_signing_secret();
+        }
+
+        self::persist_settings($settings);
+
+        return $settings;
+    }
+
+    /**
+     * Replaces the webhook signing secret with a cryptographically random value.
+     *
+     * @return array<string, mixed>
+     */
+    public static function regenerate_signing_secret(): array
+    {
+        $settings = self::get_settings();
+        $settings['signing_secret'] = self::generate_signing_secret();
+        self::persist_settings($settings);
+
+        return $settings;
+    }
+
+    /**
+     * Generates a server-owned webhook signing secret.
+     */
+    public static function generate_signing_secret(): string
+    {
+        try {
+            return 'whsec_' . bin2hex(random_bytes(32));
+        } catch (\Exception $exception) {
+            return 'whsec_' . wp_generate_password(64, false, false);
+        }
+    }
+
+    /**
+     * Persists an already-normalized settings structure.
+     *
+     * @param array<string, mixed> $settings
+     */
+    private static function persist_settings(array $settings): void
+    {
+        $settings = self::merge_settings(self::get_defaults(), $settings);
 
         $options = get_option('aipkit_options', []);
         if (!is_array($options)) {
             $options = [];
         }
 
-        $options['event_webhooks'] = $sanitized;
+        $options['event_webhooks'] = $settings;
         update_option('aipkit_options', $options, 'no');
-
-        return $sanitized;
     }
 
     /**

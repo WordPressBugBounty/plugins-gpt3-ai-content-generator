@@ -22,6 +22,7 @@ $all_selectable_post_types = array_filter($all_selectable_post_types, function (
 <div
     class="aipkit_container aipkit_sources_container"
     id="aipkit_sources_module_container"
+    data-aipkit-sources-active-tab="data"
 >
     <div class="aipkit_container-header">
         <div class="aipkit_container-header-left">

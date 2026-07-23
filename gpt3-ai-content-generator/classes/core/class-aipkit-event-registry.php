@@ -24,52 +24,52 @@ class AIPKit_Event_Registry
             'chatbot.session_started' => [
                 'module' => 'chatbot',
                 'category' => 'chatbot',
-                'label' => 'Chat Session Started',
+                'label' => 'Chat session started',
             ],
             'chatbot.user_message_submitted' => [
                 'module' => 'chatbot',
                 'category' => 'chatbot',
-                'label' => 'Chat User Message Submitted',
+                'label' => 'Chat user message submitted',
             ],
             'chatbot.response_generated' => [
                 'module' => 'chatbot',
                 'category' => 'chatbot',
-                'label' => 'Chat Response Generated',
+                'label' => 'Chat response generated',
             ],
             'chatbot.fb_submitted' => [
                 'module' => 'chatbot',
                 'category' => 'chatbot',
-                'label' => 'Chat Feedback Submitted',
+                'label' => 'Chat feedback submitted',
             ],
             'chatbot.form_submitted' => [
                 'module' => 'chatbot',
                 'category' => 'chatbot',
-                'label' => 'Chatbot Form Submitted',
+                'label' => 'Chatbot form submitted',
             ],
             'content.generated' => [
                 'module' => 'content_writer',
                 'category' => 'content',
-                'label' => 'Content Generated',
+                'label' => 'Content generated',
             ],
             'task.item_completed' => [
                 'module' => 'automated_tasks',
                 'category' => 'tasks',
-                'label' => 'Task Queue Item Completed',
+                'label' => 'Task queue item completed',
             ],
             'form.submitted' => [
                 'module' => 'ai_forms',
                 'category' => 'forms',
-                'label' => 'AI Form Submitted',
+                'label' => 'AI form submitted',
             ],
             'image.generated' => [
                 'module' => 'image_generator',
                 'category' => 'images',
-                'label' => 'Image Generated',
+                'label' => 'Image generated',
             ],
             'kb.source_indexed' => [
                 'module' => 'knowledge_base',
                 'category' => 'knowledge_base',
-                'label' => 'KB Source Indexed',
+                'label' => 'KB source indexed',
             ],
         ];
     }

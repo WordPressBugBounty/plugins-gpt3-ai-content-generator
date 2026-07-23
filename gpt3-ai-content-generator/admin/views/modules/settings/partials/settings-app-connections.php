@@ -59,8 +59,24 @@ $get_connection_field_value = static function (array $connection, string $group,
 
     return sanitize_text_field((string) ($group_value[$key] ?? ''));
 };
+$format_connection_secret_mask = static function (string $credential): string {
+    if ($credential === '') {
+        return '';
+    }
 
-$render_app_connection = static function ($index, array $connection = []) use ($supported_apps, $supported_auth_types, $supported_auth_types_by_app, $auth_type_app_map, $diagnostics_class, $app_field_definitions, $default_auth_types_by_app, $get_connection_field_value): void {
+    $fixed_mask = '••••••••••••';
+    $credential_length = strlen($credential);
+    if ($credential_length < 9) {
+        return $fixed_mask;
+    }
+
+    $prefix_length = $credential_length >= 16 ? 8 : 3;
+    $suffix_length = $credential_length >= 16 ? 4 : 3;
+
+    return substr($credential, 0, $prefix_length) . $fixed_mask . substr($credential, -$suffix_length);
+};
+
+$render_app_connection = static function ($index, array $connection = []) use ($supported_apps, $supported_auth_types, $supported_auth_types_by_app, $auth_type_app_map, $diagnostics_class, $app_field_definitions, $default_auth_types_by_app, $get_connection_field_value, $format_connection_secret_mask): void {
     $connection_index = (string) $index;
     $connection_id = sanitize_text_field((string) ($connection['id'] ?? ''));
     $connection_name = (string) ($connection['name'] ?? '');
@@ -89,14 +105,14 @@ $render_app_connection = static function ($index, array $connection = []) use ($
             'summary' => __('Connection details saved.', 'gpt3-ai-content-generator'),
             'is_testable' => false,
             'can_test' => false,
-            'button_label' => __('Test Connection', 'gpt3-ai-content-generator'),
+            'button_label' => __('Test connection', 'gpt3-ai-content-generator'),
         ];
     $status_key = sanitize_key((string) ($connection_ui_state['status_key'] ?? $connection_status));
     $status_label = sanitize_text_field((string) ($connection_ui_state['status_label'] ?? ucwords(str_replace('_', ' ', $connection_status))));
     $status_summary = sanitize_text_field((string) ($connection_ui_state['summary'] ?? ''));
     $is_testable = !empty($connection_ui_state['is_testable']);
     $can_test = !empty($connection_ui_state['can_test']);
-    $test_button_label = sanitize_text_field((string) ($connection_ui_state['button_label'] ?? __('Test Connection', 'gpt3-ai-content-generator')));
+    $test_button_label = sanitize_text_field((string) ($connection_ui_state['button_label'] ?? __('Test connection', 'gpt3-ai-content-generator')));
     $connection_summary_parts = [];
     if (isset($supported_apps[$connection_app_slug])) {
         $connection_summary_parts[] = (string) $supported_apps[$connection_app_slug];
@@ -127,7 +143,7 @@ $render_app_connection = static function ($index, array $connection = []) use ($
         <div class="aipkit_settings_app_connection_header">
             <div class="aipkit_settings_app_connection_heading">
                 <strong class="aipkit_settings_app_connection_title" data-aipkit-app-connection-title>
-                    <?php echo esc_html($connection_name !== '' ? $connection_name : __('Untitled Connection', 'gpt3-ai-content-generator')); ?>
+                    <?php echo esc_html($connection_name !== '' ? $connection_name : __('Untitled connection', 'gpt3-ai-content-generator')); ?>
                 </strong>
                 <span class="aipkit_settings_app_connection_index" data-aipkit-app-connection-number></span>
                 <span
@@ -140,9 +156,10 @@ $render_app_connection = static function ($index, array $connection = []) use ($
             <div class="aipkit_settings_app_connection_actions">
                 <button
                     type="button"
-                    class="button button-primary aipkit_btn aipkit_btn-primary"
+                    class="button aipkit_btn aipkit_settings_card_toggle"
                     data-aipkit-app-connection-edit-toggle
                     aria-expanded="false"
+                    aria-label="<?php esc_attr_e('Edit connection', 'gpt3-ai-content-generator'); ?>"
                 >
                     <?php esc_html_e('Edit', 'gpt3-ai-content-generator'); ?>
                 </button>
@@ -159,17 +176,6 @@ $render_app_connection = static function ($index, array $connection = []) use ($
 
         <div class="aipkit_settings_app_connection_body" data-aipkit-app-connection-body hidden>
             <div class="aipkit_settings_app_connection_actions aipkit_settings_app_connection_actions--body">
-                <button
-                    type="button"
-                    class="button button-primary aipkit_btn aipkit_btn-primary"
-                    data-aipkit-test-app-connection
-                    data-connection-id="<?php echo esc_attr($connection_id); ?>"
-                    <?php if (!$is_testable) : ?>hidden<?php endif; ?>
-                    <?php disabled(!$can_test); ?>
-                >
-                    <span class="aipkit_btn-text" data-aipkit-test-app-connection-label><?php echo esc_html($test_button_label); ?></span>
-                    <span class="aipkit_spinner"></span>
-                </button>
                 <label class="aipkit_settings_app_connection_toggle">
                     <span><?php esc_html_e('Enabled', 'gpt3-ai-content-generator'); ?></span>
                     <span class="aipkit_switch">
@@ -184,8 +190,8 @@ $render_app_connection = static function ($index, array $connection = []) use ($
                         <span class="aipkit_switch_slider"></span>
                     </span>
                 </label>
-                <button type="button" class="button aipkit_btn aipkit_btn-danger" data-aipkit-remove-app-connection>
-                    <?php esc_html_e('Remove', 'gpt3-ai-content-generator'); ?>
+                <button type="button" class="button aipkit_btn aipkit_btn-danger aipkit_btn-danger--quiet" data-aipkit-remove-app-connection>
+                    <?php esc_html_e('Remove connection', 'gpt3-ai-content-generator'); ?>
                 </button>
             </div>
 
@@ -221,7 +227,7 @@ $render_app_connection = static function ($index, array $connection = []) use ($
                     </select>
                 </label>
                 <label class="aipkit_settings_app_connection_field">
-                    <span class="aipkit_settings_app_connection_field_label"><?php esc_html_e('Auth Type', 'gpt3-ai-content-generator'); ?></span>
+                    <span class="aipkit_settings_app_connection_field_label"><?php esc_html_e('Auth type', 'gpt3-ai-content-generator'); ?></span>
                     <select
                         name="native_app_recipes[connections][<?php echo esc_attr($connection_index); ?>][auth_type]"
                         class="aipkit_form-input aipkit_autosave_trigger"
@@ -258,7 +264,17 @@ $render_app_connection = static function ($index, array $connection = []) use ($
                             <?php if ($connection_app_slug !== $app_slug) : ?>hidden<?php endif; ?>
                         >
                             <div class="aipkit_settings_app_connection_app_form_header">
-                                <strong><?php echo esc_html($supported_apps[$app_slug] ?? ucfirst($app_slug)); ?></strong>
+                                <strong>
+                                    <?php
+                                    echo esc_html(
+                                        sprintf(
+                                            /* translators: %s: app name */
+                                            __('%s settings', 'gpt3-ai-content-generator'),
+                                            $supported_apps[$app_slug] ?? ucfirst($app_slug)
+                                        )
+                                    );
+                                    ?>
+                                </strong>
                                 <span><?php esc_html_e('Connection details', 'gpt3-ai-content-generator'); ?></span>
                             </div>
                             <div class="aipkit_settings_app_connection_app_form_grid">
@@ -279,30 +295,79 @@ $render_app_connection = static function ($index, array $connection = []) use ($
                                     $field_placeholder = (string) ($field_definition['placeholder'] ?? '');
                                     $field_value = $get_connection_field_value($connection, $field_group, $field_key);
                                     $field_path = $field_group . '.' . $field_key;
+                                    $field_id = 'aipkit_app_connection_' . sanitize_html_class($connection_index) . '_' . sanitize_html_class($app_slug) . '_' . sanitize_html_class($field_group) . '_' . sanitize_html_class($field_key);
+                                    $is_secret_field = $field_type === 'password';
+                                    $field_mask = $is_secret_field ? $format_connection_secret_mask($field_value) : '';
                                     $field_auth_types = isset($field_definition['auth_types']) && is_array($field_definition['auth_types'])
                                         ? array_values(array_filter(array_map('sanitize_key', $field_definition['auth_types'])))
                                         : [];
                                     $field_visible_for_auth = empty($field_auth_types) || in_array($connection_auth_type, $field_auth_types, true);
                                     ?>
-                                    <label
+                                    <div
                                         class="aipkit_settings_app_connection_field"
                                         data-aipkit-app-connection-field-wrapper
                                         data-aipkit-auth-types="<?php echo esc_attr(implode(',', $field_auth_types)); ?>"
                                         <?php if (!$field_visible_for_auth) : ?>hidden<?php endif; ?>
                                     >
-                                        <span class="aipkit_settings_app_connection_field_label"><?php echo esc_html($field_label); ?></span>
-                                        <input
-                                            type="<?php echo esc_attr($field_type); ?>"
-                                            name=""
-                                            value="<?php echo esc_attr($field_value); ?>"
-                                            class="aipkit_form-input aipkit_autosave_trigger"
-                                            data-aipkit-app-connection-field="<?php echo esc_attr($field_path); ?>"
-                                            placeholder="<?php echo esc_attr($field_placeholder); ?>"
-                                            <?php if (!$field_visible_for_auth) : ?>disabled<?php endif; ?>
-                                            <?php if ($field_type === 'password') : ?>autocomplete="off"<?php endif; ?>
-                                        />
-                                    </label>
+                                        <label class="aipkit_settings_app_connection_field_label" for="<?php echo esc_attr($field_id); ?>"><?php echo esc_html($field_label); ?></label>
+                                        <div class="<?php echo $is_secret_field ? 'aipkit_settings_app_connection_secret_row' : ''; ?>">
+                                            <div class="<?php echo $is_secret_field ? 'aipkit_settings_provider_credential_wrap' : ''; ?>">
+                                                <input
+                                                    type="<?php echo esc_attr($field_type); ?>"
+                                                    id="<?php echo esc_attr($field_id); ?>"
+                                                    name=""
+                                                    value="<?php echo $is_secret_field ? '' : esc_attr($field_value); ?>"
+                                                    class="aipkit_form-input aipkit_autosave_trigger<?php echo $is_secret_field ? ' aipkit_settings_provider_credential is-secret' : ''; ?><?php echo $field_mask !== '' ? ' is-visually-masked' : ''; ?>"
+                                                    data-aipkit-app-connection-field="<?php echo esc_attr($field_path); ?>"
+                                                    <?php if ($is_secret_field) : ?>data-aipkit-app-connection-secret<?php endif; ?>
+                                                    <?php if ($is_secret_field) : ?>data-aipkit-app-connection-id="<?php echo esc_attr($connection_id); ?>" data-aipkit-has-credential="<?php echo $field_value !== '' ? 'true' : 'false'; ?>"<?php endif; ?>
+                                                    placeholder="<?php echo esc_attr($field_placeholder); ?>"
+                                                    <?php if (!$field_visible_for_auth) : ?>disabled<?php endif; ?>
+                                                    <?php if ($is_secret_field) : ?>autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" data-lpignore="true" data-1p-ignore="true" data-form-type="other"<?php endif; ?>
+                                                    <?php if ($field_mask !== '') : ?>readonly<?php endif; ?>
+                                                />
+                                                <?php if ($is_secret_field) : ?>
+                                                    <span
+                                                        class="aipkit_settings_provider_credential_mask"
+                                                        data-aipkit-app-connection-secret-mask
+                                                        aria-hidden="true"
+                                                        <?php if ($field_mask === '') : ?>hidden<?php endif; ?>
+                                                    ><?php echo esc_html($field_mask); ?></span>
+                                                <?php endif; ?>
+                                            </div>
+                                            <?php if ($is_secret_field) : ?>
+                                                <button
+                                                    type="button"
+                                                    class="aipkit_settings_icon_button"
+                                                    data-aipkit-app-connection-secret-reveal
+                                                    data-reveal-label="<?php esc_attr_e('Reveal secret', 'gpt3-ai-content-generator'); ?>"
+                                                    data-hide-label="<?php esc_attr_e('Hide secret', 'gpt3-ai-content-generator'); ?>"
+                                                    aria-label="<?php esc_attr_e('Reveal secret', 'gpt3-ai-content-generator'); ?>"
+                                                    title="<?php esc_attr_e('Reveal secret', 'gpt3-ai-content-generator'); ?>"
+                                                >
+                                                    <span class="dashicons dashicons-visibility" aria-hidden="true"></span>
+                                                </button>
+                                            <?php endif; ?>
+                                        </div>
+                                    </div>
                                 <?php endforeach; ?>
+                            </div>
+                            <div
+                                class="aipkit_settings_app_connection_test_row"
+                                <?php if ($connection_app_slug !== $app_slug || !$is_testable) : ?>hidden<?php endif; ?>
+                            >
+                                <button
+                                    type="button"
+                                    class="button aipkit_btn"
+                                    data-aipkit-test-app-connection
+                                    data-app-slug="<?php echo esc_attr($app_slug); ?>"
+                                    data-connection-id="<?php echo esc_attr($connection_id); ?>"
+                                    <?php if ($connection_app_slug !== $app_slug || !$is_testable) : ?>hidden<?php endif; ?>
+                                    <?php disabled(!$can_test); ?>
+                                >
+                                    <span class="aipkit_btn-text" data-aipkit-test-app-connection-label><?php echo esc_html($test_button_label); ?></span>
+                                    <span class="aipkit_spinner"></span>
+                                </button>
                             </div>
                         </div>
                     <?php endforeach; ?>
@@ -317,13 +382,13 @@ $render_app_connection = static function ($index, array $connection = []) use ($
 <section id="aipkit_settings_app_connections_section">
     <div class="aipkit_form-group aipkit_settings_simple_row aipkit_settings_simple_row--app-connections" id="aipkit_settings_app_connections_row">
         <div class="aipkit_form-label">
-            <?php esc_html_e('App Connections', 'gpt3-ai-content-generator'); ?>
+            <?php esc_html_e('App connections', 'gpt3-ai-content-generator'); ?>
             <span class="aipkit_form-label-helper"><?php esc_html_e('Create reusable app connections.', 'gpt3-ai-content-generator'); ?></span>
         </div>
         <div class="aipkit_settings_app_connections_main">
             <div class="aipkit_settings_app_connections_toolbar">
                 <button type="button" class="button button-secondary aipkit_btn" id="aipkit_add_app_connection_btn">
-                    <?php esc_html_e('Add Connection', 'gpt3-ai-content-generator'); ?>
+                    <?php esc_html_e('Add connection', 'gpt3-ai-content-generator'); ?>
                 </button>
             </div>
             <div class="aipkit_settings_app_connection_list" data-aipkit-app-connection-list>

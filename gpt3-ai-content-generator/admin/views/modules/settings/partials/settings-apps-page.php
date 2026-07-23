@@ -18,37 +18,37 @@ $apps_logo_base_url = defined('WPAICG_PLUGIN_URL')
 $supported_apps_for_upsell = [
     [
         'name' => __('Slack', 'gpt3-ai-content-generator'),
-        'summary' => __('Slack alerts and team notifications.', 'gpt3-ai-content-generator'),
+        'summary' => __('Alerts and team notifications.', 'gpt3-ai-content-generator'),
         'logo_url' => $apps_logo_base_url . 'slack.svg',
     ],
     [
         'name' => __('HubSpot', 'gpt3-ai-content-generator'),
-        'summary' => __('HubSpot contacts and CRM handoff.', 'gpt3-ai-content-generator'),
+        'summary' => __('Contacts and CRM handoff.', 'gpt3-ai-content-generator'),
         'logo_url' => $apps_logo_base_url . 'hubspot.svg',
     ],
     [
         'name' => __('Notion', 'gpt3-ai-content-generator'),
-        'summary' => __('Notion pages and database items.', 'gpt3-ai-content-generator'),
+        'summary' => __('Pages and database items.', 'gpt3-ai-content-generator'),
         'logo_url' => $apps_logo_base_url . 'notion.svg',
     ],
     [
         'name' => __('Pipedrive', 'gpt3-ai-content-generator'),
-        'summary' => __('Pipedrive people and pipeline-ready leads.', 'gpt3-ai-content-generator'),
+        'summary' => __('People and pipeline-ready leads.', 'gpt3-ai-content-generator'),
         'logo_url' => $apps_logo_base_url . 'pipedrive.svg',
     ],
     [
         'name' => __('Zapier', 'gpt3-ai-content-generator'),
-        'summary' => __('Zapier webhook-based automation flows.', 'gpt3-ai-content-generator'),
+        'summary' => __('Webhook-based automation flows.', 'gpt3-ai-content-generator'),
         'logo_url' => $apps_logo_base_url . 'zapier.svg',
     ],
     [
         'name' => __('Make', 'gpt3-ai-content-generator'),
-        'summary' => __('Make scenarios triggered by events.', 'gpt3-ai-content-generator'),
+        'summary' => __('Scenarios triggered by events.', 'gpt3-ai-content-generator'),
         'logo_url' => $apps_logo_base_url . 'make.svg',
     ],
     [
         'name' => __('n8n', 'gpt3-ai-content-generator'),
-        'summary' => __('n8n webhook workflows.', 'gpt3-ai-content-generator'),
+        'summary' => __('Webhook-based automation workflows.', 'gpt3-ai-content-generator'),
         'logo_url' => $apps_logo_base_url . 'n8n.svg',
     ],
 ];
@@ -66,16 +66,24 @@ if (!$is_pro_plan) :
     <section id="aipkit_settings_apps_upsell_section">
         <div class="aipkit_settings_apps_upsell_main">
             <div class="aipkit_settings_apps_upsell_promo">
-                <div class="aipkit_settings_apps_upsell_promo_header">
-                    <strong><?php esc_html_e('Connect apps and automate real workflows.', 'gpt3-ai-content-generator'); ?></strong>
+                <div class="aipkit_settings_apps_upsell_intro">
+                    <span class="aipkit_settings_apps_upsell_icon" aria-hidden="true">
+                        <span class="dashicons dashicons-admin-plugins"></span>
+                        <span class="aipkit_settings_apps_upsell_lock">
+                            <span class="dashicons dashicons-lock"></span>
+                        </span>
+                    </span>
+                    <div class="aipkit_settings_apps_upsell_intro_copy">
+                        <strong><?php esc_html_e('Connect apps and automate real workflows.', 'gpt3-ai-content-generator'); ?></strong>
+                        <p class="aipkit_settings_apps_upsell_text">
+                            <?php esc_html_e('Turn AI Puffer events into connected app actions with reusable connections and recipe templates.', 'gpt3-ai-content-generator'); ?>
+                        </p>
+                    </div>
                 </div>
-                <p class="aipkit_settings_apps_upsell_text">
-                    <?php esc_html_e('Turn AI Puffer events into connected app actions with reusable connections and recipe templates.', 'gpt3-ai-content-generator'); ?>
-                </p>
                 <div class="aipkit_settings_apps_upsell_app_grid" aria-label="<?php esc_attr_e('Supported apps', 'gpt3-ai-content-generator'); ?>">
                     <?php foreach ($supported_apps_for_upsell as $supported_app) : ?>
                         <article class="aipkit_settings_apps_upsell_app_card">
-                            <div class="aipkit_settings_apps_upsell_app_card_header">
+                            <div class="aipkit_settings_apps_upsell_app_logo_tile">
                                 <img
                                     class="aipkit_settings_apps_upsell_app_logo"
                                     src="<?php echo esc_url($supported_app['logo_url']); ?>"
@@ -84,30 +92,25 @@ if (!$is_pro_plan) :
                                     decoding="async"
                                 />
                             </div>
+                            <strong><?php echo esc_html($supported_app['name']); ?></strong>
                             <span><?php echo esc_html($supported_app['summary']); ?></span>
                         </article>
                     <?php endforeach; ?>
-                    <article class="aipkit_settings_apps_upsell_app_card aipkit_settings_apps_upsell_app_card--modules">
-                        <div class="aipkit_settings_apps_upsell_cta_copy">
-                            <strong class="aipkit_settings_apps_upsell_cta_title"><?php esc_html_e('Supported modules', 'gpt3-ai-content-generator'); ?></strong>
-                            <ul class="aipkit_settings_apps_upsell_cta_list">
-                                <?php foreach ($supported_modules_for_upsell as $supported_module) : ?>
-                                    <li><?php echo esc_html($supported_module); ?></li>
-                                <?php endforeach; ?>
-                            </ul>
-                        </div>
-                    </article>
-                    <article class="aipkit_settings_apps_upsell_app_card aipkit_settings_apps_upsell_app_card--upgrade">
-                        <a
-                            class="button aipkit_btn aipkit_btn-primary aipkit_feature_promo_btn"
-                            href="<?php echo esc_url($upgrade_url); ?>"
-                            target="_blank"
-                            rel="noopener noreferrer"
-                        >
-                            <?php esc_html_e('Upgrade', 'gpt3-ai-content-generator'); ?>
-                        </a>
-                    </article>
                 </div>
+                <div class="aipkit_settings_apps_upsell_modules">
+                    <strong><?php esc_html_e('Supported modules', 'gpt3-ai-content-generator'); ?></strong>
+                    <p>
+                        <?php echo esc_html(implode(', ', $supported_modules_for_upsell)); ?>.
+                    </p>
+                </div>
+                <a
+                    class="aipkit_settings_apps_upsell_cta"
+                    href="<?php echo esc_url($upgrade_url); ?>"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                >
+                    <?php esc_html_e('Upgrade to Pro', 'gpt3-ai-content-generator'); ?>
+                </a>
             </div>
         </div>
     </section>

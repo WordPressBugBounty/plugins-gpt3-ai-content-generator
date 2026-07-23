@@ -29,6 +29,22 @@ abstract class AIPKit_REST_Base_Handler {
     }
 
     /**
+     * Returns whether external REST API access is explicitly enabled.
+     */
+    protected static function is_public_api_enabled(): bool {
+        $opts = get_option('aipkit_options', []);
+        $api_keys = isset($opts['api_keys']) && is_array($opts['api_keys']) ? $opts['api_keys'] : [];
+
+        // Backward compatibility for installations saved before the explicit
+        // enabled flag was introduced.
+        if (!array_key_exists('public_api_enabled', $api_keys)) {
+            return trim((string) ($api_keys['public_api_key'] ?? '')) !== '';
+        }
+
+        return (string) $api_keys['public_api_enabled'] === '1';
+    }
+
+    /**
      * Checks permissions for the REST API request.
      * Verifies if a public API key is configured and if the submitted key matches.
      * The key can be submitted either as 'aipkit_api_key' in the request parameters
@@ -38,6 +54,14 @@ abstract class AIPKit_REST_Base_Handler {
      * @return bool|WP_Error True if the request has permission, WP_Error otherwise.
      */
     public function check_permissions(WP_REST_Request $request) {
+        if (!self::is_public_api_enabled()) {
+            return new WP_Error(
+                'rest_aipkit_api_access_disabled',
+                __('REST API access is disabled.', 'gpt3-ai-content-generator'),
+                array('status' => 403)
+            );
+        }
+
         $stored_key = self::get_stored_public_api_key();
 
         // If no key is configured in settings, deny access.

@@ -77,6 +77,7 @@ $aipkit_ai_form_templates = [
 ?>
 <?php
 $aipkit_notice_id = 'aipkit_provider_notice_ai_forms';
+$aipkit_notice_context = __('use this AI form', 'gpt3-ai-content-generator');
 include WPAICG_PLUGIN_DIR . 'admin/views/shared/provider-key-notice.php';
 ?>
 <div

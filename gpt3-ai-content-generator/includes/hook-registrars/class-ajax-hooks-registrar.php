@@ -99,6 +99,12 @@ class Ajax_Hooks_Registrar
             if (method_exists($settings_ajax_handler, 'ajax_save_semantic_search_settings')) {
                 add_action('wp_ajax_aipkit_save_semantic_search_settings', [$settings_ajax_handler, 'ajax_save_semantic_search_settings']);
             }
+            if (method_exists($settings_ajax_handler, 'ajax_update_developer_credential')) {
+                add_action('wp_ajax_aipkit_update_developer_credential', [$settings_ajax_handler, 'ajax_update_developer_credential']);
+            }
+            if (method_exists($settings_ajax_handler, 'ajax_reveal_settings_credential')) {
+                add_action('wp_ajax_aipkit_reveal_settings_credential', [$settings_ajax_handler, 'ajax_reveal_settings_credential']);
+            }
             if (method_exists($settings_ajax_handler, 'ajax_export_settings_backup')) {
                 add_action('wp_ajax_aipkit_export_settings_backup', [$settings_ajax_handler, 'ajax_export_settings_backup']);
             }

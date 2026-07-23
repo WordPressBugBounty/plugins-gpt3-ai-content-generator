@@ -797,6 +797,8 @@ $preview_placeholder_key = ( $active_bot_post ? 'previewLoading' : 'previewPlace
 $preview_placeholder_text = ( $active_bot_post ? __( 'Loading preview...', 'gpt3-ai-content-generator' ) : __( 'Select a bot to see the preview.', 'gpt3-ai-content-generator' ) );
 $is_default_active = $active_bot_post && $default_bot_id && $active_bot_post->ID === $default_bot_id;
 $aipkit_notice_id = 'aipkit_provider_notice_chatbot';
+$aipkit_notice_class = 'aipkit_provider_key_notice--centered-workspace';
+$aipkit_notice_context = __( 'use this chatbot', 'gpt3-ai-content-generator' );
 include WPAICG_PLUGIN_DIR . 'admin/views/shared/provider-key-notice.php';
 ?>
 

@@ -15,7 +15,7 @@ if (!class_exists($aipkit_wpai_settings_class) || !$aipkit_wpai_settings_class::
 $aipkit_wpai_managed = $aipkit_wpai_settings_class::is_effectively_managed();
 ?>
 <div
-    class="aipkit_form-group aipkit_settings_simple_row"
+    class="aipkit_settings_developer_toggle_row"
     id="aipkit_settings_wp_ai_client_row"
     data-aipkit-wpai-control
     data-ajax-url="<?php echo esc_url(admin_url('admin-ajax.php')); ?>"
@@ -23,19 +23,16 @@ $aipkit_wpai_managed = $aipkit_wpai_settings_class::is_effectively_managed();
     data-mode="<?php echo esc_attr($aipkit_wpai_managed ? 'managed' : 'observe'); ?>"
 >
     <label class="aipkit_form-label" for="aipkit_settings_wp_ai_client_toggle">
-        <?php esc_html_e('WordPress AI Connectors', 'gpt3-ai-content-generator'); ?>
-        <span class="aipkit_form-label-helper"><?php esc_html_e('Let AI Puffer manage WP AI Client.', 'gpt3-ai-content-generator'); ?></span>
+        <?php esc_html_e('WordPress AI connectors', 'gpt3-ai-content-generator'); ?>
+        <span class="aipkit_form-label-helper"><?php esc_html_e('Register AI Puffer as WordPress’s AI client for other plugins to use.', 'gpt3-ai-content-generator'); ?></span>
     </label>
-    <label class="aipkit_settings_big_checkbox" for="aipkit_settings_wp_ai_client_toggle">
+    <label class="aipkit_switch" for="aipkit_settings_wp_ai_client_toggle">
         <input
             type="checkbox"
             id="aipkit_settings_wp_ai_client_toggle"
             data-aipkit-wpai-toggle
             <?php checked($aipkit_wpai_managed, true); ?>
         />
-        <span class="aipkit_settings_big_checkbox_box" aria-hidden="true">
-            <span class="dashicons dashicons-saved"></span>
-        </span>
-        <span class="aipkit_settings_big_checkbox_text" aria-hidden="true"></span>
+        <span class="aipkit_switch_slider"></span>
     </label>
 </div>

@@ -6,7 +6,6 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 $bot_id = $initial_active_bot_id;
-$vector_notice_settings_url = admin_url('admin.php?page=wpaicg');
 $aipkit_embedding_options_allowed_html = [
 	'optgroup' => [
 		'label' => true,
@@ -624,39 +623,19 @@ $knowledge_config_panel_id = 'aipkit_bot_' . $bot_id . '_knowledge_config_panel'
         </div>
         </div>
         <div class="aipkit_popover_option_row aipkit_context_vector_notice_row">
-            <div
-                class="aipkit_notification_bar aipkit_notification_bar--warning aipkit_provider_key_notice aipkit_provider_notice--hidden aipkit_vector_provider_notice_chatbot"
-                data-message-openai="<?php echo esc_attr__('OpenAI knowledge storage is not configured yet. Add its API key in Settings.', 'gpt3-ai-content-generator'); ?>"
-                data-message-pinecone="<?php echo esc_attr__('Pinecone knowledge storage is not configured yet. Add its API key in Settings.', 'gpt3-ai-content-generator'); ?>"
-                data-message-qdrant="<?php echo esc_attr__('Qdrant knowledge storage is not configured yet. Add its API key and URL in Settings.', 'gpt3-ai-content-generator'); ?>"
-                data-message-qdrant-key="<?php echo esc_attr__('Qdrant knowledge storage is not configured yet. Add its API key in Settings.', 'gpt3-ai-content-generator'); ?>"
-                data-message-qdrant-url="<?php echo esc_attr__('Qdrant knowledge storage is not configured yet. Add its URL in Settings.', 'gpt3-ai-content-generator'); ?>"
-                data-message-chroma="<?php echo esc_attr__('Chroma knowledge storage is not configured yet. Add its URL in Settings.', 'gpt3-ai-content-generator'); ?>"
-                data-message-chroma-url="<?php echo esc_attr__('Chroma knowledge storage is not configured yet. Add its URL in Settings.', 'gpt3-ai-content-generator'); ?>"
-                data-message-claude_files="<?php echo esc_attr__('Anthropic Files knowledge storage is not configured yet. Add the Anthropic API key in Settings.', 'gpt3-ai-content-generator'); ?>"
-                data-message-claude_files-provider="<?php echo esc_attr__('Anthropic Files knowledge storage requires Anthropic as chatbot engine.', 'gpt3-ai-content-generator'); ?>"
-                data-message-default="<?php echo esc_attr__('The selected knowledge storage is not configured yet. Add required credentials in Settings.', 'gpt3-ai-content-generator'); ?>"
-            >
-                <div class="aipkit_notification_bar__icon" aria-hidden="true">
-                    <span class="dashicons dashicons-warning"></span>
-                </div>
-                <div class="aipkit_notification_bar__content">
-                    <p>
-                        <span class="aipkit_provider_notice_message">
-                            <?php esc_html_e('The selected knowledge storage is not configured yet. Add required credentials in Settings.', 'gpt3-ai-content-generator'); ?>
-                        </span>
-                    </p>
-                </div>
-                <div class="aipkit_notification_bar__actions">
-                    <a
-                        href="<?php echo esc_url($vector_notice_settings_url); ?>"
-                        class="aipkit_btn aipkit_provider_notice_settings_link"
-                        data-aipkit-load-module="settings"
-                    >
-                        <?php esc_html_e('Open Settings', 'gpt3-ai-content-generator'); ?>
-                    </a>
-                </div>
-            </div>
+            <?php
+            $aipkit_notice_id = 'aipkit_vector_provider_notice_chatbot_' . (string) $bot_id;
+            $aipkit_notice_class = 'aipkit_vector_provider_notice_chatbot';
+            $aipkit_notice_context = __('use this knowledge storage', 'gpt3-ai-content-generator');
+            $aipkit_notice_messages = [
+                'qdrant-key' => __('Connect a Qdrant API key to use this knowledge storage.', 'gpt3-ai-content-generator'),
+                'qdrant-url' => __('Add a Qdrant URL to use this knowledge storage.', 'gpt3-ai-content-generator'),
+                'chroma-url' => __('Add a Chroma URL to use this knowledge storage.', 'gpt3-ai-content-generator'),
+                'claude_files' => __('Connect an Anthropic API key to use Anthropic Files.', 'gpt3-ai-content-generator'),
+                'claude_files-provider' => __('Choose Anthropic as the chatbot provider to use Anthropic Files.', 'gpt3-ai-content-generator'),
+            ];
+            include WPAICG_PLUGIN_DIR . 'admin/views/shared/provider-key-notice.php';
+            ?>
         </div>
         </div>
     </div>

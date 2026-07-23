@@ -225,6 +225,9 @@ if (!class_exists('\\WPAICG\\aipkit_dashboard')) {
 
 
             $response_data = ['html' => $content];
+            if (class_exists(AIPKit_Providers::class)) {
+                $response_data['providerStatus'] = AIPKit_Providers::get_provider_status_map();
+            }
             if ($module === 'chatbot' && class_exists(AIPKit_Vector_Store_Registry::class)) {
                 $openai_vector_stores = AIPKit_Vector_Store_Registry::get_registered_stores_by_provider('OpenAI');
                 $response_data['openaiVectorStores'] = $openai_vector_stores;

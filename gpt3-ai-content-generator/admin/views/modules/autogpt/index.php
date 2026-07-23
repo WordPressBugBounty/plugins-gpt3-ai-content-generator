@@ -206,6 +206,8 @@ $aipkit_autogpt_cron_summary = [
 ?>
 <?php
 $aipkit_notice_id = 'aipkit_provider_notice_autogpt';
+$aipkit_notice_class = 'aipkit_provider_key_notice--centered-workspace';
+$aipkit_notice_context = __('run this automation', 'gpt3-ai-content-generator');
 include WPAICG_PLUGIN_DIR . 'admin/views/shared/provider-key-notice.php';
 include WPAICG_PLUGIN_DIR . 'admin/views/shared/seo-plugin-conflict-notice.php';
 ?>

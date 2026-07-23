@@ -29,6 +29,7 @@ if (!class_exists('\\WPAICG\\AIPKIT_AI_Settings')) {
         // Moved to public static.
         public static $default_api_keys = array(
             'public_api_key' => '',
+            'public_api_enabled' => '0',
         );
 
         /**
@@ -77,12 +78,34 @@ if (!class_exists('\\WPAICG\\AIPKIT_AI_Settings')) {
                  $opts['api_keys'] = self::$default_api_keys;
                  update_option('aipkit_options', $opts, 'no');
              } else {
+                 $had_explicit_enabled_state = array_key_exists('public_api_enabled', $opts['api_keys']);
                  $merged = array_merge(self::$default_api_keys, $opts['api_keys']);
+                 if (!$had_explicit_enabled_state) {
+                     // Preserve REST access for existing installations that already
+                     // configured a key before the explicit access toggle existed.
+                     $merged['public_api_enabled'] = trim((string) ($merged['public_api_key'] ?? '')) !== '' ? '1' : '0';
+                 } else {
+                     $merged['public_api_enabled'] = (string) $merged['public_api_enabled'] === '1' ? '1' : '0';
+                 }
+                 if ($merged['public_api_enabled'] === '1' && trim((string) ($merged['public_api_key'] ?? '')) === '') {
+                     $merged['public_api_key'] = self::generate_public_api_key();
+                 }
                  if ($merged !== $opts['api_keys']) {
                      $opts['api_keys'] = $merged;
                      update_option('aipkit_options', $opts, 'no');
                  }
              }
+        }
+
+        /**
+         * Generates a server-owned REST API credential.
+         */
+        public static function generate_public_api_key(): string {
+            try {
+                return 'aipk_live_' . bin2hex(random_bytes(24));
+            } catch (\Exception $exception) {
+                return 'aipk_live_' . wp_generate_password(48, false, false);
+            }
         }
 
         /** Retrieve advanced AI parameters. */

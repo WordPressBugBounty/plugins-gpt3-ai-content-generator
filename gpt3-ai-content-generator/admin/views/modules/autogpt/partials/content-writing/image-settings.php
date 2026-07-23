@@ -11,7 +11,6 @@ use WPAICG\ContentWriter\AIPKit_Content_Writer_Prompts;
 
 // phpcs:disable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- This file only uses local helper/template variables and does not define public globals.
 
-$image_provider_settings_url = admin_url('admin.php?page=wpaicg');
 $aipkit_cw_image_prompt_items = [];
 foreach (AIPKit_Content_Writer_Prompts::get_autogpt_content_writing_prompt_items() as $aipkit_cw_image_prompt_item) {
     $aipkit_cw_image_prompt_key = (string) ($aipkit_cw_image_prompt_item['key'] ?? '');
@@ -243,31 +242,12 @@ $aipkit_cw_featured_image_prompt_item = $aipkit_cw_image_prompt_items['featured_
             </div>
         </div>
 
-        <div
-            id="aipkit_task_cw_image_provider_notice"
-            class="aipkit_notification_bar aipkit_notification_bar--warning aipkit_task_cw_image_provider_notice"
-            data-message-replicate="<?php echo esc_attr__('Replicate is selected for image generation, but it is not configured yet. Add its API key in Settings > Integrations.', 'gpt3-ai-content-generator'); ?>"
-            data-message-xai="<?php echo esc_attr__('xAI is selected for image generation, but it is not configured yet. Add its API key in Settings.', 'gpt3-ai-content-generator'); ?>"
-            hidden
-        >
-            <div class="aipkit_notification_bar__icon" aria-hidden="true">
-                <span class="dashicons dashicons-warning"></span>
-            </div>
-            <div class="aipkit_notification_bar__content">
-                <p class="aipkit_task_cw_image_provider_notice_message">
-                    <?php esc_html_e('Replicate is selected for image generation, but it is not configured yet. Add its API key in Settings > Integrations.', 'gpt3-ai-content-generator'); ?>
-                </p>
-            </div>
-            <div class="aipkit_notification_bar__actions">
-                <a
-                    href="<?php echo esc_url($image_provider_settings_url); ?>"
-                    class="aipkit_btn aipkit_provider_notice_settings_link"
-                    data-aipkit-load-module="settings"
-                >
-                    <?php esc_html_e('Open Settings', 'gpt3-ai-content-generator'); ?>
-                </a>
-            </div>
-        </div>
+        <?php
+        $aipkit_notice_id = 'aipkit_task_cw_image_provider_notice';
+        $aipkit_notice_class = 'aipkit_task_cw_image_provider_notice';
+        $aipkit_notice_context = __('generate images for this automation', 'gpt3-ai-content-generator');
+        include WPAICG_PLUGIN_DIR . 'admin/views/shared/provider-key-notice.php';
+        ?>
 
         <div class="aipkit_cw_image_primary_options aipkit_cw_image_primary_options--shared" data-aipkit-image-primary-options>
             <div class="aipkit_cw_image_row aipkit_cw_image_row--inline-helper aipkit_autogpt_question_row" data-aipkit-image-shape-row hidden>

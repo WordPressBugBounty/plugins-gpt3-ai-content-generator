@@ -5,6 +5,7 @@ namespace WPAICG\Dashboard\Ajax;
 
 use WPAICG\AIPKit_Providers;
 use WPAICG\AIPKIT_AI_Settings;
+use WPAICG\aipkit_dashboard;
 use WPAICG\Core\AIPKit_Event_Webhooks_Settings;
 use WPAICG\Core\Providers\Google\GoogleSettingsHandler;
 use WPAICG\Core\Moderation\AIPKit_Global_Security_Settings;
@@ -59,6 +60,18 @@ class SettingsAjaxHandler extends BaseDashboardAjaxHandler
         'aipkit_model_sync_timestamps',
     ];
 
+    /**
+     * Settings-owned options stored outside the main aipkit_options array.
+     *
+     * @var array<string, string>
+     */
+    private const BACKUP_ADDITIONAL_OPTIONS = [
+        'native_app_recipes' => 'aipkit_native_app_recipes',
+        'image_generator_settings' => AIPKit_Image_Settings_Ajax_Handler::SETTINGS_OPTION_NAME,
+        'enhancer_actions' => 'aipkit_enhancer_actions',
+        'training_general_settings' => 'aipkit_training_general_settings',
+    ];
+
     public function ajax_save_settings()
     {
         $permission_check = $this->check_module_access_permissions('settings');
@@ -79,7 +92,7 @@ class SettingsAjaxHandler extends BaseDashboardAjaxHandler
         $this->save_all_provider_api_details($post_data);
         $this->save_replicate_integration_settings($post_data);
         $this->save_global_ai_parameters($post_data);
-        $this->save_public_api_key($post_data);
+        $this->save_public_api_access_settings($post_data);
         $this->save_google_safety_settings_if_applicable($post_data);
         $this->save_global_security_settings($post_data);
         $enhancer_settings_changed = $this->save_enhancer_settings($post_data);
@@ -99,13 +112,19 @@ class SettingsAjaxHandler extends BaseDashboardAjaxHandler
         $image_generator_settings_changed = ($initial_image_generator_settings_json !== $final_image_generator_settings_json);
 
         if ($core_changed || $native_app_recipes_changed || $image_generator_settings_changed || $enhancer_settings_changed || $updated_enhancer_actions !== null) {
-            $response = ['message' => __('Settings saved successfully.', 'gpt3-ai-content-generator')];
+            $response = [
+                'message' => __('Settings saved successfully.', 'gpt3-ai-content-generator'),
+                'providerStatus' => AIPKit_Providers::get_provider_status_map(),
+            ];
             if ($updated_enhancer_actions !== null) {
                 $response['updated_enhancer_actions'] = $updated_enhancer_actions;
             }
             wp_send_json_success($response);
         } else {
-            wp_send_json_success(['message' => __('No changes detected.', 'gpt3-ai-content-generator')]);
+            wp_send_json_success([
+                'message' => __('No changes detected.', 'gpt3-ai-content-generator'),
+                'providerStatus' => AIPKit_Providers::get_provider_status_map(),
+            ]);
         }
     }
 
@@ -132,6 +151,191 @@ class SettingsAjaxHandler extends BaseDashboardAjaxHandler
                 ? __('Settings saved successfully.', 'gpt3-ai-content-generator')
                 : __('No changes detected.', 'gpt3-ai-content-generator'),
         ]);
+    }
+
+    /**
+     * Updates server-owned developer credentials and their explicit access state.
+     */
+    public function ajax_update_developer_credential(): void
+    {
+        $permission_check = $this->check_module_access_permissions('settings');
+        if (is_wp_error($permission_check)) {
+            $this->send_wp_error($permission_check);
+            return;
+        }
+
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce is checked above.
+        $credential_type = isset($_POST['credential']) ? sanitize_key(wp_unslash($_POST['credential'])) : '';
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce is checked above.
+        $operation = isset($_POST['operation']) ? sanitize_key(wp_unslash($_POST['operation'])) : '';
+        if (!in_array($credential_type, ['rest_api', 'webhook'], true)
+            || !in_array($operation, ['enable', 'disable', 'regenerate'], true)) {
+            wp_send_json_error([
+                'message' => __('Invalid developer credential action.', 'gpt3-ai-content-generator'),
+            ], 400);
+        }
+
+        if ($credential_type === 'rest_api') {
+            $options = get_option('aipkit_options', []);
+            $options = is_array($options) ? $options : [];
+            $api_keys = isset($options['api_keys']) && is_array($options['api_keys'])
+                ? array_merge(AIPKIT_AI_Settings::$default_api_keys, $options['api_keys'])
+                : AIPKIT_AI_Settings::$default_api_keys;
+
+            if ($operation === 'enable') {
+                $api_keys['public_api_enabled'] = '1';
+                if (trim((string) ($api_keys['public_api_key'] ?? '')) === '') {
+                    $api_keys['public_api_key'] = AIPKIT_AI_Settings::generate_public_api_key();
+                }
+            } elseif ($operation === 'disable') {
+                $api_keys['public_api_enabled'] = '0';
+            } else {
+                $api_keys['public_api_key'] = AIPKIT_AI_Settings::generate_public_api_key();
+            }
+
+            $options['api_keys'] = $api_keys;
+            update_option('aipkit_options', $options, 'no');
+            wp_send_json_success([
+                'credential' => (string) $api_keys['public_api_key'],
+                'enabled' => (string) $api_keys['public_api_enabled'] === '1',
+            ]);
+        }
+
+        if ($operation === 'enable' || $operation === 'disable') {
+            $settings = AIPKit_Event_Webhooks_Settings::set_enabled($operation === 'enable');
+        } else {
+            $settings = AIPKit_Event_Webhooks_Settings::regenerate_signing_secret();
+        }
+
+        wp_send_json_success([
+            'credential' => (string) ($settings['signing_secret'] ?? ''),
+            'enabled' => (string) ($settings['enabled'] ?? '0') === '1',
+        ]);
+    }
+
+    /**
+     * Reveals a stored credential only after an explicit, permission-checked request.
+     *
+     * Initial Settings markup contains masks only. This endpoint keeps provider,
+     * integration, app-connection, and developer secrets out of the page source.
+     */
+    public function ajax_reveal_settings_credential(): void
+    {
+        $permission_check = $this->check_module_access_permissions('settings');
+        if (is_wp_error($permission_check)) {
+            $this->send_wp_error($permission_check);
+            return;
+        }
+
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce is checked above.
+        $scope = isset($_POST['scope']) ? sanitize_key(wp_unslash($_POST['scope'])) : '';
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce is checked above.
+        $identifier = isset($_POST['identifier']) ? sanitize_text_field(wp_unslash($_POST['identifier'])) : '';
+        $credential = '';
+
+        if ($scope === 'provider') {
+            $provider_map = [
+                'openai' => 'OpenAI',
+                'claude' => 'Claude',
+                'google' => 'Google',
+                'openrouter' => 'OpenRouter',
+                'azure' => 'Azure',
+                'deepseek' => 'DeepSeek',
+                'xai' => 'xAI',
+            ];
+            $provider = $provider_map[sanitize_key($identifier)] ?? '';
+            if ($provider !== '') {
+                $provider_data = AIPKit_Providers::get_provider_data($provider);
+                $credential = (string) ($provider_data['api_key'] ?? '');
+            }
+        } elseif ($scope === 'integration') {
+            $integration_map = [
+                'elevenlabs' => 'ElevenLabs',
+                'replicate' => 'Replicate',
+                'pinecone' => 'Pinecone',
+                'qdrant' => 'Qdrant',
+                'chroma' => 'Chroma',
+                'pexels' => 'Pexels',
+                'pixabay' => 'Pixabay',
+            ];
+            $provider = $integration_map[sanitize_key($identifier)] ?? '';
+            if ($provider !== '') {
+                $provider_data = AIPKit_Providers::get_provider_data($provider);
+                $credential = (string) ($provider_data['api_key'] ?? '');
+            }
+        } elseif ($scope === 'app_connection') {
+            // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce is checked above.
+            $field_path = isset($_POST['field']) ? sanitize_text_field(wp_unslash($_POST['field'])) : '';
+            $credential = $this->get_app_connection_secret($identifier, $field_path);
+        } elseif ($scope === 'developer') {
+            if ($identifier === 'rest_api') {
+                $api_keys = AIPKIT_AI_Settings::get_api_keys();
+                $credential = (string) ($api_keys['public_api_key'] ?? '');
+            } elseif ($identifier === 'webhook') {
+                $webhook_settings = AIPKit_Event_Webhooks_Settings::get_settings();
+                $credential = (string) ($webhook_settings['signing_secret'] ?? '');
+            }
+        }
+
+        if ($credential === '') {
+            wp_send_json_error([
+                'message' => __('The stored credential could not be revealed.', 'gpt3-ai-content-generator'),
+            ], 404);
+        }
+
+        wp_send_json_success([
+            'credential' => $credential,
+        ]);
+    }
+
+    /**
+     * Returns an allowlisted password field from a stored native app connection.
+     */
+    private function get_app_connection_secret(string $connection_id, string $field_path): string
+    {
+        $connections_class = '\\WPAICG\\Lib\\Integrations\\Apps\\AIPKit_App_Connections';
+        if (!class_exists($connections_class)
+            || !method_exists($connections_class, 'get_connection_by_id')
+            || !method_exists($connections_class, 'get_app_field_definitions')) {
+            return '';
+        }
+
+        $path_parts = explode('.', $field_path, 2);
+        if (count($path_parts) !== 2) {
+            return '';
+        }
+        $group = sanitize_key($path_parts[0]);
+        $field_key = sanitize_key($path_parts[1]);
+        if ($group !== 'credentials' || $field_key === '') {
+            return '';
+        }
+
+        $connection = $connections_class::get_connection_by_id($connection_id);
+        if (!is_array($connection)) {
+            return '';
+        }
+        $app_slug = sanitize_key((string) ($connection['app_slug'] ?? ''));
+        $definitions = $connections_class::get_app_field_definitions();
+        $allowed = false;
+        foreach ((array) ($definitions[$app_slug] ?? []) as $definition) {
+            if (!is_array($definition)) {
+                continue;
+            }
+            if (sanitize_key((string) ($definition['group'] ?? '')) === $group
+                && sanitize_key((string) ($definition['key'] ?? '')) === $field_key
+                && sanitize_key((string) ($definition['type'] ?? '')) === 'password') {
+                $allowed = true;
+                break;
+            }
+        }
+        if (!$allowed) {
+            return '';
+        }
+
+        $stored_group = isset($connection[$group]) && is_array($connection[$group])
+            ? $connection[$group]
+            : [];
+        return sanitize_text_field((string) ($stored_group[$field_key] ?? ''));
     }
 
     /**
@@ -320,27 +524,30 @@ class SettingsAjaxHandler extends BaseDashboardAjaxHandler
     }
 
     /**
-     * Saves the Public API Key to 'aipkit_options'.
+     * Saves the explicit REST API access state without accepting a user-entered key.
      */
-    private function save_public_api_key(array $post_data): void
+    private function save_public_api_access_settings(array $post_data): void
     {
-        if (isset($post_data['public_api_key'])) {
-            $opts = get_option('aipkit_options');
-            if (!is_array($opts)) {
-                $opts = [];
-            }
-
-            $existing_api_keys = $opts['api_keys'] ?? AIPKIT_AI_Settings::$default_api_keys;
-            $new_public_key = sanitize_text_field(trim($post_data['public_api_key']));
-
-            if (($existing_api_keys['public_api_key'] ?? '') !== $new_public_key) {
-                if (!isset($opts['api_keys']) || !is_array($opts['api_keys'])) {
-                    $opts['api_keys'] = AIPKIT_AI_Settings::$default_api_keys;
-                }
-                $opts['api_keys']['public_api_key'] = $new_public_key;
-                update_option('aipkit_options', $opts, 'no');
-            }
+        if (!array_key_exists('public_api_enabled', $post_data)) {
+            return;
         }
+
+        $opts = get_option('aipkit_options');
+        if (!is_array($opts)) {
+            $opts = [];
+        }
+
+        $api_keys = isset($opts['api_keys']) && is_array($opts['api_keys'])
+            ? array_merge(AIPKIT_AI_Settings::$default_api_keys, $opts['api_keys'])
+            : AIPKIT_AI_Settings::$default_api_keys;
+        $enabled = (string) $post_data['public_api_enabled'] === '1' ? '1' : '0';
+        $api_keys['public_api_enabled'] = $enabled;
+        if ($enabled === '1' && trim((string) ($api_keys['public_api_key'] ?? '')) === '') {
+            $api_keys['public_api_key'] = AIPKIT_AI_Settings::generate_public_api_key();
+        }
+
+        $opts['api_keys'] = $api_keys;
+        update_option('aipkit_options', $opts, 'no');
     }
 
     /**
@@ -643,6 +850,16 @@ class SettingsAjaxHandler extends BaseDashboardAjaxHandler
             return;
         }
 
+        $uploaded_size = isset($uploaded_file['size']) ? absint($uploaded_file['size']) : 0;
+        if ($uploaded_size > 5 * MB_IN_BYTES) {
+            $this->send_wp_error(new WP_Error(
+                'import_file_too_large',
+                __('Backup files must be 5 MB or smaller.', 'gpt3-ai-content-generator'),
+                ['status' => 400]
+            ));
+            return;
+        }
+
         $tmp_path = isset($uploaded_file['tmp_name']) ? (string) $uploaded_file['tmp_name'] : '';
         if ($tmp_path === '' || !is_readable($tmp_path)) {
             $this->send_wp_error(new WP_Error(
@@ -800,13 +1017,30 @@ class SettingsAjaxHandler extends BaseDashboardAjaxHandler
         $options = is_array($options) ? $options : [];
 
         return [
-            'format' => 'aipkit_settings_backup_v1',
+            'format' => 'aipkit_settings_backup_v2',
             'exported_at' => gmdate('c'),
             'plugin_version' => defined('WPAICG_VERSION') ? WPAICG_VERSION : '',
             'site_url' => home_url('/'),
             'aipkit_options' => $this->sanitize_imported_ai_settings($options),
+            'additional_options' => $this->collect_additional_options_for_backup(),
             'model_lists' => $this->collect_model_list_options_for_backup(),
         ];
+    }
+
+    /**
+     * Collects Settings data stored outside the main options array.
+     */
+    private function collect_additional_options_for_backup(): array
+    {
+        $additional_options = [];
+        foreach (self::BACKUP_ADDITIONAL_OPTIONS as $payload_key => $option_name) {
+            $value = get_option($option_name, []);
+            $additional_options[$payload_key] = is_array($value)
+                ? $this->sanitize_recursive_value($value)
+                : [];
+        }
+
+        return $additional_options;
     }
 
     /**
@@ -849,19 +1083,64 @@ class SettingsAjaxHandler extends BaseDashboardAjaxHandler
             );
         }
 
+        // Normalize every block before mutating any option so malformed payloads
+        // cannot leave Settings half-restored.
         $sanitized_options = $this->sanitize_imported_ai_settings($imported_options);
-        update_option('aipkit_options', $sanitized_options, 'no');
-
-        if (isset($payload['model_lists']) && is_array($payload['model_lists'])) {
+        $normalized_model_lists = [];
+        if (isset($payload['model_lists'])) {
+            if (!is_array($payload['model_lists'])) {
+                return new WP_Error(
+                    'invalid_model_lists',
+                    __('Backup model-list data is invalid.', 'gpt3-ai-content-generator'),
+                    ['status' => 400]
+                );
+            }
             foreach ($payload['model_lists'] as $option_name => $model_list_value) {
                 if (!in_array($option_name, self::BACKUP_MODEL_LIST_OPTIONS, true)) {
                     continue;
                 }
                 if (!is_array($model_list_value)) {
+                    return new WP_Error(
+                        'invalid_model_list',
+                        __('A model-list entry in the backup is invalid.', 'gpt3-ai-content-generator'),
+                        ['status' => 400]
+                    );
+                }
+                $normalized_model_lists[$option_name] = $this->sanitize_recursive_value($model_list_value);
+            }
+        }
+
+        $normalized_additional_options = [];
+        if (isset($payload['additional_options'])) {
+            if (!is_array($payload['additional_options'])) {
+                return new WP_Error(
+                    'invalid_additional_options',
+                    __('Backup auxiliary settings data is invalid.', 'gpt3-ai-content-generator'),
+                    ['status' => 400]
+                );
+            }
+            foreach (self::BACKUP_ADDITIONAL_OPTIONS as $payload_key => $option_name) {
+                if (!array_key_exists($payload_key, $payload['additional_options'])) {
                     continue;
                 }
-                update_option($option_name, $this->sanitize_recursive_value($model_list_value), 'no');
+                $value = $payload['additional_options'][$payload_key];
+                if (!is_array($value)) {
+                    return new WP_Error(
+                        'invalid_additional_option',
+                        __('An auxiliary settings block in the backup is invalid.', 'gpt3-ai-content-generator'),
+                        ['status' => 400]
+                    );
+                }
+                $normalized_additional_options[$option_name] = $this->sanitize_recursive_value($value);
             }
+        }
+
+        update_option('aipkit_options', $sanitized_options, 'no');
+        foreach ($normalized_additional_options as $option_name => $value) {
+            update_option($option_name, $value, 'no');
+        }
+        foreach ($normalized_model_lists as $option_name => $model_list_value) {
+            update_option($option_name, $model_list_value, 'no');
         }
 
         if (class_exists(AIPKit_Providers::class) && method_exists(AIPKit_Providers::class, 'clear_model_caches')) {
@@ -928,6 +1207,9 @@ class SettingsAjaxHandler extends BaseDashboardAjaxHandler
             : [];
         $sanitized['api_keys'] = [
             'public_api_key' => sanitize_text_field((string) ($imported_api_keys['public_api_key'] ?? '')),
+            'public_api_enabled' => array_key_exists('public_api_enabled', $imported_api_keys)
+                ? ((string) $imported_api_keys['public_api_enabled'] === '1' ? '1' : '0')
+                : (trim((string) ($imported_api_keys['public_api_key'] ?? '')) !== '' ? '1' : '0'),
         ];
 
         $imported_security = isset($imported_options['security']) && is_array($imported_options['security'])
@@ -960,6 +1242,51 @@ class SettingsAjaxHandler extends BaseDashboardAjaxHandler
             'editor_integration' => ((string) ($imported_enhancer['editor_integration'] ?? '1') === '1') ? '1' : '0',
             'show_list_button' => ((string) ($imported_enhancer['show_list_button'] ?? '1') === '1') ? '1' : '0',
         ];
+
+        $module_defaults = class_exists(aipkit_dashboard::class)
+            ? aipkit_dashboard::$default_module_settings
+            : [];
+        $imported_modules = isset($imported_options['module_settings']) && is_array($imported_options['module_settings'])
+            ? $imported_options['module_settings']
+            : [];
+        if (!empty($module_defaults) && array_key_exists('module_settings', $imported_options)) {
+            $sanitized['module_settings'] = [];
+            foreach ($module_defaults as $module_key => $default_enabled) {
+                $sanitized['module_settings'][$module_key] = array_key_exists($module_key, $imported_modules)
+                    ? (bool) $imported_modules[$module_key]
+                    : (bool) $default_enabled;
+            }
+        }
+
+        $imported_webhooks = isset($imported_options['event_webhooks']) && is_array($imported_options['event_webhooks'])
+            ? $imported_options['event_webhooks']
+            : [];
+        if (class_exists(AIPKit_Event_Webhooks_Settings::class) && array_key_exists('event_webhooks', $imported_options)) {
+            $webhooks_for_sanitization = $imported_webhooks;
+            $event_field_key_map = AIPKit_Event_Webhooks_Settings::get_event_field_key_map();
+            $event_name_to_field_key = array_flip($event_field_key_map);
+            foreach ((array) ($webhooks_for_sanitization['endpoints'] ?? []) as $endpoint_index => $endpoint) {
+                if (!is_array($endpoint) || !isset($endpoint['events']) || !is_array($endpoint['events'])) {
+                    continue;
+                }
+                $event_flags = [];
+                foreach ($endpoint['events'] as $event_key => $event_value) {
+                    if (is_int($event_key) && is_string($event_value) && isset($event_name_to_field_key[$event_value])) {
+                        $event_flags[$event_name_to_field_key[$event_value]] = '1';
+                    } elseif (is_string($event_key) && (string) $event_value === '1') {
+                        $event_flags[$event_key] = '1';
+                    }
+                }
+                $webhooks_for_sanitization['endpoints'][$endpoint_index]['events'] = $event_flags;
+            }
+
+            $sanitized_webhooks = AIPKit_Event_Webhooks_Settings::sanitize_settings_input($webhooks_for_sanitization);
+            $sanitized_webhooks['signing_secret'] = sanitize_text_field((string) ($imported_webhooks['signing_secret'] ?? ''));
+            if ($sanitized_webhooks['enabled'] === '1' && $sanitized_webhooks['signing_secret'] === '') {
+                $sanitized_webhooks['signing_secret'] = AIPKit_Event_Webhooks_Settings::generate_signing_secret();
+            }
+            $sanitized['event_webhooks'] = $sanitized_webhooks;
+        }
 
         return $sanitized;
     }
@@ -1061,7 +1388,7 @@ class SettingsAjaxHandler extends BaseDashboardAjaxHandler
         }
 
         if (is_string($value)) {
-            return sanitize_text_field($value);
+            return sanitize_textarea_field($value);
         }
 
         if (is_bool($value) || is_int($value) || is_float($value) || $value === null) {

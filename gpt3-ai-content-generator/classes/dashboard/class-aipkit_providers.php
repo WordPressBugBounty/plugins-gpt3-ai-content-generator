@@ -1140,6 +1140,41 @@ class AIPKit_Providers
         return $final_providers;
     }
 
+    /**
+     * Return the connection state used by provider-dependent admin modules.
+     *
+     * Keeping this map here gives page localization and AJAX saves one
+     * authoritative definition of what "configured" means for every provider.
+     *
+     * @return array<string, bool>
+     */
+    public static function get_provider_status_map(): array
+    {
+        $providers = self::get_all_providers();
+        $has_value = static function (string $provider, string $key) use ($providers): bool {
+            $value = $providers[$provider][$key] ?? '';
+            return is_scalar($value) && trim((string) $value) !== '';
+        };
+
+        return [
+            'openai' => $has_value('OpenAI', 'api_key'),
+            'google' => $has_value('Google', 'api_key'),
+            'claude' => $has_value('Claude', 'api_key'),
+            'openrouter' => $has_value('OpenRouter', 'api_key'),
+            'azure' => $has_value('Azure', 'api_key') && $has_value('Azure', 'endpoint'),
+            'ollama' => $has_value('Ollama', 'base_url'),
+            'deepseek' => $has_value('DeepSeek', 'api_key'),
+            'xai' => $has_value('xAI', 'api_key'),
+            'replicate' => $has_value('Replicate', 'api_key'),
+            'elevenlabs' => $has_value('ElevenLabs', 'api_key'),
+            'pexels' => $has_value('Pexels', 'api_key'),
+            'pixabay' => $has_value('Pixabay', 'api_key'),
+            'pinecone' => $has_value('Pinecone', 'api_key'),
+            'qdrant' => $has_value('Qdrant', 'api_key') && $has_value('Qdrant', 'url'),
+            'chroma' => $has_value('Chroma', 'url'),
+        ];
+    }
+
     public static function get_provider_data($provider)
     {
         $all = self::get_all_providers();
@@ -1303,11 +1338,6 @@ class AIPKit_Providers
 
                 if (!isset($current_provider_settings_ref[$key]) || $current_provider_settings_ref[$key] !== $new_value) {
                     $current_provider_settings_ref[$key] = $new_value;
-                    $changed_for_this_provider = true;
-                }
-            } elseif (isset($current_provider_settings_ref[$key]) && !isset($data[$key])) {
-                if ($key === 'store_conversation') {
-                    $current_provider_settings_ref[$key] = '0';
                     $changed_for_this_provider = true;
                 }
             }

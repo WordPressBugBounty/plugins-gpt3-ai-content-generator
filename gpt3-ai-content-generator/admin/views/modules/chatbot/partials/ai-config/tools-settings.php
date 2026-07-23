@@ -90,7 +90,6 @@ $tools_master_options = [
 $image_model_groups = [];
 $known_image_model_ids = [];
 $image_model_dropdown_label = '';
-$image_provider_settings_url = admin_url('admin.php?page=wpaicg');
 foreach ($available_image_models as $provider_group => $models) {
     foreach ($models as $model) {
         $model_id = isset($model['id']) ? (string) $model['id'] : '';
@@ -389,28 +388,12 @@ $render_tool_enable_control = static function (string $tool_key, array $tool_opt
                 <option value="1" <?php selected($enable_image_generation ?? '0', '1'); ?>><?php esc_html_e('Yes', 'gpt3-ai-content-generator'); ?></option>
                 <option value="0" <?php selected($enable_image_generation ?? '0', '0'); ?>><?php esc_html_e('No', 'gpt3-ai-content-generator'); ?></option>
             </select>
-            <div
-                class="aipkit_tools_image_provider_warning"
-                data-aipkit-image-provider-warning
-                data-message-replicate="<?php echo esc_attr__('Replicate is selected for image generation, but it is not configured yet. Add its API key in Settings > Integrations.', 'gpt3-ai-content-generator'); ?>"
-                data-message-xai="<?php echo esc_attr__('xAI is selected for image generation, but it is not configured yet. Add its API key in Settings.', 'gpt3-ai-content-generator'); ?>"
-                aria-hidden="true"
-                hidden
-            >
-                <span class="dashicons dashicons-warning aipkit_tools_image_provider_warning_icon" aria-hidden="true"></span>
-                <div class="aipkit_tools_image_provider_warning_content">
-                    <p class="aipkit_tools_image_provider_warning_message" data-aipkit-image-provider-warning-message>
-                        <?php esc_html_e('Replicate is selected for image generation, but it is not configured yet. Add its API key in Settings > Integrations.', 'gpt3-ai-content-generator'); ?>
-                    </p>
-                    <a
-                        href="<?php echo esc_url($image_provider_settings_url); ?>"
-                        class="aipkit_tools_image_provider_warning_link"
-                        data-aipkit-load-module="settings"
-                    >
-                        <?php esc_html_e('Open Settings', 'gpt3-ai-content-generator'); ?>
-                    </a>
-                </div>
-            </div>
+            <?php
+            $aipkit_notice_id = 'aipkit_tools_image_provider_warning_' . (string) $bot_id;
+            $aipkit_notice_class = 'aipkit_tools_image_provider_warning';
+            $aipkit_notice_context = __('generate images in this chatbot', 'gpt3-ai-content-generator');
+            include WPAICG_PLUGIN_DIR . 'admin/views/shared/provider-key-notice.php';
+            ?>
                     </div>
                 </div>
             </div>

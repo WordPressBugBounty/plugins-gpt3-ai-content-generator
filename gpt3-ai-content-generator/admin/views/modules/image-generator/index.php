@@ -8,10 +8,6 @@ if (!defined('ABSPATH')) {
     exit; // Exit if accessed directly
 }
 ?>
-<?php
-$aipkit_notice_id = 'aipkit_provider_notice_image_generator';
-include WPAICG_PLUGIN_DIR . 'admin/views/shared/provider-key-notice.php';
-?>
 
 <div class="aipkit_container aipkit_module_image_generator" id="aipkit_image_generator_container">
     <div class="aipkit_container-header">

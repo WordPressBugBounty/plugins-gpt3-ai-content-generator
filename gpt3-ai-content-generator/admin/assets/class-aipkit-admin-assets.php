@@ -257,7 +257,6 @@ class DashboardAssets extends AIPKit_Admin_Asset_Base
                 'xai' => AIPKit_Providers::get_recommended_models('xAI'),
             ];
 
-            $providers = AIPKit_Providers::get_all_providers();
             $current_provider = strtolower(AIPKit_Providers::get_current_provider());
             foreach (array_keys(AIPKit_Providers::get_provider_defaults_all()) as $provider_name) {
                 $provider_data = AIPKit_Providers::get_provider_data($provider_name);
@@ -265,22 +264,7 @@ class DashboardAssets extends AIPKit_Admin_Asset_Base
                     ? sanitize_text_field((string) $provider_data['model'])
                     : '';
             }
-            $provider_status = [
-                'openai' => ! empty($providers['OpenAI']['api_key']),
-                'google' => ! empty($providers['Google']['api_key']),
-                'claude' => ! empty($providers['Claude']['api_key']),
-                'openrouter' => ! empty($providers['OpenRouter']['api_key']),
-                'azure' => ! empty($providers['Azure']['api_key']) && ! empty($providers['Azure']['endpoint']),
-                'ollama' => ! empty($providers['Ollama']['base_url']),
-                'deepseek' => ! empty($providers['DeepSeek']['api_key']),
-                'xai' => ! empty($providers['xAI']['api_key']),
-                'replicate' => ! empty($providers['Replicate']['api_key']),
-                'pexels' => ! empty($providers['Pexels']['api_key']),
-                'pixabay' => ! empty($providers['Pixabay']['api_key']),
-                'pinecone' => ! empty($providers['Pinecone']['api_key']),
-                'qdrant' => ! empty($providers['Qdrant']['api_key']) && ! empty($providers['Qdrant']['url']),
-                'chroma' => ! empty($providers['Chroma']['url']),
-            ];
+            $provider_status = AIPKit_Providers::get_provider_status_map();
         }
 
         $embedding_provider_map = class_exists(AIPKit_Providers::class)
