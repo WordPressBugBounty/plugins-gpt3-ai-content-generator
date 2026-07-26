@@ -33,7 +33,7 @@ $aipkit_feature_promo_classes = trim(
             <div class="aipkit_feature_promo_heading">
                 <h3 class="aipkit_feature_promo_title"><?php echo esc_html($aipkit_feature_promo_title); ?></h3>
                 <?php if ($aipkit_feature_promo_show_pro_badge) : ?>
-                    <span class="aipkit_feature_promo_badge">
+                    <span class="aipkit_feature_promo_badge aipkit_pro_badge">
                         <span class="dashicons dashicons-lock" aria-hidden="true"></span>
                         <?php esc_html_e('Pro', 'gpt3-ai-content-generator'); ?>
                     </span>
@@ -83,7 +83,7 @@ $aipkit_feature_promo_classes = trim(
     </div>
 
     <div class="aipkit_feature_promo_cta">
-        <a class="aipkit_btn aipkit_feature_promo_btn" href="<?php echo esc_url($aipkit_feature_promo_upgrade_url); ?>" target="_blank" rel="noopener noreferrer">
+        <a class="aipkit_btn aipkit_feature_promo_btn aipkit_pro_upgrade_button" href="<?php echo esc_url($aipkit_feature_promo_upgrade_url); ?>" target="_blank" rel="noopener noreferrer">
             <?php echo esc_html($aipkit_feature_promo_upgrade_label); ?>
         </a>
         <a class="aipkit_feature_promo_link" href="<?php echo esc_url($aipkit_feature_promo_docs_url); ?>" target="_blank" rel="noopener noreferrer">

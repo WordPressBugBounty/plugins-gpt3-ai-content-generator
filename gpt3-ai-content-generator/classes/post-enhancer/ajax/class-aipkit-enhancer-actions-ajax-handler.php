@@ -30,53 +30,84 @@ class AIPKit_Enhancer_Actions_Ajax_Handler extends BaseDashboardAjaxHandler
             [
                 'id' => 'rewrite-' . wp_generate_uuid4(),
                 'label' => __('Rewrite', 'gpt3-ai-content-generator'),
-                'prompt' => 'Rewrite this to improve clarity and engagement: "%s"',
+                'prompt' => 'Rewrite this to improve clarity and engagement: {selected_text}',
                 'insert_position' => 'replace',
                 'is_default' => true
             ],
             [
                 'id' => 'expand-' . wp_generate_uuid4(),
                 'label' => __('Expand', 'gpt3-ai-content-generator'),
-                'prompt' => 'Expand on the following point: "%s"',
+                'prompt' => 'Expand on the following point: {selected_text}',
                 'insert_position' => 'replace',
                 'is_default' => true
             ],
             [
                 'id' => 'fix_grammar-' . wp_generate_uuid4(),
-                'label' => __('Fix Grammar & Spelling', 'gpt3-ai-content-generator'),
-                'prompt' => 'Correct any spelling and grammar mistakes in the following text: "%s"',
+                'label' => __('Fix grammar and spelling', 'gpt3-ai-content-generator'),
+                'prompt' => 'Correct any spelling and grammar mistakes in the following text: {selected_text}',
                 'insert_position' => 'replace',
                 'is_default' => true
             ],
             [
                 'id' => 'summarize-' . wp_generate_uuid4(),
                 'label' => __('Summarize', 'gpt3-ai-content-generator'),
-                'prompt' => 'Summarize the following text in 3–5 concise sentences while preserving key facts and tone: "%s"',
+                'prompt' => 'Summarize the following text in 3–5 concise sentences while preserving key facts and tone: {selected_text}',
                 'insert_position' => 'replace',
                 'is_default' => true
             ],
             [
                 'id' => 'outline-' . wp_generate_uuid4(),
-                'label' => __('Create Outline (H2/H3)', 'gpt3-ai-content-generator'),
-                'prompt' => 'Create a clear outline from the following text using headings (## for H2, ### for H3) and short bullets as needed: "%s"',
+                'label' => __('Create outline (H2/H3)', 'gpt3-ai-content-generator'),
+                'prompt' => 'Create a clear outline from the following text using headings (## for H2, ### for H3) and short bullets as needed: {selected_text}',
                 'insert_position' => 'replace',
                 'is_default' => true
             ],
             [
                 'id' => 'faqs-' . wp_generate_uuid4(),
                 'label' => __('Generate FAQs', 'gpt3-ai-content-generator'),
-                'prompt' => 'Generate 5–7 relevant FAQ questions and short answers based on this text. Use a simple Q/A format in Markdown. Text: "%s"',
+                'prompt' => 'Generate 5–7 relevant FAQ questions and short answers based on this text. Use a simple Q/A format in Markdown. Text: {selected_text}',
                 'insert_position' => 'replace',
                 'is_default' => true
             ],
             [
                 'id' => 'simplify-' . wp_generate_uuid4(),
-                'label' => __('Simplify Tone', 'gpt3-ai-content-generator'),
-                'prompt' => 'Rewrite the following in a friendly, simple tone (grade 7–8 readability) while preserving meaning and structure: "%s"',
+                'label' => __('Simplify tone', 'gpt3-ai-content-generator'),
+                'prompt' => 'Rewrite the following in a friendly, simple tone (grade 7–8 readability) while preserving meaning and structure: {selected_text}',
                 'insert_position' => 'replace',
                 'is_default' => true
             ],
         ];
+    }
+
+    /**
+     * Present untouched legacy defaults with the current labels and named token
+     * without mutating a user's saved option until they explicitly save or reset.
+     *
+     * @param array $actions Stored actions.
+     * @return array
+     */
+    public function normalize_actions_for_ui_public(array $actions): array
+    {
+        $legacy_labels = [
+            'Fix Grammar & Spelling' => __('Fix grammar and spelling', 'gpt3-ai-content-generator'),
+            'Create Outline (H2/H3)' => __('Create outline (H2/H3)', 'gpt3-ai-content-generator'),
+            'Simplify Tone' => __('Simplify tone', 'gpt3-ai-content-generator'),
+        ];
+
+        foreach ($actions as &$action) {
+            if (!is_array($action) || empty($action['is_default'])) {
+                continue;
+            }
+            if (isset($action['label'], $legacy_labels[$action['label']])) {
+                $action['label'] = $legacy_labels[$action['label']];
+            }
+            if (isset($action['prompt']) && is_string($action['prompt'])) {
+                $action['prompt'] = str_replace('%s', '{selected_text}', $action['prompt']);
+            }
+        }
+        unset($action);
+
+        return $actions;
     }
 
     /**
@@ -159,7 +190,7 @@ class AIPKit_Enhancer_Actions_Ajax_Handler extends BaseDashboardAjaxHandler
         update_option(self::OPTION_NAME, $reordered, 'no');
         wp_send_json_success([
             'message' => __('Action order updated.', 'gpt3-ai-content-generator'),
-            'actions' => $reordered,
+            'actions' => $this->normalize_actions_for_ui_public($reordered),
         ]);
     }
 
@@ -180,7 +211,7 @@ class AIPKit_Enhancer_Actions_Ajax_Handler extends BaseDashboardAjaxHandler
         }
 
         wp_send_json_success([
-            'actions' => $actions,
+            'actions' => $this->normalize_actions_for_ui_public($actions),
         ]);
     }
 
@@ -297,7 +328,7 @@ class AIPKit_Enhancer_Actions_Ajax_Handler extends BaseDashboardAjaxHandler
         update_option(self::OPTION_NAME, array_values($updated_actions), 'no');
         wp_send_json_success([
             'message' => __('Action deleted successfully.', 'gpt3-ai-content-generator'),
-            'actions' => array_values($updated_actions),
+            'actions' => $this->normalize_actions_for_ui_public(array_values($updated_actions)),
         ]);
     }
 }

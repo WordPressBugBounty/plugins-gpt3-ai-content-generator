@@ -287,12 +287,12 @@ $all_selectable_post_types = array_filter($all_selectable_post_types, function (
                                             </button>
                                         <?php else : ?>
                                             <a
-                                                class="aipkit_btn aipkit_btn-primary aipkit_builder_action_btn aipkit_training_files_button"
+                                                class="aipkit_btn aipkit_btn-primary aipkit_builder_action_btn aipkit_training_files_button aipkit_pro_upgrade_button"
                                                 href="<?php echo esc_url($upgrade_url); ?>"
                                                 target="_blank"
                                                 rel="noopener noreferrer"
                                             >
-                                                <?php esc_html_e('Upgrade Pro', 'gpt3-ai-content-generator'); ?>
+                                                <?php esc_html_e('Upgrade', 'gpt3-ai-content-generator'); ?>
                                             </a>
                                         <?php endif; ?>
                                     </div>

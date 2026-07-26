@@ -237,7 +237,7 @@ if (!is_array($model_sync_timestamps)) {
                 <span class="aipkit_ai_form_inspector_card_title_row">
                     <span class="aipkit_ai_form_inspector_card_title" role="heading" aria-level="3"><?php esc_html_e('Connected Apps', 'gpt3-ai-content-generator'); ?></span>
                     <?php if (!$is_pro): ?>
-                        <span class="aipkit_pro_tag"><?php esc_html_e('Pro', 'gpt3-ai-content-generator'); ?></span>
+                        <span class="aipkit_pro_tag aipkit_pro_badge"><?php esc_html_e('Pro', 'gpt3-ai-content-generator'); ?></span>
                     <?php endif; ?>
                 </span>
                 <?php if ($is_pro): ?>
@@ -297,7 +297,7 @@ if (!is_array($model_sync_timestamps)) {
                         <?php endforeach; ?>
                         <a
                             href="<?php echo esc_url($upgrade_url); ?>"
-                            class="aipkit_btn aipkit_ai_form_connected_apps_upgrade aipkit_chatbot_connected_apps_grid_cta"
+                            class="aipkit_btn aipkit_ai_form_connected_apps_upgrade aipkit_chatbot_connected_apps_grid_cta aipkit_pro_upgrade_button"
                             target="_blank"
                             rel="noopener noreferrer"
                         >

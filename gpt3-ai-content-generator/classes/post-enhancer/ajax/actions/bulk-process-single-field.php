@@ -135,6 +135,7 @@ class AIPKit_PostEnhancer_Bulk_Process_Single_Field extends AIPKit_Post_Enhancer
         $model = $item_config['ai_model'] ?? $global_config['model'];
         $ai_params = [
             'temperature' => isset($item_config['temperature']) ? floatval($item_config['temperature']) : ($global_ai_params['temperature'] ?? 1.0),
+            'top_p' => isset($item_config['top_p']) ? floatval($item_config['top_p']) : ($global_ai_params['top_p'] ?? 1.0),
             'max_completion_tokens' => isset($item_config['max_tokens']) ? absint($item_config['max_tokens']) : ($global_ai_params['max_completion_tokens'] ?? 4000),
         ];
         if ($provider === 'OpenAI') {

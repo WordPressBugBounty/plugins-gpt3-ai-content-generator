@@ -503,17 +503,17 @@ $aipkit_get_advanced_fields = static function (array $config) use ($aipkit_commo
                     </span>
                     <div class="aipkit_settings_provider_upgrade_title">
                         <h4 class="aipkit_settings_provider_name"><?php echo esc_html((string) $aipkit_config['display_name']); ?></h4>
-                        <span class="aipkit_settings_provider_status aipkit_settings_provider_status--pro"><?php esc_html_e('Pro', 'gpt3-ai-content-generator'); ?></span>
+                        <span class="aipkit_settings_provider_status aipkit_settings_provider_status--pro aipkit_pro_badge"><?php esc_html_e('Pro', 'gpt3-ai-content-generator'); ?></span>
                     </div>
                 </div>
                 <p class="aipkit_settings_provider_upgrade_description">
                     <?php echo esc_html((string) ($aipkit_config['pro_description'] ?? __('Available with AI Puffer Pro.', 'gpt3-ai-content-generator'))); ?>
                 </p>
                 <a
-                    class="aipkit_btn aipkit_settings_provider_upgrade_cta"
+                    class="aipkit_btn aipkit_settings_provider_upgrade_cta aipkit_pro_upgrade_button"
                     href="<?php echo esc_url(admin_url('admin.php?page=wpaicg-pricing')); ?>"
                 >
-                    <?php esc_html_e('Upgrade to Pro', 'gpt3-ai-content-generator'); ?>
+                    <?php esc_html_e('Upgrade', 'gpt3-ai-content-generator'); ?>
                 </a>
             <?php else : ?>
             <div class="aipkit_settings_provider_card_header">

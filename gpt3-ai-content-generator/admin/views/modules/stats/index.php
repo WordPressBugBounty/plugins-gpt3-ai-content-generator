@@ -999,7 +999,7 @@ if ($woo_active) {
                             </label>
                         <?php endif; ?>
                         <?php if (!$is_pro): ?>
-                            <a class="aipkit_btn aipkit_btn-primary" href="<?php echo esc_url($upgrade_url); ?>">
+                            <a class="aipkit_btn aipkit_btn-primary aipkit_pro_upgrade_button" href="<?php echo esc_url($upgrade_url); ?>">
                                 <?php esc_html_e('Upgrade', 'gpt3-ai-content-generator'); ?>
                             </a>
                         <?php endif; ?>

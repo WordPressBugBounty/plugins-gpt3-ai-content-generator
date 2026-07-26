@@ -30,9 +30,7 @@ $aipkit_task_cw_seo_rules_available = class_exists($aipkit_task_cw_seo_rules_cla
 $aipkit_task_cw_seo_default_disabled_rules = class_exists('\\WPAICG\\ContentWriter\\SEO\\AIPKit_Content_Writer_SEO_Config')
     ? \WPAICG\ContentWriter\SEO\AIPKit_Content_Writer_SEO_Config::default_disabled_rules()
     : '[]';
-$aipkit_task_cw_smart_seo_upgrade_url = function_exists('wpaicg_gacg_fs')
-    ? wpaicg_gacg_fs()->get_upgrade_url()
-    : admin_url('admin.php?page=wpaicg-pricing');
+$aipkit_task_cw_smart_seo_upgrade_url = admin_url('admin.php?page=wpaicg-pricing');
 ?>
 
 <div
@@ -78,12 +76,12 @@ $aipkit_task_cw_smart_seo_upgrade_url = function_exists('wpaicg_gacg_fs')
                 </select>
             <?php else : ?>
                 <a
-                    class="aipkit_btn aipkit_btn-primary aipkit_autogpt_seo_inline_upgrade"
+                    class="aipkit_btn aipkit_btn-primary aipkit_autogpt_seo_inline_upgrade aipkit_pro_upgrade_button"
                     href="<?php echo esc_url($aipkit_task_cw_smart_seo_upgrade_url); ?>"
                     target="_blank"
                     rel="noopener noreferrer"
                 >
-                    <?php esc_html_e('Unlock with Pro', 'gpt3-ai-content-generator'); ?>
+                    <?php esc_html_e('Upgrade', 'gpt3-ai-content-generator'); ?>
                 </a>
                 <input type="hidden" name="seo_score_improvement_enabled" value="0" data-aipkit-task-smart-seo-control>
             <?php endif; ?>

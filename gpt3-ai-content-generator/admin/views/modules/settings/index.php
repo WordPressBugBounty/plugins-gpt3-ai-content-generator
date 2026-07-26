@@ -173,7 +173,7 @@ $chroma_defaults     = AIPKit_Providers::get_provider_defaults('Chroma');
                     <span class="dashicons dashicons-admin-plugins" aria-hidden="true"></span>
                     <span class="aipkit_settings_page_nav_link_label"><?php esc_html_e('Apps', 'gpt3-ai-content-generator'); ?></span>
                     <?php if (!$is_pro) : ?>
-                        <span class="aipkit_settings_apps_upsell_badge"><?php esc_html_e('Pro', 'gpt3-ai-content-generator'); ?></span>
+                        <span class="aipkit_settings_apps_upsell_badge aipkit_pro_badge"><?php esc_html_e('Pro', 'gpt3-ai-content-generator'); ?></span>
                     <?php endif; ?>
                 </button>
                 <button

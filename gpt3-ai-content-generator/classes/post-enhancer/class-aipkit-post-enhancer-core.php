@@ -131,9 +131,7 @@ class Core
     }
 
     /**
-     * Adds the "✍️ AI Enhance" dropdown action to post row actions.
-     * REVISED: Now adds a single trigger with a dropdown.
-     * REVISED: Activated Meta Description link.
+     * Adds the Assistant dropdown action to post row actions.
      *
      * @param array $actions Existing actions.
      * @param \WP_Post $post The post object.
@@ -158,37 +156,37 @@ class Core
         ) {
             // --- Main Enhancer Action with Dropdown ---
             $actions['aipkit_ai_enhance'] = sprintf(
-                '<div class="aipkit_enhancer_action">
-                    <a href="#" class="aipkit_enhancer_trigger" aria-label="%s">✍️ %s</a>
-                    <div class="aipkit_enhancer_popover">
+                '<span class="aipkit_enhancer_action">
+                    <a href="#" class="aipkit_enhancer_trigger" aria-label="%s"><span class="aipkit_assistant_symbol" aria-hidden="true"></span><span>%s</span></a>
+                    <div class="aipkit_enhancer_popover" role="menu">
                         <div class="aipkit_enhancer_group">
-                            <div class="aipkit_enhancer_group_title">🔤 %s</div>
+                            <div class="aipkit_enhancer_group_title">%s</div>
                             <ul>
-                                <li class="aipkit_enhancer_item" data-action-type="title" data-post-id="%d">%s</li>
-                                <li class="aipkit_enhancer_item" data-action-type="excerpt" data-post-id="%d">%s</li>
+                                <li><button type="button" class="aipkit_enhancer_item" data-action-type="title" data-post-id="%d" role="menuitem"><span class="dashicons dashicons-heading" aria-hidden="true"></span><span>%s</span></button></li>
+                                <li><button type="button" class="aipkit_enhancer_item" data-action-type="excerpt" data-post-id="%d" role="menuitem"><span class="dashicons dashicons-editor-alignleft" aria-hidden="true"></span><span>%s</span></button></li>
                             </ul>
                         </div>
                         <div class="aipkit_enhancer_group">
-                            <div class="aipkit_enhancer_group_title">📈 %s</div>
+                            <div class="aipkit_enhancer_group_title">%s</div>
                             <ul>
-                                <li class="aipkit_enhancer_item" data-action-type="meta" data-post-id="%d">%s</li>
-                                <li class="aipkit_enhancer_item" data-action-type="tags" data-post-id="%d">%s</li>
+                                <li><button type="button" class="aipkit_enhancer_item" data-action-type="meta" data-post-id="%d" role="menuitem"><span class="dashicons dashicons-media-document" aria-hidden="true"></span><span>%s</span></button></li>
+                                <li><button type="button" class="aipkit_enhancer_item" data-action-type="tags" data-post-id="%d" role="menuitem"><span class="dashicons dashicons-tag" aria-hidden="true"></span><span>%s</span></button></li>
                             </ul>
                         </div>
                     </div>
-                 </div>',
+                 </span>',
                 esc_attr__('Update content using AI', 'gpt3-ai-content-generator'), // aria-label for trigger
                 esc_html__('Assistant', 'gpt3-ai-content-generator'), // Link text for trigger
-                esc_html__('Text Tools', 'gpt3-ai-content-generator'), // Group Title
+                esc_html__('Content', 'gpt3-ai-content-generator'), // Group Title
                 esc_attr($post->ID),
-                esc_html__('Generate Title', 'gpt3-ai-content-generator'),
+                esc_html__('Generate title', 'gpt3-ai-content-generator'),
                 esc_attr($post->ID),
-                esc_html__('Generate Excerpt', 'gpt3-ai-content-generator'),
-                esc_html__('SEO Tools', 'gpt3-ai-content-generator'), // Group Title
+                esc_html__('Generate excerpt', 'gpt3-ai-content-generator'),
+                esc_html__('SEO', 'gpt3-ai-content-generator'), // Group Title
                 esc_attr($post->ID),
-                esc_html__('Generate Meta Desc', 'gpt3-ai-content-generator'),
+                esc_html__('Generate meta description', 'gpt3-ai-content-generator'),
                 esc_attr($post->ID),
-                esc_html__('Generate Tags', 'gpt3-ai-content-generator')
+                esc_html__('Generate tags', 'gpt3-ai-content-generator')
             );
         }
         return $actions;

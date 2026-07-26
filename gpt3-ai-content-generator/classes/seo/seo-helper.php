@@ -342,6 +342,30 @@ class AIPKit_SEO_Helper
     }
 
     /**
+     * Retrieves the current meta description for the active SEO integration.
+     */
+    public static function get_meta_description(int $post_id): string
+    {
+        $meta_key = '_aipkit_meta_description';
+        switch (self::get_active_plugin()) {
+            case 'yoast':
+                $meta_key = '_yoast_wpseo_metadesc';
+                break;
+            case 'rank_math':
+                $meta_key = 'rank_math_description';
+                break;
+            case 'aioseo':
+                $meta_key = '_aioseo_description';
+                break;
+            case 'framework':
+                $meta_key = '_genesis_description';
+                break;
+        }
+
+        return wp_strip_all_tags((string) get_post_meta($post_id, $meta_key, true));
+    }
+
+    /**
      * Updates the focus keyword for a post.
      *
      * @param int $post_id The ID of the post.

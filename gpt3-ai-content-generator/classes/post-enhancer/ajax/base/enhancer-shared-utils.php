@@ -7,6 +7,7 @@ use WPAICG\Core\AIPKit_AI_Caller;
 use WPAICG\AIPKit_Providers;
 use WPAICG\AIPKIT_AI_Settings;
 use WPAICG\Chat\Storage\LogStorage;
+use WPAICG\SEO\AIPKit_SEO_Helper;
 
 if (!defined('ABSPATH')) {
     exit;
@@ -35,6 +36,25 @@ function get_post_full_content(\WP_Post $post): string
     $content = strip_shortcodes($content);
     $content = preg_replace('/\s+/', ' ', $content);
     return trim($content);
+}
+
+/**
+ * Returns the value the generated suggestions would replace.
+ */
+function get_current_suggestion_value_logic(string $type, \WP_Post $post): string
+{
+    switch ($type) {
+        case 'title':
+            return wp_strip_all_tags((string) $post->post_title);
+        case 'excerpt':
+            return wp_strip_all_tags((string) $post->post_excerpt);
+        case 'meta':
+            return AIPKit_SEO_Helper::get_meta_description($post->ID);
+        case 'tags':
+            return AIPKit_SEO_Helper::get_tags_as_string($post->ID);
+        default:
+            return '';
+    }
 }
 
 function generate_suggestions_logic(string $type, \WP_Post $post, string $final_prompt): void
@@ -116,7 +136,10 @@ function generate_suggestions_logic(string $type, \WP_Post $post, string $final_
         return;
     }
 
-    wp_send_json_success(['suggestions' => $suggestions]);
+    wp_send_json_success([
+        'suggestions' => $suggestions,
+        'current_value' => get_current_suggestion_value_logic($type, $post),
+    ]);
 }
 
 function log_enhancer_interaction_logic(int $post_id, string $type, string $prompt, string $response_content, string $provider, string $model, ?array $usage, ?array $request_payload): void

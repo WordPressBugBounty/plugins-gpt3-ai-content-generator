@@ -36,6 +36,6 @@ $aipkit_feature_promo_cards = [
 ];
 $aipkit_feature_promo_compact = true;
 $aipkit_feature_promo_show_pro_badge = true;
-$aipkit_feature_promo_upgrade_label = __('Upgrade to Pro', 'gpt3-ai-content-generator');
-$aipkit_feature_promo_upgrade_url = function_exists('wpaicg_gacg_fs') ? wpaicg_gacg_fs()->get_upgrade_url() : '#';
+$aipkit_feature_promo_upgrade_label = __('Upgrade', 'gpt3-ai-content-generator');
+$aipkit_feature_promo_upgrade_url = admin_url('admin.php?page=wpaicg-pricing');
 include WPAICG_PLUGIN_DIR . 'admin/views/modules/shared/feature-promo.php';

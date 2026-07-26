@@ -75,6 +75,12 @@ class AIPKit_Vector_Post_Processor_Ajax_Handler
             wp_send_json_error(['message' => __('No posts selected for indexing.', 'gpt3-ai-content-generator')], 400);
             return;
         }
+        foreach ($post_ids as $post_id) {
+            if (!current_user_can('edit_post', $post_id)) {
+                wp_send_json_error(['message' => __('You do not have permission to index one or more selected items.', 'gpt3-ai-content-generator')], 403);
+                return;
+            }
+        }
         if (empty($provider)) {
             wp_send_json_error(['message' => __('Vector store provider is required.', 'gpt3-ai-content-generator')], 400);
             return;

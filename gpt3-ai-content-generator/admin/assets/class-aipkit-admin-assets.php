@@ -550,18 +550,23 @@ class PostEnhancerAssets extends AIPKit_Admin_Asset_Base
 
     private function enqueue_styles(): void
     {
-        $this->register_admin_main_css();
+        $this->register_admin_main_css(
+            self::asset_version('dist/css/admin-main.bundle.css', $this->version)
+        );
         $this->register_style_bundle(
             'aipkit-admin-post-enhancer-css',
             'admin-post-enhancer.bundle.css',
-            ['aipkit-admin-main-css']
+            ['aipkit-admin-main-css'],
+            self::asset_version('dist/css/admin-post-enhancer.bundle.css', $this->version)
         );
         $this->enqueue_style_handle('aipkit-admin-post-enhancer-css');
     }
 
     private function enqueue_scripts(): void
     {
-        $this->enqueue_admin_main_script();
+        $this->enqueue_admin_main_script(
+            self::asset_version('dist/js/admin-main.bundle.js', $this->version)
+        );
         $this->ensure_dashboard_core_data();
 
         if (self::is_script_localized('aipkit-admin-main', 'aipkit_post_enhancer')) {
@@ -579,6 +584,9 @@ class PostEnhancerAssets extends AIPKit_Admin_Asset_Base
 
         if (empty($enhancer_actions) && class_exists(AIPKit_Enhancer_Actions_Ajax_Handler::class)) {
             $enhancer_actions = (new AIPKit_Enhancer_Actions_Ajax_Handler())->get_default_actions_public();
+        }
+        if (class_exists(AIPKit_Enhancer_Actions_Ajax_Handler::class) && is_array($enhancer_actions)) {
+            $enhancer_actions = (new AIPKit_Enhancer_Actions_Ajax_Handler())->normalize_actions_for_ui_public($enhancer_actions);
         }
 
         wp_localize_script('aipkit-admin-main', 'aipkit_post_enhancer', [
@@ -610,74 +618,89 @@ class PostEnhancerAssets extends AIPKit_Admin_Asset_Base
             'max_actions' => AIPKit_Enhancer_Actions_Ajax_Handler::MAX_ACTIONS,
             'parse_html_formats' => (bool) apply_filters('aipkit_enhancer_enable_formatting', true),
             'text' => [
-                'modal_title_title' => __('Title Suggestions', 'gpt3-ai-content-generator'),
-                'loading_title' => __('Generating Title Suggestions...', 'gpt3-ai-content-generator'),
-                'updating_title' => __('Updating Title...', 'gpt3-ai-content-generator'),
+                'modal_title_title' => __('Title suggestions', 'gpt3-ai-content-generator'),
+                'loading_title' => __('Generating title suggestions…', 'gpt3-ai-content-generator'),
+                'updating_title' => __('Updating title…', 'gpt3-ai-content-generator'),
                 'error_loading_title' => __('Error loading title suggestions.', 'gpt3-ai-content-generator'),
                 'error_updating_title' => __('Error updating title.', 'gpt3-ai-content-generator'),
                 'no_suggestions_title' => __('No title suggestions generated or AI Error.', 'gpt3-ai-content-generator'),
-                'select_title' => __('Click a title to apply:', 'gpt3-ai-content-generator'),
-                'modal_title_excerpt' => __('Excerpt Suggestions', 'gpt3-ai-content-generator'),
-                'loading_excerpt' => __('Generating Excerpt Suggestions...', 'gpt3-ai-content-generator'),
-                'updating_excerpt' => __('Updating Excerpt...', 'gpt3-ai-content-generator'),
+                'current_title' => __('Current title', 'gpt3-ai-content-generator'),
+                'no_current_title' => __('No current title.', 'gpt3-ai-content-generator'),
+                'apply_title' => __('Apply title', 'gpt3-ai-content-generator'),
+                'modal_title_excerpt' => __('Excerpt suggestions', 'gpt3-ai-content-generator'),
+                'loading_excerpt' => __('Generating excerpt suggestions…', 'gpt3-ai-content-generator'),
+                'updating_excerpt' => __('Updating excerpt…', 'gpt3-ai-content-generator'),
                 'error_loading_excerpt' => __('Error loading excerpt suggestions.', 'gpt3-ai-content-generator'),
                 'error_updating_excerpt' => __('Error updating excerpt.', 'gpt3-ai-content-generator'),
                 'no_suggestions_excerpt' => __('No excerpt suggestions generated or AI Error.', 'gpt3-ai-content-generator'),
-                'select_excerpt' => __('Click an excerpt to apply:', 'gpt3-ai-content-generator'),
-                'modal_title_meta' => __('Meta Description Suggestions', 'gpt3-ai-content-generator'),
-                'loading_meta' => __('Generating Meta Descriptions...', 'gpt3-ai-content-generator'),
-                'updating_meta' => __('Updating Meta Description...', 'gpt3-ai-content-generator'),
+                'current_excerpt' => __('Current excerpt', 'gpt3-ai-content-generator'),
+                'no_current_excerpt' => __('No current excerpt.', 'gpt3-ai-content-generator'),
+                'apply_excerpt' => __('Apply excerpt', 'gpt3-ai-content-generator'),
+                'modal_title_meta' => __('Meta description suggestions', 'gpt3-ai-content-generator'),
+                'loading_meta' => __('Generating meta description suggestions…', 'gpt3-ai-content-generator'),
+                'updating_meta' => __('Updating meta description…', 'gpt3-ai-content-generator'),
                 'error_loading_meta' => __('Error loading meta description suggestions.', 'gpt3-ai-content-generator'),
                 'error_updating_meta' => __('Error updating meta description.', 'gpt3-ai-content-generator'),
                 'no_suggestions_meta' => __('No meta description suggestions generated or AI Error.', 'gpt3-ai-content-generator'),
-                'select_meta' => __('Click a meta description to apply:', 'gpt3-ai-content-generator'),
-                'modal_title_tags' => __('Tag Suggestions', 'gpt3-ai-content-generator'),
-                'loading_tags' => __('Generating Tag Suggestions...', 'gpt3-ai-content-generator'),
-                'updating_tags' => __('Updating Tags...', 'gpt3-ai-content-generator'),
+                'current_meta' => __('Current meta description', 'gpt3-ai-content-generator'),
+                'no_current_meta' => __('No current meta description.', 'gpt3-ai-content-generator'),
+                'apply_meta' => __('Apply meta description', 'gpt3-ai-content-generator'),
+                'modal_title_tags' => __('Tag suggestions', 'gpt3-ai-content-generator'),
+                'loading_tags' => __('Generating tag suggestions…', 'gpt3-ai-content-generator'),
+                'updating_tags' => __('Updating tags…', 'gpt3-ai-content-generator'),
                 'error_loading_tags' => __('Error loading tag suggestions.', 'gpt3-ai-content-generator'),
                 'error_updating_tags' => __('Error updating tags.', 'gpt3-ai-content-generator'),
                 'no_suggestions_tags' => __('No tag suggestions generated or AI Error.', 'gpt3-ai-content-generator'),
-                'select_tags' => __('Click a tag set to apply:', 'gpt3-ai-content-generator'),
-                /* translators: 1: provider label, 2: model label, 3: temperature value. */
-                'loading_info_template' => __('Using <strong>%1$s</strong> (Model: <strong>%2$s</strong>, Temp: %3$s)', 'gpt3-ai-content-generator'),
+                'current_tags' => __('Current tags', 'gpt3-ai-content-generator'),
+                'no_current_tags' => __('No current tags.', 'gpt3-ai-content-generator'),
+                'apply_tags' => __('Apply tags', 'gpt3-ai-content-generator'),
+                'regenerate' => __('Regenerate', 'gpt3-ai-content-generator'),
+                'show_more' => __('Show more', 'gpt3-ai-content-generator'),
+                'show_less' => __('Show less', 'gpt3-ai-content-generator'),
+                'retry' => __('Retry', 'gpt3-ai-content-generator'),
+                'cancel' => __('Cancel', 'gpt3-ai-content-generator'),
+                'select_posts_title' => __('Select items', 'gpt3-ai-content-generator'),
+                'select_posts_message' => __('Please select at least one item.', 'gpt3-ai-content-generator'),
+                'bulk_unavailable_title' => __('Unable to open', 'gpt3-ai-content-generator'),
+                'bulk_unavailable_message' => __('The Assistant interface is not available. Reload the page and try again.', 'gpt3-ai-content-generator'),
+                'ok' => __('OK', 'gpt3-ai-content-generator'),
                 'close' => __('Close', 'gpt3-ai-content-generator'),
-                'config_modal_title' => __('Configure AI Actions', 'gpt3-ai-content-generator'),
-                'customize_actions' => __('Customize menu...', 'gpt3-ai-content-generator'),
-                'assistant_menu_title' => __('Assistant Menu', 'gpt3-ai-content-generator'),
-                'assistant_menu_description' => __('Customize editor Assistant menu items.', 'gpt3-ai-content-generator'),
-                'assistant_menu_items' => __('Menu items', 'gpt3-ai-content-generator'),
-                'add_action' => __('Add Item', 'gpt3-ai-content-generator'),
-                'new_action' => __('New menu item', 'gpt3-ai-content-generator'),
-                'move_up' => __('Move up', 'gpt3-ai-content-generator'),
-                'move_down' => __('Move down', 'gpt3-ai-content-generator'),
-                'delete_action' => __('Delete', 'gpt3-ai-content-generator'),
-                'action_label' => __('Action Label', 'gpt3-ai-content-generator'),
-                'action_prompt' => __('Action Prompt', 'gpt3-ai-content-generator'),
+                'customize_actions' => __('Customize menu', 'gpt3-ai-content-generator'),
+                'assistant_menu_title' => __('Assistant menu', 'gpt3-ai-content-generator'),
+                'assistant_menu_description' => __('Customize the actions shown in the editor menu.', 'gpt3-ai-content-generator'),
+                'assistant_menu_items' => __('Actions', 'gpt3-ai-content-generator'),
+                'add_action' => __('Add action', 'gpt3-ai-content-generator'),
+                'new_action' => __('New action', 'gpt3-ai-content-generator'),
+                'delete_action' => __('Delete action', 'gpt3-ai-content-generator'),
+                'action_label' => __('Label', 'gpt3-ai-content-generator'),
+                'action_prompt' => __('Prompt', 'gpt3-ai-content-generator'),
                 'insert_position' => __('Position', 'gpt3-ai-content-generator'),
                 'replace_selection' => __('Replace selection', 'gpt3-ai-content-generator'),
                 'insert_after' => __('Insert after', 'gpt3-ai-content-generator'),
                 'insert_before' => __('Insert before', 'gpt3-ai-content-generator'),
-                'reset_actions' => __('Reset', 'gpt3-ai-content-generator'),
+                'reset_actions' => __('Restore default actions', 'gpt3-ai-content-generator'),
                 'confirm_reset_actions' => __('Reset all actions to the default set? This will replace current customizations.', 'gpt3-ai-content-generator'),
-                'actions_reset' => __('Actions reset to defaults.', 'gpt3-ai-content-generator'),
                 'save_action' => __('Save', 'gpt3-ai-content-generator'),
-                'saving_action' => __('Saving...', 'gpt3-ai-content-generator'),
-                'confirm_delete_action' => __('Are you sure you want to delete this action? This cannot be undone.', 'gpt3-ai-content-generator'),
-                'deleting_action' => __('Deleting...', 'gpt3-ai-content-generator'),
-                'action_deleted' => __('Action deleted.', 'gpt3-ai-content-generator'),
-                'action_saved' => __('Action saved.', 'gpt3-ai-content-generator'),
-                'loading_actions' => __('Loading actions...', 'gpt3-ai-content-generator'),
+                'saving_action' => __('Saving…', 'gpt3-ai-content-generator'),
+                'deleting_action' => __('Deleting…', 'gpt3-ai-content-generator'),
+                'loading_actions' => __('Loading actions…', 'gpt3-ai-content-generator'),
                 'loading_failed' => __('Failed to load actions.', 'gpt3-ai-content-generator'),
                 'label_required' => __('Label is required.', 'gpt3-ai-content-generator'),
                 'prompt_required' => __('Prompt is required.', 'gpt3-ai-content-generator'),
                 'max_actions_reached' => __('Maximum actions reached.', 'gpt3-ai-content-generator'),
-                'saving_order' => __('Saving order...', 'gpt3-ai-content-generator'),
-                'order_saved' => __('Order saved.', 'gpt3-ai-content-generator'),
-                'resetting_actions' => __('Resetting...', 'gpt3-ai-content-generator'),
+                'saving_order' => __('Saving order…', 'gpt3-ai-content-generator'),
+                'resetting_actions' => __('Resetting…', 'gpt3-ai-content-generator'),
                 'error' => __('Error', 'gpt3-ai-content-generator'),
                 'save' => __('Save', 'gpt3-ai-content-generator'),
-                /* translators: %s: placeholder token that will be replaced by the selected text. */
-                'prompt_placeholder_info' => __('Use %s as a placeholder for the selected text.', 'gpt3-ai-content-generator'),
+                'selected_text_token' => __('{selected_text}', 'gpt3-ai-content-generator'),
+                'search_actions' => __('Search actions', 'gpt3-ai-content-generator'),
+                'accept' => __('Accept', 'gpt3-ai-content-generator'),
+                'discard' => __('Discard', 'gpt3-ai-content-generator'),
+                'try_again' => __('Try again', 'gpt3-ai-content-generator'),
+                'rewriting_selection' => __('Rewriting selection…', 'gpt3-ai-content-generator'),
+                'generation_failed' => __('Could not generate a result.', 'gpt3-ai-content-generator'),
+                'select_text' => __('Select text to use the Assistant.', 'gpt3-ai-content-generator'),
+                'assistant_unavailable' => __('The Assistant is unavailable. Reload the editor and try again.', 'gpt3-ai-content-generator'),
             ],
         ]);
     }
@@ -821,7 +844,7 @@ class AIPKit_Vector_Post_Processor_Assets extends AIPKit_Admin_Asset_Base
                 $post_types = apply_filters('aipkit_vector_post_processor_supported_post_types', $post_types);
                 AIPKit_Admin_Header_Action_Buttons::register_button(
                     'aipkit_add_to_vector_store_btn',
-                    __('Index', 'gpt3-ai-content-generator'),
+                    __('Add to knowledge base', 'gpt3-ai-content-generator'),
                     [
                         'post_types' => array_values(array_unique(array_map('sanitize_key', (array) $post_types))),
                         'access_callback' => [__CLASS__, 'current_user_can_access_index_button'],
@@ -904,53 +927,59 @@ class AIPKit_Vector_Post_Processor_Assets extends AIPKit_Admin_Asset_Base
             'embeddingProviderMap' => $embedding_localization['embeddingProviderMap'],
             'embeddingModelsByProvider' => $embedding_localization['embeddingModelsByProvider'],
             'text' => [
-                'modal_title' => __('Add Content to Vector Store', 'gpt3-ai-content-generator'),
+                'modal_title' => __('Add to knowledge base', 'gpt3-ai-content-generator'),
                 'provider_label' => __('Provider', 'gpt3-ai-content-generator'),
-                'select_store' => __('Select OpenAI Store', 'gpt3-ai-content-generator'),
+                'select_store' => __('Select a store', 'gpt3-ai-content-generator'),
                 'no_stores_found' => __('No OpenAI stores found. Create one in AI Training > Knowledge Base.', 'gpt3-ai-content-generator'),
                 'loading_stores' => __('Loading stores...', 'gpt3-ai-content-generator'),
-                'start_indexing' => __('Start Indexing', 'gpt3-ai-content-generator'),
+                'start_indexing' => __('Start indexing', 'gpt3-ai-content-generator'),
                 'processingButton' => __('Processing...', 'gpt3-ai-content-generator'),
                 'close' => __('Close', 'gpt3-ai-content-generator'),
                 'stop' => __('Stop', 'gpt3-ai-content-generator'),
+                'done' => __('Done', 'gpt3-ai-content-generator'),
                 'stopping' => __('Stopping...', 'gpt3-ai-content-generator'),
                 /* translators: 1: processed item count, 2: total item count. */
-                'indexing_progress' => __('Processing: %1$d/%2$d', 'gpt3-ai-content-generator'),
-                'indexing_complete' => __('Indexing complete!', 'gpt3-ai-content-generator'),
+                'indexing_progress' => __('Indexing %1$d of %2$d...', 'gpt3-ai-content-generator'),
+                'indexing_complete' => __('Indexing complete', 'gpt3-ai-content-generator'),
                 'error_fetching_stores' => __('Error fetching vector stores.', 'gpt3-ai-content-generator'),
                 'error_no_store_selected_vpp' => __('Please select an existing OpenAI store.', 'gpt3-ai-content-generator'),
-                'error_no_posts_selected' => __('Please select at least one post to index.', 'gpt3-ai-content-generator'),
-                'confirm_start_indexing' => __('Are you sure you want to index the selected content?', 'gpt3-ai-content-generator'),
+                'error_no_posts_selected_title' => __('Select items', 'gpt3-ai-content-generator'),
+                'error_no_posts_selected' => __('Please select at least one item to index.', 'gpt3-ai-content-generator'),
+                'error_ui_unavailable_title' => __('Unable to open', 'gpt3-ai-content-generator'),
+                'error_ui_unavailable' => __('The indexing interface is not available. Reload the page and try again.', 'gpt3-ai-content-generator'),
+                'ok' => __('OK', 'gpt3-ai-content-generator'),
                 'status_preparing' => __('Preparing content...', 'gpt3-ai-content-generator'),
                 /* translators: 1: current file number, 2: total file count. */
                 'status_uploading' => __('Uploading file %1$s of %2$s...', 'gpt3-ai-content-generator'),
                 'status_adding_files' => __('Adding files to vector store...', 'gpt3-ai-content-generator'),
                 'status_error' => __('An error occurred.', 'gpt3-ai-content-generator'),
                 /* translators: %d: number of selected items. */
-                'items_selected_singular' => __('You have selected %d item to index.', 'gpt3-ai-content-generator'),
+                'items_selected_singular' => __('%d item selected', 'gpt3-ai-content-generator'),
                 /* translators: %d: number of selected items. */
-                'items_selected_plural' => __('You have selected %d items to index.', 'gpt3-ai-content-generator'),
-                'select_pinecone_index' => __('Select Pinecone Index', 'gpt3-ai-content-generator'),
+                'items_selected_plural' => __('%d items selected', 'gpt3-ai-content-generator'),
+                /* translators: 1: successfully indexed item count, 2: total item count. */
+                'items_indexed_progress' => __('%1$d of %2$d items indexed', 'gpt3-ai-content-generator'),
+                'select_pinecone_index' => __('Select an index', 'gpt3-ai-content-generator'),
                 'loading_indexes' => __('Loading indexes...', 'gpt3-ai-content-generator'),
                 'error_fetching_indexes' => __('Error fetching indexes.', 'gpt3-ai-content-generator'),
                 'no_pinecone_indexes_found' => __('No Pinecone indexes found. Create one in AI Training or via Pinecone console.', 'gpt3-ai-content-generator'),
                 'error_no_pinecone_index_selected' => __('Please select a Pinecone index.', 'gpt3-ai-content-generator'),
-                'select_qdrant_collection' => __('Select Qdrant Collection', 'gpt3-ai-content-generator'),
+                'select_qdrant_collection' => __('Select a collection', 'gpt3-ai-content-generator'),
                 'no_qdrant_collections_found' => __('No Qdrant collections found. Create one in AI Training.', 'gpt3-ai-content-generator'),
                 'error_no_qdrant_collection_selected' => __('Please select a Qdrant collection.', 'gpt3-ai-content-generator'),
-                'select_chroma_collection' => __('Select Chroma Collection', 'gpt3-ai-content-generator'),
+                'select_chroma_collection' => __('Select a collection', 'gpt3-ai-content-generator'),
                 'no_chroma_collections_found' => __('No Chroma collections found. Create one in Knowledge Base.', 'gpt3-ai-content-generator'),
                 'error_no_chroma_collection_selected' => __('Please select a Chroma collection.', 'gpt3-ai-content-generator'),
-                'target_label' => __('Target', 'gpt3-ai-content-generator'),
-                'embedding_label' => __('Embedding', 'gpt3-ai-content-generator'),
-                'embedding_provider_label' => __('Embedding Provider', 'gpt3-ai-content-generator'),
-                'embedding_model_label' => __('Embedding Model', 'gpt3-ai-content-generator'),
-                'select_model' => __('Select Model', 'gpt3-ai-content-generator'),
+                'target_label' => __('Index', 'gpt3-ai-content-generator'),
+                'embedding_label' => __('Embedding model', 'gpt3-ai-content-generator'),
+                'embedding_provider_label' => __('Embedding provider', 'gpt3-ai-content-generator'),
+                'embedding_model_label' => __('Embedding model', 'gpt3-ai-content-generator'),
+                'select_model' => __('Select a model', 'gpt3-ai-content-generator'),
                 'error_no_embedding_config' => __('Embedding provider and model are required.', 'gpt3-ai-content-generator'),
                 'ensure_api_key_for_embedding' => __('Ensure API key is set for the selected embedding provider in AI Settings.', 'gpt3-ai-content-generator'),
-                'status_pending' => __('Pending', 'gpt3-ai-content-generator'),
-                'status_processing' => __('Processing', 'gpt3-ai-content-generator'),
-                'status_completed' => __('Completed', 'gpt3-ai-content-generator'),
+                'status_pending' => __('Waiting', 'gpt3-ai-content-generator'),
+                'status_processing' => __('Indexing...', 'gpt3-ai-content-generator'),
+                'status_completed' => __('Indexed', 'gpt3-ai-content-generator'),
                 'status_failed' => __('Failed', 'gpt3-ai-content-generator'),
                 'status_stopped' => __('Stopped', 'gpt3-ai-content-generator'),
             ],

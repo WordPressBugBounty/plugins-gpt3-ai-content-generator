@@ -14,9 +14,7 @@ if (!defined('ABSPATH')) {
 $kb_is_pro = isset($is_pro)
     ? (bool) $is_pro
     : (class_exists('\\WPAICG\\aipkit_dashboard') && \WPAICG\aipkit_dashboard::is_pro_plan());
-$kb_upgrade_url = function_exists('wpaicg_gacg_fs')
-    ? wpaicg_gacg_fs()->get_upgrade_url()
-    : admin_url('admin.php?page=wpaicg-pricing');
+$kb_upgrade_url = admin_url('admin.php?page=wpaicg-pricing');
 
 $kb_general_settings = get_option('aipkit_training_general_settings', [
     'hide_user_uploads' => true,
@@ -50,14 +48,14 @@ $kb_render_pro_gate = static function ($title, $description, $icon) use ($kb_upg
         <div class="aipkit_settings_kb_pro_content">
             <div class="aipkit_settings_kb_pro_title">
                 <h2><?php echo esc_html($title); ?></h2>
-                <span class="aipkit_settings_kb_pro_badge">
+                <span class="aipkit_settings_kb_pro_badge aipkit_pro_badge">
                     <span class="dashicons dashicons-lock" aria-hidden="true"></span>
                     <?php esc_html_e('Pro', 'gpt3-ai-content-generator'); ?>
                 </span>
             </div>
             <p><?php echo esc_html($description); ?></p>
-            <a class="aipkit_settings_kb_pro_cta" href="<?php echo esc_url($kb_upgrade_url); ?>" target="_blank" rel="noopener noreferrer">
-                <?php esc_html_e('Upgrade to pro', 'gpt3-ai-content-generator'); ?>
+            <a class="aipkit_settings_kb_pro_cta aipkit_pro_upgrade_button" href="<?php echo esc_url($kb_upgrade_url); ?>" target="_blank" rel="noopener noreferrer">
+                <?php esc_html_e('Upgrade', 'gpt3-ai-content-generator'); ?>
             </a>
         </div>
     </div>
@@ -94,7 +92,7 @@ $kb_render_pro_gate = static function ($title, $description, $icon) use ($kb_upg
             >
                 <span><?php echo esc_html($kb_tab_label); ?></span>
                 <?php if ($kb_tab_is_pro && !$kb_is_pro) : ?>
-                    <span class="aipkit_settings_kb_tab_pro"><?php esc_html_e('Pro', 'gpt3-ai-content-generator'); ?></span>
+                    <span class="aipkit_settings_kb_tab_pro aipkit_pro_badge"><?php esc_html_e('Pro', 'gpt3-ai-content-generator'); ?></span>
                 <?php endif; ?>
             </button>
         <?php endforeach; ?>

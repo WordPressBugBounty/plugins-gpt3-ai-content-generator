@@ -27,9 +27,7 @@ $seo_rules_available = class_exists($seo_rules_class) && !empty($seo_rules_class
 $seo_default_disabled_rules = class_exists('\\WPAICG\\ContentWriter\\SEO\\AIPKit_Content_Writer_SEO_Config')
     ? \WPAICG\ContentWriter\SEO\AIPKit_Content_Writer_SEO_Config::default_disabled_rules()
     : '[]';
-$upgrade_url = function_exists('wpaicg_gacg_fs')
-    ? wpaicg_gacg_fs()->get_upgrade_url()
-    : admin_url('admin.php?page=wpaicg-pricing');
+$upgrade_url = admin_url('admin.php?page=wpaicg-pricing');
 ?>
 
 <div
@@ -94,7 +92,7 @@ $upgrade_url = function_exists('wpaicg_gacg_fs')
                 <?php endif; ?>
             <?php else: ?>
                 <a
-                    class="aipkit_cw_seo_upgrade_btn"
+                    class="aipkit_cw_seo_upgrade_btn aipkit_pro_badge"
                     href="<?php echo esc_url($upgrade_url); ?>"
                     target="_blank"
                     rel="noopener noreferrer"

@@ -93,9 +93,9 @@ $render_display_feature_control = static function (array $feature): void {
             );
         } else {
             $consent_extra = sprintf(
-                '<a class="aipkit_tools_enabled_item_upgrade aipkit_popover_upgrade_link aipkit_upgrade_cta aipkit_upgrade_cta--inline" href="%1$s" target="_blank" rel="noopener noreferrer">%2$s</a>',
+                '<a class="aipkit_tools_enabled_item_upgrade aipkit_popover_upgrade_link aipkit_pro_upgrade_button" href="%1$s" target="_blank" rel="noopener noreferrer">%2$s</a>',
                 esc_url($pricing_url),
-                esc_html__('Upgrade Pro', 'gpt3-ai-content-generator')
+                esc_html__('Upgrade', 'gpt3-ai-content-generator')
             );
         }
         $render_display_feature_control([

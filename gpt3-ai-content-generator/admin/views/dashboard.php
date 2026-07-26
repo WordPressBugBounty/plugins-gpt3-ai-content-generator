@@ -354,12 +354,11 @@ if ($visible_nav_module_count === 0) {
                 $is_pro_plan = class_exists('\\WPAICG\\aipkit_dashboard') ? \WPAICG\aipkit_dashboard::is_pro_plan() : false;
                 if (!$is_pro_plan):
                 ?>
-                <button 
-                    type="button" 
-                    class="aipkit_module-tab aipkit_module-tab--settings aipkit_upgrade_btn" 
-                    id="aipkit_upgradeBtn"
-                    aria-label="<?php echo esc_attr__('Upgrade to Pro', 'gpt3-ai-content-generator'); ?>"
-                    title="<?php echo esc_attr__('Upgrade to Pro', 'gpt3-ai-content-generator'); ?>"
+                <a
+                    href="<?php echo esc_url(admin_url('admin.php?page=wpaicg-pricing')); ?>"
+                    class="aipkit_module-tab aipkit_module-tab--settings aipkit_upgrade_btn"
+                    aria-label="<?php echo esc_attr__('Upgrade', 'gpt3-ai-content-generator'); ?>"
+                    title="<?php echo esc_attr__('Upgrade', 'gpt3-ai-content-generator'); ?>"
                 >
                     <span class="aipkit_upgrade_btn_icon">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -367,7 +366,7 @@ if ($visible_nav_module_count === 0) {
                         </svg>
                     </span>
                     <span class="aipkit_module-tab_label aipkit_upgrade_btn_label"><?php esc_html_e('Upgrade', 'gpt3-ai-content-generator'); ?></span>
-                </button>
+                </a>
                 <?php endif; ?>
             </div>
         <?php endif; ?>
@@ -376,102 +375,3 @@ if ($visible_nav_module_count === 0) {
     <div class="aipkit_main-content" id="aipkit_module-container">
     </div>
 </div>
-
-<?php 
-// Upgrade to Pro Modal - Only show for non-pro users
-$is_pro_plan_for_modal = class_exists('\\WPAICG\\aipkit_dashboard') ? \WPAICG\aipkit_dashboard::is_pro_plan() : false;
-if (!$is_pro_plan_for_modal && AIPKit_Role_Manager::user_can_manage_settings()):
-    $upgrade_url = function_exists('wpaicg_gacg_fs') ? wpaicg_gacg_fs()->get_upgrade_url() : admin_url('admin.php?page=wpaicg-pricing');
-?>
-<div
-    class="aipkit_upgrade_modal"
-    id="aipkit_upgradeModal"
-    role="dialog"
-    aria-modal="true"
-    aria-labelledby="aipkit_upgradeModalTitle"
->
-    <div class="aipkit_modal_backdrop" data-close-modal></div>
-    <div class="aipkit_modal aipkit_upgrade_modal_content">
-        <div class="aipkit_modal_header">
-            <h2 class="aipkit_modal_title" id="aipkit_upgradeModalTitle">
-                <span class="aipkit_upgrade_modal_icon">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
-                    </svg>
-                </span>
-                <?php esc_html_e('Unlock Pro features', 'gpt3-ai-content-generator'); ?>
-            </h2>
-            <button type="button" class="aipkit_modal_close" data-close-modal aria-label="<?php esc_attr_e('Close', 'gpt3-ai-content-generator'); ?>">
-                <span class="dashicons dashicons-no-alt"></span>
-            </button>
-        </div>
-        <div class="aipkit_modal_body">
-            <div class="aipkit_upgrade_plans">
-                <div class="aipkit_upgrade_plan aipkit_upgrade_plan--free">
-                    <div class="aipkit_plan_header">
-                        <h3 class="aipkit_plan_name"><?php esc_html_e('Free', 'gpt3-ai-content-generator'); ?></h3>
-                        <span class="aipkit_plan_badge aipkit_plan_badge--current"><?php esc_html_e('Current', 'gpt3-ai-content-generator'); ?></span>
-                    </div>
-                    <ul class="aipkit_plan_features aipkit_plan_features--free">
-                        <li><?php esc_html_e('Chatbot', 'gpt3-ai-content-generator'); ?></li>
-                        <li><?php esc_html_e('Content writer', 'gpt3-ai-content-generator'); ?></li>
-                        <li><?php esc_html_e('Image generator', 'gpt3-ai-content-generator'); ?></li>
-                        <li><?php esc_html_e('AI forms', 'gpt3-ai-content-generator'); ?></li>
-                        <li><?php esc_html_e('WooCommerce writer', 'gpt3-ai-content-generator'); ?></li>
-                        <li><?php esc_html_e('Knowledge base', 'gpt3-ai-content-generator'); ?></li>
-                        <li><?php esc_html_e('Basic automation', 'gpt3-ai-content-generator'); ?></li>
-                    </ul>
-                </div>
-
-                <div class="aipkit_upgrade_plan aipkit_upgrade_plan--pro">
-                    <div class="aipkit_plan_header">
-                        <h3 class="aipkit_plan_name"><?php esc_html_e('Pro', 'gpt3-ai-content-generator'); ?></h3>
-                        <span class="aipkit_plan_badge aipkit_plan_badge--recommended"><?php esc_html_e('Most Popular', 'gpt3-ai-content-generator'); ?></span>
-                    </div>
-                    <div class="aipkit_plan_price_callout">
-                        <span class="aipkit_plan_price_callout_amount">$7.99</span>
-                        <span class="aipkit_plan_price_callout_term"><?php esc_html_e('/ month', 'gpt3-ai-content-generator'); ?></span>
-                    </div>
-                    <a href="<?php echo esc_url($upgrade_url); ?>" class="aipkit_btn aipkit_btn--primary aipkit_btn--upgrade aipkit_plan_cta">
-                        <span class="aipkit_plan_cta_label"><?php esc_html_e('Upgrade to Pro', 'gpt3-ai-content-generator'); ?></span>
-                    </a>
-                    <p class="aipkit_plan_includes"><?php esc_html_e('Everything in Free, plus', 'gpt3-ai-content-generator'); ?></p>
-                    <div class="aipkit_plan_feature_groups">
-                        <div class="aipkit_plan_feature_group">
-                            <h4><?php esc_html_e('Integrations', 'gpt3-ai-content-generator'); ?></h4>
-                            <ul class="aipkit_plan_features aipkit_plan_features--pro">
-                                <li><span class="dashicons dashicons-yes" aria-hidden="true"></span><?php esc_html_e('Slack, HubSpot, Notion, and Pipedrive', 'gpt3-ai-content-generator'); ?></li>
-                                <li><span class="dashicons dashicons-yes" aria-hidden="true"></span><?php esc_html_e('Zapier, Make, and n8n', 'gpt3-ai-content-generator'); ?></li>
-                                <li><span class="dashicons dashicons-yes" aria-hidden="true"></span><?php esc_html_e('Ollama integration', 'gpt3-ai-content-generator'); ?></li>
-                            </ul>
-                        </div>
-                        <div class="aipkit_plan_feature_group">
-                            <h4><?php esc_html_e('Chatbot and voice', 'gpt3-ai-content-generator'); ?></h4>
-                            <ul class="aipkit_plan_features aipkit_plan_features--pro">
-                                <li><span class="dashicons dashicons-yes" aria-hidden="true"></span><?php esc_html_e('Triggers and automation', 'gpt3-ai-content-generator'); ?></li>
-                                <li><span class="dashicons dashicons-yes" aria-hidden="true"></span><?php esc_html_e('Realtime voice agent', 'gpt3-ai-content-generator'); ?></li>
-                                <li><span class="dashicons dashicons-yes" aria-hidden="true"></span><?php esc_html_e('File context (PDF and TXT)', 'gpt3-ai-content-generator'); ?></li>
-                                <li><span class="dashicons dashicons-yes" aria-hidden="true"></span><?php esc_html_e('Embed on external sites', 'gpt3-ai-content-generator'); ?></li>
-                                <li><span class="dashicons dashicons-yes" aria-hidden="true"></span><?php esc_html_e('PDF transcripts', 'gpt3-ai-content-generator'); ?></li>
-                            </ul>
-                        </div>
-                        <div class="aipkit_plan_feature_group">
-                            <h4><?php esc_html_e('Content and admin', 'gpt3-ai-content-generator'); ?></h4>
-                            <ul class="aipkit_plan_features aipkit_plan_features--pro">
-                                <li><span class="dashicons dashicons-yes" aria-hidden="true"></span><?php esc_html_e('RSS, URL, and Google Sheets', 'gpt3-ai-content-generator'); ?></li>
-                                <li><span class="dashicons dashicons-yes" aria-hidden="true"></span><?php esc_html_e('Custom post types', 'gpt3-ai-content-generator'); ?></li>
-                                <li><span class="dashicons dashicons-yes" aria-hidden="true"></span><?php esc_html_e('Conditional AI forms', 'gpt3-ai-content-generator'); ?></li>
-                                <li><span class="dashicons dashicons-yes" aria-hidden="true"></span><?php esc_html_e('Consent compliance', 'gpt3-ai-content-generator'); ?></li>
-                                <li><span class="dashicons dashicons-yes" aria-hidden="true"></span><?php esc_html_e('Priority email support', 'gpt3-ai-content-generator'); ?></li>
-                            </ul>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <p class="aipkit_upgrade_modal_footer_note">
-            <?php esc_html_e('Purchasing does not include API credits. It only unlocks Pro features.', 'gpt3-ai-content-generator'); ?>
-        </p>
-    </div>
-</div>
-<?php endif; ?>

@@ -333,7 +333,7 @@ $selected_stt_provider_for_ui = array_key_exists((string) $stt_provider, $stt_pr
                         <option value="0" <?php selected($enable_realtime_voice, '0'); ?>><?php esc_html_e('No', 'gpt3-ai-content-generator'); ?></option>
                     </select>
                     <?php if ($rt_disabled_by_plan) : ?>
-                        <a href="<?php echo esc_url(admin_url('admin.php?page=wpaicg-pricing')); ?>" class="aipkit_popover_upgrade_link aipkit_upgrade_cta aipkit_upgrade_cta--inline" title="<?php esc_attr_e('Upgrade Pro', 'gpt3-ai-content-generator'); ?>"><?php esc_html_e('Upgrade Pro', 'gpt3-ai-content-generator'); ?></a>
+                        <a href="<?php echo esc_url(admin_url('admin.php?page=wpaicg-pricing')); ?>" class="aipkit_popover_upgrade_link aipkit_pro_upgrade_button" title="<?php esc_attr_e('Upgrade', 'gpt3-ai-content-generator'); ?>"><?php esc_html_e('Upgrade', 'gpt3-ai-content-generator'); ?></a>
                     <?php endif; ?>
                 </div>
             </div>

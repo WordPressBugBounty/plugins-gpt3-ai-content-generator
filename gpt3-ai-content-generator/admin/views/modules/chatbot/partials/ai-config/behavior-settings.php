@@ -232,7 +232,7 @@ $bot_id = $initial_active_bot_id;
                 <span class="aipkit_interface_feature_title aipkit_popover_option_label">
                     <?php esc_html_e('Apps', 'gpt3-ai-content-generator'); ?>
                     <?php if (!$is_pro_plan) : ?>
-                        <span class="aipkit_general_settings_section_badge aipkit_paid_feature_badge"><?php esc_html_e('Pro', 'gpt3-ai-content-generator'); ?></span>
+                        <span class="aipkit_general_settings_section_badge aipkit_paid_feature_badge aipkit_pro_badge"><?php esc_html_e('Pro', 'gpt3-ai-content-generator'); ?></span>
                     <?php endif; ?>
                 </span>
                 <span
@@ -277,7 +277,7 @@ $bot_id = $initial_active_bot_id;
                 <span class="aipkit_interface_feature_title aipkit_popover_option_label">
                     <?php esc_html_e('Rules', 'gpt3-ai-content-generator'); ?>
                     <?php if (!$is_pro_plan) : ?>
-                        <span class="aipkit_general_settings_section_badge aipkit_paid_feature_badge"><?php esc_html_e('Pro', 'gpt3-ai-content-generator'); ?></span>
+                        <span class="aipkit_general_settings_section_badge aipkit_paid_feature_badge aipkit_pro_badge"><?php esc_html_e('Pro', 'gpt3-ai-content-generator'); ?></span>
                     <?php endif; ?>
                 </span>
                 <span

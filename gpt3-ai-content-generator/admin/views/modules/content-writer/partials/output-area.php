@@ -19,9 +19,7 @@ $aipkit_cw_output_seo_profile = class_exists('\\WPAICG\\SEO\\AIPKit_SEO_Helper')
 $aipkit_cw_output_seo_profile_label = isset($aipkit_cw_output_seo_profile['label']) ? (string) $aipkit_cw_output_seo_profile['label'] : __('AIPKit SEO', 'gpt3-ai-content-generator');
 $aipkit_cw_output_seo_profile_logo_url = isset($aipkit_cw_output_seo_profile['logo_url']) ? (string) $aipkit_cw_output_seo_profile['logo_url'] : '';
 $aipkit_cw_output_seo_profile_logo_initials = isset($aipkit_cw_output_seo_profile['logo_initials']) ? (string) $aipkit_cw_output_seo_profile['logo_initials'] : 'SEO';
-$aipkit_cw_output_upgrade_url = function_exists('wpaicg_gacg_fs')
-    ? wpaicg_gacg_fs()->get_upgrade_url()
-    : admin_url('admin.php?page=wpaicg-pricing');
+$aipkit_cw_output_upgrade_url = admin_url('admin.php?page=wpaicg-pricing');
 ?>
 <div id="aipkit_cw_single_output_wrapper" class="aipkit_cw_output_wrapper" style="display: none;">
     <div class="aipkit_cw_output_workspace aipkit_cw_output_workspace--studio">
@@ -224,7 +222,7 @@ $aipkit_cw_output_upgrade_url = function_exists('wpaicg_gacg_fs')
                                     <span><?php echo esc_html($aipkit_cw_output_seo_profile_label); ?></span>
                                 </span>
                                 <a
-                                    class="aipkit_btn aipkit_btn-primary aipkit_cw_smart_seo_locked_btn"
+                                    class="aipkit_btn aipkit_btn-primary aipkit_cw_smart_seo_locked_btn aipkit_pro_upgrade_button"
                                     href="<?php echo esc_url($aipkit_cw_output_upgrade_url); ?>"
                                     target="_blank"
                                     rel="noopener noreferrer"

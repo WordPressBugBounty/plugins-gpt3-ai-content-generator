@@ -56,11 +56,11 @@ if ( ! defined( 'ABSPATH' ) ) {
 				<?php endforeach; ?>
 				<a
 					href="<?php echo esc_url( $pricing_url ); ?>"
-					class="aipkit_btn aipkit_btn-primary aipkit_chatbot_connected_apps_grid_cta aipkit_upgrade_cta aipkit_upgrade_cta--panel"
+					class="aipkit_btn aipkit_btn-primary aipkit_chatbot_connected_apps_grid_cta aipkit_pro_upgrade_button"
 					target="_blank"
 					rel="noopener noreferrer"
 				>
-					<span class="aipkit_btn-text"><?php esc_html_e( 'Upgrade Pro', 'gpt3-ai-content-generator' ); ?></span>
+					<span class="aipkit_btn-text"><?php esc_html_e( 'Upgrade', 'gpt3-ai-content-generator' ); ?></span>
 				</a>
 			</div>
 		</div>

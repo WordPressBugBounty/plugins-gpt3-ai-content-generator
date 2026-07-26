@@ -1602,7 +1602,7 @@ if ( $active_bot_post ) {
                                                         <?php 
     if ( !$embed_anywhere_active ) {
         ?>
-                                                            <span class="aipkit_embed_method_badge aipkit_paid_feature_badge"><?php 
+                                                            <span class="aipkit_embed_method_badge aipkit_paid_feature_badge aipkit_pro_badge"><?php 
         esc_html_e( 'Pro', 'gpt3-ai-content-generator' );
         ?></span>
                                                         <?php 
@@ -1715,12 +1715,12 @@ if ( $active_bot_post ) {
                                                                 href="<?php 
         echo esc_url( $pricing_url );
         ?>"
-                                                                class="aipkit_embed_promo_btn aipkit_embed_promo_btn--primary aipkit_upgrade_cta aipkit_upgrade_cta--panel"
+                                                                class="aipkit_embed_promo_btn aipkit_pro_upgrade_button"
                                                                 target="_blank"
                                                                 rel="noopener noreferrer"
                                                             >
                                                                 <?php 
-        esc_html_e( 'Upgrade Pro', 'gpt3-ai-content-generator' );
+        esc_html_e( 'Upgrade', 'gpt3-ai-content-generator' );
         ?>
                                                             </a>
                                                             <a
@@ -2312,7 +2312,7 @@ if ( $triggers_available && $active_bot_post && $bot_id > 0 ) {
 
                             <div class="aipkit_rules_promo_cta">
                                 <a
-                                    class="aipkit_rules_promo_btn aipkit_rules_promo_btn--primary aipkit_upgrade_cta aipkit_upgrade_cta--panel"
+                                    class="aipkit_rules_promo_btn aipkit_pro_upgrade_button"
                                     href="<?php 
     echo esc_url( $pricing_url );
     ?>"
@@ -2320,7 +2320,7 @@ if ( $triggers_available && $active_bot_post && $bot_id > 0 ) {
                                     rel="noopener noreferrer"
                                 >
                                     <?php 
-    esc_html_e( 'Upgrade Pro', 'gpt3-ai-content-generator' );
+    esc_html_e( 'Upgrade', 'gpt3-ai-content-generator' );
     ?>
                                 </a>
                                 <a

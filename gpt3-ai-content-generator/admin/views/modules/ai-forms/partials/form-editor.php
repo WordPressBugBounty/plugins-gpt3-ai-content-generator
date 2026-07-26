@@ -27,9 +27,7 @@ $default_max_tokens = $global_ai_params['max_completion_tokens'] ?? 4000;
 $default_top_p = $global_ai_params['top_p'] ?? 1.0;
 $default_frequency_penalty = $global_ai_params['frequency_penalty'] ?? 0.0;
 $default_presence_penalty = $global_ai_params['presence_penalty'] ?? 0.0;
-$upgrade_url = function_exists('wpaicg_gacg_fs')
-    ? wpaicg_gacg_fs()->get_upgrade_url()
-    : admin_url('admin.php?page=wpaicg-pricing');
+$upgrade_url = admin_url('admin.php?page=wpaicg-pricing');
 $connected_apps_manage_url = admin_url('admin.php?page=wpaicg&aipkit_module=settings&aipkit_settings_page=apps');
 $connected_apps_supported_destinations = [
     [
@@ -208,15 +206,15 @@ $render_ai_form_connected_apps_cards = static function (array $connected_apps_pa
                                             <?php esc_html_e('Image Upload', 'gpt3-ai-content-generator'); ?>
                                         </div>
                                     <?php else: ?>
-                                        <div class="aipkit_form_element_item aipkit-pro-feature-locked" role="button" tabindex="0" draggable="true" data-aipkit-upgrade-trigger aria-haspopup="dialog" aria-controls="aipkit_upgradeModal" title="<?php esc_attr_e('This is a Pro feature. Please upgrade.', 'gpt3-ai-content-generator'); ?>">
+                                        <div class="aipkit_form_element_item aipkit-pro-feature-locked" draggable="false">
                                             <span class="dashicons dashicons-media-default"></span>
                                             <?php esc_html_e('File Upload', 'gpt3-ai-content-generator'); ?>
-                                            <span class="aipkit_pro_tag"><?php esc_html_e('Pro', 'gpt3-ai-content-generator'); ?></span>
+                                            <a class="aipkit_pro_tag aipkit_pro_badge" href="<?php echo esc_url($upgrade_url); ?>" target="_blank" rel="noopener noreferrer"><?php esc_html_e('Pro', 'gpt3-ai-content-generator'); ?></a>
                                         </div>
-                                        <div class="aipkit_form_element_item aipkit-pro-feature-locked" role="button" tabindex="0" draggable="true" data-aipkit-upgrade-trigger aria-haspopup="dialog" aria-controls="aipkit_upgradeModal" title="<?php esc_attr_e('This is a Pro feature. Please upgrade.', 'gpt3-ai-content-generator'); ?>">
+                                        <div class="aipkit_form_element_item aipkit-pro-feature-locked" draggable="false">
                                             <span class="dashicons dashicons-format-image"></span>
                                             <?php esc_html_e('Image Upload', 'gpt3-ai-content-generator'); ?>
-                                            <span class="aipkit_pro_tag"><?php esc_html_e('Pro', 'gpt3-ai-content-generator'); ?></span>
+                                            <a class="aipkit_pro_tag aipkit_pro_badge" href="<?php echo esc_url($upgrade_url); ?>" target="_blank" rel="noopener noreferrer"><?php esc_html_e('Pro', 'gpt3-ai-content-generator'); ?></a>
                                         </div>
                                     <?php endif; ?>
                                 </div>
@@ -250,7 +248,7 @@ $render_ai_form_connected_apps_cards = static function (array $connected_apps_pa
                                             href="<?php echo esc_url($upgrade_url); ?>"
                                             target="_blank"
                                             rel="noopener noreferrer"
-                                            class="aipkit_pro_tag"
+                                            class="aipkit_pro_tag aipkit_pro_badge"
                                             onclick="event.stopPropagation();"
                                         ><?php esc_html_e('Pro', 'gpt3-ai-content-generator'); ?></a>
                                     <?php endif; ?>
@@ -272,7 +270,7 @@ $render_ai_form_connected_apps_cards = static function (array $connected_apps_pa
                                             href="<?php echo esc_url($upgrade_url); ?>"
                                             target="_blank"
                                             rel="noopener noreferrer"
-                                            class="aipkit_pro_tag"
+                                            class="aipkit_pro_tag aipkit_pro_badge"
                                             onclick="event.stopPropagation();"
                                         ><?php esc_html_e('Pro', 'gpt3-ai-content-generator'); ?></a>
                                     </div>
@@ -284,7 +282,7 @@ $render_ai_form_connected_apps_cards = static function (array $connected_apps_pa
                                                         <span class="aipkit_popover_option_label"><?php esc_html_e('Connect AI Forms into guided workflows.', 'gpt3-ai-content-generator'); ?></span>
                                                         <p class="aipkit_form-help"><?php esc_html_e('Send AI output and submitted answers into the next form, with conditional routes.', 'gpt3-ai-content-generator'); ?></p>
                                                     </div>
-                                                    <a class="aipkit_btn aipkit_ai_form_upgrade_btn" href="<?php echo esc_url($upgrade_url); ?>" target="_blank" rel="noopener noreferrer">
+                                                    <a class="aipkit_btn aipkit_ai_form_upgrade_btn aipkit_pro_upgrade_button" href="<?php echo esc_url($upgrade_url); ?>" target="_blank" rel="noopener noreferrer">
                                                         <?php esc_html_e('Upgrade', 'gpt3-ai-content-generator'); ?>
                                                     </a>
                                                 </div>

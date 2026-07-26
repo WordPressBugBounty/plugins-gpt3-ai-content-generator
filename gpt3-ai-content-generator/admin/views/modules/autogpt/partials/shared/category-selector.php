@@ -129,7 +129,7 @@ $aipkit_autogpt_category_groups = [
                         <span class="aipkit_autogpt_choice_title_row">
                             <span class="aipkit_autogpt_family_title"><?php echo esc_html($group['family_label']); ?></span>
                             <?php if (!empty($group['pro']) && !$aipkit_autogpt_is_pro) : ?>
-                                <span class="aipkit_autogpt_pro_badge"><?php esc_html_e('Pro', 'gpt3-ai-content-generator'); ?></span>
+                                <span class="aipkit_autogpt_pro_badge aipkit_pro_badge"><?php esc_html_e('Pro', 'gpt3-ai-content-generator'); ?></span>
                             <?php endif; ?>
                         </span>
                         <?php if (!empty($group['family_description'])) : ?>

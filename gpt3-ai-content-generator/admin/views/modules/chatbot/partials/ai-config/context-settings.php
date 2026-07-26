@@ -627,13 +627,6 @@ $knowledge_config_panel_id = 'aipkit_bot_' . $bot_id . '_knowledge_config_panel'
             $aipkit_notice_id = 'aipkit_vector_provider_notice_chatbot_' . (string) $bot_id;
             $aipkit_notice_class = 'aipkit_vector_provider_notice_chatbot';
             $aipkit_notice_context = __('use this knowledge storage', 'gpt3-ai-content-generator');
-            $aipkit_notice_messages = [
-                'qdrant-key' => __('Connect a Qdrant API key to use this knowledge storage.', 'gpt3-ai-content-generator'),
-                'qdrant-url' => __('Add a Qdrant URL to use this knowledge storage.', 'gpt3-ai-content-generator'),
-                'chroma-url' => __('Add a Chroma URL to use this knowledge storage.', 'gpt3-ai-content-generator'),
-                'claude_files' => __('Connect an Anthropic API key to use Anthropic Files.', 'gpt3-ai-content-generator'),
-                'claude_files-provider' => __('Choose Anthropic as the chatbot provider to use Anthropic Files.', 'gpt3-ai-content-generator'),
-            ];
             include WPAICG_PLUGIN_DIR . 'admin/views/shared/provider-key-notice.php';
             ?>
         </div>

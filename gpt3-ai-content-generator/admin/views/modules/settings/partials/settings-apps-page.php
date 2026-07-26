@@ -9,9 +9,7 @@ if (!defined('ABSPATH')) {
 // phpcs:disable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- This file only uses local helper/template variables and does not define public globals.
 
 $is_pro_plan = class_exists('\WPAICG\\aipkit_dashboard') && \WPAICG\aipkit_dashboard::is_pro_plan();
-$upgrade_url = function_exists('wpaicg_gacg_fs')
-    ? wpaicg_gacg_fs()->get_upgrade_url()
-    : admin_url('admin.php?page=wpaicg-pricing');
+$upgrade_url = admin_url('admin.php?page=wpaicg-pricing');
 $apps_logo_base_url = defined('WPAICG_PLUGIN_URL')
     ? WPAICG_PLUGIN_URL . 'admin/images/apps/'
     : '';
@@ -104,12 +102,12 @@ if (!$is_pro_plan) :
                     </p>
                 </div>
                 <a
-                    class="aipkit_settings_apps_upsell_cta"
+                    class="aipkit_pro_upgrade_button"
                     href="<?php echo esc_url($upgrade_url); ?>"
                     target="_blank"
                     rel="noopener noreferrer"
                 >
-                    <?php esc_html_e('Upgrade to Pro', 'gpt3-ai-content-generator'); ?>
+                    <?php esc_html_e('Upgrade', 'gpt3-ai-content-generator'); ?>
                 </a>
             </div>
         </div>

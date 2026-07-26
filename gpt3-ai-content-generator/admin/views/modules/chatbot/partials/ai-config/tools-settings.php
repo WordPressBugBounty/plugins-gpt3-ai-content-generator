@@ -152,12 +152,12 @@ $render_tool_enable_control = static function (string $tool_key, array $tool_opt
         </label>
         <?php if ($show_upgrade) : ?>
             <a
-                class="aipkit_tools_enabled_item_upgrade aipkit_popover_upgrade_link aipkit_upgrade_cta aipkit_upgrade_cta--inline"
+                class="aipkit_tools_enabled_item_upgrade aipkit_popover_upgrade_link aipkit_pro_upgrade_button"
                 href="<?php echo esc_url($pricing_url); ?>"
                 target="_blank"
                 rel="noopener noreferrer"
             >
-                <?php esc_html_e('Upgrade Pro', 'gpt3-ai-content-generator'); ?>
+                <?php esc_html_e('Upgrade', 'gpt3-ai-content-generator'); ?>
             </a>
         <?php endif; ?>
     </div>

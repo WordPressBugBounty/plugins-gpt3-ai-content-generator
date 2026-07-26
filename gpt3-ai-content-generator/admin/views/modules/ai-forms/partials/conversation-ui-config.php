@@ -11,9 +11,7 @@ if (!defined('ABSPATH')) {
 
 $upgrade_url = isset($upgrade_url) && !empty($upgrade_url)
     ? $upgrade_url
-    : (function_exists('wpaicg_gacg_fs')
-        ? wpaicg_gacg_fs()->get_upgrade_url()
-        : admin_url('admin.php?page=wpaicg-pricing'));
+    : admin_url('admin.php?page=wpaicg-pricing');
 ?>
 <div class="aipkit_popover_options_list aipkit_ai_form_conversation_ui_list">
     <?php if (!empty($is_pro)) : ?>
@@ -61,7 +59,7 @@ $upgrade_url = isset($upgrade_url) && !empty($upgrade_url)
                     <span class="aipkit_popover_option_label"><?php esc_html_e('Turn forms into guided step-by-step flows.', 'gpt3-ai-content-generator'); ?></span>
                     <p class="aipkit_form-help"><?php esc_html_e('Show one step at a time with navigation and conditional branching.', 'gpt3-ai-content-generator'); ?></p>
                 </div>
-                <a id="aipkit_ai_form_multistep_upgrade_btn" class="aipkit_btn aipkit_ai_form_upgrade_btn" href="<?php echo esc_url($upgrade_url); ?>" target="_blank" rel="noopener noreferrer">
+                <a id="aipkit_ai_form_multistep_upgrade_btn" class="aipkit_btn aipkit_ai_form_upgrade_btn aipkit_pro_upgrade_button" href="<?php echo esc_url($upgrade_url); ?>" target="_blank" rel="noopener noreferrer">
                     <?php esc_html_e('Upgrade', 'gpt3-ai-content-generator'); ?>
                 </a>
             </div>
