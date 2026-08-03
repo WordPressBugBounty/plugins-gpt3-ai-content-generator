@@ -22,8 +22,6 @@ class AIPKit_Content_Writer_Fetch_Posts_Action extends AIPKit_Content_Writer_Bas
         // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce is checked in check_module_access_permissions.
         $post_type = isset($_POST['post_type']) ? sanitize_key(wp_unslash($_POST['post_type'])) : '';
         // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce is checked in check_module_access_permissions.
-        $post_status = isset($_POST['post_status']) ? sanitize_key(wp_unslash($_POST['post_status'])) : '';
-        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce is checked in check_module_access_permissions.
         $media_filter = isset($_POST['media_filter']) ? sanitize_key(wp_unslash($_POST['media_filter'])) : '';
         // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce is checked in check_module_access_permissions.
         $search = isset($_POST['search']) ? sanitize_text_field(wp_unslash($_POST['search'])) : '';
@@ -35,7 +33,7 @@ class AIPKit_Content_Writer_Fetch_Posts_Action extends AIPKit_Content_Writer_Bas
         if ($paged < 1) {
             $paged = 1;
         }
-        $allowed_per_page = [10, 25, 50, 100, 200, 500, 1000];
+        $allowed_per_page = [10, 25, 50, 100];
         if (!in_array($per_page, $allowed_per_page, true)) {
             $per_page = 10;
         }
@@ -43,8 +41,6 @@ class AIPKit_Content_Writer_Fetch_Posts_Action extends AIPKit_Content_Writer_Bas
         $post_types = get_post_types(['public' => true], 'objects');
         $allowed_types = array_keys($post_types);
         $allowed_non_attachment = array_diff($allowed_types, ['attachment']);
-
-        $allowed_statuses = ['publish', 'draft', 'pending', 'future', 'private', 'inherit', 'any'];
 
         $query_post_type = $allowed_non_attachment;
         if (empty($query_post_type)) {
@@ -56,12 +52,7 @@ class AIPKit_Content_Writer_Fetch_Posts_Action extends AIPKit_Content_Writer_Bas
             $query_post_type = $post_type;
         }
 
-        $query_status = 'any';
-        if ($post_status && in_array($post_status, $allowed_statuses, true)) {
-            $query_status = $post_status;
-        } elseif ($query_post_type === 'attachment') {
-            $query_status = 'inherit';
-        }
+        $query_status = $query_post_type === 'attachment' ? 'inherit' : 'any';
 
         if ($media_filter === 'unattached') {
             $media_filter = 'detached';
@@ -97,7 +88,6 @@ class AIPKit_Content_Writer_Fetch_Posts_Action extends AIPKit_Content_Writer_Bas
                 $title = __('(Untitled)', 'gpt3-ai-content-generator');
             }
 
-            $type_object = get_post_type_object($post->post_type);
             $status_object = get_post_status_object($post->post_status);
             $alt_text = '';
             $caption = '';
@@ -128,7 +118,6 @@ class AIPKit_Content_Writer_Fetch_Posts_Action extends AIPKit_Content_Writer_Bas
                 'id' => (int) $post->ID,
                 'title' => $title,
                 'type' => $post->post_type,
-                'type_label' => $type_object ? $type_object->label : $post->post_type,
                 'status' => $post->post_status,
                 'status_label' => $status_object ? $status_object->label : $post->post_status,
                 'edit_link' => (string) get_edit_post_link($post->ID, ''),

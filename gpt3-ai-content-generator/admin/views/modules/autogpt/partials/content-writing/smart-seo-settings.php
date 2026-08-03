@@ -18,7 +18,16 @@ $aipkit_task_cw_seo_profile = class_exists('\\WPAICG\\SEO\\AIPKit_SEO_Helper')
     ];
 $aipkit_task_cw_seo_profile_label = isset($aipkit_task_cw_seo_profile['label']) ? (string) $aipkit_task_cw_seo_profile['label'] : __('AIPKit SEO', 'gpt3-ai-content-generator');
 $aipkit_task_cw_seo_profile_key = isset($aipkit_task_cw_seo_profile['profile']) ? (string) $aipkit_task_cw_seo_profile['profile'] : 'aipkit';
+$aipkit_task_cw_seo_profile_logo_url = isset($aipkit_task_cw_seo_profile['logo_url']) ? (string) $aipkit_task_cw_seo_profile['logo_url'] : '';
+$aipkit_task_cw_seo_profile_logo_initials = isset($aipkit_task_cw_seo_profile['logo_initials']) ? (string) $aipkit_task_cw_seo_profile['logo_initials'] : 'AI';
 $aipkit_task_cw_has_seo_plugin = isset($aipkit_task_cw_seo_profile['plugin']) && (string) $aipkit_task_cw_seo_profile['plugin'] !== 'none';
+$aipkit_task_cw_smart_seo_promo_description = $aipkit_task_cw_has_seo_plugin
+    ? sprintf(
+        /* translators: %s: active SEO plugin name. */
+        __('Automatically rewrites content until it scores higher with %s.', 'gpt3-ai-content-generator'),
+        $aipkit_task_cw_seo_profile_label
+    )
+    : __('Automatically rewrites content against standard SEO rules.', 'gpt3-ai-content-generator');
 $aipkit_task_cw_seo_rules_class = '\\WPAICG\\ContentWriter\\SEO\\AIPKit_Content_Writer_Smart_SEO_Rules';
 if (!class_exists($aipkit_task_cw_seo_rules_class) && defined('WPAICG_LIB_DIR')) {
     $aipkit_task_cw_seo_rules_path = WPAICG_LIB_DIR . 'content-writer/seo/class-aipkit-content-writer-smart-seo-rules.php';
@@ -34,31 +43,41 @@ $aipkit_task_cw_smart_seo_upgrade_url = admin_url('admin.php?page=wpaicg-pricing
 ?>
 
 <div
-    class="aipkit_cw_ai_row aipkit_autogpt_question_row aipkit_cw_seo_settings_row aipkit_cw_smart_seo_feature_card aipkit_task_cw_smart_seo_settings_row<?php echo $aipkit_task_cw_smart_seo_is_pro ? '' : ' is-pro-locked'; ?>"
+    class="aipkit_cw_ai_row aipkit_autogpt_question_row aipkit_cw_seo_settings_row aipkit_cw_smart_seo_feature_card aipkit_task_cw_smart_seo_settings_row<?php echo $aipkit_task_cw_smart_seo_is_pro ? '' : ' is-pro-locked aipkit_task_cw_smart_seo_settings_row--promo'; ?>"
     data-aipkit-task-smart-seo-settings-row
     data-aipkit-seo-active-profile="<?php echo esc_attr($aipkit_task_cw_seo_profile_key); ?>"
     data-aipkit-seo-active-profile-label="<?php echo esc_attr($aipkit_task_cw_seo_profile_label); ?>"
     data-aipkit-seo-has-plugin="<?php echo $aipkit_task_cw_has_seo_plugin ? '1' : '0'; ?>"
 >
     <div class="aipkit_cw_panel_label_wrap">
-        <span class="aipkit_cw_panel_label aipkit_autogpt_question">
-            <span class="aipkit_seo_settings_label">
-                <?php if ($aipkit_task_cw_has_seo_plugin) : ?>
-                    <?php
-                    printf(
-                        wp_kses(
-                            /* translators: %s: active SEO plugin name. */
-                            __('You are using <strong>%s</strong>. Optimize each post for SEO?', 'gpt3-ai-content-generator'),
-                            ['strong' => []]
-                        ),
-                        esc_html($aipkit_task_cw_seo_profile_label)
-                    );
-                    ?>
-                <?php else : ?>
-                    <?php esc_html_e('Optimize each post for SEO?', 'gpt3-ai-content-generator'); ?>
-                <?php endif; ?>
+        <?php if ($aipkit_task_cw_smart_seo_is_pro) : ?>
+            <span class="aipkit_cw_panel_label aipkit_autogpt_question">
+                <span class="aipkit_seo_settings_label">
+                    <?php if ($aipkit_task_cw_has_seo_plugin) : ?>
+                        <?php
+                        printf(
+                            wp_kses(
+                                /* translators: %s: active SEO plugin name. */
+                                __('You are using <strong>%s</strong>. Optimize each post for SEO?', 'gpt3-ai-content-generator'),
+                                ['strong' => []]
+                            ),
+                            esc_html($aipkit_task_cw_seo_profile_label)
+                        );
+                        ?>
+                    <?php else : ?>
+                        <?php esc_html_e('Optimize each post for SEO?', 'gpt3-ai-content-generator'); ?>
+                    <?php endif; ?>
+                </span>
             </span>
-        </span>
+        <?php else : ?>
+            <span class="aipkit_autogpt_smart_seo_promo_copy">
+                <span class="aipkit_autogpt_smart_seo_promo_icon" aria-hidden="true">&#10022;</span>
+                <span class="aipkit_autogpt_smart_seo_promo_text">
+                    <strong><?php esc_html_e('Smart SEO', 'gpt3-ai-content-generator'); ?></strong>
+                    <span><?php echo esc_html($aipkit_task_cw_smart_seo_promo_description); ?></span>
+                </span>
+            </span>
+        <?php endif; ?>
     </div>
     <div class="aipkit_cw_ai_control aipkit_cw_ai_control--compact">
         <div class="aipkit_cw_seo_inline_actions">
@@ -105,7 +124,7 @@ $aipkit_task_cw_smart_seo_upgrade_url = admin_url('admin.php?page=wpaicg-pricing
                 class="aipkit_cw_panel_label aipkit_autogpt_question"
                 id="aipkit_task_cw_smart_seo_approach_label"
             >
-                <?php esc_html_e('How should we optimize it?', 'gpt3-ai-content-generator'); ?>
+                <?php esc_html_e('SEO approach', 'gpt3-ai-content-generator'); ?>
             </span>
         </div>
         <div class="aipkit_cw_ai_control aipkit_cw_ai_control--compact">
@@ -177,7 +196,8 @@ $aipkit_task_cw_smart_seo_upgrade_url = admin_url('admin.php?page=wpaicg-pricing
 $aipkit_smart_seo_rules_popover_id = 'aipkit_task_cw_smart_seo_rules_popover';
 $aipkit_smart_seo_rules_profile_key = $aipkit_task_cw_seo_profile_key;
 $aipkit_smart_seo_rules_profile_label = $aipkit_task_cw_seo_profile_label;
-$aipkit_smart_seo_rules_modal_mode = true;
+$aipkit_smart_seo_rules_profile_logo_url = $aipkit_task_cw_seo_profile_logo_url;
+$aipkit_smart_seo_rules_profile_logo_initials = $aipkit_task_cw_seo_profile_logo_initials;
 $aipkit_smart_seo_rules_popover_path = defined('WPAICG_LIB_DIR') ? WPAICG_LIB_DIR . 'views/modules/shared/smart-seo-rules-popover.php' : '';
 if ($aipkit_task_cw_smart_seo_is_pro && $aipkit_task_cw_seo_rules_available && $aipkit_smart_seo_rules_popover_path !== '' && file_exists($aipkit_smart_seo_rules_popover_path)) {
     include $aipkit_smart_seo_rules_popover_path;

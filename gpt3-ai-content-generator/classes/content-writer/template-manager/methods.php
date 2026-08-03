@@ -40,7 +40,6 @@ function get_cw_base_template_config(int $user_id): array
 
     $provider_for_template = $default_provider_config['provider'] ?? 'OpenAI';
     $model_for_template = $default_provider_config['model'] ?? '';
-
     return [
         'ai_provider' => $provider_for_template,
         'ai_model' => $model_for_template,
@@ -53,6 +52,10 @@ function get_cw_base_template_config(int $user_id): array
         'post_status' => 'draft',
         'post_schedule_date' => '',
         'post_schedule_time' => '',
+        'schedule_mode' => 'immediate',
+        'smart_schedule_start_datetime' => '',
+        'smart_schedule_interval_value' => '1',
+        'smart_schedule_interval_unit' => 'hours',
         'post_categories' => [],
         'prompt_mode' => 'custom',
         'custom_title_prompt' => AIPKit_Content_Writer_Prompts::get_default_title_prompt(),
@@ -691,10 +694,22 @@ function reset_starter_templates_logic(\WPAICG\ContentWriter\AIPKit_Content_Writ
 
     $starter_ids = get_existing_cw_starter_template_ids_for_user($managerInstance, $user_id);
     if (!empty($starter_ids)) {
+        $wpdb = $managerInstance->get_wpdb();
+        $table_name = $managerInstance->get_table_name();
         foreach ($starter_ids as $template_id) {
-            $delete_result = delete_template_logic($managerInstance, (int)$template_id);
-            if (is_wp_error($delete_result)) {
-                return $delete_result;
+            // This is the only internal path allowed to replace protected starter
+            // templates. Public rename/delete actions continue to reject them.
+            // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Plugin-owned custom table; reset is explicitly requested by its owner.
+            $delete_result = $wpdb->delete(
+                $table_name,
+                [
+                    'id' => (int)$template_id,
+                    'user_id' => $user_id,
+                ],
+                ['%d', '%d']
+            );
+            if ($delete_result === false) {
+                return new WP_Error('starter_reset_failed', __('Starter templates could not be restored.', 'gpt3-ai-content-generator'));
             }
         }
     }
@@ -790,6 +805,18 @@ function sanitize_config_logic(\WPAICG\ContentWriter\AIPKit_Content_Writer_Templ
                 $sanitized[$key] = in_array($value, ['short', 'medium', 'long'], true) ? $value : 'medium';
             } elseif (in_array($key, ['image_count', 'image_placement_param_x', 'vector_store_top_k', 'content_max_tokens'], true)) {
                 $sanitized[$key] = absint($config[$key]);
+            } elseif ($key === 'smart_schedule_interval_value') {
+                $sanitized[$key] = max(1, absint($config[$key]));
+            } elseif ($key === 'schedule_mode') {
+                $schedule_mode = sanitize_key($config[$key]);
+                $sanitized[$key] = in_array($schedule_mode, ['immediate', 'smart', 'from_input'], true)
+                    ? $schedule_mode
+                    : 'immediate';
+            } elseif ($key === 'smart_schedule_interval_unit') {
+                $interval_unit = sanitize_key($config[$key]);
+                $sanitized[$key] = in_array($interval_unit, ['hours', 'days'], true)
+                    ? $interval_unit
+                    : 'hours';
             } elseif ($key === 'seo_score_target') {
                 $sanitized[$key] = '100';
             } elseif ($key === 'seo_score_max_passes') {
@@ -943,12 +970,11 @@ function update_template_logic(\WPAICG\ContentWriter\AIPKit_Content_Writer_Templ
         return new WP_Error('template_not_found', __('Template not found.', 'gpt3-ai-content-generator'));
     }
 
-    $is_admin = \WPAICG\AIPKit_Role_Manager::user_can_manage_others_content();
     $is_owner = ((int) $original_template['user_id'] === $current_user_id);
 
-    // Only owners or administrators can update a template.
-    if (!$is_owner && !$is_admin) {
-        return new WP_Error('permission_denied', __('You do not have permission to update this template.', 'gpt3-ai-content-generator'));
+    // Shared templates are intentionally read-only, including for administrators.
+    if (!$is_owner) {
+        return new WP_Error('permission_denied', __('You can only update your own templates.', 'gpt3-ai-content-generator'));
     }
 
     // Check for duplicate name for the original owner of the template.
@@ -979,12 +1005,11 @@ function update_template_logic(\WPAICG\ContentWriter\AIPKit_Content_Writer_Templ
     ];
     $data_formats = ['%s', '%s', '%s', '%s', '%d', '%s', '%s', '%s'];
 
-    $where = ['id' => $template_id];
-    $where_formats = ['%d'];
-    if (!$is_admin) {
-        $where['user_id'] = $current_user_id;
-        $where_formats[] = '%d';
-    }
+    $where = [
+        'id' => $template_id,
+        'user_id' => $current_user_id,
+    ];
+    $where_formats = ['%d', '%d'];
 
     // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
     $result = $wpdb->update($table_name, $data_to_update, $where, $data_formats, $where_formats);
@@ -992,6 +1017,80 @@ function update_template_logic(\WPAICG\ContentWriter\AIPKit_Content_Writer_Templ
     if ($result === false) {
         return new WP_Error('db_update_error', __('Failed to update template.', 'gpt3-ai-content-generator'));
     }
+    return true;
+}
+
+/**
+ * Renames a custom template owned by the current user without changing its
+ * saved configuration.
+ *
+ * @return bool|WP_Error
+ */
+function rename_template_logic(\WPAICG\ContentWriter\AIPKit_Content_Writer_Template_Manager $managerInstance, int $template_id, string $template_name)
+{
+    $wpdb = $managerInstance->get_wpdb();
+    $table_name = $managerInstance->get_table_name();
+    $current_user_id = get_current_user_id();
+    $sanitized_name = sanitize_text_field($template_name);
+
+    if (!$current_user_id) {
+        return new WP_Error('not_logged_in', __('User must be logged in to rename templates.', 'gpt3-ai-content-generator'));
+    }
+    if ($template_id < 1 || $sanitized_name === '') {
+        return new WP_Error('invalid_template_rename', __('Choose a template and enter a name.', 'gpt3-ai-content-generator'));
+    }
+
+    // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter -- Plugin-owned custom table and prepared scalar.
+    $template = $wpdb->get_row(
+        $wpdb->prepare(
+            "SELECT user_id, template_type, is_default FROM {$table_name} WHERE id = %d",
+            $template_id
+        ),
+        ARRAY_A
+    );
+
+    if (!$template || (int) $template['user_id'] !== $current_user_id) {
+        return new WP_Error('rename_permission_denied', __('You can only rename your own templates.', 'gpt3-ai-content-generator'));
+    }
+
+    $starter_ids = get_cw_starter_template_ids_for_user($current_user_id);
+    if ((int) $template['is_default'] === 1 || in_array($template_id, $starter_ids, true)) {
+        return new WP_Error('protected_template', __('Starter templates cannot be renamed.', 'gpt3-ai-content-generator'));
+    }
+
+    // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter -- Plugin-owned custom table and prepared scalar values.
+    $existing_id = $wpdb->get_var(
+        $wpdb->prepare(
+            "SELECT id FROM {$table_name} WHERE user_id = %d AND template_name = %s AND template_type = %s AND id != %d",
+            $current_user_id,
+            $sanitized_name,
+            $template['template_type'],
+            $template_id
+        )
+    );
+    if ($existing_id) {
+        return new WP_Error('duplicate_template_name_update', __('A template with this name already exists.', 'gpt3-ai-content-generator'));
+    }
+
+    // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Plugin-owned custom table.
+    $result = $wpdb->update(
+        $table_name,
+        [
+            'template_name' => $sanitized_name,
+            'updated_at' => current_time('mysql', 1),
+        ],
+        [
+            'id' => $template_id,
+            'user_id' => $current_user_id,
+        ],
+        ['%s', '%s'],
+        ['%d', '%d']
+    );
+
+    if ($result === false) {
+        return new WP_Error('db_rename_error', __('Could not rename the template.', 'gpt3-ai-content-generator'));
+    }
+
     return true;
 }
 
@@ -1013,19 +1112,32 @@ function delete_template_logic(\WPAICG\ContentWriter\AIPKit_Content_Writer_Templ
         return new WP_Error('not_logged_in', __('User must be logged in to delete templates.', 'gpt3-ai-content-generator'));
     }
 
-    // Prepare the WHERE clause for the delete operation.
-    $where = ['id' => $template_id];
-    $where_formats = ['%d'];
-
-    // If the current user is NOT an administrator, they can only delete their own templates.
-    if (!\WPAICG\AIPKit_Role_Manager::user_can_manage_others_content()) {
-        $where['user_id'] = $user_id;
-        $where_formats[] = '%d';
+    // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter -- Plugin-owned custom table and prepared scalar.
+    $template = $wpdb->get_row(
+        $wpdb->prepare(
+            "SELECT user_id, is_default FROM {$table_name} WHERE id = %d",
+            $template_id
+        ),
+        ARRAY_A
+    );
+    if (!$template || (int) $template['user_id'] !== $user_id) {
+        return new WP_Error('delete_permission_denied', __('You can only delete your own templates.', 'gpt3-ai-content-generator'));
     }
-    // Administrators do not have the user_id constraint, allowing them to delete any template by its ID.
+
+    $starter_ids = get_cw_starter_template_ids_for_user($user_id);
+    if ((int) $template['is_default'] === 1 || in_array($template_id, $starter_ids, true)) {
+        return new WP_Error('protected_template', __('Starter templates cannot be deleted.', 'gpt3-ai-content-generator'));
+    }
 
     // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Reason: Direct query to a custom table.
-    $result = $wpdb->delete($table_name, $where, $where_formats);
+    $result = $wpdb->delete(
+        $table_name,
+        [
+            'id' => $template_id,
+            'user_id' => $user_id,
+        ],
+        ['%d', '%d']
+    );
 
     if ($result === false) {
         return new WP_Error('db_delete_error', __('Failed to delete template from the database.', 'gpt3-ai-content-generator'));
@@ -1166,7 +1278,7 @@ function get_templates_for_user_logic(\WPAICG\ContentWriter\AIPKit_Content_Write
     if (\WPAICG\AIPKit_Role_Manager::user_can_manage_others_content()) {
         // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter -- Reason: Direct query to a custom table. Caches will be invalidated.
         $other_users_templates_raw = $wpdb->get_results($wpdb->prepare(
-            "SELECT t.*, u.display_name FROM {$table_name} t LEFT JOIN {$wpdb->users} u ON t.user_id = u.ID WHERE t.user_id != %d AND t.template_type = %s AND t.is_default = 0 ORDER BY u.display_name ASC, t.template_name ASC",
+            "SELECT t.*, u.display_name FROM {$table_name} t INNER JOIN {$wpdb->users} u ON t.user_id = u.ID WHERE t.user_id != %d AND t.template_type = %s AND t.is_default = 0 AND u.display_name != '' ORDER BY u.display_name ASC, t.template_name ASC",
             $user_id,
             $type
         ), ARRAY_A);
@@ -1177,7 +1289,7 @@ function get_templates_for_user_logic(\WPAICG\ContentWriter\AIPKit_Content_Write
     }
 
     $templates = [];
-    $process_raw_template = function ($raw_template) use ($starter_lookup, $user_id) {
+    $process_raw_template = function ($raw_template) use ($starter_lookup, $starter_order_lookup, $user_id) {
         if (!$raw_template) {
             return null;
         }

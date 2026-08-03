@@ -125,6 +125,43 @@ function validate_post_data_logic(array $data)
         return new WP_Error('invalid_status', __('Invalid post status specified.', 'gpt3-ai-content-generator'), ['status' => 400]);
     }
 
+    $has_schedule_value = !empty($data['schedule_date']) || !empty($data['schedule_time']);
+    if ($data['post_status'] === 'publish' && $has_schedule_value) {
+        if (empty($data['schedule_date']) || empty($data['schedule_time'])) {
+            return new WP_Error(
+                'invalid_item_schedule',
+                __('A scheduled post needs both a valid date and time.', 'gpt3-ai-content-generator'),
+                ['status' => 400]
+            );
+        }
+
+        $scheduled_local = \DateTimeImmutable::createFromFormat(
+            '!Y-m-d H:i',
+            $data['schedule_date'] . ' ' . $data['schedule_time'],
+            wp_timezone()
+        );
+        $schedule_errors = \DateTimeImmutable::getLastErrors();
+        $is_valid_schedule = $scheduled_local && (
+            $schedule_errors === false ||
+            ($schedule_errors['warning_count'] === 0 && $schedule_errors['error_count'] === 0)
+        );
+        if (!$is_valid_schedule) {
+            return new WP_Error(
+                'invalid_item_schedule',
+                __('Choose a valid date and time for the scheduled post.', 'gpt3-ai-content-generator'),
+                ['status' => 400]
+            );
+        }
+
+        if ($scheduled_local->getTimestamp() <= time()) {
+            return new WP_Error(
+                'schedule_not_future',
+                __('The scheduled publishing time has passed. Choose a future date and try again.', 'gpt3-ai-content-generator'),
+                ['status' => 400]
+            );
+        }
+    }
+
     return true;
 }
 
@@ -284,6 +321,16 @@ function insert_post_logic(array $postarr, ?string $excerpt = null, ?array $imag
         );
         if (!is_wp_error($featured_attachment_id) && $featured_attachment_id) {
             $image_data['featured_image_id'] = $featured_attachment_id;
+        }
+    }
+    if (!empty($image_data['featured_image_id']) && isset($image_data['featured_image_alt'])) {
+        $featured_attachment_id = absint($image_data['featured_image_id']);
+        if ($featured_attachment_id > 0) {
+            update_post_meta(
+                $featured_attachment_id,
+                '_wp_attachment_image_alt',
+                sanitize_text_field((string) $image_data['featured_image_alt'])
+            );
         }
     }
 

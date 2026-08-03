@@ -53,18 +53,44 @@ $is_pro = class_exists('\\WPAICG\\aipkit_dashboard') && \WPAICG\aipkit_dashboard
 
 <div class="aipkit_cw_ai_row">
     <div class="aipkit_cw_panel_label_wrap">
-        <label class="aipkit_cw_panel_label" for="aipkit_content_writer_ai_selection">
+        <label class="aipkit_cw_panel_label" for="aipkit_content_writer_unified_model_trigger">
             <?php esc_html_e('Model', 'gpt3-ai-content-generator'); ?>
         </label>
     </div>
     <div class="aipkit_cw_ai_control aipkit_cw_ai_control--model">
         <select
             id="aipkit_content_writer_ai_selection"
-            class="aipkit_form-input"
-            data-aipkit-picker-title="<?php esc_attr_e('Model', 'gpt3-ai-content-generator'); ?>"
+            hidden
+            aria-hidden="true"
+            tabindex="-1"
         >
             <option value=""><?php esc_html_e('Loading models...', 'gpt3-ai-content-generator'); ?></option>
         </select>
-        <?php include __DIR__ . '/ai-advanced-settings.php'; ?>
+        <?php
+        $aipkit_unified_model_selector_config = [
+            'trigger_id'   => 'aipkit_content_writer_unified_model_trigger',
+            'initial_label' => __('Select model', 'gpt3-ai-content-generator'),
+            'source_id'    => 'aipkit_content_writer_ai_selection',
+            'class_name'   => 'aipkit_cw_unified_model_selector',
+            'show_trigger_logo' => false,
+        ];
+        include dirname(__DIR__, 3) . '/shared/unified-model-selector.php';
+        unset($aipkit_unified_model_selector_config);
+        ?>
+        <button
+            type="button"
+            class="aipkit_cw_advanced_options_trigger"
+            id="aipkit_cw_advanced_options_trigger"
+            data-aipkit-advanced-options-trigger
+            aria-controls="aipkit_cw_advanced_options_modal"
+            aria-expanded="false"
+            aria-haspopup="dialog"
+            aria-label="<?php esc_attr_e('Advanced settings', 'gpt3-ai-content-generator'); ?>"
+            title="<?php esc_attr_e('Advanced settings', 'gpt3-ai-content-generator'); ?>"
+        >
+            <span class="dashicons dashicons-admin-generic" aria-hidden="true"></span>
+        </button>
     </div>
 </div>
+
+<?php include __DIR__ . '/advanced-options-modal.php'; ?>

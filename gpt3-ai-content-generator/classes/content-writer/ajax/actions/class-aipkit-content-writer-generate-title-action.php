@@ -38,6 +38,12 @@ class AIPKit_Content_Writer_Generate_Title_Action extends AIPKit_Content_Writer_
             return;
         }
 
+        $batch_run_check = $this->validate_content_writer_batch_run_request();
+        if (is_wp_error($batch_run_check)) {
+            $this->send_wp_error($batch_run_check);
+            return;
+        }
+
         $resolved_keyword_params = Shared\resolve_smart_seo_keywords_logic(
             $validated_params,
             $this->get_ai_caller(),
@@ -66,7 +72,13 @@ class AIPKit_Content_Writer_Generate_Title_Action extends AIPKit_Content_Writer_
             $validated_params // Pass the full form data for vector support
         );
 
-    // 5. Handle the AI response (success or error) and log under conversation if provided
-    GenerateTitle\handle_title_response_logic($this, $ai_result, $validated_params, $prompts, $ai_params_override);
+        $batch_run_check = $this->validate_content_writer_batch_run_request();
+        if (is_wp_error($batch_run_check)) {
+            $this->send_wp_error($batch_run_check);
+            return;
+        }
+
+        // 5. Handle the AI response (success or error) and log under conversation if provided
+        GenerateTitle\handle_title_response_logic($this, $ai_result, $validated_params, $prompts, $ai_params_override);
     }
 }

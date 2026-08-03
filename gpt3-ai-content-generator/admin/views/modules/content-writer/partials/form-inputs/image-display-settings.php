@@ -8,7 +8,11 @@ if (!defined('ABSPATH')) {
 $aipkit_image_display_settings_id_prefix = 'aipkit_cw';
 $aipkit_image_display_settings_render_mode = $aipkit_cw_image_display_settings_render_mode ?? 'both';
 $aipkit_image_display_settings_autosave = true;
+$aipkit_image_display_settings_standard_fields =
+    !empty($aipkit_cw_image_display_settings_standard_fields);
 $aipkit_image_display_settings_trigger_hidden = false;
 $aipkit_image_display_settings_placement_extra_class = '';
+$aipkit_image_display_settings_excluded_common_fields =
+    $aipkit_cw_image_display_settings_excluded_common_fields ?? [];
 
 include WPAICG_PLUGIN_DIR . 'admin/views/modules/shared/image-display-settings.php';

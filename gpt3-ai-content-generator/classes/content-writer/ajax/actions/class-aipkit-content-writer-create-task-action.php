@@ -16,6 +16,9 @@ if (!defined('ABSPATH')) {
 $logic_path = __DIR__ . '/create-task/';
 require_once $logic_path . 'methods.php';
 
+$modules_path = WPAICG_PLUGIN_DIR . 'classes/autogpt/cron/event-processor/trigger/module/';
+require_once $modules_path . 'methods.php';
+
 /**
 * Handles the AJAX action for creating an Automated Task from the Content Writer UI.
 * This class now orchestrates calls to modularized logic functions.
@@ -88,6 +91,14 @@ class AIPKit_Content_Writer_Create_Task_Action extends AIPKit_Content_Writer_Bas
         if (is_wp_error($requirements_check)) {
             $this->send_wp_error($requirements_check);
             return;
+        }
+
+        if (in_array($generation_mode, ['task', 'csv'], true)) {
+            $manual_items_validation = \WPAICG\AutoGPT\Cron\EventProcessor\Trigger\Modules\validate_manual_mode_items_logic($content_writer_config);
+            if (is_wp_error($manual_items_validation)) {
+                $this->send_wp_error($manual_items_validation);
+                return;
+            }
         }
 
         // --- START FIX: Determine task type based on generation mode sent from JS ---

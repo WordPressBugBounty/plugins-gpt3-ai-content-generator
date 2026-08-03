@@ -112,6 +112,10 @@ abstract class AIPKit_Admin_Asset_Base
 
     protected function register_admin_main_css(?string $version = null): void
     {
+        $version = $version ?: self::asset_version(
+            'dist/css/admin-main.bundle.css',
+            $this->version
+        );
         $this->register_style_bundle('aipkit-admin-main-css', 'admin-main.bundle.css', ['dashicons'], $version);
     }
 
@@ -123,6 +127,10 @@ abstract class AIPKit_Admin_Asset_Base
 
     protected function register_admin_main_script(?string $version = null): void
     {
+        $version = $version ?: self::asset_version(
+            'dist/js/admin-main.bundle.js',
+            $this->version
+        );
         $this->register_script_bundle('aipkit-admin-main', 'admin-main.bundle.js', self::script_deps(), $version);
     }
 
@@ -787,6 +795,8 @@ class AIPKit_Content_Writer_Assets extends AIPKit_Admin_Asset_Base
         if (! $this->is_aipkit_page($screen)) {
             return;
         }
+
+        wp_enqueue_media();
 
         $this->enqueue_admin_main_css();
         $this->enqueue_admin_main_script();

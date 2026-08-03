@@ -41,7 +41,6 @@ $aipkit_render_autogpt_bulk_row = static function () use ($cw_available_post_typ
                     title="<?php esc_attr_e('Advanced fields', 'gpt3-ai-content-generator'); ?>"
                 >
                     <span class="dashicons dashicons-admin-generic" aria-hidden="true"></span>
-                    <span class="aipkit_cw_bulk_action_label"><?php esc_html_e('Details', 'gpt3-ai-content-generator'); ?></span>
                 </button>
                 <button
                     type="button"

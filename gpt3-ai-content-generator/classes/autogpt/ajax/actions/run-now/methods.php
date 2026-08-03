@@ -133,6 +133,9 @@ function run_now_content_writing_logic(int $task_id, array $task_config)
 
         // Unified scheduling helper
         $scheduled_gmt_time = ContentWritingModules\compute_item_schedule_gmt_logic($item_data, $task_config, $item_index, $generation_mode);
+        if (is_wp_error($scheduled_gmt_time)) {
+            return $scheduled_gmt_time;
+        }
         if ($scheduled_gmt_time) {
             $item_config['scheduled_gmt_time'] = $scheduled_gmt_time;
         }

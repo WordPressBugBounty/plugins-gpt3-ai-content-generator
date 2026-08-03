@@ -117,7 +117,8 @@ if ($visible_nav_module_count === 0) {
 
 ?>
 <div class="wrap aipkit_wrap">
-    <div class="<?php echo esc_attr($module_tabs_classes); ?>">
+    <div class="aipkit_module-tabs_shell">
+        <div class="<?php echo esc_attr($module_tabs_classes); ?>">
         <?php if ($can_access_dashboard): ?>
             <div class="aipkit_module-brand">
                 <a
@@ -370,6 +371,7 @@ if ($visible_nav_module_count === 0) {
                 <?php endif; ?>
             </div>
         <?php endif; ?>
+        </div>
     </div>
 
     <div class="aipkit_main-content" id="aipkit_module-container">

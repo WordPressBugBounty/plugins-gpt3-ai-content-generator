@@ -20,6 +20,9 @@ if (!defined('ABSPATH')) {
 */
 abstract class AIPKit_Content_Writer_Base_Ajax_Action extends BaseDashboardAjaxHandler
 {
+    private const BATCH_RUN_TRANSIENT_PREFIX = 'aipkit_cw_batch_run_';
+    private const BATCH_RUN_TTL = 30 * MINUTE_IN_SECONDS;
+
     public $log_storage;
     public $ai_caller;
     public $vector_store_manager;
@@ -208,6 +211,87 @@ abstract class AIPKit_Content_Writer_Base_Ajax_Action extends BaseDashboardAjaxH
         }
 
         return true;
+    }
+
+    /**
+     * Creates a short-lived, user-bound token for an inline batch run.
+     */
+    protected function create_content_writer_batch_run(): string
+    {
+        $token = wp_generate_password(40, false, false);
+        set_transient(
+            $this->get_content_writer_batch_run_transient_key($token),
+            [
+                'user_id' => get_current_user_id(),
+                'cancelled' => false,
+                'created_at' => time(),
+            ],
+            self::BATCH_RUN_TTL
+        );
+
+        return $token;
+    }
+
+    /**
+     * Validates the optional batch token attached to a generation request.
+     * Requests without a token are single-mode or legacy calls and retain
+     * their existing behavior.
+     *
+     * @return true|WP_Error
+     */
+    protected function validate_content_writer_batch_run_request()
+    {
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Callers verify the Content Writer nonce before invoking this method.
+        $token = isset($_POST['batch_run_token']) ? sanitize_text_field(wp_unslash($_POST['batch_run_token'])) : '';
+        if ($token === '') {
+            return true;
+        }
+
+        $payload = get_transient($this->get_content_writer_batch_run_transient_key($token));
+        if (!is_array($payload)) {
+            return new WP_Error('expired_batch_run', __('The batch session expired. Please start the batch again.', 'gpt3-ai-content-generator'), ['status' => 409]);
+        }
+        if ((int) ($payload['user_id'] ?? 0) !== get_current_user_id()) {
+            return new WP_Error('invalid_batch_run_user', __('This batch session is not valid for the current user.', 'gpt3-ai-content-generator'), ['status' => 403]);
+        }
+        if (!empty($payload['cancelled'])) {
+            return new WP_Error('batch_run_stopped', __('This batch was stopped.', 'gpt3-ai-content-generator'), ['status' => 409]);
+        }
+
+        return true;
+    }
+
+    /**
+     * Marks a batch token as cancelled so in-flight requests cannot commit
+     * generated content after Stop is pressed.
+     *
+     * @return true|WP_Error
+     */
+    protected function cancel_content_writer_batch_run(string $token)
+    {
+        if ($token === '') {
+            return new WP_Error('missing_batch_run', __('The batch session is missing. Please start the batch again.', 'gpt3-ai-content-generator'), ['status' => 403]);
+        }
+
+        $transient_key = $this->get_content_writer_batch_run_transient_key($token);
+        $payload = get_transient($transient_key);
+        if (!is_array($payload)) {
+            return new WP_Error('expired_batch_run', __('The batch session expired. Please start the batch again.', 'gpt3-ai-content-generator'), ['status' => 409]);
+        }
+        if ((int) ($payload['user_id'] ?? 0) !== get_current_user_id()) {
+            return new WP_Error('invalid_batch_run_user', __('This batch session is not valid for the current user.', 'gpt3-ai-content-generator'), ['status' => 403]);
+        }
+
+        $payload['cancelled'] = true;
+        $payload['cancelled_at'] = time();
+        set_transient($transient_key, $payload, self::BATCH_RUN_TTL);
+
+        return true;
+    }
+
+    private function get_content_writer_batch_run_transient_key(string $token): string
+    {
+        return self::BATCH_RUN_TRANSIENT_PREFIX . md5($token);
     }
 
     protected function maybe_extend_execution_limits(int $seconds): void

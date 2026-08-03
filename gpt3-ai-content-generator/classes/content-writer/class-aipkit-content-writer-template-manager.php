@@ -29,6 +29,8 @@ class AIPKit_Content_Writer_Template_Manager
         'ai_temperature', 'content_length', 'content_max_tokens',
         'post_type', 'post_author', 'post_status',
         'post_schedule_date', 'post_schedule_time',
+        'schedule_mode', 'smart_schedule_start_datetime',
+        'smart_schedule_interval_value', 'smart_schedule_interval_unit',
         'post_categories', 'prompt_mode', 'custom_title_prompt', 'custom_content_prompt',
         'generate_title', 'generate_content',
         'generate_meta_description', 'custom_meta_prompt',
@@ -94,6 +96,14 @@ class AIPKit_Content_Writer_Template_Manager
     /**
      * @return bool|\WP_Error
      */
+    public function rename_template(int $template_id, string $template_name)
+    {
+        return TemplateManagerMethods\rename_template_logic($this, $template_id, $template_name);
+    }
+
+    /**
+     * @return bool|\WP_Error
+     */
     public function delete_template(int $template_id)
     {
         return TemplateManagerMethods\delete_template_logic($this, $template_id);
@@ -139,6 +149,16 @@ class AIPKit_Content_Writer_Template_Manager
      */
     public static function finalize_task_config(array $content_writer_config)
     {
+        $schedule_mode = $content_writer_config['schedule_mode'] ?? 'immediate';
+        $content_writer_config['schedule_mode'] = in_array($schedule_mode, ['immediate', 'smart', 'from_input'], true)
+            ? $schedule_mode
+            : 'immediate';
+        $content_writer_config['smart_schedule_start_datetime'] = $content_writer_config['smart_schedule_start_datetime'] ?? '';
+        $content_writer_config['smart_schedule_interval_value'] = max(1, absint($content_writer_config['smart_schedule_interval_value'] ?? 1));
+        $interval_unit = $content_writer_config['smart_schedule_interval_unit'] ?? 'hours';
+        $content_writer_config['smart_schedule_interval_unit'] = in_array($interval_unit, ['hours', 'days'], true)
+            ? $interval_unit
+            : 'hours';
         $content_writer_config['seo_score_improvement_enabled'] = $content_writer_config['seo_score_improvement_enabled'] ?? '0';
         $content_writer_config['seo_score_continue_until_target'] = $content_writer_config['seo_score_continue_until_target'] ?? '1';
         $content_writer_config['seo_score_target'] = $content_writer_config['seo_score_target'] ?? '100';

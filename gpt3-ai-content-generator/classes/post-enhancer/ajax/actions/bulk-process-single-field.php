@@ -9,6 +9,7 @@ use WPAICG\Core\AIPKit_OpenAI_Reasoning;
 use WPAICG\AIPKit_Providers;
 use WPAICG\AIPKIT_AI_Settings;
 use WPAICG\ContentWriter\AIPKit_Content_Writer_Output_Cleaner;
+use WPAICG\ContentWriter\Ajax\Actions\AIPKit_Content_Writer_Prepare_Update_Run_Action;
 use WPAICG\SEO\AIPKit_SEO_Helper;
 use WP_Error;
 use WPAICG\Vector\AIPKit_Vector_Store_Manager;
@@ -76,14 +77,35 @@ class AIPKit_PostEnhancer_Bulk_Process_Single_Field extends AIPKit_Post_Enhancer
         $enhancer_source = isset($_POST['enhancer_source']) ? sanitize_key(wp_unslash($_POST['enhancer_source'])) : '';
         $bypass_pro_checks = ($enhancer_source === 'post_enhancer');
 
-        if (!$is_pro && !$bypass_pro_checks) {
-            if ($post->post_type === 'product') {
-                $this->send_error_response(new WP_Error('pro_required', __('Optimize Products is a Pro feature.', 'gpt3-ai-content-generator'), ['status' => 403]));
+        if ($enhancer_source === 'content_writer') {
+            // phpcs:ignore WordPress.Security.NonceVerification.Missing -- The request nonce is checked at the start of handle().
+            $run_token = isset($_POST['content_writer_run_token']) ? sanitize_text_field(wp_unslash($_POST['content_writer_run_token'])) : '';
+            if (!class_exists(AIPKit_Content_Writer_Prepare_Update_Run_Action::class)) {
+                $this->send_error_response(new WP_Error('update_run_guard_missing', __('The update service is unavailable. Please reload the page.', 'gpt3-ai-content-generator'), ['status' => 500]));
                 return;
             }
-            if ($post->post_type !== 'attachment' && !in_array($field, ['title', 'content'], true)) {
-                $this->send_error_response(new WP_Error('pro_required', __('SEO field updates are available on Pro.', 'gpt3-ai-content-generator'), ['status' => 403]));
+            $run_permission = AIPKit_Content_Writer_Prepare_Update_Run_Action::validate_request($run_token, (int) $post->ID, $field);
+            if (is_wp_error($run_permission)) {
+                $this->send_error_response($run_permission);
                 return;
+            }
+        }
+
+        if (!$is_pro && !$bypass_pro_checks) {
+            if ($post->post_type === 'product') {
+                $content_writer_mode = is_array($run_permission ?? null)
+                    ? sanitize_key((string) ($run_permission['mode'] ?? ''))
+                    : '';
+                $content_writer_item_count = is_array($run_permission ?? null)
+                    ? count($run_permission['post_ids'] ?? [])
+                    : 0;
+                $is_allowed_single_rewrite = $enhancer_source === 'content_writer'
+                    && $content_writer_mode === 'existing-content'
+                    && $content_writer_item_count === 1;
+                if (!$is_allowed_single_rewrite) {
+                    $this->send_error_response(new WP_Error('pro_required', __('Product optimization is a Pro feature.', 'gpt3-ai-content-generator'), ['status' => 403]));
+                    return;
+                }
             }
         }
 
@@ -325,6 +347,16 @@ class AIPKit_PostEnhancer_Bulk_Process_Single_Field extends AIPKit_Post_Enhancer
             );
             $this->send_error_response(new WP_Error('empty_response', __('AI returned empty response for this field.', 'gpt3-ai-content-generator'), ['status' => 500]));
             return;
+        }
+
+        // A Stop request can arrive while the AI provider call is in flight.
+        // Recheck the prepared run immediately before any database write.
+        if ($enhancer_source === 'content_writer') {
+            $run_permission = AIPKit_Content_Writer_Prepare_Update_Run_Action::validate_request($run_token, (int) $post->ID, $field);
+            if (is_wp_error($run_permission)) {
+                $this->send_error_response($run_permission);
+                return;
+            }
         }
 
         $new_value = trim(str_replace('"', '', $ai_result['content']));

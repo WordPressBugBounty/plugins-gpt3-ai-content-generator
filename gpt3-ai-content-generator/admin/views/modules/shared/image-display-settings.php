@@ -19,6 +19,7 @@ $aipkit_image_display_settings_render_trigger = in_array($aipkit_image_display_s
 $aipkit_image_display_settings_render_popover = in_array($aipkit_image_display_settings_render_mode, ['both', 'popover'], true);
 $aipkit_image_display_settings_render_inline = $aipkit_image_display_settings_render_mode === 'inline';
 $aipkit_image_display_settings_autosave_class = !empty($aipkit_image_display_settings_autosave) ? 'aipkit_autosave_trigger' : '';
+$aipkit_image_display_settings_standard_fields = !empty($aipkit_image_display_settings_standard_fields);
 $aipkit_image_display_settings_trigger_hidden_attr = !empty($aipkit_image_display_settings_trigger_hidden) ? 'hidden' : '';
 $aipkit_image_display_settings_trigger_label = isset($aipkit_image_display_settings_trigger_label)
     ? (string) $aipkit_image_display_settings_trigger_label
@@ -143,26 +144,36 @@ $aipkit_image_display_settings_row = static function (array $field) use (
     $aipkit_image_display_settings_attr,
     $aipkit_image_display_settings_autosave_class,
     $aipkit_image_display_settings_classes,
-    $aipkit_image_display_settings_id
+    $aipkit_image_display_settings_id,
+    $aipkit_image_display_settings_standard_fields
 ): void {
     $type = $field['type'] ?? 'select';
     $suffix = (string) $field['id'];
     $control_id = $aipkit_image_display_settings_id($suffix);
-    $common_classes = $type === 'select'
-        ? [
-            $aipkit_image_display_settings_autosave_class,
-            'aipkit_popover_option_select',
-            'aipkit_popover_option_select--fit',
-            $field['compact'] ?? true ? 'aipkit_cw_blended_chevron_select' : '',
-            $field['class'] ?? '',
-        ]
-        : [
+    if ($aipkit_image_display_settings_standard_fields) {
+        $common_classes = [
             'aipkit_form-input',
             $aipkit_image_display_settings_autosave_class,
-            'aipkit_popover_option_input',
-            $field['compact'] ?? true ? 'aipkit_popover_option_input--compact' : '',
+            'aipkit_image_display_settings_control',
             $field['class'] ?? '',
         ];
+    } else {
+        $common_classes = $type === 'select'
+            ? [
+                $aipkit_image_display_settings_autosave_class,
+                'aipkit_popover_option_select',
+                'aipkit_popover_option_select--fit',
+                $field['compact'] ?? true ? 'aipkit_cw_blended_chevron_select' : '',
+                $field['class'] ?? '',
+            ]
+            : [
+                'aipkit_form-input',
+                $aipkit_image_display_settings_autosave_class,
+                'aipkit_popover_option_input',
+                $field['compact'] ?? true ? 'aipkit_popover_option_input--compact' : '',
+                $field['class'] ?? '',
+            ];
+    }
     $attrs = [
         'id' => $control_id,
         'name' => $field['name'] ?? $suffix,

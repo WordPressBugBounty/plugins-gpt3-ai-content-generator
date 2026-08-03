@@ -7,29 +7,10 @@ if (!defined('ABSPATH')) {
 
 use WPAICG\ContentWriter\AIPKit_Content_Writer_Prompts;
 
-$prompt_library = AIPKit_Content_Writer_Prompts::get_prompt_library();
-$default_image_prompt = AIPKit_Content_Writer_Prompts::get_default_image_prompt();
-$default_featured_image_prompt = AIPKit_Content_Writer_Prompts::get_default_featured_image_prompt();
-$default_image_title_prompt = AIPKit_Content_Writer_Prompts::get_default_image_title_prompt();
-$default_image_alt_text_prompt = AIPKit_Content_Writer_Prompts::get_default_image_alt_text_prompt();
-$default_image_caption_prompt = AIPKit_Content_Writer_Prompts::get_default_image_caption_prompt();
-$default_image_description_prompt = AIPKit_Content_Writer_Prompts::get_default_image_description_prompt();
 $default_image_title_prompt_update = AIPKit_Content_Writer_Prompts::get_default_image_title_prompt_update();
 $default_image_alt_text_prompt_update = AIPKit_Content_Writer_Prompts::get_default_image_alt_text_prompt_update();
 $default_image_caption_prompt_update = AIPKit_Content_Writer_Prompts::get_default_image_caption_prompt_update();
 $default_image_description_prompt_update = AIPKit_Content_Writer_Prompts::get_default_image_description_prompt_update();
-$render_prompt_library_options = static function(array $options, string $mode = ''): void {
-    foreach ($options as $option) {
-        if (empty($option['label']) || empty($option['prompt'])) {
-            continue;
-        }
-        echo '<option value="' . esc_attr($option['prompt']) . '"';
-        if ($mode !== '') {
-            echo ' data-aipkit-mode="' . esc_attr($mode) . '"';
-        }
-        echo '>' . esc_html($option['label']) . '</option>';
-    }
-};
 ?>
 
 <input type="hidden" name="image_prompt_update" id="aipkit_cw_image_prompt_update" value="">
@@ -41,22 +22,6 @@ $render_prompt_library_options = static function(array $options, string $mode = 
 
 <div class="aipkit_cw_image_section">
     <div class="aipkit_cw_image_hidden_fields" hidden aria-hidden="true">
-        <input
-            type="checkbox"
-            id="aipkit_cw_generate_images_enabled"
-            name="generate_images_enabled"
-            class="aipkit_toggle_switch aipkit_cw_image_enable_toggle aipkit_autosave_trigger"
-            value="1"
-            tabindex="-1"
-        >
-        <input
-            type="checkbox"
-            id="aipkit_cw_generate_featured_image"
-            name="generate_featured_image"
-            class="aipkit_toggle_switch aipkit_autosave_trigger"
-            value="1"
-            tabindex="-1"
-        >
         <select id="aipkit_cw_image_provider" name="image_provider" class="aipkit_autosave_trigger" tabindex="-1">
             <optgroup label="<?php echo esc_attr__('AI Providers', 'gpt3-ai-content-generator'); ?>">
                 <option value="openai" selected>OpenAI</option>
@@ -83,66 +48,135 @@ $render_prompt_library_options = static function(array $options, string $mode = 
         >
     </div>
 
-    <div class="aipkit_cw_image_row aipkit_cw_image_row--mode">
-        <div class="aipkit_cw_panel_label_wrap">
-            <label class="aipkit_cw_panel_label" for="aipkit_cw_image_mode_control">
-                <?php esc_html_e('Images', 'gpt3-ai-content-generator'); ?>
-            </label>
+    <div class="aipkit_cw_image_settings_container" data-aipkit-cw-image-settings hidden>
+        <div class="aipkit_cw_image_option_row" data-aipkit-cw-image-source-row>
+            <label
+                class="aipkit_cw_image_option_label"
+                for="aipkit_cw_image_selection_trigger"
+            ><?php esc_html_e('Image source', 'gpt3-ai-content-generator'); ?></label>
+            <div class="aipkit_cw_image_option_control aipkit_cw_image_source_control">
+                <div class="aipkit_cw_image_source_picker">
+                    <select id="aipkit_content_writer_image_selection" data-aipkit-unified-model-source hidden aria-hidden="true" tabindex="-1">
+                        <?php // Populated by JS ?>
+                    </select>
+                    <?php
+                    $aipkit_unified_model_selector_config = [
+                        'trigger_id' => 'aipkit_cw_image_selection_trigger',
+                        'source_id' => 'aipkit_content_writer_image_selection',
+                        'initial_label' => __('Select image source', 'gpt3-ai-content-generator'),
+                        'class_name' => 'aipkit_cw_image_unified_model_selector',
+                        'show_trigger_logo' => true,
+                        'search_placeholder' => __('Search image sources...', 'gpt3-ai-content-generator'),
+                        'empty_text' => __('No image sources found', 'gpt3-ai-content-generator'),
+                        'filter_aria_label' => __('Filter image sources', 'gpt3-ai-content-generator'),
+                        'filters' => [
+                            ['value' => 'all', 'label' => __('All', 'gpt3-ai-content-generator')],
+                            ['value' => 'ai', 'label' => __('AI generated', 'gpt3-ai-content-generator')],
+                            ['value' => 'stock', 'label' => __('Stock photos', 'gpt3-ai-content-generator')],
+                        ],
+                    ];
+                    include dirname(__DIR__, 3) . '/shared/unified-model-selector.php';
+                    ?>
+                </div>
+                <button
+                    type="button"
+                    class="aipkit_cw_image_options_trigger"
+                    id="aipkit_cw_image_options_trigger"
+                    data-aipkit-image-options-trigger
+                    aria-controls="aipkit_cw_image_options_modal"
+                    aria-expanded="false"
+                    aria-haspopup="dialog"
+                    aria-label="<?php esc_attr_e('Image options', 'gpt3-ai-content-generator'); ?>"
+                    title="<?php esc_attr_e('Image options', 'gpt3-ai-content-generator'); ?>"
+                >
+                    <span class="dashicons dashicons-admin-generic" aria-hidden="true"></span>
+                </button>
+            </div>
         </div>
-        <div class="aipkit_cw_image_control">
-            <select id="aipkit_cw_image_mode_control" class="aipkit_form-input aipkit_cw_blended_chevron_select">
-                <option value="off"><?php esc_html_e('Off', 'gpt3-ai-content-generator'); ?></option>
-                <option value="content"><?php esc_html_e('Content', 'gpt3-ai-content-generator'); ?></option>
-                <option value="featured"><?php esc_html_e('Featured', 'gpt3-ai-content-generator'); ?></option>
-                <option value="both"><?php esc_html_e('Content + Featured', 'gpt3-ai-content-generator'); ?></option>
-            </select>
+
+        <?php include __DIR__ . '/image-prompts-settings.php'; ?>
+
+        <div data-aipkit-image-content-panel>
+            <div class="aipkit_cw_image_option_row" id="aipkit_cw_image_display_count_field">
+                <label class="aipkit_cw_image_option_label" for="aipkit_cw_image_count"><?php esc_html_e('Images per article', 'gpt3-ai-content-generator'); ?></label>
+                <div class="aipkit_cw_image_stepper">
+                    <button type="button" data-aipkit-image-count-step="-1" aria-label="<?php esc_attr_e('Use one fewer image', 'gpt3-ai-content-generator'); ?>">−</button>
+                    <input type="number" id="aipkit_cw_image_count" name="image_count" class="aipkit_form-input aipkit_autosave_trigger" value="1" min="1" max="10">
+                    <button type="button" data-aipkit-image-count-step="1" aria-label="<?php esc_attr_e('Use one more image', 'gpt3-ai-content-generator'); ?>">+</button>
+                </div>
+            </div>
+
+            <div class="aipkit_cw_image_option_row" id="aipkit_cw_image_display_placement_field">
+                <label class="aipkit_cw_image_option_label" for="aipkit_cw_image_placement"><?php esc_html_e('Placement', 'gpt3-ai-content-generator'); ?></label>
+                <div class="aipkit_cw_image_placement_control">
+                    <select
+                        id="aipkit_cw_image_placement"
+                        name="image_placement"
+                        class="aipkit_form-input aipkit_cw_blended_chevron_select aipkit_autosave_trigger"
+                        data-aipkit-cw-fit-selected
+                        data-aipkit-cw-fit-selected-max="150"
+                    >
+                        <option value="after_first_h2"><?php esc_html_e('After 1st H2', 'gpt3-ai-content-generator'); ?></option>
+                        <option value="after_first_h3"><?php esc_html_e('After 1st H3', 'gpt3-ai-content-generator'); ?></option>
+                        <option value="after_every_x_h2"><?php esc_html_e('Every X H2s', 'gpt3-ai-content-generator'); ?></option>
+                        <option value="after_every_x_h3"><?php esc_html_e('Every X H3s', 'gpt3-ai-content-generator'); ?></option>
+                        <option value="after_every_x_p"><?php esc_html_e('Every X paragraphs', 'gpt3-ai-content-generator'); ?></option>
+                        <option value="at_end"><?php esc_html_e('End of content', 'gpt3-ai-content-generator'); ?></option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="aipkit_cw_image_option_row aipkit_cw_image_interval_row" id="aipkit_cw_image_display_param_x_field" hidden>
+                <label class="aipkit_cw_image_option_label" for="aipkit_cw_image_placement_param_x"><?php esc_html_e('X', 'gpt3-ai-content-generator'); ?></label>
+                <div class="aipkit_cw_image_stepper">
+                    <button type="button" data-aipkit-image-placement-step="-1" aria-label="<?php esc_attr_e('Use a smaller interval', 'gpt3-ai-content-generator'); ?>">−</button>
+                    <input type="number" id="aipkit_cw_image_placement_param_x" name="image_placement_param_x" class="aipkit_form-input aipkit_autosave_trigger" value="2" min="1" aria-label="<?php esc_attr_e('Placement interval', 'gpt3-ai-content-generator'); ?>">
+                    <button type="button" data-aipkit-image-placement-step="1" aria-label="<?php esc_attr_e('Use a larger interval', 'gpt3-ai-content-generator'); ?>">+</button>
+                </div>
+            </div>
+
         </div>
     </div>
 
-    <div class="aipkit_cw_image_row aipkit_cw_image_row--source" id="aipkit_cw_image_source_row" hidden>
-        <div class="aipkit_cw_panel_label_wrap">
-            <label class="aipkit_cw_panel_label" for="aipkit_content_writer_image_selection">
-                <?php esc_html_e('Image source', 'gpt3-ai-content-generator'); ?>
-            </label>
-        </div>
-        <div class="aipkit_cw_image_control aipkit_cw_image_control--selection">
-            <div class="aipkit_cw_image_selection_inline">
-                <select
-                    id="aipkit_content_writer_image_selection"
-                    class="aipkit_form-input"
-                    data-aipkit-picker-title="<?php echo esc_attr__('Image source', 'gpt3-ai-content-generator'); ?>"
+    <div
+        class="aipkit-modal-overlay aipkit_cw_image_options_modal"
+        id="aipkit_cw_image_options_modal"
+        data-aipkit-image-options-modal
+        aria-hidden="true"
+    >
+        <div
+            class="aipkit-modal-content aipkit-modal-shell aipkit_cw_image_options_modal_content"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="aipkit_cw_image_options_modal_title"
+        >
+            <div class="aipkit-modal-header aipkit-modal-shell-header aipkit_cw_image_options_modal_header">
+                <div class="aipkit-modal-shell-intro">
+                    <h2 class="aipkit-modal-shell-title" id="aipkit_cw_image_options_modal_title">
+                        <?php esc_html_e('Image options', 'gpt3-ai-content-generator'); ?>
+                    </h2>
+                </div>
+                <button
+                    type="button"
+                    class="aipkit-modal-close-btn aipkit-modal-shell-close"
+                    data-aipkit-image-options-close
+                    aria-label="<?php esc_attr_e('Close', 'gpt3-ai-content-generator'); ?>"
                 >
-                    <?php // Populated by JS ?>
-                </select>
-                <?php $aipkit_cw_image_display_settings_render_mode = 'trigger'; ?>
-                <?php include __DIR__ . '/image-display-settings.php'; ?>
+                    <span class="dashicons dashicons-no-alt" aria-hidden="true"></span>
+                </button>
+            </div>
+            <div class="aipkit-modal-body aipkit-modal-shell-body aipkit_cw_image_options_modal_body">
+                <?php
+                $aipkit_cw_image_display_settings_render_mode = 'inline';
+                $aipkit_cw_image_display_settings_standard_fields = true;
+                $aipkit_cw_image_display_settings_excluded_common_fields = [
+                    'image_count',
+                    'image_placement',
+                    'image_placement_param_x',
+                ];
+                include __DIR__ . '/image-display-settings.php';
+                ?>
             </div>
         </div>
     </div>
-
-    <div class="aipkit_cw_image_row aipkit_cw_image_row--settings" id="aipkit_cw_image_settings_row" hidden>
-        <div class="aipkit_cw_panel_label_wrap">
-            <span class="aipkit_cw_panel_label">
-                <?php esc_html_e('Settings', 'gpt3-ai-content-generator'); ?>
-            </span>
-        </div>
-        <div class="aipkit_cw_image_control aipkit_cw_image_control--settings">
-            <button
-                type="button"
-                class="aipkit_cw_settings_icon_trigger"
-                id="aipkit_cw_image_display_settings_trigger_fallback"
-                data-aipkit-popover-target="aipkit_cw_image_display_settings_popover"
-                data-aipkit-popover-placement="top"
-                aria-controls="aipkit_cw_image_display_settings_popover"
-                aria-expanded="false"
-                aria-label="<?php esc_attr_e('Image settings', 'gpt3-ai-content-generator'); ?>"
-                title="<?php esc_attr_e('Image settings', 'gpt3-ai-content-generator'); ?>"
-            >
-                <span class="dashicons dashicons-admin-settings" aria-hidden="true"></span>
-            </button>
-        </div>
-    </div>
 </div>
-
-<?php $aipkit_cw_image_display_settings_render_mode = 'popover'; ?>
-<?php include __DIR__ . '/image-display-settings.php'; ?>

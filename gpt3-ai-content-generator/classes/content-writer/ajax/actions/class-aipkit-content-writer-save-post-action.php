@@ -28,6 +28,43 @@ require_once $shared_path . 'methods.php';
 class AIPKit_Content_Writer_Save_Post_Action extends AIPKit_Content_Writer_Base_Ajax_Action
 {
     /**
+     * Removes a cancelled batch post and any images generated exclusively for
+     * that in-flight item.
+     *
+     * @param mixed $image_data
+     */
+    private function rollback_cancelled_batch_post(int $post_id, $image_data): void
+    {
+        if ($post_id > 0) {
+            wp_delete_post($post_id, true);
+        }
+
+        if (is_string($image_data) && $image_data !== '') {
+            $decoded = json_decode($image_data, true);
+            $image_data = is_array($decoded) ? $decoded : [];
+        }
+        if (!is_array($image_data)) {
+            return;
+        }
+
+        $attachment_ids = [];
+        if (!empty($image_data['in_content_images']) && is_array($image_data['in_content_images'])) {
+            foreach ($image_data['in_content_images'] as $image_item) {
+                if (is_array($image_item) && !empty($image_item['attachment_id'])) {
+                    $attachment_ids[] = absint($image_item['attachment_id']);
+                }
+            }
+        }
+        if (!empty($image_data['featured_image_id'])) {
+            $attachment_ids[] = absint($image_data['featured_image_id']);
+        }
+
+        foreach (array_unique(array_filter($attachment_ids)) as $attachment_id) {
+            wp_delete_attachment($attachment_id, true);
+        }
+    }
+
+    /**
      * Handles the AJAX request for saving a post by orchestrating calls to modular functions.
      */
     public function handle()
@@ -36,6 +73,12 @@ class AIPKit_Content_Writer_Save_Post_Action extends AIPKit_Content_Writer_Base_
         $permission_check = SavePost\validate_permissions_logic($this);
         if (is_wp_error($permission_check)) {
             $this->send_wp_error($permission_check);
+            return;
+        }
+
+        $batch_run_check = $this->validate_content_writer_batch_run_request();
+        if (is_wp_error($batch_run_check)) {
+            $this->send_wp_error($batch_run_check);
             return;
         }
 
@@ -74,10 +117,23 @@ class AIPKit_Content_Writer_Save_Post_Action extends AIPKit_Content_Writer_Base_
         // 6. Add categories to the post array if the post type is 'post'
         SavePost\prepare_categories_logic($postarr, $post_data);
 
+        $batch_run_check = $this->validate_content_writer_batch_run_request();
+        if (is_wp_error($batch_run_check)) {
+            $this->send_wp_error($batch_run_check);
+            return;
+        }
+
         // 7. Insert the post into the database (this now handles image/toc injection)
         $post_id_result = SavePost\insert_post_logic($postarr, $post_data['excerpt'] ?? null, $image_data, $image_alignment, $image_size, $post_data['focus_keyword'] ?? '', $post_data);
         if (is_wp_error($post_id_result)) {
             $this->send_wp_error($post_id_result);
+            return;
+        }
+
+        $batch_run_check = $this->validate_content_writer_batch_run_request();
+        if (is_wp_error($batch_run_check)) {
+            $this->rollback_cancelled_batch_post((int) $post_id_result, $image_data);
+            $this->send_wp_error($batch_run_check);
             return;
         }
 
@@ -99,6 +155,13 @@ class AIPKit_Content_Writer_Save_Post_Action extends AIPKit_Content_Writer_Base_
 
         if ($smart_seo_slug === '' && isset($post_data['generate_seo_slug']) && $post_data['generate_seo_slug'] === '1' && class_exists('\\WPAICG\\SEO\\AIPKit_SEO_Helper')) {
             \WPAICG\SEO\AIPKit_SEO_Helper::update_post_slug_for_seo($post_id_result);
+        }
+
+        $batch_run_check = $this->validate_content_writer_batch_run_request();
+        if (is_wp_error($batch_run_check)) {
+            $this->rollback_cancelled_batch_post((int) $post_id_result, $image_data);
+            $this->send_wp_error($batch_run_check);
+            return;
         }
 
         Shared\maybe_update_gsheets_row_status_logic($post_data, 'Processed on');

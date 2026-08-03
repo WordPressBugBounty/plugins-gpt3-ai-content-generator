@@ -34,6 +34,7 @@ use WPAICG\ContentWriter\Ajax\Actions\AIPKit_Content_Writer_Generate_Meta_Action
 use WPAICG\ContentWriter\Ajax\Actions\AIPKit_Content_Writer_Generate_Keyword_Action;
 use WPAICG\ContentWriter\Ajax\Actions\AIPKit_Content_Writer_Parse_Csv_Action;
 use WPAICG\ContentWriter\Ajax\Actions\AIPKit_Content_Writer_Fetch_Posts_Action;
+use WPAICG\ContentWriter\Ajax\Actions\AIPKit_Content_Writer_Prepare_Update_Run_Action;
 use WPAICG\ContentWriter\Ajax\AIPKit_Content_Writer_Template_Ajax_Handler;
 use WPAICG\ContentWriter\Ajax\AIPKit_Content_Writer_Prompt_Library_Ajax_Handler;
 use WPAICG\AIForms\Admin\AIPKit_AI_Form_Ajax_Handler;
@@ -89,6 +90,7 @@ class Ajax_Hooks_Registrar
         $content_writer_generate_images_action = class_exists(AIPKit_Content_Writer_Generate_Images_Action::class) ? new AIPKit_Content_Writer_Generate_Images_Action() : null;
         $content_writer_parse_csv_action = class_exists(AIPKit_Content_Writer_Parse_Csv_Action::class) ? new AIPKit_Content_Writer_Parse_Csv_Action() : null;
         $content_writer_fetch_posts_action = class_exists(AIPKit_Content_Writer_Fetch_Posts_Action::class) ? new AIPKit_Content_Writer_Fetch_Posts_Action() : null;
+        $content_writer_prepare_update_run_action = class_exists(AIPKit_Content_Writer_Prepare_Update_Run_Action::class) ? new AIPKit_Content_Writer_Prepare_Update_Run_Action() : null;
         $content_writer_prepare_batch_action = class_exists(AIPKit_Content_Writer_Prepare_Batch_Action::class) ? new AIPKit_Content_Writer_Prepare_Batch_Action() : null;
         $enhancer_actions_ajax_handler = class_exists(AIPKit_Enhancer_Actions_Ajax_Handler::class) ? new AIPKit_Enhancer_Actions_Ajax_Handler() : null;
 
@@ -242,6 +244,7 @@ class Ajax_Hooks_Registrar
             add_action('wp_ajax_aipkit_content_writer_generate_title', [$content_writer_generate_title_action, 'handle']);
         }
         add_action('wp_ajax_aipkit_save_cw_template', [$content_writer_template_ajax_handler, 'ajax_save_template']);
+        add_action('wp_ajax_aipkit_rename_cw_template', [$content_writer_template_ajax_handler, 'ajax_rename_template']);
         add_action('wp_ajax_aipkit_delete_cw_template', [$content_writer_template_ajax_handler, 'ajax_delete_template']);
         add_action('wp_ajax_aipkit_list_cw_templates', [$content_writer_template_ajax_handler, 'ajax_list_templates']);
         add_action('wp_ajax_aipkit_reset_cw_starter_templates', [$content_writer_template_ajax_handler, 'ajax_reset_starter_templates']);
@@ -267,6 +270,9 @@ class Ajax_Hooks_Registrar
         if ($content_writer_prepare_batch_action && method_exists($content_writer_prepare_batch_action, 'handle')) {
             add_action('wp_ajax_aipkit_content_writer_prepare_batch', [$content_writer_prepare_batch_action, 'handle']);
         }
+        if ($content_writer_prepare_batch_action && method_exists($content_writer_prepare_batch_action, 'handle_cancel')) {
+            add_action('wp_ajax_aipkit_content_writer_cancel_batch', [$content_writer_prepare_batch_action, 'handle_cancel']);
+        }
         if ($content_writer_generate_meta_action && method_exists($content_writer_generate_meta_action, 'handle')) {
             add_action('wp_ajax_aipkit_content_writer_generate_meta_desc', [$content_writer_generate_meta_action, 'handle']);
         }
@@ -287,6 +293,12 @@ class Ajax_Hooks_Registrar
         }
         if ($content_writer_fetch_posts_action && method_exists($content_writer_fetch_posts_action, 'handle')) {
             add_action('wp_ajax_aipkit_content_writer_fetch_existing_posts', [$content_writer_fetch_posts_action, 'handle']);
+        }
+        if ($content_writer_prepare_update_run_action && method_exists($content_writer_prepare_update_run_action, 'handle')) {
+            add_action('wp_ajax_aipkit_content_writer_prepare_existing_update', [$content_writer_prepare_update_run_action, 'handle']);
+        }
+        if ($content_writer_prepare_update_run_action && method_exists($content_writer_prepare_update_run_action, 'handle_cancel')) {
+            add_action('wp_ajax_aipkit_content_writer_cancel_existing_update', [$content_writer_prepare_update_run_action, 'handle_cancel']);
         }
 
         if ($ai_form_ajax_handler && method_exists($ai_form_ajax_handler, 'register_ajax_hooks')) {

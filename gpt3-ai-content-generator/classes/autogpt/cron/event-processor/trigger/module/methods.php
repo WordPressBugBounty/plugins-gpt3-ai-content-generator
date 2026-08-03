@@ -72,6 +72,98 @@ function manual_mode_generate_items_logic(array $task_config): array
     return $items;
 }
 
+/**
+ * Validates the pipe-separated rows used by manual and CSV items.
+ *
+ * Plain topic lines remain valid for backward compatibility. Category, author,
+ * and post type are optional per-item overrides; unavailable values fall back
+ * to the task defaults. Optional schedule values remain strict when the task
+ * uses dates from input because silently changing a requested publish time is
+ * unsafe.
+ *
+ * @param array $task_config The content-writer task configuration.
+ * @return true|WP_Error True when all populated lines are valid.
+ */
+function validate_manual_mode_items_logic(array $task_config)
+{
+    $raw = $task_config['content_title'] ?? '';
+    if (!is_string($raw) || trim($raw) === '') {
+        return true;
+    }
+
+    $issues = [];
+    $lines = preg_split('/\r?\n/', $raw);
+    $schedule_mode = $task_config['schedule_mode'] ?? 'immediate';
+
+    foreach ($lines as $index => $raw_line) {
+        $line = trim($raw_line);
+        if ($line === '' || strpos($line, '|') === false) {
+            continue;
+        }
+
+        $line_number = $index + 1;
+        $parts = array_map('trim', explode('|', $line));
+        $topic = $parts[0] ?? '';
+        $schedule = $parts[5] ?? '';
+
+        if ($topic === '') {
+            $issues[] = [
+                'line' => $line_number,
+                'field' => 'topic',
+                'code' => 'missing_topic',
+                'message' => sprintf(
+                    /* translators: %d: line number. */
+                    __('Line %d: Add a topic before the first separator.', 'gpt3-ai-content-generator'),
+                    $line_number
+                ),
+            ];
+        }
+
+        if (count($parts) > 6) {
+            $issues[] = [
+                'line' => $line_number,
+                'field' => 'schedule',
+                'code' => 'extra_fields',
+                'message' => sprintf(
+                    /* translators: %d: line number. */
+                    __('Line %d: Remove the extra fields after the schedule.', 'gpt3-ai-content-generator'),
+                    $line_number
+                ),
+            ];
+        }
+
+        if ($schedule_mode === 'from_input' && $schedule !== '') {
+            $parsed_schedule = parse_schedule_datetime_logic($schedule);
+            if (empty($parsed_schedule['gmt'])) {
+                $issues[] = [
+                    'line' => $line_number,
+                    'field' => 'schedule',
+                    'code' => 'invalid_schedule',
+                    'message' => sprintf(
+                        /* translators: 1: line number, 2: entered schedule value. */
+                        __('Line %1$d: Schedule “%2$s” is not a recognized date and time.', 'gpt3-ai-content-generator'),
+                        $line_number,
+                        sanitize_text_field($schedule)
+                    ),
+                ];
+            }
+        }
+    }
+
+    if ($issues === []) {
+        return true;
+    }
+
+    return new WP_Error(
+        'invalid_manual_entries',
+        $issues[0]['message'],
+        [
+            'status' => 400,
+            'issues' => $issues,
+        ]
+    );
+}
+
 // phpcs:disable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- This file only uses local helper/template variables and does not define public globals.
 
 $premium_logic_path = WPAICG_LIB_DIR . 'autogpt/cron/event-processor/trigger/module/rss-task-generator.php';
@@ -237,8 +329,14 @@ function prepare_item_config_logic($item_data, array $task_config, array $scrape
             $item_specific_config['post_type'] = $post_type_slug;
         }
 
-        if ($category_id && is_numeric($category_id)) {
-            $item_specific_config['post_categories'] = [absint($category_id)];
+        $effective_post_type = $item_specific_config['post_type'] ?? 'post';
+        $normalized_category_id = is_numeric($category_id) ? absint($category_id) : 0;
+        if (
+            $normalized_category_id > 0
+            && term_exists($normalized_category_id, 'category')
+            && is_object_in_taxonomy($effective_post_type, 'category')
+        ) {
+            $item_specific_config['post_categories'] = [$normalized_category_id];
         }
 
         if ($author_login) {
@@ -312,12 +410,6 @@ function insert_topic_into_queue_logic(int $task_id, string $target_identifier, 
 }
 
 // Purpose: Robust parsing of user-provided schedule date strings for "Use Dates from Input" mode.
-
-namespace WPAICG\AutoGPT\Cron\EventProcessor\Trigger\Modules;
-
-if (!defined('ABSPATH')) {
-    exit;
-}
 
 /**
  * Attempts to parse a schedule datetime string provided by the user / Google Sheet.
@@ -429,14 +521,30 @@ function parse_schedule_datetime_simple_logic(string $raw): ?string
  * @param array $task_config Task configuration.
  * @param int $item_index Zero-based index of item in queue (used for smart schedule offset).
  * @param string $generation_mode Mode (bulk,csv,single,rss,gsheets,url...)
- * @return string|null GMT datetime string or null if not scheduled.
+ * @return string|WP_Error|null GMT datetime string, a validation error, or null for immediate publishing.
  */
-function compute_item_schedule_gmt_logic($item_data, array $task_config, int $item_index, string $generation_mode): ?string
+function compute_item_schedule_gmt_logic($item_data, array $task_config, int $item_index, string $generation_mode)
 {
-    $schedule_mode = $task_config['schedule_mode'] ?? 'immediate';
+    if (($task_config['post_status'] ?? 'draft') !== 'publish') {
+        return null;
+    }
+
+    $schedule_mode = sanitize_key($task_config['schedule_mode'] ?? 'immediate');
+    if ($schedule_mode === 'immediate') {
+        return null;
+    }
+
     $scheduled_gmt_time = null;
 
     if ($schedule_mode === 'from_input') {
+        if (!in_array($generation_mode, ['task', 'bulk', 'csv', 'gsheets'], true)) {
+            return new WP_Error(
+                'invalid_schedule_source',
+                __('This source cannot use dates from input. Choose another schedule.', 'gpt3-ai-content-generator'),
+                ['status' => 400]
+            );
+        }
+
         $date_str = '';
         if ($generation_mode === 'gsheets' && is_array($item_data) && !empty($item_data['schedule_date'])) {
             $date_str = $item_data['schedule_date'];
@@ -455,25 +563,79 @@ function compute_item_schedule_gmt_logic($item_data, array $task_config, int $it
                 }
             }
         }
-        if ($date_str !== '') {
-            $parsed = parse_schedule_datetime_simple_logic($date_str);
-            if ($parsed) {
-                $scheduled_gmt_time = $parsed;
-            }
+        if ($date_str === '') {
+            return new WP_Error(
+                'missing_item_schedule',
+                sprintf(
+                    /* translators: %d: one-based item number. */
+                    __('Item %d needs a schedule date before generation can start.', 'gpt3-ai-content-generator'),
+                    $item_index + 1
+                ),
+                ['status' => 400]
+            );
         }
-    } elseif ($schedule_mode === 'smart' && !empty($task_config['smart_schedule_start_datetime'])) {
+
+        $parsed = parse_schedule_datetime_simple_logic($date_str);
+        if (!$parsed) {
+            return new WP_Error(
+                'invalid_item_schedule',
+                sprintf(
+                    /* translators: %d: one-based item number. */
+                    __('Item %d has an invalid schedule date.', 'gpt3-ai-content-generator'),
+                    $item_index + 1
+                ),
+                ['status' => 400]
+            );
+        }
+        $scheduled_gmt_time = $parsed;
+    } elseif ($schedule_mode === 'smart') {
+        $start_raw = trim((string) ($task_config['smart_schedule_start_datetime'] ?? ''));
+        $interval_value = absint($task_config['smart_schedule_interval_value'] ?? 0);
+        $interval_unit = sanitize_key($task_config['smart_schedule_interval_unit'] ?? '');
+        if ($start_raw === '' || $interval_value < 1 || !in_array($interval_unit, ['hours', 'days'], true)) {
+            return new WP_Error(
+                'invalid_smart_schedule',
+                __('Choose a valid start date and publishing interval before generating.', 'gpt3-ai-content-generator'),
+                ['status' => 400]
+            );
+        }
+
         try {
-            $start_local = new \DateTime($task_config['smart_schedule_start_datetime'], wp_timezone());
-            $interval_value = absint($task_config['smart_schedule_interval_value'] ?? 1);
-            $interval_unit = $task_config['smart_schedule_interval_unit'] ?? 'hours';
+            $start_local = new \DateTimeImmutable($start_raw, wp_timezone());
             $offset_value = $item_index * $interval_value;
-            $start_local->modify("+{$offset_value} {$interval_unit}");
+            $start_local = $start_local->modify("+{$offset_value} {$interval_unit}");
             // Convert the local scheduled time to GMT explicitly.
             $local_str = $start_local->format('Y-m-d H:i:s');
             $scheduled_gmt_time = get_gmt_from_date($local_str, 'Y-m-d H:i:s');
         } catch (\Exception $e) {
-            $scheduled_gmt_time = null;
+            return new WP_Error(
+                'invalid_smart_schedule',
+                __('Choose a valid start date and time before generating.', 'gpt3-ai-content-generator'),
+                ['status' => 400]
+            );
         }
+    } else {
+        return new WP_Error(
+            'invalid_schedule_mode',
+            __('Choose a valid publishing schedule before generating.', 'gpt3-ai-content-generator'),
+            ['status' => 400]
+        );
     }
+
+    $scheduled_timestamp = $scheduled_gmt_time
+        ? strtotime($scheduled_gmt_time . ' UTC')
+        : false;
+    if (!$scheduled_timestamp || $scheduled_timestamp <= time()) {
+        return new WP_Error(
+            'schedule_not_future',
+            sprintf(
+                /* translators: %d: one-based item number. */
+                __('Item %d must be scheduled for a future date and time.', 'gpt3-ai-content-generator'),
+                $item_index + 1
+            ),
+            ['status' => 400]
+        );
+    }
+
     return $scheduled_gmt_time;
 }

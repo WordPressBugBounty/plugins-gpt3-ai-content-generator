@@ -587,6 +587,7 @@ class Content_Writer_Dependencies_Loader
             $content_writer_base_path . 'ajax/actions/class-aipkit-content-writer-generate-images-action.php',
             $content_writer_base_path . 'ajax/actions/class-aipkit-content-writer-parse-csv-action.php',
             $content_writer_base_path . 'ajax/actions/class-aipkit-content-writer-fetch-posts-action.php',
+            $content_writer_base_path . 'ajax/actions/class-aipkit-content-writer-prepare-update-run-action.php',
             $content_writer_base_path . 'prompt/class-aipkit-content-writer-system-instruction-builder.php',
             $content_writer_base_path . 'prompt/class-aipkit-content-writer-user-prompt-builder.php',
             $content_writer_base_path . 'prompt/class-aipkit-content-writer-summarizer.php',

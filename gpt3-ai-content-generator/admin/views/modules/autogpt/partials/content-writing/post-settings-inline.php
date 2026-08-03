@@ -68,47 +68,17 @@ $cw_current_user_id = isset($cw_current_user_id) ? (int) $cw_current_user_id : 0
             </label>
         </div>
         <div class="aipkit_cw_publishing_row_actions">
-            <div
-                class="aipkit_popover_multiselect aipkit_post_multiselect aipkit_autogpt_finish_categories"
-                data-aipkit-categories-dropdown
-                data-placeholder="<?php echo esc_attr__('Select categories', 'gpt3-ai-content-generator'); ?>"
-                data-selected-label="<?php echo esc_attr__('selected', 'gpt3-ai-content-generator'); ?>"
-            >
-                <button
-                    type="button"
-                    class="aipkit_popover_multiselect_btn aipkit_post_multiselect_btn aipkit_cw_blended_chevron_btn"
-                    aria-expanded="false"
-                    aria-controls="aipkit_task_cw_categories_panel"
-                >
-                    <span class="aipkit_popover_multiselect_label">
-                        <?php esc_html_e('Select categories', 'gpt3-ai-content-generator'); ?>
-                    </span>
-                </button>
-                <div
-                    id="aipkit_task_cw_categories_panel"
-                    class="aipkit_popover_multiselect_panel"
-                    role="menu"
-                    hidden
-                >
-                    <div class="aipkit_popover_multiselect_options"></div>
-                </div>
-                <select
-                    id="aipkit_task_cw_post_categories"
-                    name="post_categories[]"
-                    class="aipkit_popover_multiselect_select aipkit_autosave_trigger"
-                    multiple
-                    size="3"
-                    hidden
-                    aria-hidden="true"
-                    tabindex="-1"
-                >
-                    <?php foreach ($cw_wp_categories as $category) : ?>
-                        <option value="<?php echo esc_attr($category->term_id); ?>">
-                            <?php echo esc_html($category->name); ?>
-                        </option>
-                    <?php endforeach; ?>
-                </select>
-            </div>
+            <?php
+            $aipkit_category_dropdown_config = [
+                'id'              => 'aipkit_task_cw_post_categories',
+                'panel_id'        => 'aipkit_task_cw_categories_panel',
+                'categories'      => $cw_wp_categories,
+                'wrapper_classes' => 'aipkit_autogpt_finish_categories',
+                'button_classes'  => 'aipkit_cw_blended_chevron_btn',
+                'select_classes'  => 'aipkit_autosave_trigger',
+            ];
+            require dirname(__DIR__, 3) . '/shared/category-dropdown.php';
+            ?>
         </div>
     </div>
 </div>

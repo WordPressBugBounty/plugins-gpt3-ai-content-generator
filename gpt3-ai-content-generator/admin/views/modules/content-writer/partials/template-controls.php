@@ -33,6 +33,17 @@ if (!defined('ABSPATH')) {
                 role="menu"
                 hidden
             >
+                <div class="aipkit_cw_template_search">
+                    <span class="dashicons dashicons-search" aria-hidden="true"></span>
+                    <input
+                        type="search"
+                        id="aipkit_cw_template_search"
+                        class="aipkit_form-input"
+                        placeholder="<?php esc_attr_e('Search templates', 'gpt3-ai-content-generator'); ?>"
+                        aria-label="<?php esc_attr_e('Search templates', 'gpt3-ai-content-generator'); ?>"
+                        autocomplete="off"
+                    >
+                </div>
                 <div
                     id="aipkit_cw_template_picker_list"
                     class="aipkit_popover_multiselect_options aipkit_settings_select_picker_list"
@@ -43,18 +54,14 @@ if (!defined('ABSPATH')) {
                         <?php esc_html_e('Loading templates...', 'gpt3-ai-content-generator'); ?>
                     </div>
                 </div>
-                <div class="aipkit_cw_tpl_actions">
-                    <button type="button" id="aipkit_cw_save_as_template_btn" class="button button-primary aipkit_btn aipkit_btn-primary aipkit_cw_tpl_action_btn">
-                        <?php esc_html_e('New', 'gpt3-ai-content-generator'); ?>
+                <div class="aipkit_cw_template_footer">
+                    <button type="button" id="aipkit_cw_save_as_template_btn" class="aipkit_cw_template_footer_action">
+                        <span class="dashicons dashicons-plus-alt2" aria-hidden="true"></span>
+                        <span><?php esc_html_e('New template', 'gpt3-ai-content-generator'); ?></span>
                     </button>
-                    <button type="button" id="aipkit_cw_rename_template_btn" class="button button-secondary aipkit_btn aipkit_btn-secondary aipkit_cw_tpl_action_btn" disabled>
-                        <?php esc_html_e('Rename', 'gpt3-ai-content-generator'); ?>
-                    </button>
-                    <button type="button" id="aipkit_cw_delete_template_btn" class="button aipkit_btn aipkit_btn-danger aipkit_cw_tpl_action_btn" disabled>
-                        <?php esc_html_e('Delete', 'gpt3-ai-content-generator'); ?>
-                    </button>
-                    <button type="button" id="aipkit_cw_reset_starter_templates_btn" class="button button-secondary aipkit_btn aipkit_btn-secondary aipkit_cw_tpl_action_btn">
-                        <?php esc_html_e('Reset', 'gpt3-ai-content-generator'); ?>
+                    <button type="button" id="aipkit_cw_reset_starter_templates_btn" class="aipkit_cw_template_footer_action">
+                        <span class="dashicons dashicons-update" aria-hidden="true"></span>
+                        <span><?php esc_html_e('Restore starter templates', 'gpt3-ai-content-generator'); ?></span>
                     </button>
                 </div>
                 <div id="aipkit_cw_tpl_inline_panel" class="aipkit_cw_tpl_inline_panel" hidden>
@@ -69,10 +76,10 @@ if (!defined('ABSPATH')) {
                     </div>
                     <p id="aipkit_cw_tpl_inline_error" class="aipkit_cw_tpl_inline_error" hidden></p>
                     <div class="aipkit_cw_tpl_inline_actions">
-                        <button type="button" id="aipkit_cw_tpl_inline_cancel" class="button button-secondary aipkit_btn aipkit_btn-secondary aipkit_cw_tpl_inline_btn">
+                        <button type="button" id="aipkit_cw_tpl_inline_cancel" class="aipkit_cw_tpl_inline_btn">
                             <?php esc_html_e('Cancel', 'gpt3-ai-content-generator'); ?>
                         </button>
-                        <button type="button" id="aipkit_cw_tpl_inline_confirm" class="button button-primary aipkit_btn aipkit_btn-primary aipkit_cw_tpl_inline_btn">
+                        <button type="button" id="aipkit_cw_tpl_inline_confirm" class="aipkit_cw_tpl_inline_btn aipkit_cw_tpl_inline_btn--primary">
                             <?php esc_html_e('Save', 'gpt3-ai-content-generator'); ?>
                         </button>
                     </div>

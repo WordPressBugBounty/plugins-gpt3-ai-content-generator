@@ -258,6 +258,89 @@ function validate_task_requirements_logic(array $config)
     if (($config['prompt_mode'] ?? 'standard') === 'custom' && empty($config['custom_content_prompt'])) {
         return new WP_Error('missing_custom_content_prompt', __('Custom Content Prompt cannot be empty when in Custom Prompt mode.', 'gpt3-ai-content-generator'), ['status' => 400]);
     }
+
+    $schedule_validation = validate_publishing_schedule_config_logic($config, $generation_mode);
+    if (is_wp_error($schedule_validation)) {
+        return $schedule_validation;
+    }
+
+    return true;
+}
+
+/**
+ * Validates publishing schedule settings before any source items are prepared.
+ *
+ * @param array  $config          The sanitized content writer configuration.
+ * @param string $generation_mode The normalized generation mode.
+ * @return true|WP_Error True when the schedule is safe to use.
+ */
+function validate_publishing_schedule_config_logic(array $config, string $generation_mode)
+{
+    if (($config['post_status'] ?? 'draft') !== 'publish') {
+        return true;
+    }
+
+    $schedule_mode = sanitize_key($config['schedule_mode'] ?? 'immediate');
+    if (!in_array($schedule_mode, ['immediate', 'smart', 'from_input'], true)) {
+        return new WP_Error(
+            'invalid_schedule_mode',
+            __('Choose a valid publishing schedule before generating.', 'gpt3-ai-content-generator'),
+            ['status' => 400]
+        );
+    }
+
+    if ($schedule_mode === 'immediate') {
+        return true;
+    }
+
+    if ($schedule_mode === 'from_input') {
+        if (!in_array($generation_mode, ['task', 'bulk', 'csv', 'gsheets'], true)) {
+            return new WP_Error(
+                'invalid_schedule_source',
+                __('This source cannot use dates from input. Choose another schedule.', 'gpt3-ai-content-generator'),
+                ['status' => 400]
+            );
+        }
+        return true;
+    }
+
+    $start_raw = trim((string) ($config['smart_schedule_start_datetime'] ?? ''));
+    $start_local = false;
+    foreach (['Y-m-d\TH:i', 'Y-m-d H:i'] as $format) {
+        $candidate = \DateTimeImmutable::createFromFormat('!' . $format, $start_raw, wp_timezone());
+        $errors = \DateTimeImmutable::getLastErrors();
+        if ($candidate && ($errors === false || ($errors['warning_count'] === 0 && $errors['error_count'] === 0))) {
+            $start_local = $candidate;
+            break;
+        }
+    }
+
+    if (!$start_local) {
+        return new WP_Error(
+            'invalid_smart_schedule',
+            __('Choose a valid start date and time before generating.', 'gpt3-ai-content-generator'),
+            ['status' => 400]
+        );
+    }
+
+    if ($start_local->getTimestamp() <= time()) {
+        return new WP_Error(
+            'schedule_not_future',
+            __('The schedule must start in the future.', 'gpt3-ai-content-generator'),
+            ['status' => 400]
+        );
+    }
+
+    $interval_value = absint($config['smart_schedule_interval_value'] ?? 0);
+    $interval_unit = sanitize_key($config['smart_schedule_interval_unit'] ?? '');
+    if ($interval_value < 1 || !in_array($interval_unit, ['hours', 'days'], true)) {
+        return new WP_Error(
+            'invalid_smart_schedule_interval',
+            __('Choose a valid publishing interval before generating.', 'gpt3-ai-content-generator'),
+            ['status' => 400]
+        );
+    }
+
     return true;
 }
 

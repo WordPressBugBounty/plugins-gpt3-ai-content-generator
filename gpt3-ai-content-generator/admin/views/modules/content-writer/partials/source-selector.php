@@ -11,25 +11,25 @@ $create_modes = [
     [
         'mode' => 'task',
         'icon' => 'dashicons-edit-page',
-        'title' => __('Manual Entry', 'gpt3-ai-content-generator'),
+        'title' => __('Manual entry', 'gpt3-ai-content-generator'),
         'active' => true,
     ],
     [
         'mode' => 'csv',
         'icon' => 'dashicons-media-spreadsheet',
-        'title' => __('Import CSV', 'gpt3-ai-content-generator'),
+        'title' => __('CSV file', 'gpt3-ai-content-generator'),
         'active' => false,
     ],
     [
         'mode' => 'rss',
         'icon' => 'dashicons-rss',
-        'title' => __('RSS Feed', 'gpt3-ai-content-generator'),
+        'title' => __('RSS feed', 'gpt3-ai-content-generator'),
         'active' => false,
     ],
     [
         'mode' => 'url',
         'icon' => 'dashicons-admin-links',
-        'title' => __('Web Page', 'gpt3-ai-content-generator'),
+        'title' => __('Web page', 'gpt3-ai-content-generator'),
         'active' => false,
     ],
     [
@@ -44,13 +44,13 @@ $optimize_modes = [
     [
         'mode' => 'existing-content',
         'icon' => 'dashicons-edit-large',
-        'title' => __('Rewrite Content', 'gpt3-ai-content-generator'),
+        'title' => __('Rewrite content', 'gpt3-ai-content-generator'),
         'active' => false,
     ],
     [
         'mode' => 'existing-images',
         'icon' => 'dashicons-format-image',
-        'title' => __('Image Metadata', 'gpt3-ai-content-generator'),
+        'title' => __('Image alt text', 'gpt3-ai-content-generator'),
         'active' => false,
     ],
 ];
@@ -59,19 +59,15 @@ if ($has_woocommerce) {
     $optimize_modes[] = [
         'mode' => 'existing-products',
         'icon' => 'dashicons-cart',
-        'title' => __('Optimize Products', 'gpt3-ai-content-generator'),
+        'title' => __('WooCommerce', 'gpt3-ai-content-generator'),
         'active' => false,
     ];
 }
 ?>
 <div class="aipkit_cw_source_selector_wrapper" data-template-ready="0">
-    <div class="aipkit_cw_workflow_header">
-        <div class="aipkit_cw_workflow_title"><?php esc_html_e('Mode', 'gpt3-ai-content-generator'); ?></div>
-    </div>
-
     <div class="aipkit_cw_mode_section" aria-labelledby="aipkit_cw_mode_section_create">
         <div class="aipkit_cw_mode_section_heading" id="aipkit_cw_mode_section_create">
-            <?php esc_html_e('Create', 'gpt3-ai-content-generator'); ?>
+            <?php esc_html_e('Create from', 'gpt3-ai-content-generator'); ?>
         </div>
         <div class="aipkit_cw_mode_group_list aipkit_cw_mode_group_list--workflow" role="list" aria-labelledby="aipkit_cw_mode_section_create">
             <?php foreach ($create_modes as $item) : ?>
@@ -80,6 +76,7 @@ if ($has_woocommerce) {
                     class="aipkit_cw_mode_card<?php echo !empty($item['active']) ? ' is-active' : ''; ?>"
                     data-mode="<?php echo esc_attr($item['mode']); ?>"
                     aria-pressed="<?php echo !empty($item['active']) ? 'true' : 'false'; ?>"
+                    title="<?php echo esc_attr($item['title']); ?>"
                 >
                     <span class="aipkit_cw_mode_icon dashicons <?php echo esc_attr($item['icon']); ?>" aria-hidden="true"></span>
                     <span class="aipkit_cw_mode_text">
@@ -101,6 +98,7 @@ if ($has_woocommerce) {
                     class="aipkit_cw_mode_card<?php echo !empty($item['active']) ? ' is-active' : ''; ?>"
                     data-mode="<?php echo esc_attr($item['mode']); ?>"
                     aria-pressed="<?php echo !empty($item['active']) ? 'true' : 'false'; ?>"
+                    title="<?php echo esc_attr($item['title']); ?>"
                 >
                     <span class="aipkit_cw_mode_icon dashicons <?php echo esc_attr($item['icon']); ?>" aria-hidden="true"></span>
                     <span class="aipkit_cw_mode_text">
@@ -113,15 +111,15 @@ if ($has_woocommerce) {
 
     <label class="screen-reader-text" for="aipkit_cw_mode_select"><?php esc_html_e('Source', 'gpt3-ai-content-generator'); ?></label>
     <select id="aipkit_cw_mode_select" name="cw_generation_mode" class="aipkit_form-input aipkit_autosave_trigger screen-reader-text">
-        <option value="task"><?php esc_html_e('Manual Entry', 'gpt3-ai-content-generator'); ?></option>
-        <option value="csv"><?php esc_html_e('Import CSV', 'gpt3-ai-content-generator'); ?></option>
-        <option value="rss"><?php esc_html_e('RSS Feed', 'gpt3-ai-content-generator'); ?></option>
-        <option value="url"><?php esc_html_e('Web Page', 'gpt3-ai-content-generator'); ?></option>
+        <option value="task"><?php esc_html_e('Manual entry', 'gpt3-ai-content-generator'); ?></option>
+        <option value="csv"><?php esc_html_e('CSV file', 'gpt3-ai-content-generator'); ?></option>
+        <option value="rss"><?php esc_html_e('RSS feed', 'gpt3-ai-content-generator'); ?></option>
+        <option value="url"><?php esc_html_e('Web page', 'gpt3-ai-content-generator'); ?></option>
         <option value="gsheets"><?php esc_html_e('Google Sheets', 'gpt3-ai-content-generator'); ?></option>
-        <option value="existing-content"><?php esc_html_e('Rewrite Content', 'gpt3-ai-content-generator'); ?></option>
-        <option value="existing-images"><?php esc_html_e('Image Metadata', 'gpt3-ai-content-generator'); ?></option>
+        <option value="existing-content"><?php esc_html_e('Rewrite content', 'gpt3-ai-content-generator'); ?></option>
+        <option value="existing-images"><?php esc_html_e('Image alt text', 'gpt3-ai-content-generator'); ?></option>
         <?php if ($has_woocommerce): ?>
-            <option value="existing-products"><?php esc_html_e('Optimize Products', 'gpt3-ai-content-generator'); ?></option>
+            <option value="existing-products"><?php esc_html_e('WooCommerce', 'gpt3-ai-content-generator'); ?></option>
         <?php endif; ?>
         <option value="existing"><?php esc_html_e('Update Existing (Legacy)', 'gpt3-ai-content-generator'); ?></option>
     </select>

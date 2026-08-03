@@ -7,8 +7,11 @@
  * - initial_label (string)
  * - source_id (string, optional)
  * - class_name (string, optional)
+ * - show_trigger_logo (bool, optional; defaults to true)
  * - search_placeholder (string, optional)
  * - empty_text (string, optional)
+ * - filters (array, optional; each item has value and label)
+ * - filter_aria_label (string, optional)
  */
 
 if (!defined('ABSPATH')) {
@@ -31,12 +34,28 @@ $aipkit_unified_model_source_id = isset($aipkit_unified_model_selector_config['s
 $aipkit_unified_model_class_name = isset($aipkit_unified_model_selector_config['class_name'])
     ? trim((string) $aipkit_unified_model_selector_config['class_name'])
     : '';
+$aipkit_unified_model_show_trigger_logo = !isset($aipkit_unified_model_selector_config['show_trigger_logo'])
+    || (bool) $aipkit_unified_model_selector_config['show_trigger_logo'];
 $aipkit_unified_model_search_placeholder = isset($aipkit_unified_model_selector_config['search_placeholder'])
     ? (string) $aipkit_unified_model_selector_config['search_placeholder']
     : __('Search models...', 'gpt3-ai-content-generator');
 $aipkit_unified_model_empty_text = isset($aipkit_unified_model_selector_config['empty_text'])
     ? (string) $aipkit_unified_model_selector_config['empty_text']
     : __('No models found', 'gpt3-ai-content-generator');
+$aipkit_unified_model_filters = isset($aipkit_unified_model_selector_config['filters'])
+    && is_array($aipkit_unified_model_selector_config['filters'])
+    ? array_values(array_filter(
+        $aipkit_unified_model_selector_config['filters'],
+        static function ($aipkit_filter): bool {
+            return is_array($aipkit_filter)
+                && isset($aipkit_filter['value'], $aipkit_filter['label'])
+                && (string) $aipkit_filter['value'] !== '';
+        }
+    ))
+    : [];
+$aipkit_unified_model_filter_aria_label = isset($aipkit_unified_model_selector_config['filter_aria_label'])
+    ? (string) $aipkit_unified_model_selector_config['filter_aria_label']
+    : __('Filter models', 'gpt3-ai-content-generator');
 ?>
 <div
     class="aipkit_unified_model_selector<?php echo $aipkit_unified_model_class_name !== '' ? ' ' . esc_attr($aipkit_unified_model_class_name) : ''; ?>"
@@ -51,7 +70,9 @@ $aipkit_unified_model_empty_text = isset($aipkit_unified_model_selector_config['
         aria-controls="<?php echo esc_attr($aipkit_unified_model_popover_id); ?>"
         data-aipkit-unified-model-trigger
     >
-        <span class="aipkit_unified_model_logo" data-aipkit-unified-model-logo aria-hidden="true"></span>
+        <?php if ($aipkit_unified_model_show_trigger_logo) : ?>
+            <span class="aipkit_unified_model_logo" data-aipkit-unified-model-logo aria-hidden="true"></span>
+        <?php endif; ?>
         <span class="aipkit_unified_model_name" data-aipkit-unified-model-name><?php echo esc_html($aipkit_unified_model_initial_label); ?></span>
     </button>
     <div
@@ -70,6 +91,23 @@ $aipkit_unified_model_empty_text = isset($aipkit_unified_model_selector_config['
             />
             <span class="dashicons dashicons-search" aria-hidden="true"></span>
         </div>
+        <?php if ($aipkit_unified_model_filters !== []) : ?>
+            <div
+                class="aipkit_unified_model_filters"
+                role="group"
+                aria-label="<?php echo esc_attr($aipkit_unified_model_filter_aria_label); ?>"
+                data-aipkit-unified-model-filters
+            >
+                <?php foreach ($aipkit_unified_model_filters as $aipkit_filter_index => $aipkit_filter) : ?>
+                    <button
+                        type="button"
+                        class="aipkit_unified_model_filter<?php echo $aipkit_filter_index === 0 ? ' is-active' : ''; ?>"
+                        data-aipkit-unified-model-filter="<?php echo esc_attr((string) $aipkit_filter['value']); ?>"
+                        aria-pressed="<?php echo $aipkit_filter_index === 0 ? 'true' : 'false'; ?>"
+                    ><?php echo esc_html((string) $aipkit_filter['label']); ?></button>
+                <?php endforeach; ?>
+            </div>
+        <?php endif; ?>
         <div class="aipkit_unified_model_list" role="listbox" data-aipkit-unified-model-list></div>
         <div class="aipkit_unified_model_empty" data-aipkit-unified-model-empty hidden>
             <?php echo esc_html($aipkit_unified_model_empty_text); ?>

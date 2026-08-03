@@ -1,8 +1,7 @@
 <?php
 /**
  * AIPKit Content Writer Module - Main View
- * UPDATED: Re-architected into a two-column layout with a central tabbed input panel and action bar.
- * MODIFIED: Moved status indicators above the mode selector.
+ * Uses a centered three-area workspace for workflow navigation, authoring, and settings.
  */
 
 if (!defined('ABSPATH')) {
@@ -16,17 +15,6 @@ require_once __DIR__ . '/partials/form-inputs/loader-vars.php';
 $content_writer_nonce = wp_create_nonce('aipkit_content_writer_nonce');
 $content_writer_template_nonce = wp_create_nonce('aipkit_content_writer_template_nonce');
 $frontend_stream_nonce = wp_create_nonce('aipkit_frontend_chat_nonce');
-$aipkit_cw_seo_profile = class_exists('\\WPAICG\\SEO\\AIPKit_SEO_Helper')
-    ? \WPAICG\SEO\AIPKit_SEO_Helper::get_active_plugin_profile()
-    : [
-        'label' => __('AIPKit SEO', 'gpt3-ai-content-generator'),
-        'logo_url' => '',
-        'logo_initials' => 'AI',
-    ];
-$aipkit_cw_seo_profile_label = isset($aipkit_cw_seo_profile['label']) ? (string) $aipkit_cw_seo_profile['label'] : __('AIPKit SEO', 'gpt3-ai-content-generator');
-$aipkit_cw_seo_profile_logo_url = isset($aipkit_cw_seo_profile['logo_url']) ? (string) $aipkit_cw_seo_profile['logo_url'] : '';
-$aipkit_cw_seo_profile_logo_initials = isset($aipkit_cw_seo_profile['logo_initials']) ? (string) $aipkit_cw_seo_profile['logo_initials'] : 'SEO';
-
 $aipkit_cw_max_execution_time = function_exists('ini_get') ? (int) ini_get('max_execution_time') : 0;
 $aipkit_cw_socket_timeout = function_exists('ini_get') ? (int) ini_get('default_socket_timeout') : 0;
 $aipkit_cw_timeout_warnings = [];
@@ -75,11 +63,6 @@ include WPAICG_PLUGIN_DIR . 'admin/views/shared/seo-plugin-conflict-notice.php';
         <input type="hidden" name="stream_cache_key" id="aipkit_content_writer_stream_cache_key" value="">
         <input type="hidden" name="image_data" id="aipkit_cw_image_data_holder" value="">
 
-        <div class="aipkit_global_status_area aipkit_content_writer_status_bar" aria-live="polite">
-            <span id="aipkit_content_writer_form_status" class="aipkit_cw_status_badge"></span>
-            <div id="aipkit_content_writer_messages" class="aipkit_settings_messages" role="status" aria-live="polite"></div>
-        </div>
-
         <div class="aipkit_content_writer_layout">
             <div class="aipkit_content_writer_column aipkit_content_writer_sources">
                 <div class="aipkit_sub_container aipkit_cw_sources_card">
@@ -91,6 +74,10 @@ include WPAICG_PLUGIN_DIR . 'admin/views/shared/seo-plugin-conflict-notice.php';
                 </div>
             </div>
             <div class="aipkit_content_writer_column aipkit_content_writer_output">
+                <div class="aipkit_global_status_area aipkit_content_writer_status_bar" aria-live="polite">
+                    <span id="aipkit_content_writer_form_status" class="aipkit_cw_status_badge" role="alert"></span>
+                </div>
+
                 <?php include __DIR__ . '/partials/form-inputs/generation-mode.php'; ?>
 
                 <div id="aipkit_cw_batch_queue" class="aipkit_cw_batch_queue" hidden>
@@ -102,26 +89,38 @@ include WPAICG_PLUGIN_DIR . 'admin/views/shared/seo-plugin-conflict-notice.php';
                                 </div>
                                 <dl class="aipkit_cw_studio_brief_list">
                                     <div class="aipkit_cw_studio_brief_row">
-                                        <dt><?php esc_html_e('Source', 'gpt3-ai-content-generator'); ?></dt>
-                                        <dd id="aipkit_cw_batch_brief_source_value" class="is-placeholder"><?php esc_html_e('Not set', 'gpt3-ai-content-generator'); ?></dd>
+                                        <dt><?php esc_html_e('Template', 'gpt3-ai-content-generator'); ?></dt>
+                                        <dd id="aipkit_cw_batch_brief_template_value" class="is-placeholder"><?php esc_html_e('Not set', 'gpt3-ai-content-generator'); ?></dd>
                                     </div>
                                     <div class="aipkit_cw_studio_brief_row">
-                                        <dt><?php esc_html_e('Mode', 'gpt3-ai-content-generator'); ?></dt>
-                                        <dd id="aipkit_cw_batch_brief_mode_value" class="is-placeholder"><?php esc_html_e('Not set', 'gpt3-ai-content-generator'); ?></dd>
+                                        <dt><?php esc_html_e('Model', 'gpt3-ai-content-generator'); ?></dt>
+                                        <dd id="aipkit_cw_batch_brief_model_value" class="is-placeholder"><?php esc_html_e('Not set', 'gpt3-ai-content-generator'); ?></dd>
                                     </div>
                                     <div class="aipkit_cw_studio_brief_row">
-                                        <dt><?php esc_html_e('Items', 'gpt3-ai-content-generator'); ?></dt>
-                                        <dd id="aipkit_cw_batch_brief_items_value" class="is-placeholder"><?php esc_html_e('Not set', 'gpt3-ai-content-generator'); ?></dd>
-                                    </div>
-                                    <div class="aipkit_cw_studio_brief_row">
-                                        <dt><?php esc_html_e('Publish Target', 'gpt3-ai-content-generator'); ?></dt>
+                                        <dt><?php esc_html_e('Publish target', 'gpt3-ai-content-generator'); ?></dt>
                                         <dd id="aipkit_cw_batch_brief_publish_value" class="is-placeholder"><?php esc_html_e('Not set', 'gpt3-ai-content-generator'); ?></dd>
                                     </div>
-                                    <div class="aipkit_cw_studio_brief_row">
-                                        <dt><?php esc_html_e('Outputs', 'gpt3-ai-content-generator'); ?></dt>
-                                        <dd id="aipkit_cw_batch_brief_outputs_value" class="is-placeholder"><?php esc_html_e('Not set', 'gpt3-ai-content-generator'); ?></dd>
+                                    <div id="aipkit_cw_batch_brief_images_row" class="aipkit_cw_studio_brief_row" hidden>
+                                        <dt><?php esc_html_e('Images', 'gpt3-ai-content-generator'); ?></dt>
+                                        <dd id="aipkit_cw_batch_brief_images_value"></dd>
+                                    </div>
+                                    <div id="aipkit_cw_batch_brief_seo_row" class="aipkit_cw_studio_brief_row" hidden>
+                                        <dt><?php esc_html_e('SEO', 'gpt3-ai-content-generator'); ?></dt>
+                                        <dd id="aipkit_cw_batch_brief_seo_value"></dd>
+                                    </div>
+                                    <div id="aipkit_cw_batch_brief_context_row" class="aipkit_cw_studio_brief_row" hidden>
+                                        <dt><?php esc_html_e('Context', 'gpt3-ai-content-generator'); ?></dt>
+                                        <dd id="aipkit_cw_batch_brief_context_value"></dd>
                                     </div>
                                 </dl>
+                                <div id="aipkit_cw_batch_brief_no_features" class="aipkit_cw_batch_brief_empty" hidden>
+                                    <?php esc_html_e('No optional features', 'gpt3-ai-content-generator'); ?>
+                                </div>
+
+                                <div class="aipkit_cw_batch_brief_source">
+                                    <span><?php esc_html_e('Source:', 'gpt3-ai-content-generator'); ?></span>
+                                    <span id="aipkit_cw_batch_brief_source_value" class="is-placeholder"><?php esc_html_e('Not set', 'gpt3-ai-content-generator'); ?></span>
+                                </div>
                             </div>
                         </aside>
 
@@ -142,8 +141,9 @@ include WPAICG_PLUGIN_DIR . 'admin/views/shared/seo-plugin-conflict-notice.php';
                             <section class="aipkit_cw_output_sidebar_card aipkit_cw_output_sidebar_card--session aipkit_cw_batch_session_card">
                                 <div class="aipkit_cw_output_sidebar_header aipkit_cw_output_sidebar_header--progress">
                                     <div class="aipkit_cw_output_sidebar_header_copy">
-                                        <div class="aipkit_cw_output_sidebar_title"><?php esc_html_e('Progress', 'gpt3-ai-content-generator'); ?></div>
+                                        <div id="aipkit_cw_batch_progress_title" class="aipkit_cw_output_sidebar_title"><?php esc_html_e('Generating', 'gpt3-ai-content-generator'); ?></div>
                                     </div>
+                                    <span id="aipkit_cw_batch_elapsed" class="aipkit_cw_batch_elapsed">0:00</span>
                                 </div>
 
                                 <div class="aipkit_cw_batch_header_actions"></div>
@@ -152,9 +152,9 @@ include WPAICG_PLUGIN_DIR . 'admin/views/shared/seo-plugin-conflict-notice.php';
                                     <button
                                         type="button"
                                         id="aipkit_cw_batch_start_over_btn"
-                                        class="button aipkit_btn aipkit_cw_output_action_btn aipkit_cw_output_action_btn--reset"
+                                        class="aipkit_btn aipkit_btn-secondary aipkit_cw_output_action_btn aipkit_cw_output_action_btn--reset"
                                     >
-                                        <span class="aipkit_btn-text"><?php esc_html_e('Start Over', 'gpt3-ai-content-generator'); ?></span>
+                                        <span class="aipkit_btn-text"><?php esc_html_e('Start over', 'gpt3-ai-content-generator'); ?></span>
                                     </button>
                                 </div>
 
@@ -191,24 +191,6 @@ include WPAICG_PLUGIN_DIR . 'admin/views/shared/seo-plugin-conflict-notice.php';
                                         <span class="aipkit_cw_batch_metric_label"><?php esc_html_e('Stopped', 'gpt3-ai-content-generator'); ?></span>
                                     </span>
                                 </div>
-
-                                <div class="aipkit_cw_batch_seo_summary" data-aipkit-batch-seo-summary hidden>
-                                    <span
-                                        id="aipkit_cw_batch_stat_seo_profile"
-                                        class="aipkit_cw_batch_seo_profile_stat"
-                                        hidden
-                                    >
-                                        <span class="aipkit_seo_profile_logo" aria-hidden="true">
-                                            <?php if ($aipkit_cw_seo_profile_logo_url !== '') : ?>
-                                                <img src="<?php echo esc_url($aipkit_cw_seo_profile_logo_url); ?>" alt="">
-                                            <?php else : ?>
-                                                <span><?php echo esc_html($aipkit_cw_seo_profile_logo_initials); ?></span>
-                                            <?php endif; ?>
-                                        </span>
-                                        <span><?php echo esc_html($aipkit_cw_seo_profile_label); ?></span>
-                                    </span>
-                                    <span id="aipkit_cw_batch_stat_seo_average" class="aipkit_cw_batch_seo_average" hidden><?php esc_html_e('SEO Score avg --', 'gpt3-ai-content-generator'); ?></span>
-                                </div>
                             </section>
                         </aside>
                     </div>
@@ -219,7 +201,6 @@ include WPAICG_PLUGIN_DIR . 'admin/views/shared/seo-plugin-conflict-notice.php';
 
             <div class="aipkit_content_writer_column aipkit_content_writer_inputs">
                 <?php include __DIR__ . '/partials/form-inputs.php'; ?>
-                <?php include __DIR__ . '/partials/advanced-settings.php'; ?>
             </div>
 
         </div>

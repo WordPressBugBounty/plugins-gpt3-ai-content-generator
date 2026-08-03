@@ -21,11 +21,9 @@ class AIPKit_Content_Writer_Prompts
         string $key,
         string $label,
         string $description,
-        string $flyout_title,
         string $default_prompt,
         string $placeholder,
         array $placeholders,
-        array $dynamic_titles,
         array $content_writer_toggle,
         ?array $autogpt_toggle = null
     ): array
@@ -34,13 +32,11 @@ class AIPKit_Content_Writer_Prompts
         $definition = [
             'label' => $label,
             'description' => $description,
-            'flyout_title' => $flyout_title,
             'default_prompt' => $default_prompt,
             'placeholder' => $placeholder,
             'library_options' => $prompt_library[$key] ?? [],
             'placeholders' => $placeholders,
             'placeholders_prompt_type' => $key,
-            'dynamic_titles' => $dynamic_titles,
             'content_writer_toggle' => $content_writer_toggle,
             'content_writer_textarea' => [
                 'id' => 'aipkit_cw_custom_' . $key . '_prompt',
@@ -74,15 +70,9 @@ class AIPKit_Content_Writer_Prompts
                 'title',
                 __('Title', 'gpt3-ai-content-generator'),
                 __('Generate post headline', 'gpt3-ai-content-generator'),
-                __('Title Prompt', 'gpt3-ai-content-generator'),
                 self::get_default_title_prompt(),
                 __('Enter your title prompt...', 'gpt3-ai-content-generator'),
                 ['{topic}', '{keywords}'],
-                [
-                    'default' => __('Title Prompt', 'gpt3-ai-content-generator'),
-                    'existing_images' => __('Image Title Prompt', 'gpt3-ai-content-generator'),
-                    'existing_products' => __('Product Title Prompt', 'gpt3-ai-content-generator'),
-                ],
                 [
                     'id' => 'aipkit_cw_generate_title',
                     'name' => 'generate_title',
@@ -95,15 +85,9 @@ class AIPKit_Content_Writer_Prompts
                 'content',
                 __('Content', 'gpt3-ai-content-generator'),
                 __('Generate main article body', 'gpt3-ai-content-generator'),
-                __('Content Prompt', 'gpt3-ai-content-generator'),
                 self::get_default_content_prompt(),
                 __('Enter your content prompt...', 'gpt3-ai-content-generator'),
                 ['{topic}', '{keywords}'],
-                [
-                    'default' => __('Content Prompt', 'gpt3-ai-content-generator'),
-                    'existing_images' => __('Image Description Prompt', 'gpt3-ai-content-generator'),
-                    'existing_products' => __('Product Description Prompt', 'gpt3-ai-content-generator'),
-                ],
                 [
                     'id' => 'aipkit_cw_generate_content',
                     'name' => 'generate_content',
@@ -116,14 +100,9 @@ class AIPKit_Content_Writer_Prompts
                 'meta',
                 __('Meta Description', 'gpt3-ai-content-generator'),
                 __('SEO meta for search engines', 'gpt3-ai-content-generator'),
-                __('Meta Description Prompt', 'gpt3-ai-content-generator'),
                 self::get_default_meta_prompt(),
                 __('Enter your meta description prompt...', 'gpt3-ai-content-generator'),
                 ['{topic}', '{content_summary}', '{keywords}'],
-                [
-                    'default' => __('Meta Description Prompt', 'gpt3-ai-content-generator'),
-                    'existing_products' => __('Product Meta Description Prompt', 'gpt3-ai-content-generator'),
-                ],
                 [
                     'id' => 'aipkit_cw_generate_meta_desc',
                     'name' => 'generate_meta_description',
@@ -141,15 +120,9 @@ class AIPKit_Content_Writer_Prompts
                 'keyword',
                 __('Focus Keyword', 'gpt3-ai-content-generator'),
                 __('Primary keyword for SEO', 'gpt3-ai-content-generator'),
-                __('Focus Keyword Prompt', 'gpt3-ai-content-generator'),
                 self::get_default_keyword_prompt(),
                 __('Enter your focus keyword prompt...', 'gpt3-ai-content-generator'),
                 ['{topic}', '{content_summary}'],
-                [
-                    'default' => __('Focus Keyword Prompt', 'gpt3-ai-content-generator'),
-                    'existing_images' => __('Image Alt Text Prompt', 'gpt3-ai-content-generator'),
-                    'existing_products' => __('Product Focus Keyword Prompt', 'gpt3-ai-content-generator'),
-                ],
                 [
                     'id' => 'aipkit_cw_generate_focus_keyword',
                     'name' => 'generate_focus_keyword',
@@ -167,15 +140,9 @@ class AIPKit_Content_Writer_Prompts
                 'excerpt',
                 __('Excerpt', 'gpt3-ai-content-generator'),
                 __('Short summary of the post', 'gpt3-ai-content-generator'),
-                __('Excerpt Prompt', 'gpt3-ai-content-generator'),
                 self::get_default_excerpt_prompt(),
                 __('Enter your excerpt prompt...', 'gpt3-ai-content-generator'),
                 ['{topic}', '{keywords}', '{content_summary}'],
-                [
-                    'default' => __('Excerpt Prompt', 'gpt3-ai-content-generator'),
-                    'existing_images' => __('Image Caption Prompt', 'gpt3-ai-content-generator'),
-                    'existing_products' => __('Product Excerpt Prompt', 'gpt3-ai-content-generator'),
-                ],
                 [
                     'id' => 'aipkit_cw_generate_excerpt',
                     'name' => 'generate_excerpt',
@@ -193,14 +160,9 @@ class AIPKit_Content_Writer_Prompts
                 'tags',
                 __('Tags', 'gpt3-ai-content-generator'),
                 __('Auto-generate post tags', 'gpt3-ai-content-generator'),
-                __('Tags Prompt', 'gpt3-ai-content-generator'),
                 self::get_default_tags_prompt(),
                 __('Enter your tags prompt...', 'gpt3-ai-content-generator'),
                 ['{topic}', '{keywords}', '{content_summary}'],
-                [
-                    'default' => __('Tags Prompt', 'gpt3-ai-content-generator'),
-                    'existing_products' => __('Product Tags Prompt', 'gpt3-ai-content-generator'),
-                ],
                 [
                     'id' => 'aipkit_cw_generate_tags',
                     'name' => 'generate_tags',
@@ -230,7 +192,6 @@ class AIPKit_Content_Writer_Prompts
                 'desc' => $definition['description'],
                 'field_id' => $toggle['id'] ?? '',
                 'field_name' => $toggle['name'] ?? '',
-                'flyout_id' => sprintf('aipkit_cw_%s_prompt_flyout', $key),
                 'checked' => !empty($toggle['checked']),
                 'update_only' => !empty($toggle['update_only']),
             ];
@@ -242,18 +203,12 @@ class AIPKit_Content_Writer_Prompts
     /**
      * @return array<int, array<string, mixed>>
      */
-    public static function get_content_writer_prompt_flyout_items(): array
+    public static function get_content_writer_prompt_inline_items(): array
     {
         $items = [];
         foreach (self::get_text_prompt_definitions() as $key => $definition) {
-            $dynamic_titles = is_array($definition['dynamic_titles'] ?? null)
-                ? $definition['dynamic_titles']
-                : [];
             $items[] = [
                 'key' => $key,
-                'flyout_id' => sprintf('aipkit_cw_%s_prompt_flyout', $key),
-                'flyout_title' => $definition['flyout_title'],
-                'data_titles' => $dynamic_titles,
                 'textarea' => [
                     'id' => $definition['content_writer_textarea']['id'] ?? '',
                     'name' => $definition['content_writer_textarea']['name'] ?? '',
@@ -285,8 +240,6 @@ class AIPKit_Content_Writer_Prompts
                 'key' => $key,
                 'label' => $definition['label'],
                 'description' => $definition['description'],
-                'flyout_id' => sprintf('aipkit_task_cw_%s_prompt_flyout', $key),
-                'flyout_title' => $definition['flyout_title'],
                 'textarea' => [
                     'id' => $definition['autogpt_textarea']['id'] ?? '',
                     'name' => $definition['autogpt_textarea']['name'] ?? '',
@@ -315,8 +268,6 @@ class AIPKit_Content_Writer_Prompts
             'key' => 'image',
             'label' => __('Content Image', 'gpt3-ai-content-generator'),
             'description' => __('Prompt for inline article images', 'gpt3-ai-content-generator'),
-            'flyout_id' => 'aipkit_task_cw_image_prompt_flyout',
-            'flyout_title' => __('Image Prompt', 'gpt3-ai-content-generator'),
             'textarea' => [
                 'id' => 'aipkit_task_cw_image_prompt',
                 'name' => 'image_prompt',
@@ -337,8 +288,6 @@ class AIPKit_Content_Writer_Prompts
             'key' => 'featured_image',
             'label' => __('Featured Image', 'gpt3-ai-content-generator'),
             'description' => __('Prompt for the post thumbnail', 'gpt3-ai-content-generator'),
-            'flyout_id' => 'aipkit_task_cw_featured_image_prompt_flyout',
-            'flyout_title' => __('Featured Image Prompt', 'gpt3-ai-content-generator'),
             'textarea' => [
                 'id' => 'aipkit_task_cw_featured_image_prompt',
                 'name' => 'featured_image_prompt',

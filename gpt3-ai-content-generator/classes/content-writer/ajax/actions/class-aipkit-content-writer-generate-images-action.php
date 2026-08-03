@@ -153,6 +153,29 @@ class AIPKit_Content_Writer_Generate_Images_Action extends AIPKit_Content_Writer
         ]);
     }
 
+    /**
+     * Removes attachments created by an image request that was cancelled
+     * before the batch item could be committed.
+     */
+    private function delete_generated_image_attachments(array $image_result): void
+    {
+        $attachment_ids = [];
+        if (!empty($image_result['in_content_images']) && is_array($image_result['in_content_images'])) {
+            foreach ($image_result['in_content_images'] as $image_item) {
+                if (is_array($image_item) && !empty($image_item['attachment_id'])) {
+                    $attachment_ids[] = absint($image_item['attachment_id']);
+                }
+            }
+        }
+        if (!empty($image_result['featured_image_id'])) {
+            $attachment_ids[] = absint($image_result['featured_image_id']);
+        }
+
+        foreach (array_unique(array_filter($attachment_ids)) as $attachment_id) {
+            wp_delete_attachment($attachment_id, true);
+        }
+    }
+
     public function handle()
     {
         $this->maybe_extend_execution_limits(300);
@@ -163,6 +186,12 @@ class AIPKit_Content_Writer_Generate_Images_Action extends AIPKit_Content_Writer
         $permission_check = $this->check_module_access_permissions('content-writer', 'aipkit_content_writer_nonce');
         if (is_wp_error($permission_check)) {
             $this->send_wp_error($permission_check);
+            return;
+        }
+
+        $batch_run_check = $this->validate_content_writer_batch_run_request();
+        if (is_wp_error($batch_run_check)) {
+            $this->send_wp_error($batch_run_check);
             return;
         }
 
@@ -247,6 +276,23 @@ class AIPKit_Content_Writer_Generate_Images_Action extends AIPKit_Content_Writer
                 ]);
             }
             $this->send_wp_error($image_result);
+            return;
+        }
+
+        $batch_run_check = $this->validate_content_writer_batch_run_request();
+        if (is_wp_error($batch_run_check)) {
+            $this->delete_generated_image_attachments($image_result);
+            if ($image_request_id !== '') {
+                $this->set_image_request_record($image_request_id, [
+                    'status' => 'failed',
+                    'request_hash' => $image_request_hash,
+                    'message' => $batch_run_check->get_error_message(),
+                    'started_at' => time(),
+                    'updated_at' => time(),
+                    'completed_at' => time(),
+                ]);
+            }
+            $this->send_wp_error($batch_run_check);
             return;
         }
 

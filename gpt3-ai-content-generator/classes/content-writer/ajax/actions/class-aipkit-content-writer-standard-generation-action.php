@@ -41,6 +41,12 @@ class AIPKit_Content_Writer_Standard_Generation_Action extends AIPKit_Content_Wr
             return;
         }
 
+        $batch_run_check = $this->validate_content_writer_batch_run_request();
+        if (is_wp_error($batch_run_check)) {
+            $this->send_wp_error($batch_run_check);
+            return;
+        }
+
         $this->maybe_extend_execution_limits(300);
 
         Shared\maybe_update_gsheets_row_status_logic($validated_params, 'Queued on');
@@ -92,6 +98,12 @@ class AIPKit_Content_Writer_Standard_Generation_Action extends AIPKit_Content_Wr
             $ai_params_override,
             $prompts['system_instruction']
         );
+
+        $batch_run_check = $this->validate_content_writer_batch_run_request();
+        if (is_wp_error($batch_run_check)) {
+            $this->send_wp_error($batch_run_check);
+            return;
+        }
 
         // 7. Handle the response (success or error)
         if (is_wp_error($ai_result)) {

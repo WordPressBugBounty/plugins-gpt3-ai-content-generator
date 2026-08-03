@@ -82,6 +82,9 @@ function trigger_content_writing_task_logic(int $task_id, array $task_config): v
         }
 
         $scheduled_gmt_time = ContentWritingModules\compute_item_schedule_gmt_logic($item_data, $task_config, $item_index, $generation_mode);
+        if (is_wp_error($scheduled_gmt_time)) {
+            return;
+        }
         if ($scheduled_gmt_time) {
             $item_specific_config['scheduled_gmt_time'] = $scheduled_gmt_time;
         }

@@ -28,11 +28,17 @@ $default_embedding_provider_key = isset($embedding_provider_options['openai'])
     >
 
     <div class="aipkit_cw_kb_row aipkit_cw_kb_row--mode">
-        <label class="aipkit_cw_panel_label" for="aipkit_cw_kb_mode_control">
-            <?php esc_html_e('Context', 'gpt3-ai-content-generator'); ?>
-        </label>
+        <div class="aipkit_cw_panel_label_wrap">
+            <label class="aipkit_cw_panel_label" for="aipkit_cw_kb_mode_control">
+                <?php esc_html_e('Context', 'gpt3-ai-content-generator'); ?>
+            </label>
+        </div>
         <div class="aipkit_cw_kb_control">
-            <select id="aipkit_cw_kb_mode_control" class="aipkit_form-input aipkit_cw_kb_mode_control aipkit_cw_blended_chevron_select">
+            <select
+                id="aipkit_cw_kb_mode_control"
+                class="aipkit_form-input aipkit_cw_kb_mode_control aipkit_cw_blended_chevron_select"
+                data-aipkit-cw-fit-selected
+            >
                 <option value="off"><?php esc_html_e('Off', 'gpt3-ai-content-generator'); ?></option>
                 <option value="openai"><?php esc_html_e('OpenAI', 'gpt3-ai-content-generator'); ?></option>
                 <option value="pinecone"><?php esc_html_e('Pinecone', 'gpt3-ai-content-generator'); ?></option>
@@ -107,7 +113,8 @@ $default_embedding_provider_key = isset($embedding_provider_options['openai'])
                         <select
                             id="aipkit_cw_pinecone_index_name"
                             name="pinecone_index_name"
-                            class="aipkit_form-input aipkit_vector_settings_select aipkit_autosave_trigger"
+                            class="aipkit_form-input aipkit_vector_settings_select aipkit_cw_blended_chevron_select aipkit_autosave_trigger"
+                            data-aipkit-cw-fit-selected
                             aria-label="<?php esc_attr_e('Pinecone index', 'gpt3-ai-content-generator'); ?>"
                         >
                             <option value=""><?php esc_html_e('Select index', 'gpt3-ai-content-generator'); ?></option>
@@ -129,7 +136,8 @@ $default_embedding_provider_key = isset($embedding_provider_options['openai'])
                         <select
                             id="aipkit_cw_qdrant_collection_name"
                             name="qdrant_collection_name"
-                            class="aipkit_form-input aipkit_vector_settings_select aipkit_autosave_trigger"
+                            class="aipkit_form-input aipkit_vector_settings_select aipkit_cw_blended_chevron_select aipkit_autosave_trigger"
+                            data-aipkit-cw-fit-selected
                             aria-label="<?php esc_attr_e('Qdrant collection', 'gpt3-ai-content-generator'); ?>"
                         >
                             <option value=""><?php esc_html_e('Select', 'gpt3-ai-content-generator'); ?></option>
@@ -151,7 +159,8 @@ $default_embedding_provider_key = isset($embedding_provider_options['openai'])
                         <select
                             id="aipkit_cw_chroma_collection_name"
                             name="chroma_collection_name"
-                            class="aipkit_form-input aipkit_vector_settings_select aipkit_autosave_trigger"
+                            class="aipkit_form-input aipkit_vector_settings_select aipkit_cw_blended_chevron_select aipkit_autosave_trigger"
+                            data-aipkit-cw-fit-selected
                             aria-label="<?php esc_attr_e('Chroma collection', 'gpt3-ai-content-generator'); ?>"
                         >
                             <option value=""><?php esc_html_e('Select', 'gpt3-ai-content-generator'); ?></option>

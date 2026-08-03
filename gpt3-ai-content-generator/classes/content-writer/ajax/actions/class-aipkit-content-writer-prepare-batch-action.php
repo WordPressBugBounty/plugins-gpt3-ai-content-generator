@@ -78,6 +78,14 @@ class AIPKit_Content_Writer_Prepare_Batch_Action extends AIPKit_Content_Writer_B
             return;
         }
 
+        if (in_array($generation_mode, ['task', 'csv'], true)) {
+            $manual_items_validation = \WPAICG\AutoGPT\Cron\EventProcessor\Trigger\Modules\validate_manual_mode_items_logic($task_config);
+            if (is_wp_error($manual_items_validation)) {
+                $this->send_wp_error($manual_items_validation);
+                return;
+            }
+        }
+
         $items = [];
         $scraped_contexts = [];
 
@@ -140,6 +148,11 @@ class AIPKit_Content_Writer_Prepare_Batch_Action extends AIPKit_Content_Writer_B
                 $generation_mode
             );
 
+            if (is_wp_error($schedule_gmt)) {
+                $this->send_wp_error($schedule_gmt);
+                return;
+            }
+
             if ($schedule_gmt) {
                 $local_datetime = get_date_from_gmt($schedule_gmt, 'Y-m-d H:i:s');
                 $parts = explode(' ', $local_datetime);
@@ -157,11 +170,40 @@ class AIPKit_Content_Writer_Prepare_Batch_Action extends AIPKit_Content_Writer_B
             $item_index++;
         }
 
+        $empty_reason = '';
+        if ($generation_mode === 'gsheets' && empty($prepared)) {
+            $empty_reason = 'no_unprocessed_rows';
+        }
+
         wp_send_json_success([
             'items' => $prepared,
             'total' => count($items),
             'returned' => count($prepared),
             'limit' => $limit,
+            'empty_reason' => $empty_reason,
+            'run_token' => $this->create_content_writer_batch_run(),
         ]);
+    }
+
+    /**
+     * Cancels an active inline batch run on the server.
+     */
+    public function handle_cancel(): void
+    {
+        $permission_check = $this->check_module_access_permissions('content-writer', 'aipkit_content_writer_nonce');
+        if (is_wp_error($permission_check)) {
+            $this->send_wp_error($permission_check);
+            return;
+        }
+
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce is checked in check_module_access_permissions.
+        $token = isset($_POST['batch_run_token']) ? sanitize_text_field(wp_unslash($_POST['batch_run_token'])) : '';
+        $result = $this->cancel_content_writer_batch_run($token);
+        if (is_wp_error($result)) {
+            $this->send_wp_error($result);
+            return;
+        }
+
+        wp_send_json_success(['cancelled' => true]);
     }
 }
