@@ -25,9 +25,9 @@ class AIPKit_Retry_Automated_Task_Queue_Item_Action extends AIPKit_Automated_Tas
         // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Reason: Direct update to a custom table. Cache will be invalidated.
         $result = $wpdb->update(
             $this->queue_table_name,
-            ['status' => 'pending', 'last_attempt_time' => null, 'error_message' => null, 'attempts' => 0],
+            ['status' => 'pending', 'last_attempt_time' => null, 'error_message' => null, 'attempts' => 0, 'sort_priority' => 1],
             ['id' => $item_id, 'status' => 'failed'],
-            ['%s', '%s', '%s', '%d'],
+            ['%s', '%s', '%s', '%d', '%d'],
             ['%d', '%s']
         );
 

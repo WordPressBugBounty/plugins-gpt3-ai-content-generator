@@ -33,7 +33,7 @@ class AIPKit_Content_Writer_Fetch_Posts_Action extends AIPKit_Content_Writer_Bas
         if ($paged < 1) {
             $paged = 1;
         }
-        $allowed_per_page = [10, 25, 50, 100];
+        $allowed_per_page = [10, 25, 50, 100, 1000];
         if (!in_array($per_page, $allowed_per_page, true)) {
             $per_page = 10;
         }

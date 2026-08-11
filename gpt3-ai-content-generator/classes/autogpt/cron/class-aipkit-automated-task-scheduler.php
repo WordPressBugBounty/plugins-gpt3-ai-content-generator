@@ -22,6 +22,7 @@ require_once $scheduler_base_path . 'schedule/schedule-task-event.php';
 require_once $scheduler_base_path . 'batch/clear-all-task-events.php';
 require_once $scheduler_base_path . 'batch/prune-orphaned-task-events.php';
 require_once $scheduler_base_path . 'batch/reschedule-all-active-tasks.php';
+require_once $scheduler_base_path . 'utils/next-run-time.php';
 // The utils file is loaded by schedule-task-event.php, no need to load it here again.
 
 
@@ -77,5 +78,21 @@ class AIPKit_Automated_Task_Scheduler
     public static function reschedule_all_active_tasks()
     {
         Batch\reschedule_all_active_tasks_logic();
+    }
+
+    /**
+     * Calculates the first authoritative database run timestamp for a task.
+     */
+    public static function calculate_initial_run_timestamp(string $frequency): ?int
+    {
+        return Scheduler\Utils\calculate_initial_run_timestamp_logic($frequency);
+    }
+
+    /**
+     * Calculates the next authoritative database run timestamp after execution.
+     */
+    public static function calculate_next_run_timestamp(string $frequency, ?int $previous_run_timestamp = null): ?int
+    {
+        return Scheduler\Utils\calculate_next_run_timestamp_logic($frequency, $previous_run_timestamp);
     }
 }

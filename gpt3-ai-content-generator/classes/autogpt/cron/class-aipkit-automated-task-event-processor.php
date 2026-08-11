@@ -18,6 +18,7 @@ require_once __DIR__ . '/event-processor/helpers/load-required-classes.php';
 require_once __DIR__ . '/event-processor/helpers/update-queue-status.php';
 require_once __DIR__ . '/event-processor/helpers/maybe-reschedule-queue.php';
 require_once __DIR__ . '/event-processor/helpers/log-cron-error.php';
+require_once __DIR__ . '/event-processor/helpers/worker-policy.php';
 
 // Load the new main event files which contain the refactored logic
 require_once __DIR__ . '/event-processor/main-events/trigger-task-event.php';
@@ -36,7 +37,20 @@ class AIPKit_Automated_Task_Event_Processor
      */
     public static function trigger_task_event(int $task_id)
     {
+        if (class_exists(AIPKit_Automation_Runner::class)) {
+            AIPKit_Automation_Runner::run_wp_cron_task($task_id);
+            return;
+        }
+
         MainEvents\trigger_task_event_logic($task_id);
+    }
+
+    /**
+     * Executes task trigger logic after the shared runner has acquired its lock.
+     */
+    public static function process_task_trigger(int $task_id, bool $schedule_queue_event = true): bool
+    {
+        return MainEvents\trigger_task_event_logic($task_id, $schedule_queue_event);
     }
 
     /**
@@ -44,6 +58,22 @@ class AIPKit_Automated_Task_Event_Processor
      */
     public static function process_task_queue_event()
     {
+        if (class_exists(AIPKit_Automation_Runner::class)) {
+            AIPKit_Automation_Runner::run_wp_cron_queue();
+            return;
+        }
+
         MainEvents\process_task_queue_event_logic();
+    }
+
+    /**
+     * Processes one automatic, time-budgeted worker pass after the shared runner
+     * acquires its lock.
+     *
+     * @return array<string, int|bool>
+     */
+    public static function process_queue_batch(bool $schedule_follow_up = true, string $source = 'wp_cron'): array
+    {
+        return MainEvents\process_task_queue_event_logic($schedule_follow_up, $source);
     }
 }

@@ -15,6 +15,7 @@ use WPAICG\REST\Handlers\AIPKit_REST_Vector_Store_Handler;
 use WPAICG\REST\Handlers\AIPKit_REST_Base_Handler; // For permission callback
 use WPAICG\REST\Handlers\AIPKit_REST_Chatbot_Embed_Handler; // NEW: Embed handler
 use WPAICG\REST\Handlers\AIPKit_REST_Logs_Handler; // NEW: Logs handler
+use WPAICG\REST\Handlers\AIPKit_REST_Automations_Handler;
 
 
 if (!defined('ABSPATH')) {
@@ -35,6 +36,7 @@ class AIPKit_REST_Controller extends WP_REST_Controller
     protected $rest_base_vectors = 'vector-stores';
     protected $rest_base_chatbot_embed = 'chatbots'; // NEW
     protected $rest_base_logs = 'logs'; // NEW
+    protected $rest_base_automations = 'automations/run';
 
     private $text_handler;
     private $image_handler;
@@ -43,6 +45,7 @@ class AIPKit_REST_Controller extends WP_REST_Controller
     private $vector_store_handler;
     private $chatbot_embed_handler; // NEW
     private $logs_handler; // NEW
+    private $automations_handler;
     private $base_handler; // For permission check
 
     public function __construct()
@@ -55,6 +58,7 @@ class AIPKit_REST_Controller extends WP_REST_Controller
         $this->rest_base_vectors = 'vector-stores';
         $this->rest_base_chatbot_embed = 'chatbots'; // NEW
         $this->rest_base_logs = 'logs'; // NEW
+        $this->rest_base_automations = 'automations/run';
 
         // Instantiate handlers
         if (class_exists(AIPKit_REST_Text_Handler::class)) {
@@ -85,6 +89,10 @@ class AIPKit_REST_Controller extends WP_REST_Controller
             $this->logs_handler = new AIPKit_REST_Logs_Handler();
         }
 
+        if (class_exists(AIPKit_REST_Automations_Handler::class)) {
+            $this->automations_handler = new AIPKit_REST_Automations_Handler();
+        }
+
         if ($this->text_handler) {
             $this->base_handler = $this->text_handler;
         }
@@ -101,6 +109,18 @@ class AIPKit_REST_Controller extends WP_REST_Controller
      */
     public function register_routes()
     {
+        if ($this->automations_handler) {
+            register_rest_route(
+                $this->namespace,
+                '/' . $this->rest_base_automations,
+                array(
+                    'methods'             => \WP_REST_Server::CREATABLE,
+                    'callback'            => array($this->automations_handler, 'handle_request'),
+                    'permission_callback' => array($this->automations_handler, 'check_permissions'),
+                )
+            );
+        }
+
         if ($this->chatbot_embed_handler && $this->is_chatbot_embed_feature_available()) {
             register_rest_route(
                 $this->namespace,

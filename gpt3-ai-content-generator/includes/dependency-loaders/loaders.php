@@ -344,6 +344,7 @@ class Rest_Dependencies_Loader
             'class-aipkit-rest-vector-store-handler.php',
             'class-aipkit-rest-chatbot-embed-handler.php', // NEW: Embed handler
             'class-aipkit-rest-logs-handler.php', // NEW: Logs handler
+            'class-aipkit-rest-automations-handler.php',
         ];
         foreach ($handlers_to_load as $handler_file) {
             $full_path = $rest_base_path . 'handlers/' . $handler_file;
@@ -711,6 +712,7 @@ class Automated_Task_Ajax_Handlers_Loader
             'class-aipkit-delete-automated-task-queue-item-action.php',
             'class-aipkit-delete-automated-task-queue-items-action.php',
             'class-aipkit-retry-automated-task-queue-item-action.php',
+            'class-aipkit-manage-automation-server-cron-action.php',
         ];
         foreach ($ajax_actions as $file) {
             $full_path = $ajax_base_path . $file;
@@ -727,9 +729,12 @@ class Automated_Task_Cron_Helpers_Loader
     {
         $cron_base_path = WPAICG_PLUGIN_DIR . 'classes/autogpt/cron/';
         $cron_helpers = [
+            'class-aipkit-option-lock.php',
             'class-aipkit-automated-task-scheduler.php',
             'class-aipkit-automated-task-content-queuer.php',
             'class-aipkit-automated-task-event-processor.php',
+            'class-aipkit-automation-runner.php',
+            'class-aipkit-automation-server-cron.php',
         ];
         foreach ($cron_helpers as $file) {
             $full_path = $cron_base_path . $file;

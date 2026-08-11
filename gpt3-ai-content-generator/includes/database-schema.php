@@ -180,6 +180,55 @@ function aipkit_create_automated_tasks_table()
 }
 
 /**
+ * Adds the queue performance column and indexes in one ALTER TABLE operation.
+ *
+ * Combining the clauses is important for very large queues because MySQL can
+ * build every missing index during one table-alter pass instead of repeating
+ * that work for each index.
+ */
+function aipkit_upgrade_automated_task_queue_performance_schema($table_name)
+{
+    global $wpdb;
+
+    if (!is_string($table_name) || preg_match('/^[A-Za-z0-9_]+$/', $table_name) !== 1) {
+        return false;
+    }
+
+    // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter -- Metadata lookup on a validated plugin-owned table identifier.
+    $sort_priority_exists = $wpdb->get_var("SHOW COLUMNS FROM `{$table_name}` LIKE 'sort_priority'");
+    // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter -- Metadata lookup on a validated plugin-owned table identifier.
+    $index_rows = $wpdb->get_results("SHOW INDEX FROM `{$table_name}`");
+    $existing_indexes = array_unique(array_filter(array_map(static function ($row) {
+        return isset($row->Key_name) ? (string) $row->Key_name : '';
+    }, (array) $index_rows)));
+
+    $alter_clauses = [];
+    if ($sort_priority_exists !== 'sort_priority') {
+        $alter_clauses[] = 'ADD COLUMN sort_priority tinyint unsigned NOT NULL DEFAULT 1';
+    }
+
+    $required_indexes = [
+        'queue_sort' => 'ADD KEY queue_sort (sort_priority, added_at, id)',
+        'task_status_type' => 'ADD KEY task_status_type (task_id, status, task_type)',
+        'status_task_id' => 'ADD KEY status_task_id (status, task_id, id)',
+        'task_target' => 'ADD KEY task_target (task_id, target_identifier(100))',
+    ];
+    foreach ($required_indexes as $index_name => $clause) {
+        if (!in_array($index_name, $existing_indexes, true)) {
+            $alter_clauses[] = $clause;
+        }
+    }
+
+    if (empty($alter_clauses)) {
+        return true;
+    }
+
+    $alter_sql = "ALTER TABLE `{$table_name}` " . implode(', ', $alter_clauses);
+    // phpcs:ignore WordPress.DB.DirectDatabaseQuery.SchemaChange, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter -- One-time schema migration using a validated table identifier and fixed clauses.
+    return $wpdb->query($alter_sql) !== false;
+}
+
+/**
  * RENAMED: Creates or updates the automated task queue table.
  */
 function aipkit_create_automated_task_queue_table()
@@ -199,15 +248,38 @@ function aipkit_create_automated_task_queue_table()
         last_attempt_time datetime DEFAULT NULL,
         error_message text DEFAULT NULL,
         added_at datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        sort_priority tinyint unsigned NOT NULL DEFAULT 1,
         PRIMARY KEY  (id),
         KEY task_id (task_id),
         KEY target_identifier (target_identifier(191)),
         KEY task_type (task_type),
-        KEY status_added_at (status, added_at)
+        KEY status_added_at (status, added_at),
+        KEY queue_sort (sort_priority, added_at, id),
+        KEY task_status_type (task_id, status, task_type),
+        KEY status_task_id (status, task_id, id),
+        KEY task_target (task_id, target_identifier(100))
     ) $charset_collate;";
 
-    require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
-    dbDelta($sql);
+    // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Table existence check for a plugin-owned table.
+    $table_exists = $wpdb->get_var($wpdb->prepare('SHOW TABLES LIKE %s', $table_name)) === $table_name;
+    if ($table_exists) {
+        if (!aipkit_upgrade_automated_task_queue_performance_schema($table_name)) {
+            return false;
+        }
+    } else {
+        require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
+        dbDelta($sql);
+        if (!aipkit_upgrade_automated_task_queue_performance_schema($table_name)) {
+            return false;
+        }
+    }
+
+    // Existing processing rows predate sort_priority. This indexed, narrowly
+    // filtered update preserves their previous top-of-queue presentation.
+    // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter -- One-time schema normalization on a plugin-owned table.
+    $wpdb->query("UPDATE {$table_name} SET sort_priority = 2 WHERE status = 'processing' AND sort_priority <> 2");
+
+    return true;
 }
 
 /**

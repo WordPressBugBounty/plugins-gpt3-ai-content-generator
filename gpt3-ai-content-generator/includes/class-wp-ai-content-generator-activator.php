@@ -38,6 +38,9 @@ class WP_AI_Content_Generator_Activator
         // routine to correctly trigger on new installs and version changes.
         update_option(WP_AI_Content_Generator::DB_VERSION_OPTION, WPAICG_VERSION, 'no');
         update_option(WP_AI_Content_Generator::TOKEN_MANAGER_SCHEMA_VERSION_OPTION, WP_AI_Content_Generator::TOKEN_MANAGER_SCHEMA_VERSION, 'no');
+        if (!WP_AI_Content_Generator::is_performance_schema_missing()) {
+            update_option(WP_AI_Content_Generator::PERFORMANCE_SCHEMA_VERSION_OPTION, WP_AI_Content_Generator::PERFORMANCE_SCHEMA_VERSION, 'no');
+        }
 
         // --- MODIFICATION: Consolidate all one-time/update tasks here ---
         // This ensures that fresh installs and reactivations get all necessary setup routines.

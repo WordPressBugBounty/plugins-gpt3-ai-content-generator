@@ -1313,10 +1313,10 @@ if ( $active_bot_post ) {
                                         </span>
                                         <span class="aipkit_chatbot_advanced_trigger_text">
                                             <span class="aipkit_chatbot_advanced_trigger_title"><?php 
-    esc_html_e( 'Behavior, display, and tools', 'gpt3-ai-content-generator' );
+    esc_html_e( 'Chatbot settings', 'gpt3-ai-content-generator' );
     ?></span>
                                             <span class="aipkit_chatbot_advanced_trigger_description"><?php 
-    esc_html_e( 'Conversation, knowledge, and automations', 'gpt3-ai-content-generator' );
+    esc_html_e( 'Behavior, knowledge, and display', 'gpt3-ai-content-generator' );
     ?></span>
                                         </span>
                                     </span>

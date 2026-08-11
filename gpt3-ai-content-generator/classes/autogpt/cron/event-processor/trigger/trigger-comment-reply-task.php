@@ -53,7 +53,7 @@ function trigger_comment_reply_task_logic(int $task_id, array $task_config, ?str
         $comment_id = $comment->comment_ID;
         // Check if this comment has already been queued or replied to by this task
         // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter -- Reason: Direct query to a custom table. Caches will be invalidated.
-        $existing_item = $wpdb->get_var($wpdb->prepare("SELECT id FROM {$queue_table_name} WHERE task_id = %d AND target_identifier = %s",
+        $existing_item = $wpdb->get_var($wpdb->prepare("SELECT id FROM {$queue_table_name} WHERE task_id = %d AND target_identifier = %s LIMIT 1",
             $task_id,
             $comment_id
         ));

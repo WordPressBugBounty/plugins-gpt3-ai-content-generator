@@ -377,12 +377,21 @@ class AIPKit_Core_Ajax_Handler extends BaseDashboardAjaxHandler
 
         global $wpdb;
         $table_name = $wpdb->prefix . 'aipkit_vector_data_source';
-        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare, PluginCheck.Security.DirectDB.UnescapedDBParameter -- $table_name and assembled WHERE clause are internal and scalar values are prepared below.
-        $total_logs = (int) $wpdb->get_var($wpdb->prepare("SELECT COUNT(*) FROM {$table_name} WHERE {$where_sql}", ...$params));
+        $total_logs = null;
+        if (empty($filters['cursor_mode'])) {
+            // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare, PluginCheck.Security.DirectDB.UnescapedDBParameter -- Legacy exact pagination path; cursor-mode module requests skip this full count.
+            $total_logs = (int) $wpdb->get_var($wpdb->prepare("SELECT COUNT(*) FROM {$table_name} WHERE {$where_sql}", ...$params));
+        }
 
-        $logs_params = array_merge($params, [$filters['per_page'], $filters['offset']]);
+        $query_limit = !empty($filters['cursor_mode']) ? $filters['per_page'] + 1 : $filters['per_page'];
+        $query_offset = !empty($filters['cursor_mode']) ? 0 : $filters['offset'];
+        $logs_params = array_merge($params, [$query_limit, $query_offset]);
         // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrongNumber, PluginCheck.Security.DirectDB.UnescapedDBParameter -- $table_name and assembled WHERE clause are internal and scalar values are prepared below.
-        $logs = $wpdb->get_results($wpdb->prepare("SELECT id, timestamp, provider, status, message, indexed_content, post_id, post_title, file_id, batch_id, embedding_provider, embedding_model, vector_store_id, vector_store_name FROM {$table_name} WHERE {$where_sql} ORDER BY timestamp DESC LIMIT %d OFFSET %d", ...$logs_params), ARRAY_A);
+        $logs = $wpdb->get_results($wpdb->prepare("SELECT id, timestamp, provider, status, message, indexed_content, post_id, post_title, file_id, batch_id, embedding_provider, embedding_model, vector_store_id, vector_store_name FROM {$table_name} WHERE {$where_sql} ORDER BY timestamp DESC, id DESC LIMIT %d OFFSET %d", ...$logs_params), ARRAY_A);
+        $has_more = !empty($filters['cursor_mode']) && count((array) $logs) > $filters['per_page'];
+        if ($has_more) {
+            array_pop($logs);
+        }
         if (is_array($logs)) {
             $openai_store_names = [];
             if (class_exists(AIPKit_Vector_Store_Registry::class)) {
@@ -419,7 +428,15 @@ class AIPKit_Core_Ajax_Handler extends BaseDashboardAjaxHandler
             unset($log);
         }
 
-        $total_pages = $filters['per_page'] > 0 ? (int) ceil($total_logs / $filters['per_page']) : 0;
+        $total_pages = empty($filters['cursor_mode']) && $filters['per_page'] > 0 ? (int) ceil((int) $total_logs / $filters['per_page']) : 0;
+        $next_cursor = null;
+        if ($has_more && !empty($logs)) {
+            $last_log = end($logs);
+            $next_cursor = [
+                'timestamp' => (string) ($last_log['timestamp'] ?? ''),
+                'id' => (int) ($last_log['id'] ?? 0),
+            ];
+        }
 
         wp_send_json_success([
             'logs' => $logs ?: [],
@@ -427,6 +444,11 @@ class AIPKit_Core_Ajax_Handler extends BaseDashboardAjaxHandler
                 'total_logs' => $total_logs,
                 'total_pages' => $total_pages,
                 'current_page' => $filters['page'],
+                'cursor_mode' => !empty($filters['cursor_mode']),
+                'has_previous' => $filters['page'] > 1,
+                'has_more' => $has_more,
+                'next_cursor' => $next_cursor,
+                'item_count' => count((array) $logs),
             ],
             'providers' => $this->get_available_vector_source_providers($provider_map),
         ]);
@@ -518,6 +540,9 @@ class AIPKit_Core_Ajax_Handler extends BaseDashboardAjaxHandler
             'search' => isset($post_data['search']) ? sanitize_text_field($post_data['search']) : '',
             'store_id' => isset($post_data['store_id']) ? sanitize_text_field($post_data['store_id']) : '',
             'hide_user_uploads' => $hide_user_uploads,
+            'cursor_mode' => isset($post_data['cursor_mode']) && sanitize_text_field($post_data['cursor_mode']) === '1',
+            'cursor_timestamp' => isset($post_data['cursor_timestamp']) ? sanitize_text_field($post_data['cursor_timestamp']) : '',
+            'cursor_id' => isset($post_data['cursor_id']) ? absint($post_data['cursor_id']) : 0,
         ];
     }
 
@@ -632,36 +657,30 @@ class AIPKit_Core_Ajax_Handler extends BaseDashboardAjaxHandler
             $params[] = $filters['store_id'];
         }
 
+        if (!empty($filters['cursor_mode']) && !empty($filters['cursor_timestamp']) && !empty($filters['cursor_id'])) {
+            $where_clauses[] = '(timestamp < %s OR (timestamp = %s AND id < %d))';
+            $params[] = $filters['cursor_timestamp'];
+            $params[] = $filters['cursor_timestamp'];
+            $params[] = $filters['cursor_id'];
+        }
+
         return [implode(' AND ', $where_clauses), $params];
     }
 
     /**
-     * Returns available provider options based on stored vector source entries.
+     * Returns provider options without scanning the source table.
      *
      * @param array<string, string> $provider_map Provider key => label.
      * @return array<int, array<string, string>>
      */
     private function get_available_vector_source_providers(array $provider_map): array
     {
-        global $wpdb;
-        $table_name = $wpdb->prefix . 'aipkit_vector_data_source';
-
-        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter -- Distinct providers from a plugin-owned custom table.
-        $provider_labels = $wpdb->get_col("SELECT DISTINCT provider FROM {$table_name} WHERE provider <> ''");
-        $provider_labels = array_filter(array_map('sanitize_text_field', (array) $provider_labels));
-
-        if (empty($provider_labels)) {
-            $provider_labels = array_values($provider_map);
-        }
-
         $providers = [];
         foreach ($provider_map as $key => $label) {
-            if (in_array($label, $provider_labels, true)) {
-                $providers[] = [
-                    'key' => $key,
-                    'label' => $label,
-                ];
-            }
+            $providers[] = [
+                'key' => $key,
+                'label' => $label,
+            ];
         }
 
         return $providers;

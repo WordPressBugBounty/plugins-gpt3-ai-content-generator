@@ -36,6 +36,8 @@ class WP_AI_Content_Generator
     public const DB_VERSION_OPTION = 'aipkit_plugin_version'; // Option to store current DB version
     public const TOKEN_MANAGER_SCHEMA_VERSION_OPTION = 'aipkit_token_manager_schema_version';
     public const TOKEN_MANAGER_SCHEMA_VERSION = '4';
+    public const PERFORMANCE_SCHEMA_VERSION_OPTION = 'aipkit_performance_schema_version';
+    public const PERFORMANCE_SCHEMA_VERSION = '3';
     private const INSTALL_INTEGRITY_TRANSIENT = 'aipkit_install_integrity_checked';
 
     public static function get_instance(): WP_AI_Content_Generator
@@ -96,6 +98,7 @@ class WP_AI_Content_Generator
         $current_version = $this->version;
         $saved_version = get_option(self::DB_VERSION_OPTION);
         $saved_token_manager_schema_version = get_option(self::TOKEN_MANAGER_SCHEMA_VERSION_OPTION);
+        $saved_performance_schema_version = get_option(self::PERFORMANCE_SCHEMA_VERSION_OPTION);
 
         $version_needs_update = version_compare((string) $saved_version, $current_version, '<');
         $token_manager_schema_needs_update = version_compare(
@@ -103,16 +106,21 @@ class WP_AI_Content_Generator
             self::TOKEN_MANAGER_SCHEMA_VERSION,
             '<'
         );
+        $performance_schema_needs_update = version_compare(
+            (string) $saved_performance_schema_version,
+            self::PERFORMANCE_SCHEMA_VERSION,
+            '<'
+        );
 
         $tables_are_missing = false;
-        $vector_index_missing = false;
+        $performance_schema_missing = false;
 
-        if ($version_needs_update || $token_manager_schema_needs_update || $this->should_run_install_integrity_check()) {
+        if ($version_needs_update || $token_manager_schema_needs_update || $performance_schema_needs_update || $this->should_run_install_integrity_check()) {
             $tables_are_missing = $this->are_plugin_tables_missing();
-            $vector_index_missing = $this->is_vector_data_source_index_missing();
+            $performance_schema_missing = self::is_performance_schema_missing();
         }
 
-        if (!$version_needs_update && !$tables_are_missing && !$vector_index_missing && !$token_manager_schema_needs_update) {
+        if (!$version_needs_update && !$tables_are_missing && !$performance_schema_missing && !$token_manager_schema_needs_update && !$performance_schema_needs_update) {
             set_transient(self::INSTALL_INTEGRITY_TRANSIENT, '1', DAY_IN_SECONDS);
             return;
         }
@@ -123,6 +131,8 @@ class WP_AI_Content_Generator
 
         // Run DB table setup on version change to apply any schema updates.
         WP_AI_Content_Generator_Activator::setup_tables_for_blog();
+        $tables_are_missing = $this->are_plugin_tables_missing();
+        $performance_schema_missing = self::is_performance_schema_missing();
         $this->cleanup_legacy_chatbot_pricing_overrides();
 
         // Ensure Role Manager Permissions are Updated/Initialized
@@ -154,7 +164,12 @@ class WP_AI_Content_Generator
         // Update the stored version
         update_option(self::DB_VERSION_OPTION, $current_version, 'no'); // Use autoload 'no'
         update_option(self::TOKEN_MANAGER_SCHEMA_VERSION_OPTION, self::TOKEN_MANAGER_SCHEMA_VERSION, 'no');
-        set_transient(self::INSTALL_INTEGRITY_TRANSIENT, '1', DAY_IN_SECONDS);
+        if (!$performance_schema_missing) {
+            update_option(self::PERFORMANCE_SCHEMA_VERSION_OPTION, self::PERFORMANCE_SCHEMA_VERSION, 'no');
+        }
+        if (!$tables_are_missing && !$performance_schema_missing) {
+            set_transient(self::INSTALL_INTEGRITY_TRANSIENT, '1', DAY_IN_SECONDS);
+        }
     }
 
     private function should_run_update_check(): bool
@@ -224,25 +239,57 @@ class WP_AI_Content_Generator
     }
 
     /**
-     * Checks whether the vector data source composite index exists.
-     * @return bool True if the index is missing.
+     * Checks whether the large-dataset columns and indexes exist.
+     * @return bool True if any performance schema change is missing.
      */
-    private function is_vector_data_source_index_missing(): bool
+    public static function is_performance_schema_missing(): bool
     {
         global $wpdb;
-        $table_name = $wpdb->prefix . 'aipkit_vector_data_source';
-        $index_name = 'provider_store_time';
+        $vector_table_name = $wpdb->prefix . 'aipkit_vector_data_source';
+        $queue_table_name = $wpdb->prefix . 'aipkit_automated_task_queue';
 
-        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Reason: Table existence check.
-        $table_exists = $wpdb->get_var($wpdb->prepare('SHOW TABLES LIKE %s', $table_name));
-        if ($table_exists !== $table_name) {
-            return false;
+        // Missing tables are handled by are_plugin_tables_missing().
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Metadata checks for plugin-owned tables.
+        $vector_table_exists = $wpdb->get_var($wpdb->prepare('SHOW TABLES LIKE %s', $vector_table_name));
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Metadata checks for plugin-owned tables.
+        $queue_table_exists = $wpdb->get_var($wpdb->prepare('SHOW TABLES LIKE %s', $queue_table_name));
+        if ($vector_table_exists !== $vector_table_name || $queue_table_exists !== $queue_table_name) {
+            return true;
         }
 
-        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter -- $table_name is derived from $wpdb->prefix and the index name is prepared.
-        $index_rows = $wpdb->get_results($wpdb->prepare("SHOW INDEX FROM {$table_name} WHERE Key_name = %s", $index_name));
+        $required_vector_indexes = ['provider_store_time'];
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter -- Table identifier is derived from $wpdb->prefix and index name is prepared.
+        $vector_index_rows = $wpdb->get_results($wpdb->prepare("SHOW INDEX FROM {$vector_table_name} WHERE Key_name = %s", ...$required_vector_indexes));
+        $existing_vector_indexes = array_unique(array_map(static function ($row) {
+            return isset($row->Key_name) ? (string) $row->Key_name : '';
+        }, (array) $vector_index_rows));
+        if (count(array_intersect($required_vector_indexes, $existing_vector_indexes)) !== count($required_vector_indexes)) {
+            return true;
+        }
 
-        return empty($index_rows);
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter -- Metadata check on a plugin-owned queue table.
+        $sort_priority_column = $wpdb->get_var($wpdb->prepare("SHOW COLUMNS FROM {$queue_table_name} LIKE %s", 'sort_priority'));
+        if ($sort_priority_column !== 'sort_priority') {
+            return true;
+        }
+
+        $required_queue_indexes = ['queue_sort', 'task_status_type', 'status_task_id', 'task_target'];
+        // phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter -- Metadata check on a plugin-owned table whose identifier is derived from $wpdb->prefix; all index names use placeholders.
+        $queue_index_rows = $wpdb->get_results(
+            $wpdb->prepare(
+                "SHOW INDEX FROM {$queue_table_name} WHERE Key_name IN (%s, %s, %s, %s)",
+                $required_queue_indexes[0],
+                $required_queue_indexes[1],
+                $required_queue_indexes[2],
+                $required_queue_indexes[3]
+            )
+        );
+        // phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter
+        $existing_queue_indexes = array_unique(array_map(static function ($row) {
+            return isset($row->Key_name) ? (string) $row->Key_name : '';
+        }, (array) $queue_index_rows));
+
+        return count(array_intersect($required_queue_indexes, $existing_queue_indexes)) !== count($required_queue_indexes);
     }
 
     /**

@@ -3,6 +3,7 @@
 namespace WPAICG\AutoGPT\Ajax;
 
 use WPAICG\AutoGPT\Cron\AIPKit_Automated_Task_Scheduler;
+use WPAICG\AutoGPT\Cron\AIPKit_Automated_Task_Content_Queuer;
 use WP_Error;
 
 if (!defined('ABSPATH')) {
@@ -34,6 +35,9 @@ class AIPKit_Delete_Automated_Task_Action extends AIPKit_Automated_Task_Base_Aja
         if ($result === false) {
             $this->send_wp_error(new WP_Error('db_error_delete_task', __('Failed to delete task.', 'gpt3-ai-content-generator')), 500);
         } else {
+            if (class_exists(AIPKit_Automated_Task_Content_Queuer::class)) {
+                AIPKit_Automated_Task_Content_Queuer::clear_task_state($task_id);
+            }
             wp_send_json_success(['message' => __('Task deleted successfully.', 'gpt3-ai-content-generator')]);
         }
     }

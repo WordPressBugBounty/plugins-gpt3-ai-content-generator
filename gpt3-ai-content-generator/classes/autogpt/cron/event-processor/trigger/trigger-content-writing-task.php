@@ -29,7 +29,7 @@ function trigger_content_writing_task_logic(int $task_id, array $task_config): v
     // Check if there are already pending or processing items for this task
     // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Reason: Direct query to a custom table. Caches will be invalidated.
     $existing_items_count = $wpdb->get_var($wpdb->prepare(
-        "SELECT COUNT(*) FROM {$wpdb->prefix}aipkit_automated_task_queue WHERE task_id = %d AND (status = 'pending' OR status = 'processing')",
+        "SELECT 1 FROM {$wpdb->prefix}aipkit_automated_task_queue WHERE task_id = %d AND status IN ('pending', 'processing') LIMIT 1",
         $task_id
     ));
 

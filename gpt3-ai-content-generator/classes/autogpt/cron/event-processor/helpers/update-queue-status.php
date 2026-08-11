@@ -230,6 +230,8 @@ function update_queue_status_logic(int $itemId, string $status, ?string $errorMe
             $formats[] = '%s';
         }
     }
+    $update_data['sort_priority'] = $db_status === 'processing' ? 2 : 1;
+    $formats[] = '%d';
     // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Reason: Direct update to a custom table. Caches will be invalidated.
     $wpdb->update(
         $queue_table_name,

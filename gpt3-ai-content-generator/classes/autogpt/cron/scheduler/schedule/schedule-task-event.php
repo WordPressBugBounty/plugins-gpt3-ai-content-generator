@@ -7,6 +7,7 @@ namespace WPAICG\AutoGPT\Cron\Scheduler\Schedule;
 require_once __DIR__ . '/get-task-specific-cron-hook.php';
 require_once __DIR__ . '/clear-task-event.php';
 require_once __DIR__ . '/../utils/get-current-cron-event-details.php';
+require_once __DIR__ . '/../utils/next-run-time.php';
 
 if (!defined('ABSPATH')) {
     exit;
@@ -31,18 +32,21 @@ function schedule_task_event_logic(int $task_id, string $frequency, string $stat
     if ($status === 'active') {
         clear_task_hook_events_logic($hook);
 
-        if ($frequency === 'one-time') {
-            // Schedule to run once, very soon.
-            wp_schedule_single_event(time() + 10, $hook, $current_schedule_args);
-        } else {
-            // wp_schedule_event's first run is immediate unless a timestamp is provided. Let's add a small delay.
-            wp_schedule_event(time() + (MINUTE_IN_SECONDS / 2), $frequency, $hook, $current_schedule_args);
+        $first_run_timestamp = \WPAICG\AutoGPT\Cron\Scheduler\Utils\calculate_initial_run_timestamp_logic($frequency);
+
+        if (!$first_run_timestamp) {
+            clear_task_event_logic($task_id);
+            return;
         }
 
-        // Always update the next_run_time column after scheduling/checking
-        $next_run_timestamp = wp_next_scheduled($hook, $current_schedule_args);
-        // The DB `datetime` column should store in UTC. `wp_next_scheduled` returns a UTC timestamp.
-        $next_run_datetime_gmt = $next_run_timestamp ? gmdate('Y-m-d H:i:s', $next_run_timestamp) : null;
+        if ($frequency === 'one-time') {
+            wp_schedule_single_event($first_run_timestamp, $hook, $current_schedule_args);
+        } else {
+            wp_schedule_event($first_run_timestamp, $frequency, $hook, $current_schedule_args);
+        }
+
+        // The database time is authoritative. WordPress cron is only one way to wake the runner.
+        $next_run_datetime_gmt = gmdate('Y-m-d H:i:s', $first_run_timestamp);
         // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Reason: Direct update to a custom table. Caches will be invalidated.
         $wpdb->update(
             $tasks_table_name,

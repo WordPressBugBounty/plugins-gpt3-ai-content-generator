@@ -2149,28 +2149,10 @@ class ChatbotAjaxHandler extends BaseAjaxHandler {
             ] );
             return;
         }
-        $cache_store_ids = $store_ids;
-        sort( $cache_store_ids, SORT_STRING );
-        $cache_key = 'aipkit_training_count_' . md5( $provider_name . '|' . implode( ',', $cache_store_ids ) );
-        $cached_stats = get_transient( $cache_key );
-        if ( is_array( $cached_stats ) ) {
-            $cached_count = ( isset( $cached_stats['count'] ) ? (int) $cached_stats['count'] : 0 );
-            wp_send_json_success( [
-                'count' => $cached_count,
-            ] );
-            return;
-        }
-        global $wpdb;
-        $table_name = $wpdb->prefix . 'aipkit_vector_data_source';
-        $placeholders = implode( ',', array_fill( 0, count( $store_ids ), '%s' ) );
-        $params = array_merge( [$provider_name], $store_ids );
-        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter -- $table_name is safe and the dynamic placeholder list is prepared below.
-        $count = (int) $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM {$table_name} WHERE provider = %s AND vector_store_id IN ({$placeholders}) AND (post_id IS NOT NULL OR file_id IS NOT NULL OR indexed_content IS NOT NULL)", ...$params ) );
-        set_transient( $cache_key, [
-            'count' => $count,
-        ], MINUTE_IN_SECONDS );
+        $source_stats = $this->get_chatbot_training_source_stats_for_context( $provider_name, $store_ids );
         wp_send_json_success( [
-            'count' => $count,
+            'count'           => $source_stats['count'],
+            'count_is_capped' => $source_stats['count_is_capped'],
         ] );
     }
 
@@ -2197,10 +2179,12 @@ class ChatbotAjaxHandler extends BaseAjaxHandler {
             ] );
             return;
         }
-        $count = $this->get_chatbot_training_source_count_for_context( (string) $context['provider_label'], (array) $context['store_ids'] );
+        $source_stats = $this->get_chatbot_training_source_stats_for_context( (string) $context['provider_label'], (array) $context['store_ids'] );
+        $count = $source_stats['count'];
         $queue_summary = $this->get_chatbot_training_queue_summary_for_context( (string) $context['provider_key'], (array) $context['store_ids'], $bot_id );
         wp_send_json_success( [
             'count'           => $count,
+            'count_is_capped' => $source_stats['count_is_capped'],
             'queue'           => $queue_summary,
             'training_status' => $this->build_chatbot_training_status( $count, $queue_summary ),
         ] );
@@ -2265,14 +2249,19 @@ class ChatbotAjaxHandler extends BaseAjaxHandler {
             foreach ( $task_ids as $task_id ) {
                 delete_transient( 'aipkit_initial_queue_page_' . absint( $task_id ) );
                 set_transient( 'aipkit_initial_queue_done_' . absint( $task_id ), 'yes', MONTH_IN_SECONDS );
+                delete_option( 'aipkit_initial_queue_cursor_v2_' . absint( $task_id ) );
+                delete_option( 'aipkit_initial_queue_force_v2_' . absint( $task_id ) );
+                update_option( 'aipkit_initial_queue_done_v2_' . absint( $task_id ), 'yes', false );
             }
         }
-        $count = $this->get_chatbot_training_source_count_for_context( (string) $context['provider_label'], (array) $context['store_ids'] );
+        $source_stats = $this->get_chatbot_training_source_stats_for_context( (string) $context['provider_label'], (array) $context['store_ids'] );
+        $count = $source_stats['count'];
         $queue_summary = $this->get_chatbot_training_queue_summary_for_context( (string) $context['provider_key'], (array) $context['store_ids'], $bot_id );
         wp_send_json_success( [
             'stopped'         => !empty( $task_ids ),
             'stopped_items'   => $stopped_items,
             'count'           => $count,
+            'count_is_capped' => $source_stats['count_is_capped'],
             'queue'           => $queue_summary,
             'training_status' => $this->build_chatbot_training_status( $count, $queue_summary ),
         ] );
@@ -2392,17 +2381,38 @@ class ChatbotAjaxHandler extends BaseAjaxHandler {
         ];
     }
 
-    private function get_chatbot_training_source_count_for_context( string $provider_label, array $store_ids ) : int {
-        $store_ids = array_values( array_filter( array_map( 'sanitize_text_field', $store_ids ) ) );
+    /** @return array{count:int,count_is_capped:bool} */
+    private function get_chatbot_training_source_stats_for_context( string $provider_label, array $store_ids ) : array {
+        $store_ids = array_values( array_unique( array_filter( array_map( 'sanitize_text_field', $store_ids ) ) ) );
         if ( $provider_label === '' || empty( $store_ids ) ) {
-            return 0;
+            return [
+                'count'           => 0,
+                'count_is_capped' => false,
+            ];
+        }
+        sort( $store_ids, SORT_STRING );
+        $cache_key = 'aipkit_chatbot_training_stats_' . md5( $provider_label . '|' . wp_json_encode( $store_ids ) );
+        $cached_stats = get_transient( $cache_key );
+        if ( is_array( $cached_stats ) ) {
+            return [
+                'count'           => max( 0, (int) ($cached_stats['count'] ?? 0) ),
+                'count_is_capped' => !empty( $cached_stats['count_is_capped'] ),
+            ];
         }
         global $wpdb;
         $table_name = $wpdb->prefix . 'aipkit_vector_data_source';
         $placeholders = implode( ',', array_fill( 0, count( $store_ids ), '%s' ) );
-        $params = array_merge( [$provider_label], $store_ids );
-        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter -- Admin status count over plugin-owned data source table with prepared placeholders.
-        return (int) $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM {$table_name} WHERE provider = %s AND vector_store_id IN ({$placeholders}) AND (post_id IS NOT NULL OR file_id IS NOT NULL OR indexed_content IS NOT NULL)", ...$params ) );
+        $limit = 1001;
+        $params = array_merge( [$provider_label], $store_ids, [$limit] );
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrongNumber, PluginCheck.Security.DirectDB.UnescapedDBParameter -- Dynamic IN placeholders match the sanitized store ID parameters; this is a bounded preview over indexed columns in a plugin-owned table.
+        $source_ids = $wpdb->get_col( $wpdb->prepare( "SELECT id FROM {$table_name} WHERE provider = %s AND vector_store_id IN ({$placeholders}) AND (post_id IS NOT NULL OR file_id IS NOT NULL OR indexed_content IS NOT NULL) LIMIT %d", ...$params ) );
+        $count_is_capped = count( (array) $source_ids ) >= $limit;
+        $stats = [
+            'count'           => ( $count_is_capped ? $limit - 1 : count( (array) $source_ids ) ),
+            'count_is_capped' => $count_is_capped,
+        ];
+        set_transient( $cache_key, $stats, 30 );
+        return $stats;
     }
 
     private function get_chatbot_training_task_ids_for_context(
@@ -2484,65 +2494,38 @@ class ChatbotAjaxHandler extends BaseAjaxHandler {
 
     private function get_chatbot_training_queue_summary_for_context( string $provider_key, array $store_ids, int $bot_id = 0 ) : array {
         $summary = [
-            'pending'    => 0,
-            'processing' => 0,
-            'failed'     => 0,
-            'active'     => 0,
+            'pending'              => 0,
+            'processing'           => 0,
+            'failed'               => 0,
+            'active'               => 0,
+            'pending_is_capped'    => false,
+            'processing_is_capped' => false,
+            'failed_is_capped'     => false,
         ];
         $store_ids = array_values( array_filter( array_map( 'sanitize_text_field', $store_ids ) ) );
-        if ( $provider_key === '' || empty( $store_ids ) ) {
+        if ( $provider_key === '' || empty( $store_ids ) || $bot_id <= 0 ) {
+            return $summary;
+        }
+        $task_ids = $this->get_chatbot_training_task_ids_for_context( $bot_id, $provider_key, $store_ids );
+        if ( empty( $task_ids ) ) {
             return $summary;
         }
         global $wpdb;
         $queue_table_name = $wpdb->prefix . 'aipkit_automated_task_queue';
-        $tasks_table_name = $wpdb->prefix . 'aipkit_automated_tasks';
         $statuses = ['pending', 'processing', 'failed'];
-        $status_placeholders = implode( ',', array_fill( 0, count( $statuses ), '%s' ) );
-        $store_like_clauses = [];
-        $params = array_merge( ['content_indexing'], $statuses );
-        foreach ( $store_ids as $store_id ) {
-            $store_like_clauses[] = 'item_config LIKE %s';
-            $params[] = '%' . $wpdb->esc_like( $store_id ) . '%';
-        }
-        $query = 'SELECT q.id, q.task_id, q.status, q.item_config, t.task_name, t.task_config FROM ' . esc_sql( $queue_table_name ) . ' q LEFT JOIN ' . esc_sql( $tasks_table_name ) . " t ON q.task_id = t.id WHERE q.task_type = %s AND q.status IN ({$status_placeholders}) AND (" . implode( ' OR ', $store_like_clauses ) . ') ORDER BY q.added_at DESC LIMIT 500';
-        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQL.NotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter -- Admin queue status aggregation over plugin-owned queue table with prepared scalar values.
-        $rows = $wpdb->get_results( $wpdb->prepare( $query, ...$params ), ARRAY_A );
-        if ( empty( $rows ) ) {
-            return $summary;
-        }
-        foreach ( $rows as $row ) {
-            $item_config = json_decode( (string) ($row['item_config'] ?? ''), true );
-            if ( !is_array( $item_config ) ) {
-                continue;
-            }
-            $item_provider = sanitize_key( (string) ($item_config['target_store_provider'] ?? '') );
-            $item_store_id = sanitize_text_field( (string) ($item_config['target_store_id'] ?? '') );
-            if ( $item_provider !== $provider_key || !in_array( $item_store_id, $store_ids, true ) ) {
-                continue;
-            }
-            if ( $bot_id > 0 && !$this->is_chatbot_training_queue_row_for_bot( $row, $item_config, $bot_id ) ) {
-                continue;
-            }
-            $status = sanitize_key( (string) ($row['status'] ?? '') );
-            if ( array_key_exists( $status, $summary ) ) {
-                $summary[$status]++;
-            }
+        $task_placeholders = implode( ',', array_fill( 0, count( $task_ids ), '%d' ) );
+        $limit = 1001;
+        foreach ( $statuses as $status ) {
+            $params = array_merge( $task_ids, ['content_indexing', $status, $limit] );
+            $query = 'SELECT id FROM ' . esc_sql( $queue_table_name ) . " WHERE task_id IN ({$task_placeholders}) AND task_type = %s AND status = %s LIMIT %d";
+            // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQL.NotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter -- Bounded status preview over known chatbot task IDs in a plugin-owned table.
+            $queue_ids = $wpdb->get_col( $wpdb->prepare( $query, ...$params ) );
+            $is_capped = count( (array) $queue_ids ) >= $limit;
+            $summary[$status] = ( $is_capped ? $limit - 1 : count( (array) $queue_ids ) );
+            $summary[$status . '_is_capped'] = $is_capped;
         }
         $summary['active'] = $summary['pending'] + $summary['processing'];
         return $summary;
-    }
-
-    private function is_chatbot_training_queue_row_for_bot( array $row, array $item_config, int $bot_id ) : bool {
-        $source_context = sanitize_key( (string) ($item_config['source_context'] ?? '') );
-        $item_bot_id = ( isset( $item_config['chatbot_id'] ) ? absint( $item_config['chatbot_id'] ) : 0 );
-        if ( $source_context !== '' || $item_bot_id > 0 ) {
-            return $source_context === 'chatbot_training' && $item_bot_id === $bot_id;
-        }
-        $task_config = json_decode( (string) ($row['task_config'] ?? ''), true );
-        if ( !is_array( $task_config ) ) {
-            $task_config = [];
-        }
-        return $this->is_chatbot_training_task_for_bot( $row, $task_config, $bot_id );
     }
 
     private function clear_chatbot_training_task_events( array $task_ids ) : void {
@@ -2706,6 +2689,14 @@ class ChatbotAjaxHandler extends BaseAjaxHandler {
         $per_page = ( isset( $_POST['per_page'] ) ? absint( $_POST['per_page'] ) : 10 );
         $per_page = min( 50, max( 1, $per_page ) );
         $offset = ($page - 1) * $per_page;
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce verification is handled in check_module_access_permissions method.
+        $include_total = !isset( $_POST['include_total'] ) || sanitize_text_field( wp_unslash( $_POST['include_total'] ) ) !== '0';
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce verification is handled in check_module_access_permissions method.
+        $cursor_mode = isset( $_POST['cursor_mode'] ) && sanitize_text_field( wp_unslash( $_POST['cursor_mode'] ) ) === '1';
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce verification is handled in check_module_access_permissions method.
+        $cursor_timestamp = ( isset( $_POST['cursor_timestamp'] ) ? sanitize_text_field( wp_unslash( $_POST['cursor_timestamp'] ) ) : '' );
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce verification is handled in check_module_access_permissions method.
+        $cursor_id = ( isset( $_POST['cursor_id'] ) ? absint( $_POST['cursor_id'] ) : 0 );
         // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Reason: Nonce verification is handled in check_module_access_permissions method.
         $search = ( isset( $_POST['search'] ) ? sanitize_text_field( wp_unslash( $_POST['search'] ) ) : '' );
         // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Reason: Nonce verification is handled in check_module_access_permissions method.
@@ -2796,19 +2787,47 @@ class ChatbotAjaxHandler extends BaseAjaxHandler {
             $where_clauses[] = '(message LIKE %s OR post_title LIKE %s OR file_id LIKE %s OR vector_store_name LIKE %s OR indexed_content LIKE %s)';
             $params = array_merge( $params, array_fill( 0, 5, $like ) );
         }
+        if ( $cursor_mode && $cursor_timestamp !== '' && $cursor_id > 0 ) {
+            $where_clauses[] = '(timestamp < %s OR (timestamp = %s AND id < %d))';
+            $params[] = $cursor_timestamp;
+            $params[] = $cursor_timestamp;
+            $params[] = $cursor_id;
+        }
         $where_sql = implode( ' AND ', $where_clauses );
-        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare, PluginCheck.Security.DirectDB.UnescapedDBParameter -- $table_name and assembled WHERE clause are internal and scalar values are prepared below.
-        $total_logs = (int) $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM {$table_name} WHERE {$where_sql}", ...$params ) );
-        $logs_params = array_merge( $params, [$per_page, $offset] );
+        $total_logs = null;
+        if ( $include_total && !$cursor_mode ) {
+            // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare, PluginCheck.Security.DirectDB.UnescapedDBParameter -- $table_name and assembled WHERE clause are internal and scalar values are prepared below.
+            $total_logs = (int) $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM {$table_name} WHERE {$where_sql}", ...$params ) );
+        }
+        $query_limit = ( $include_total && !$cursor_mode ? $per_page : $per_page + 1 );
+        $query_offset = ( $cursor_mode ? 0 : $offset );
+        $logs_params = array_merge( $params, [$query_limit, $query_offset] );
         // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrongNumber, PluginCheck.Security.DirectDB.UnescapedDBParameter -- $table_name and assembled WHERE clause are internal and scalar values are prepared below.
-        $logs = $wpdb->get_results( $wpdb->prepare( "SELECT id, timestamp, provider, status, message, indexed_content, post_id, post_title, file_id, batch_id, embedding_provider, embedding_model, vector_store_id, vector_store_name FROM {$table_name} WHERE {$where_sql} ORDER BY timestamp DESC LIMIT %d OFFSET %d", ...$logs_params ), ARRAY_A );
-        $total_pages = ( $per_page > 0 ? (int) ceil( $total_logs / $per_page ) : 0 );
+        $logs = $wpdb->get_results( $wpdb->prepare( "SELECT id, timestamp, provider, status, message, indexed_content, post_id, post_title, file_id, batch_id, embedding_provider, embedding_model, vector_store_id, vector_store_name FROM {$table_name} WHERE {$where_sql} ORDER BY timestamp DESC, id DESC LIMIT %d OFFSET %d", ...$logs_params ), ARRAY_A );
+        $has_more = (!$include_total || $cursor_mode) && count( (array) $logs ) > $per_page;
+        if ( $has_more ) {
+            array_pop( $logs );
+        }
+        $total_pages = ( $include_total && !$cursor_mode && $per_page > 0 ? (int) ceil( (int) $total_logs / $per_page ) : 0 );
+        $next_cursor = null;
+        if ( $cursor_mode && $has_more && !empty( $logs ) ) {
+            $last_log = end( $logs );
+            $next_cursor = [
+                'timestamp' => (string) ($last_log['timestamp'] ?? ''),
+                'id'        => absint( $last_log['id'] ?? 0 ),
+            ];
+        }
         wp_send_json_success( [
             'logs'       => ( $logs ?: [] ),
             'pagination' => [
                 'total_logs'   => $total_logs,
                 'total_pages'  => $total_pages,
                 'current_page' => $page,
+                'cursor_mode'  => $cursor_mode,
+                'has_previous' => $cursor_mode && $page > 1,
+                'has_more'     => $has_more,
+                'next_cursor'  => $next_cursor,
+                'item_count'   => count( (array) $logs ),
             ],
             'provider'   => $provider_label,
         ] );

@@ -21,7 +21,7 @@ function maybe_reschedule_queue_logic(): void
     $queue_table_name = $wpdb->prefix . 'aipkit_automated_task_queue';
     $main_cron_hook = AIPKit_Automated_Task_Event_Processor::MAIN_CRON_HOOK;
     // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Reason: Direct query to a custom table. Caches will be invalidated.
-    $remaining_items = $wpdb->get_var($wpdb->prepare("SELECT COUNT(*) FROM " . esc_sql($queue_table_name) . " WHERE status = %s", 'pending'));
+    $remaining_items = $wpdb->get_var($wpdb->prepare("SELECT 1 FROM " . esc_sql($queue_table_name) . " WHERE status = %s LIMIT 1", 'pending'));
 
     if ($remaining_items > 0) {
         wp_schedule_single_event(time() + 30, $main_cron_hook);

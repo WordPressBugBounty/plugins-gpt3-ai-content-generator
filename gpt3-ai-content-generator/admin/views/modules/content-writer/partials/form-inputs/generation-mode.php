@@ -411,7 +411,7 @@ $render_cw_bulk_row = static function () use ($wp_categories, $users_for_author,
                                             <label class="screen-reader-text" for="aipkit_cw_existing_select_all"><?php esc_html_e('Select all', 'gpt3-ai-content-generator'); ?></label>
                                             <input type="checkbox" id="aipkit_cw_existing_select_all">
                                         </th>
-                                        <th scope="col" class="aipkit_cw_existing_col_title"><?php esc_html_e('Title', 'gpt3-ai-content-generator'); ?></th>
+                                        <th scope="col" class="aipkit_cw_existing_col_title" colspan="4"><?php esc_html_e('Title', 'gpt3-ai-content-generator'); ?></th>
                                         <th scope="col" class="aipkit_cw_existing_col_alt"><?php esc_html_e('Alt', 'gpt3-ai-content-generator'); ?></th>
                                         <th scope="col" class="aipkit_cw_existing_col_caption"><?php esc_html_e('Caption', 'gpt3-ai-content-generator'); ?></th>
                                         <th scope="col" class="aipkit_cw_existing_col_description"><?php esc_html_e('Description', 'gpt3-ai-content-generator'); ?></th>
@@ -438,6 +438,7 @@ $render_cw_bulk_row = static function () use ($wp_categories, $users_for_author,
                                         <option value="25"><?php esc_html_e('25', 'gpt3-ai-content-generator'); ?></option>
                                         <option value="50"><?php esc_html_e('50', 'gpt3-ai-content-generator'); ?></option>
                                         <option value="100"><?php esc_html_e('100', 'gpt3-ai-content-generator'); ?></option>
+                                        <option value="1000"><?php esc_html_e('1000', 'gpt3-ai-content-generator'); ?></option>
                                     </select>
                                 </label>
                                 <div class="aipkit_cw_existing_page_nav aipkit_pagination-links">

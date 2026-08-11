@@ -13,6 +13,7 @@ use WPAICG\AutoGPT\Ajax\AIPKit_Get_Automated_Task_Queue_Items_Action;
 use WPAICG\AutoGPT\Ajax\AIPKit_Delete_Automated_Task_Queue_Item_Action;
 use WPAICG\AutoGPT\Ajax\AIPKit_Delete_Automated_Task_Queue_Items_Action;
 use WPAICG\AutoGPT\Ajax\AIPKit_Retry_Automated_Task_Queue_Item_Action;
+use WPAICG\AutoGPT\Ajax\AIPKit_Manage_Automation_Server_Cron_Action;
 
 if (!defined('ABSPATH')) {
     exit; // Exit if accessed directly
@@ -38,6 +39,7 @@ class AIPKit_Automated_Task_Manager extends BaseDashboardAjaxHandler
         $delete_queue_item_action = new AIPKit_Delete_Automated_Task_Queue_Item_Action();
         $delete_queue_items_action = new AIPKit_Delete_Automated_Task_Queue_Items_Action();
         $retry_queue_item_action = new AIPKit_Retry_Automated_Task_Queue_Item_Action();
+        $manage_server_cron_action = new AIPKit_Manage_Automation_Server_Cron_Action();
 
         add_action('wp_ajax_aipkit_save_automated_task', [$save_task_action, 'handle_request']);
         add_action('wp_ajax_aipkit_get_automated_tasks', [$get_tasks_action, 'handle_request']);
@@ -48,5 +50,6 @@ class AIPKit_Automated_Task_Manager extends BaseDashboardAjaxHandler
         add_action('wp_ajax_aipkit_delete_automated_task_queue_item', [$delete_queue_item_action, 'handle_request']);
         add_action('wp_ajax_aipkit_delete_automated_task_queue_items', [$delete_queue_items_action, 'handle_request']);
         add_action('wp_ajax_aipkit_retry_automated_task_queue_item', [$retry_queue_item_action, 'handle_request']);
+        add_action('wp_ajax_aipkit_manage_automation_server_cron', [$manage_server_cron_action, 'handle_request']);
     }
 }

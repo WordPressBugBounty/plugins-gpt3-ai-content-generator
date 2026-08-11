@@ -16,6 +16,7 @@ use WPAICG\AIPKit_Providers; // For AI models
 use WPAICG\AIPKIT_AI_Settings; // For AI parameters
 use WPAICG\aipkit_dashboard; // For addon status
 use WPAICG\AutoGPT\Cron\AIPKit_Automated_Task_Scheduler;
+use WPAICG\AutoGPT\Cron\AIPKit_Automation_Server_Cron;
 
 // --- Variable Definitions for Partials ---
 $post_types_args = ['public' => true];
@@ -121,60 +122,66 @@ if (class_exists(AIPKit_Automated_Task_Scheduler::class)) {
 
 $aipkit_cron_disabled = defined('DISABLE_WP_CRON') && DISABLE_WP_CRON;
 $aipkit_cron_alternate = defined('ALTERNATE_WP_CRON') && ALTERNATE_WP_CRON;
-$aipkit_cron_task_hook_prefix = 'aipkit_automated_task_';
-$aipkit_cron_task_hooks = [];
 $aipkit_cron_next_timestamp = null;
-$aipkit_cron_active_task_ids = [];
+$aipkit_cron_task_count = 0;
 $aipkit_tasks_table_name = $wpdb->prefix . 'aipkit_automated_tasks';
+$aipkit_server_cron_status = class_exists(AIPKit_Automation_Server_Cron::class)
+    ? AIPKit_Automation_Server_Cron::get_status()
+    : [
+        'enabled' => false,
+        'healthy' => false,
+        'awaiting_first_run' => false,
+        'delayed' => false,
+        'secret_hint' => '',
+        'last_run_at' => 0,
+        'last_result' => [],
+        'endpoint' => '',
+    ];
 
 // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Reason: Direct query to a custom table for scheduler status.
 $aipkit_tasks_table_exists = $wpdb->get_var($wpdb->prepare('SHOW TABLES LIKE %s', $aipkit_tasks_table_name));
 if ($aipkit_tasks_table_exists === $aipkit_tasks_table_name) {
-    // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Reason: Direct query to a custom table for scheduler status.
-    $aipkit_cron_active_task_ids = $wpdb->get_col($wpdb->prepare('SELECT id FROM ' . esc_sql($aipkit_tasks_table_name) . ' WHERE status = %s', 'active'));
-    $aipkit_cron_active_task_ids = array_flip(array_filter(array_map('absint', (array) $aipkit_cron_active_task_ids)));
-}
-
-if (function_exists('_get_cron_array')) {
-    $aipkit_cron_events = _get_cron_array();
-    if (is_array($aipkit_cron_events)) {
-        foreach ($aipkit_cron_events as $timestamp => $events) {
-            if (!is_array($events)) {
-                continue;
-            }
-            foreach ($events as $hook => $hook_events) {
-                if (preg_match('/^' . preg_quote($aipkit_cron_task_hook_prefix, '/') . '(\d+)$/', (string) $hook, $aipkit_cron_hook_matches)) {
-                    $aipkit_cron_task_id = absint($aipkit_cron_hook_matches[1]);
-                    if ($aipkit_cron_task_id <= 0 || !isset($aipkit_cron_active_task_ids[$aipkit_cron_task_id])) {
-                        continue;
-                    }
-                    if (!isset($aipkit_cron_task_hooks[$hook]) || $timestamp < $aipkit_cron_task_hooks[$hook]) {
-                        $aipkit_cron_task_hooks[$hook] = $timestamp;
-                    }
-                }
-            }
-        }
+    // next_run_time is authoritative; WP-Cron and server cron only wake the shared runner.
+    // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Indexed summary over the plugin-owned task table.
+    $aipkit_cron_task_summary = $wpdb->get_row(
+        $wpdb->prepare(
+            'SELECT COUNT(*) AS task_count, MIN(next_run_time) AS next_run_time FROM ' . esc_sql($aipkit_tasks_table_name) . ' WHERE status = %s',
+            'active'
+        ),
+        ARRAY_A
+    );
+    $aipkit_cron_task_count = absint($aipkit_cron_task_summary['task_count'] ?? 0);
+    if (!empty($aipkit_cron_task_summary['next_run_time'])) {
+        $aipkit_cron_next_timestamp = strtotime((string) $aipkit_cron_task_summary['next_run_time'] . ' UTC') ?: null;
     }
 }
 
-$aipkit_cron_task_count = count($aipkit_cron_task_hooks);
-if ($aipkit_cron_task_count > 0) {
-    $aipkit_cron_next_timestamp = min($aipkit_cron_task_hooks);
-}
-
-$aipkit_cron_status_label = $aipkit_cron_disabled
-    ? __('Disabled', 'gpt3-ai-content-generator')
-    : __('Enabled', 'gpt3-ai-content-generator');
-if (!$aipkit_cron_disabled && $aipkit_cron_alternate) {
+$aipkit_cron_state = 'enabled';
+$aipkit_cron_status_label = __('Enabled', 'gpt3-ai-content-generator');
+if ($aipkit_cron_disabled) {
+    if (!empty($aipkit_server_cron_status['healthy'])) {
+        $aipkit_cron_state = 'server';
+        $aipkit_cron_status_label = __('Server cron', 'gpt3-ai-content-generator');
+    } elseif (!empty($aipkit_server_cron_status['awaiting_first_run'])) {
+        $aipkit_cron_state = 'server_pending';
+        $aipkit_cron_status_label = __('Setup incomplete', 'gpt3-ai-content-generator');
+    } elseif (!empty($aipkit_server_cron_status['delayed'])) {
+        $aipkit_cron_state = 'server_delayed';
+        $aipkit_cron_status_label = __('Server delayed', 'gpt3-ai-content-generator');
+    } else {
+        $aipkit_cron_state = 'disabled';
+        $aipkit_cron_status_label = __('Disabled', 'gpt3-ai-content-generator');
+    }
+} elseif ($aipkit_cron_alternate) {
     $aipkit_cron_status_label = __('Enabled (Alternate)', 'gpt3-ai-content-generator');
 }
 
-$aipkit_cron_state = $aipkit_cron_disabled ? 'disabled' : 'enabled';
 $aipkit_cron_overdue = false;
-if (!$aipkit_cron_disabled && $aipkit_cron_next_timestamp) {
+if ($aipkit_cron_next_timestamp) {
     $aipkit_cron_overdue = $aipkit_cron_next_timestamp < (time() - (15 * MINUTE_IN_SECONDS));
-    if ($aipkit_cron_overdue) {
+    if ($aipkit_cron_overdue && !$aipkit_cron_disabled) {
         $aipkit_cron_state = 'overdue';
+        $aipkit_cron_status_label = __('Delayed', 'gpt3-ai-content-generator');
     }
 }
 
@@ -182,24 +189,14 @@ $aipkit_cron_next_label = $aipkit_cron_next_timestamp
     ? wp_date(get_option('date_format') . ' ' . get_option('time_format'), $aipkit_cron_next_timestamp)
     : __('Not scheduled', 'gpt3-ai-content-generator');
 
-$aipkit_cron_tip = '';
-if ($aipkit_cron_disabled) {
-    $aipkit_cron_tip = sprintf(
-        /* translators: %s: URL to documentation about enabling WP-Cron. */
-        __('WP-Cron is disabled. Enable WP-Cron to run automated tasks. <a href="%s" target="_blank" rel="noopener noreferrer">Learn how to enable WP-Cron</a>.', 'gpt3-ai-content-generator'),
-        esc_url('https://www.siteground.com/kb/enable-wordpress-cron/')
-    );
-} elseif ($aipkit_cron_overdue) {
-    $aipkit_cron_tip = __('Next run is overdue. WP-Cron runs on page loads.', 'gpt3-ai-content-generator');
-}
-
 $aipkit_autogpt_cron_summary = [
     'state' => $aipkit_cron_state,
     'status_label' => $aipkit_cron_status_label,
     'next_label' => $aipkit_cron_next_label,
     'next_timestamp' => $aipkit_cron_next_timestamp ? (int) $aipkit_cron_next_timestamp : 0,
     'task_count' => $aipkit_cron_task_count,
-    'tip' => $aipkit_cron_tip,
+    'wp_cron_disabled' => $aipkit_cron_disabled,
+    'server_cron' => $aipkit_server_cron_status,
 ];
 // --- End Variable Definitions ---
 
@@ -211,30 +208,68 @@ $aipkit_notice_context = __('run this automation', 'gpt3-ai-content-generator');
 include WPAICG_PLUGIN_DIR . 'admin/views/shared/provider-key-notice.php';
 include WPAICG_PLUGIN_DIR . 'admin/views/shared/seo-plugin-conflict-notice.php';
 ?>
+<?php if ($aipkit_cron_disabled) : ?>
 <?php
-$aipkit_autogpt_cron_warning = '';
-$aipkit_autogpt_cron_warning_key = '';
-if (!empty($aipkit_autogpt_cron_summary)) {
-    if (($aipkit_autogpt_cron_summary['state'] ?? '') === 'disabled') {
-        $aipkit_autogpt_cron_warning_key = 'autogpt-wp-cron-disabled-v1';
-        $aipkit_autogpt_cron_warning = sprintf(
-            /* translators: %s: URL to documentation about enabling WP-Cron. */
-            __('WP-Cron is disabled. Automated tasks will not run. <a href="%s" target="_blank" rel="noopener noreferrer">Learn how to enable WP-Cron</a>.', 'gpt3-ai-content-generator'),
-            esc_url('https://www.siteground.com/kb/enable-wordpress-cron/')
-        );
-    } elseif (($aipkit_autogpt_cron_summary['state'] ?? '') === 'overdue') {
-        $aipkit_autogpt_cron_warning_key = 'autogpt-wp-cron-overdue-v1';
-        $aipkit_autogpt_cron_warning = __('WP-Cron appears delayed. Automated tasks run on page loads, so low traffic can delay runs.', 'gpt3-ai-content-generator');
-    }
+$aipkit_runner_notice_state = $aipkit_cron_state;
+$aipkit_runner_notice_message = __('WP-Cron is disabled. Automated tasks won’t run.', 'gpt3-ai-content-generator');
+$aipkit_runner_notice_action = __('Use server cron instead', 'gpt3-ai-content-generator');
+$aipkit_runner_notice_show_wp_link = true;
+if ($aipkit_runner_notice_state === 'server_pending') {
+    $aipkit_runner_notice_message = __('Server cron hasn’t checked in yet. Automated tasks won’t run until setup is complete.', 'gpt3-ai-content-generator');
+    $aipkit_runner_notice_action = __('Finish server cron setup', 'gpt3-ai-content-generator');
+    $aipkit_runner_notice_show_wp_link = false;
+} elseif ($aipkit_runner_notice_state === 'server_delayed') {
+    $aipkit_runner_notice_message = __('Server cron hasn’t checked in recently. Automated tasks may be delayed.', 'gpt3-ai-content-generator');
+    $aipkit_runner_notice_action = __('Check server cron setup', 'gpt3-ai-content-generator');
+    $aipkit_runner_notice_show_wp_link = false;
 }
 ?>
-<?php if (!empty($aipkit_autogpt_cron_warning)) : ?>
-<div class="aipkit_notification_bar aipkit_notification_bar--warning" data-aipkit-dismissible-notice="<?php echo esc_attr($aipkit_autogpt_cron_warning_key); ?>">
+<div
+    class="aipkit_notification_bar aipkit_notification_bar--warning aipkit_notification_bar--centered-workspace aipkit_autogpt_cron_notice"
+    data-aipkit-dismissible-notice="autogpt-cron-runner-unavailable-v2"
+    data-aipkit-cron-runner-notice
+    data-aipkit-message-disabled="<?php echo esc_attr__('WP-Cron is disabled. Automated tasks won’t run.', 'gpt3-ai-content-generator'); ?>"
+    data-aipkit-message-pending="<?php echo esc_attr__('Server cron hasn’t checked in yet. Automated tasks won’t run until setup is complete.', 'gpt3-ai-content-generator'); ?>"
+    data-aipkit-message-delayed="<?php echo esc_attr__('Server cron hasn’t checked in recently. Automated tasks may be delayed.', 'gpt3-ai-content-generator'); ?>"
+    data-aipkit-action-disabled="<?php echo esc_attr__('Use server cron instead', 'gpt3-ai-content-generator'); ?>"
+    data-aipkit-action-pending="<?php echo esc_attr__('Finish server cron setup', 'gpt3-ai-content-generator'); ?>"
+    data-aipkit-action-delayed="<?php echo esc_attr__('Check server cron setup', 'gpt3-ai-content-generator'); ?>"
+    <?php if ($aipkit_runner_notice_state === 'server') : ?>hidden<?php endif; ?>
+>
     <div class="aipkit_notification_bar__icon" aria-hidden="true">
         <span class="dashicons dashicons-clock"></span>
     </div>
     <div class="aipkit_notification_bar__content">
-        <p><?php echo wp_kses_post($aipkit_autogpt_cron_warning); ?></p>
+        <p>
+            <span data-aipkit-cron-notice-message><?php echo esc_html($aipkit_runner_notice_message); ?></span>
+            <a
+                href="<?php echo esc_url('https://www.siteground.com/kb/enable-wordpress-cron/'); ?>"
+                target="_blank"
+                rel="noopener noreferrer"
+                data-aipkit-cron-notice-wp-link
+                <?php if (!$aipkit_runner_notice_show_wp_link) : ?>hidden<?php endif; ?>
+            ><?php esc_html_e('Learn how to enable WP-Cron', 'gpt3-ai-content-generator'); ?></a>
+        </p>
+    </div>
+    <div class="aipkit_notification_bar__actions">
+        <button type="button" class="aipkit_autogpt_cron_notice_action" data-aipkit-open-server-cron data-aipkit-cron-notice-action>
+            <?php echo esc_html($aipkit_runner_notice_action); ?>
+        </button>
+    </div>
+    <button type="button" class="aipkit_notification_bar__close" data-aipkit-dismiss-notice aria-label="<?php esc_attr_e('Dismiss notice', 'gpt3-ai-content-generator'); ?>">
+        &times;
+    </button>
+</div>
+<?php elseif ($aipkit_cron_state === 'overdue') : ?>
+<div
+    class="aipkit_notification_bar aipkit_notification_bar--warning aipkit_notification_bar--centered-workspace"
+    data-aipkit-dismissible-notice="autogpt-wp-cron-overdue-v1"
+>
+    <div class="aipkit_notification_bar__icon" aria-hidden="true">
+        <span class="dashicons dashicons-clock"></span>
+    </div>
+    <div class="aipkit_notification_bar__content">
+        <p><?php esc_html_e('WP-Cron appears delayed. Automated tasks run on page loads, so low traffic can delay runs.', 'gpt3-ai-content-generator'); ?></p>
     </div>
     <button type="button" class="aipkit_notification_bar__close" data-aipkit-dismiss-notice aria-label="<?php esc_attr_e('Dismiss notice', 'gpt3-ai-content-generator'); ?>">
         &times;

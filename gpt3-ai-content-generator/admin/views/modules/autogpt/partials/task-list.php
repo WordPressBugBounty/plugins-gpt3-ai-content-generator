@@ -12,15 +12,10 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
-$aipkit_overview_task_count = 0;
 $aipkit_cron_state = !empty($aipkit_autogpt_cron_summary['state']) ? (string) $aipkit_autogpt_cron_summary['state'] : 'enabled';
-$aipkit_cron_card_status = __('Enabled', 'gpt3-ai-content-generator');
-
-if ($aipkit_cron_state === 'disabled') {
-    $aipkit_cron_card_status = __('Disabled', 'gpt3-ai-content-generator');
-} elseif ($aipkit_cron_state === 'overdue') {
-    $aipkit_cron_card_status = __('Delayed', 'gpt3-ai-content-generator');
-}
+$aipkit_cron_card_status = !empty($aipkit_autogpt_cron_summary['status_label'])
+    ? (string) $aipkit_autogpt_cron_summary['status_label']
+    : __('Enabled', 'gpt3-ai-content-generator');
 ?>
 <div id="aipkit_automated_task_list_wrapper">
     <header class="aipkit_autogpt_overview_intro">
@@ -39,19 +34,19 @@ if ($aipkit_cron_state === 'disabled') {
     <div class="aipkit_autogpt_overview_metrics" aria-label="<?php esc_attr_e('Automation summary', 'gpt3-ai-content-generator'); ?>">
         <div class="aipkit_autogpt_metric_card">
             <span class="aipkit_autogpt_metric_label"><?php esc_html_e('Total tasks', 'gpt3-ai-content-generator'); ?></span>
-            <strong id="aipkit_autogpt_metric_total_tasks" class="aipkit_autogpt_metric_value" aria-live="polite"><?php echo esc_html(number_format_i18n($aipkit_overview_task_count)); ?></strong>
+            <strong id="aipkit_autogpt_metric_total_tasks" class="aipkit_autogpt_metric_value" aria-live="polite" aria-busy="true">&mdash;</strong>
         </div>
         <div class="aipkit_autogpt_metric_card">
             <span class="aipkit_autogpt_metric_label"><?php esc_html_e('Pending', 'gpt3-ai-content-generator'); ?></span>
-            <strong id="aipkit_autogpt_metric_pending" class="aipkit_autogpt_metric_value" aria-live="polite">0</strong>
+            <strong id="aipkit_autogpt_metric_pending" class="aipkit_autogpt_metric_value" aria-live="polite" aria-busy="true">&mdash;</strong>
         </div>
         <div class="aipkit_autogpt_metric_card">
             <span class="aipkit_autogpt_metric_label"><?php esc_html_e('Running', 'gpt3-ai-content-generator'); ?></span>
-            <strong id="aipkit_autogpt_metric_running" class="aipkit_autogpt_metric_value" aria-live="polite">0</strong>
+            <strong id="aipkit_autogpt_metric_running" class="aipkit_autogpt_metric_value" aria-live="polite" aria-busy="true">&mdash;</strong>
         </div>
         <div id="aipkit_autogpt_metric_failed_card" class="aipkit_autogpt_metric_card aipkit_autogpt_metric_card--failed" data-has-failures="false">
             <span class="aipkit_autogpt_metric_label"><?php esc_html_e('Failed', 'gpt3-ai-content-generator'); ?></span>
-            <strong id="aipkit_autogpt_metric_failed" class="aipkit_autogpt_metric_value" aria-live="polite">0</strong>
+            <strong id="aipkit_autogpt_metric_failed" class="aipkit_autogpt_metric_value" aria-live="polite" aria-busy="true">&mdash;</strong>
         </div>
         <div class="aipkit_autogpt_metric_card aipkit_autogpt_metric_card--cron">
             <details

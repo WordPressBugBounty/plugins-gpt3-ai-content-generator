@@ -8,6 +8,30 @@ if (!defined('ABSPATH')) {
 }
 
 /**
+ * Returns remaining capacity in a bounded per-task active queue window.
+ *
+ * The derived-table LIMIT prevents this request from counting an arbitrarily
+ * large backlog merely to decide whether another producer batch may be added.
+ */
+function get_queue_window_capacity_logic(
+    \wpdb $wpdb,
+    string $queue_table_name,
+    int $task_id,
+    int $window_size = 1000
+): int {
+    $window_size = max(1, $window_size);
+    // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQL.NotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter -- Bounded active-row count over a plugin-owned queue table.
+    $active_count = (int) $wpdb->get_var(
+        $wpdb->prepare(
+            "SELECT COUNT(*) FROM (SELECT id FROM " . esc_sql($queue_table_name) . " WHERE task_id = %d AND status IN ('pending', 'processing') LIMIT %d) AS aipkit_bounded_queue",
+            $task_id,
+            $window_size
+        )
+    );
+    return max(0, $window_size - $active_count);
+}
+
+/**
  * Inserts a single item into the automated task queue.
  *
  * @param \wpdb $wpdb The WordPress database object.
@@ -62,9 +86,10 @@ function insert_item_into_queue_logic(
             'task_type' => $task_type,
             'item_config' => $encoded_item_config,
             'status' => 'pending',
-            'added_at' => current_time('mysql', 1)
+            'added_at' => current_time('mysql', 1),
+            'sort_priority' => 1,
         ],
-        ['%d', '%s', '%s', '%s', '%s', '%s']
+        ['%d', '%s', '%s', '%s', '%s', '%s', '%d']
     );
     return (bool) $inserted;
 }
