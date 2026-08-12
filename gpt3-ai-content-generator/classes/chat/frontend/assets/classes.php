@@ -272,9 +272,11 @@ class AssetsEnqueuer
                         'playActionLabel' => __('Play audio', 'gpt3-ai-content-generator'),
                         'pauseActionLabel' => __('Pause audio', 'gpt3-ai-content-generator'),
                         'uploadFile' => __('Upload File (TXT, PDF)', 'gpt3-ai-content-generator'),
-                         /* translators: %s: The name of the uploaded file the user is currently interacting with. */
-                        'fileContextActive' => __('Chatting with: %s', 'gpt3-ai-content-generator'), // %s will be filename
-                        'clearFileContext' => __('Clear file context', 'gpt3-ai-content-generator'),
+                        /* translators: %s: Uploaded file name. */
+                        'fileUploading' => __('Uploading %s', 'gpt3-ai-content-generator'),
+                        /* translators: %s: Uploaded file name. */
+                        'fileIndexing' => __('Indexing %s', 'gpt3-ai-content-generator'),
+                        'detachFile' => __('Detach file', 'gpt3-ai-content-generator'),
                         // ... any other truly global texts needed by public-main.bundle.js
                     ]
                 ]);

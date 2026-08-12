@@ -227,8 +227,10 @@ class ChatbotAjaxHandler extends BaseAjaxHandler {
         if ( in_array( $normalized_mode, ['inline', 'popup', 'external'], true ) ) {
             return $normalized_mode;
         }
-        $popup_enabled = isset( $settings['popup_enabled'] ) && (string) $settings['popup_enabled'] === '1';
-        return ( $popup_enabled ? 'popup' : 'inline' );
+        if ( array_key_exists( 'popup_enabled', $settings ) ) {
+            return ( (string) $settings['popup_enabled'] === '1' ? BotSettingsManager::DEFAULT_DEPLOY_MODE : 'inline' );
+        }
+        return BotSettingsManager::DEFAULT_DEPLOY_MODE;
     }
 
     /**
@@ -823,7 +825,7 @@ class ChatbotAjaxHandler extends BaseAjaxHandler {
                 // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Reason: Nonce verification is handled in check_module_access_permissions method.
                 $header_avatar_type = sanitize_key( wp_unslash( $_POST['header_avatar_type'] ) );
             }
-            if ( !in_array( $header_avatar_type, ['default', 'custom'], true ) ) {
+            if ( !in_array( $header_avatar_type, ['inherit', 'default', 'custom'], true ) ) {
                 $header_avatar_type = BotSettingsManager::DEFAULT_HEADER_AVATAR_TYPE;
             }
             if ( !isset( $_POST['header_avatar_type'] ) && isset( $_POST['header_avatar_url'] ) && !empty( $_POST['header_avatar_url'] ) ) {
@@ -833,12 +835,15 @@ class ChatbotAjaxHandler extends BaseAjaxHandler {
                 $header_avatar_url = ( isset( $_POST['header_avatar_url'] ) ? esc_url_raw( trim( (string) wp_unslash( $_POST['header_avatar_url'] ) ) ) : get_post_meta( $bot_id, '_aipkit_header_avatar_url', BotSettingsManager::DEFAULT_HEADER_AVATAR_URL ) );
                 $header_avatar_value = $header_avatar_url;
                 update_post_meta( $bot_id, '_aipkit_header_avatar_url', $header_avatar_url );
-            } else {
+            } elseif ( $header_avatar_type === 'default' ) {
                 $header_avatar_default = ( isset( $_POST['header_avatar_default'] ) ? sanitize_key( wp_unslash( $_POST['header_avatar_default'] ) ) : get_post_meta( $bot_id, '_aipkit_header_avatar_value', BotSettingsManager::DEFAULT_HEADER_AVATAR_VALUE ) );
                 if ( !in_array( $header_avatar_default, $allowed_header_icons, true ) ) {
                     $header_avatar_default = BotSettingsManager::DEFAULT_HEADER_AVATAR_VALUE;
                 }
                 $header_avatar_value = $header_avatar_default;
+                update_post_meta( $bot_id, '_aipkit_header_avatar_url', '' );
+            } else {
+                $header_avatar_value = BotSettingsManager::DEFAULT_HEADER_AVATAR_VALUE;
                 update_post_meta( $bot_id, '_aipkit_header_avatar_url', '' );
             }
             update_post_meta( $bot_id, '_aipkit_header_avatar_type', $header_avatar_type );
@@ -861,7 +866,7 @@ class ChatbotAjaxHandler extends BaseAjaxHandler {
             'custom',
             'chatgpt'
         ], true ) ) {
-            $theme_for_preset = 'dark';
+            $theme_for_preset = BotSettingsManager::DEFAULT_THEME;
         }
         if ( isset( $_POST['theme'] ) ) {
             // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Reason: Nonce verification is handled in check_module_access_permissions method.
@@ -873,7 +878,7 @@ class ChatbotAjaxHandler extends BaseAjaxHandler {
                 'chatgpt'
             ];
             if ( !in_array( $theme, $allowed_themes, true ) ) {
-                $theme = 'dark';
+                $theme = BotSettingsManager::DEFAULT_THEME;
             }
             update_post_meta( $bot_id, '_aipkit_theme', $theme );
             $theme_for_preset = $theme;
@@ -1577,7 +1582,7 @@ class ChatbotAjaxHandler extends BaseAjaxHandler {
         if ( isset( $_POST['realtime_model'] ) ) {
             // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Reason: Nonce verification is handled in check_module_access_permissions method.
             $realtime_model = sanitize_text_field( wp_unslash( $_POST['realtime_model'] ) );
-            $allowed_realtime_models = ['gpt-4o-realtime-preview', 'gpt-4o-mini-realtime'];
+            $allowed_realtime_models = ['gpt-realtime-2.1', 'gpt-realtime-2.1-mini'];
             if ( !in_array( $realtime_model, $allowed_realtime_models, true ) ) {
                 $realtime_model = BotSettingsManager::DEFAULT_REALTIME_MODEL;
             }
@@ -1592,11 +1597,11 @@ class ChatbotAjaxHandler extends BaseAjaxHandler {
                 'ballad',
                 'coral',
                 'echo',
-                'fable',
-                'onyx',
-                'nova',
+                'sage',
                 'shimmer',
-                'verse'
+                'verse',
+                'marin',
+                'cedar'
             ];
             if ( !in_array( $realtime_voice, $allowed_realtime_voices, true ) ) {
                 $realtime_voice = BotSettingsManager::DEFAULT_REALTIME_VOICE;
@@ -1606,7 +1611,7 @@ class ChatbotAjaxHandler extends BaseAjaxHandler {
         if ( isset( $_POST['turn_detection'] ) ) {
             // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Reason: Nonce verification is handled in check_module_access_permissions method.
             $turn_detection = sanitize_text_field( wp_unslash( $_POST['turn_detection'] ) );
-            $allowed_turn_detection = ['none', 'server_vad', 'semantic_vad'];
+            $allowed_turn_detection = ['server_vad', 'semantic_vad'];
             if ( !in_array( $turn_detection, $allowed_turn_detection, true ) ) {
                 $turn_detection = BotSettingsManager::DEFAULT_TURN_DETECTION;
             }
@@ -1739,7 +1744,7 @@ class ChatbotAjaxHandler extends BaseAjaxHandler {
                 'question-mark'
             ];
             $header_avatar_type = ( isset( $_POST['header_avatar_type'] ) ? sanitize_key( wp_unslash( $_POST['header_avatar_type'] ) ) : get_post_meta( $bot_id, '_aipkit_header_avatar_type', BotSettingsManager::DEFAULT_HEADER_AVATAR_TYPE ) );
-            if ( !in_array( $header_avatar_type, ['default', 'custom'], true ) ) {
+            if ( !in_array( $header_avatar_type, ['inherit', 'default', 'custom'], true ) ) {
                 $header_avatar_type = BotSettingsManager::DEFAULT_HEADER_AVATAR_TYPE;
             }
             if ( !isset( $_POST['header_avatar_type'] ) && isset( $_POST['header_avatar_url'] ) && !empty( $_POST['header_avatar_url'] ) ) {
@@ -1749,12 +1754,15 @@ class ChatbotAjaxHandler extends BaseAjaxHandler {
                 $header_avatar_url = ( isset( $_POST['header_avatar_url'] ) ? esc_url_raw( trim( (string) wp_unslash( $_POST['header_avatar_url'] ) ) ) : get_post_meta( $bot_id, '_aipkit_header_avatar_url', BotSettingsManager::DEFAULT_HEADER_AVATAR_URL ) );
                 $header_avatar_value = $header_avatar_url;
                 update_post_meta( $bot_id, '_aipkit_header_avatar_url', $header_avatar_url );
-            } else {
+            } elseif ( $header_avatar_type === 'default' ) {
                 $header_avatar_default = ( isset( $_POST['header_avatar_default'] ) ? sanitize_key( wp_unslash( $_POST['header_avatar_default'] ) ) : get_post_meta( $bot_id, '_aipkit_header_avatar_value', BotSettingsManager::DEFAULT_HEADER_AVATAR_VALUE ) );
                 if ( !in_array( $header_avatar_default, $allowed_header_icons, true ) ) {
                     $header_avatar_default = BotSettingsManager::DEFAULT_HEADER_AVATAR_VALUE;
                 }
                 $header_avatar_value = $header_avatar_default;
+                update_post_meta( $bot_id, '_aipkit_header_avatar_url', '' );
+            } else {
+                $header_avatar_value = BotSettingsManager::DEFAULT_HEADER_AVATAR_VALUE;
                 update_post_meta( $bot_id, '_aipkit_header_avatar_url', '' );
             }
             update_post_meta( $bot_id, '_aipkit_header_avatar_type', $header_avatar_type );

@@ -9,6 +9,95 @@ if (!defined('ABSPATH')) {
     exit; // Exit if accessed directly
 }
 
+/**
+ * Builds static custom-accent variables so light accents remain readable before
+ * the frontend runtime initializes (including external embed contexts).
+ */
+function get_custom_accent_style(array $settings): string
+{
+    $primary = !empty($settings['primary_color'])
+        ? sanitize_hex_color((string) $settings['primary_color'])
+        : '';
+    $legacy_accent = !empty($settings['accent_color'])
+        ? sanitize_hex_color((string) $settings['accent_color'])
+        : '';
+    $use_legacy_accent = $legacy_accent
+        && strtolower($legacy_accent) !== '#111111'
+        && (!$primary || strtolower($primary) === '#0f766e');
+    $accent = $use_legacy_accent ? $legacy_accent : ($primary ?: $legacy_accent);
+    if (!$accent) {
+        return '';
+    }
+
+    if (strlen($accent) === 4) {
+        $accent = sprintf(
+            '#%1$s%1$s%2$s%2$s%3$s%3$s',
+            $accent[1],
+            $accent[2],
+            $accent[3]
+        );
+    }
+
+    $red = hexdec(substr($accent, 1, 2));
+    $green = hexdec(substr($accent, 3, 2));
+    $blue = hexdec(substr($accent, 5, 2));
+    $linearize = static function (int $channel): float {
+        $value = $channel / 255;
+        return $value <= 0.03928
+            ? $value / 12.92
+            : (($value + 0.055) / 1.055) ** 2.4;
+    };
+    $luminance = (0.2126 * $linearize($red))
+        + (0.7152 * $linearize($green))
+        + (0.0722 * $linearize($blue));
+    $on_accent_rgb = $luminance > 0.55 ? [26, 29, 35] : [255, 255, 255];
+    $on_accent = sprintf(
+        '#%02X%02X%02X',
+        $on_accent_rgb[0],
+        $on_accent_rgb[1],
+        $on_accent_rgb[2]
+    );
+    $mix = static function (array $from, array $to, float $to_weight): array {
+        return [
+            (int) round(($from[0] * (1 - $to_weight)) + ($to[0] * $to_weight)),
+            (int) round(($from[1] * (1 - $to_weight)) + ($to[1] * $to_weight)),
+            (int) round(($from[2] * (1 - $to_weight)) + ($to[2] * $to_weight)),
+        ];
+    };
+    $accent_rgb = [$red, $green, $blue];
+    $selection_rgb = $luminance > 0.55 ? [26, 29, 35] : $accent_rgb;
+    $hover_rgb = $mix(
+        $accent_rgb,
+        $luminance > 0.55 ? [26, 29, 35] : [255, 255, 255],
+        $luminance > 0.55 ? 0.08 : 0.12
+    );
+    $tint_rgb = $mix([255, 255, 255], $accent_rgb, 0.12);
+    $accent_on_tint_rgb = $luminance < 0.7
+        ? $accent_rgb
+        : [
+            (int) round($red * 0.75),
+            (int) round($green * 0.75),
+            (int) round($blue * 0.75),
+        ];
+    $to_hex = static function (array $rgb): string {
+        return sprintf('#%02X%02X%02X', $rgb[0], $rgb[1], $rgb[2]);
+    };
+
+    return implode('', [
+        '--aipkit-chat-accent-color:' . strtoupper($accent) . ';',
+        '--aipkit-chat-accent-rgb:' . implode(',', $accent_rgb) . ';',
+        '--aipkit-chat-selection-rgb:' . implode(',', $selection_rgb) . ';',
+        '--aipkit-chat-on-accent-color:' . $on_accent . ';',
+        '--aipkit-chat-on-accent-rgb:' . implode(',', $on_accent_rgb) . ';',
+        '--aipkit-chat-accent-hover-color:' . $to_hex($hover_rgb) . ';',
+        '--aipkit-chat-accent-tint-color:' . $to_hex($tint_rgb) . ';',
+        '--aipkit-chat-accent-on-tint-color:' . $to_hex($accent_on_tint_rgb) . ';',
+        '--aipkit-chat-accent-shadow-color:rgba(' . $red . ',' . $green . ',' . $blue . ',0.3);',
+        '--aipkit-chat-header-avatar-bg-color:rgba(' . implode(',', $on_accent_rgb) . ',0.18);',
+        '--aipkit-chat-header-status-text-color:rgba(' . implode(',', $on_accent_rgb) . ',0.85);',
+    ]);
+}
+
 // --- render_chatbot_html.php ---
 /**
  * Logic for rendering the main chatbot HTML structure.
@@ -76,8 +165,12 @@ function render_popup_mode_html_logic(
     $popup_icon_size  = (isset($frontend_config['popupIconSize']) && in_array($frontend_config['popupIconSize'], ['small','medium','large','xlarge'], true))
         ? $frontend_config['popupIconSize']
         : BotSettingsManager::DEFAULT_POPUP_ICON_SIZE;
+    $is_direct_voice_mode = !empty($frontend_config['directVoiceMode']);
+    $direct_voice_icon_html = '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-volume"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M15 8a5 5 0 0 1 0 8"/><path d="M17.7 5a9 9 0 0 1 0 14"/><path d="M6 15h-2a1 1 0 0 1 -1 -1v-4a1 1 0 0 1 1 -1h2l3.5 -4.5a.8 .8 0 0 1 1.5 .5v14a.8 .8 0 0 1 -1.5 .5l-3.5 -4.5"/></svg>';
     $icon_html = '';
-    if ($popup_icon_type === 'custom' && !empty($popup_icon_value)) {
+    if ($is_direct_voice_mode) {
+        $icon_html = $direct_voice_icon_html;
+    } elseif ($popup_icon_type === 'custom' && !empty($popup_icon_value)) {
         // phpcs:ignore PluginCheck.CodeAnalysis.ImageFunctions.NonEnqueuedImage -- Reason: The image source is correctly retrieved using a WordPress function (e.g., `wp_get_attachment_image_url`). The `<img>` tag is constructed manually to build a custom HTML structure with specific wrappers, classes, or attributes that are not achievable with the standard `wp_get_attachment_image()` function.
         $icon_html = '<img src="' . esc_url($popup_icon_value) . '" alt="' . esc_attr__('Open Chat', 'gpt3-ai-content-generator') . '" class="aipkit_popup_custom_icon" />';
     } else {
@@ -102,7 +195,7 @@ function render_popup_mode_html_logic(
 
     $custom_theme_class = '';
     $custom_theme_data_attr = '';
-    $trigger_inline_style = '';
+    $custom_accent_style = '';
     $custom_theme_preset_key = isset($frontend_config['customThemePresetKey'])
         ? sanitize_key((string) $frontend_config['customThemePresetKey'])
         : '';
@@ -113,27 +206,12 @@ function render_popup_mode_html_logic(
         }
         $custom_theme_data_attr = 'data-custom-theme=\'' . esc_attr(wp_json_encode($frontend_config['customThemeSettings'])) . '\'';
 
-        // Extract primary color for immediate trigger styling (prevents FOUC)
-        $custom_settings = $frontend_config['customThemeSettings'];
-        $primary_color = '';
-
-        // Check primary_color first, then legacy accent_color
-        if (!empty($custom_settings['primary_color'])) {
-            $primary_color = $custom_settings['primary_color'];
-        } elseif (!empty($custom_settings['accent_color'])) {
-            $primary_color = $custom_settings['accent_color'];
-        }
-
-        // Build inline style for trigger to prevent flash of dark color
-        if (!empty($primary_color)) {
-            $trigger_inline_style = '--aipkit-chat-popup-trigger-bg-color:' . esc_attr($primary_color) . ';--aipkit-chat-send-button-bg-color:' . esc_attr($primary_color) . ';';
-        }
+        $custom_accent_style = get_custom_accent_style($frontend_config['customThemeSettings']);
     } elseif ($theme === 'custom' && !$is_custom_theme_preset) {
         $custom_theme_class = 'aipkit-theme-custom';
     }
 
     $popup_theme_marker_class = 'aipkit-popup-theme-' . sanitize_html_class(!empty($theme) ? $theme : 'light');
-    $is_direct_voice_mode = !empty($frontend_config['directVoiceMode']);
     $popup_wrapper_classes = 'aipkit_popup_wrapper ' . $popup_theme_marker_class;
     if (!$is_direct_voice_mode) {
         $popup_wrapper_classes .= ' aipkit-popup-standard';
@@ -142,13 +220,19 @@ function render_popup_mode_html_logic(
         $popup_wrapper_classes .= ' ' . $custom_theme_class;
     }
 
-    $has_main_footer_class = !empty($frontend_config['footerText']) ? 'aipkit-has-main-footer' : '';
-
     // Build wrapper style attribute
-    $wrapper_style_attr = !empty($trigger_inline_style) ? 'style="' . esc_attr($trigger_inline_style) . '"' : '';
+    $wrapper_style_attr = !empty($custom_accent_style) ? 'style="' . esc_attr($custom_accent_style) . '"' : '';
+    $container_style_attr = $wrapper_style_attr;
+    $trigger_open_label = $is_direct_voice_mode
+        ? __('Start voice conversation', 'gpt3-ai-content-generator')
+        : __('Open Chat', 'gpt3-ai-content-generator');
+    $trigger_close_label = $is_direct_voice_mode
+        ? __('Close voice consent', 'gpt3-ai-content-generator')
+        : __('Close Chat', 'gpt3-ai-content-generator');
+    $rendered_icon_type = $is_direct_voice_mode ? 'default' : $popup_icon_type;
     ?>
     <div class="<?php echo esc_attr($popup_wrapper_classes); ?>" id="aipkit_popup_wrapper_<?php echo esc_attr($bot_id); ?>" data-config='<?php echo esc_attr($json_encoded_data); ?>' data-bot-id="<?php echo esc_attr($bot_id); ?>" data-icon-size="<?php echo esc_attr($popup_icon_size); ?>" <?php echo $wrapper_style_attr; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
-        <button type="button" class="aipkit_popup_trigger aipkit_popup_position-<?php echo esc_attr($popup_position); ?> aipkit_popup_trigger--size-<?php echo esc_attr($popup_icon_size); ?>" id="aipkit_popup_trigger_<?php echo esc_attr($bot_id); ?>" aria-label="<?php esc_attr_e('Open Chat', 'gpt3-ai-content-generator'); ?>" title="<?php esc_attr_e('Open Chat', 'gpt3-ai-content-generator'); ?>" aria-haspopup="dialog" aria-controls="aipkit_chat_container_<?php echo esc_attr($bot_id); ?>" aria-expanded="false" data-icon-style="<?php echo esc_attr($popup_icon_style); ?>" data-icon-type="<?php echo esc_attr($popup_icon_type); ?>" data-label-open="<?php esc_attr_e('Open Chat', 'gpt3-ai-content-generator'); ?>" data-label-close="<?php esc_attr_e('Close Chat', 'gpt3-ai-content-generator'); ?>">
+        <button type="button" class="aipkit_popup_trigger aipkit_popup_position-<?php echo esc_attr($popup_position); ?> aipkit_popup_trigger--size-<?php echo esc_attr($popup_icon_size); ?>" id="aipkit_popup_trigger_<?php echo esc_attr($bot_id); ?>" aria-label="<?php echo esc_attr($trigger_open_label); ?>" title="<?php echo esc_attr($trigger_open_label); ?>" aria-haspopup="dialog" aria-controls="aipkit_chat_container_<?php echo esc_attr($bot_id); ?>" aria-expanded="false" <?php if ($is_direct_voice_mode): ?>aria-pressed="false" data-aipkit-direct-voice="true"<?php endif; ?> data-icon-style="<?php echo esc_attr($popup_icon_style); ?>" data-icon-type="<?php echo esc_attr($rendered_icon_type); ?>" data-label-open="<?php echo esc_attr($trigger_open_label); ?>" data-label-close="<?php echo esc_attr($trigger_close_label); ?>">
             <span class="aipkit_popup_icon aipkit_popup_icon--open">
                 <?php echo $icon_html; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped?>
             </span>
@@ -180,18 +264,20 @@ function render_popup_mode_html_logic(
                 <?php endif; ?>
             </div>
         <?php } // end hint_enabled ?>
-        <div class="aipkit_chat_container aipkit_popup_content aipkit-theme-<?php echo esc_attr($theme); ?> <?php echo esc_attr($custom_theme_class); ?> <?php echo esc_attr($has_main_footer_class); ?> aipkit_popup_position-<?php echo esc_attr($popup_position); ?> aipkit-sidebar-state-closed <?php echo esc_attr($voice_input_class); ?> <?php echo esc_attr($web_search_class); ?> <?php echo esc_attr($google_grounding_class); ?>" id="aipkit_chat_container_<?php echo esc_attr($bot_id); ?>" aria-hidden="true" inert <?php echo $custom_theme_data_attr; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped?> >
-            <div class="aipkit_chat_main">
-                <?php if ($feature_flags['show_header']): ?>
-                    <?php $rendererInstance->render_header_html_internal($feature_flags, $frontend_config, true); ?>
-                <?php endif; ?>
-                <div class="aipkit_chat_messages"></div>
-                <?php if ($feature_flags['starters_ui_enabled']): ?>
-                    <div class="aipkit_conversation_starters"></div>
-                <?php endif; ?>
-                <?php $rendererInstance->render_input_area_html_internal($frontend_config, false, $feature_flags, $allow_openai_web_search_tool, $allow_google_search_grounding); ?>
-                <?php $rendererInstance->render_footer_html_internal($frontend_config['footerText']); ?>
+        <div class="aipkit_chat_container aipkit_popup_content aipkit-theme-<?php echo esc_attr($theme); ?> <?php echo esc_attr($custom_theme_class); ?> aipkit_popup_position-<?php echo esc_attr($popup_position); ?> aipkit-sidebar-state-closed <?php echo esc_attr($voice_input_class); ?> <?php echo esc_attr($web_search_class); ?> <?php echo esc_attr($google_grounding_class); ?>" id="aipkit_chat_container_<?php echo esc_attr($bot_id); ?>" aria-hidden="true" inert <?php echo $custom_theme_data_attr; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped?> <?php echo $container_style_attr; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?> >
+            <div class="aipkit_chat_body">
+                <div class="aipkit_chat_main">
+                    <?php if ($feature_flags['show_header']): ?>
+                        <?php $rendererInstance->render_header_html_internal($feature_flags, $frontend_config, true); ?>
+                    <?php endif; ?>
+                    <div class="aipkit_chat_messages"></div>
+                    <?php if ($feature_flags['starters_ui_enabled']): ?>
+                        <div class="aipkit_conversation_starters"></div>
+                    <?php endif; ?>
+                    <?php $rendererInstance->render_input_area_html_internal($frontend_config, false, $feature_flags, $allow_openai_web_search_tool, $allow_google_search_grounding); ?>
+                </div>
             </div>
+            <?php $rendererInstance->render_footer_html_internal($frontend_config['footerText']); ?>
         </div>
     </div>
     <?php
@@ -230,6 +316,7 @@ function render_inline_mode_html_logic(
 
     $custom_theme_class = '';
     $custom_theme_data_attr = '';
+    $custom_accent_style = '';
     $custom_theme_preset_key = isset($frontend_config['customThemePresetKey'])
         ? sanitize_key((string) $frontend_config['customThemePresetKey'])
         : '';
@@ -239,28 +326,29 @@ function render_inline_mode_html_logic(
             $custom_theme_class = 'aipkit-theme-custom';
         }
         $custom_theme_data_attr = 'data-custom-theme=\'' . esc_attr(wp_json_encode($frontend_config['customThemeSettings'])) . '\'';
+        $custom_accent_style = get_custom_accent_style($frontend_config['customThemeSettings']);
     } elseif ($theme === 'custom' && !$is_custom_theme_preset) { // Custom theme selected, but no settings (will fallback to light/base)
         $custom_theme_class = 'aipkit-theme-custom';
     }
 
-    $has_main_footer_class = !empty($frontend_config['footerText']) ? 'aipkit-has-main-footer' : '';
-
     ?>
-    <div class="aipkit_chat_container aipkit-theme-<?php echo esc_attr($theme); ?> <?php echo esc_attr($custom_theme_class); ?> <?php echo esc_attr($has_main_footer_class); ?> aipkit-sidebar-state-closed <?php echo esc_attr($voice_input_class); ?> <?php echo esc_attr($web_search_class); ?> <?php echo esc_attr($google_grounding_class); ?>" id="aipkit_chat_container_<?php echo esc_attr($bot_id); ?>" data-bot-id="<?php echo esc_attr($bot_id); ?>" data-config='<?php echo esc_attr($json_encoded_data); ?>' <?php echo $custom_theme_data_attr; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- $custom_theme_data_attr is properly escaped ?> >
-        <?php if ($feature_flags['sidebar_ui_enabled']): ?>
-            <?php $rendererInstance->render_sidebar_html_internal($frontend_config); ?>
-        <?php endif; ?>
-        <div class="aipkit_chat_main">
-             <?php if ($feature_flags['show_header']): ?>
-                <?php $rendererInstance->render_header_html_internal($feature_flags, $frontend_config, false); ?>
-             <?php endif; ?>
-            <div class="aipkit_chat_messages"></div>
-             <?php if ($feature_flags['starters_ui_enabled']): ?>
-                <div class="aipkit_conversation_starters"></div>
-             <?php endif; ?>
-            <?php $rendererInstance->render_input_area_html_internal($frontend_config, true, $feature_flags, $allow_openai_web_search_tool, $allow_google_search_grounding); ?>
-            <?php $rendererInstance->render_footer_html_internal($frontend_config['footerText']); ?>
+    <div class="aipkit_chat_container aipkit-theme-<?php echo esc_attr($theme); ?> <?php echo esc_attr($custom_theme_class); ?> aipkit-sidebar-state-closed <?php echo esc_attr($voice_input_class); ?> <?php echo esc_attr($web_search_class); ?> <?php echo esc_attr($google_grounding_class); ?>" id="aipkit_chat_container_<?php echo esc_attr($bot_id); ?>" data-bot-id="<?php echo esc_attr($bot_id); ?>" data-config='<?php echo esc_attr($json_encoded_data); ?>' <?php echo $custom_theme_data_attr; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- $custom_theme_data_attr is properly escaped ?> <?php echo !empty($custom_accent_style) ? 'style="' . esc_attr($custom_accent_style) . '"' : ''; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?> >
+        <div class="aipkit_chat_body">
+            <?php if ($feature_flags['sidebar_ui_enabled']): ?>
+                <?php $rendererInstance->render_sidebar_html_internal($frontend_config); ?>
+            <?php endif; ?>
+            <div class="aipkit_chat_main">
+                <?php if ($feature_flags['show_header']): ?>
+                    <?php $rendererInstance->render_header_html_internal($feature_flags, $frontend_config, false); ?>
+                <?php endif; ?>
+                <div class="aipkit_chat_messages"></div>
+                <?php if ($feature_flags['starters_ui_enabled']): ?>
+                    <div class="aipkit_conversation_starters"></div>
+                <?php endif; ?>
+                <?php $rendererInstance->render_input_area_html_internal($frontend_config, true, $feature_flags, $allow_openai_web_search_tool, $allow_google_search_grounding); ?>
+            </div>
         </div>
+        <?php $rendererInstance->render_footer_html_internal($frontend_config['footerText']); ?>
     </div>
     <?php
 }
@@ -284,8 +372,8 @@ function render_header_html_logic(array $feature_flags, array $frontend_config, 
     $header_avatar_value = isset($frontend_config['headerAvatarValue']) ? (string) $frontend_config['headerAvatarValue'] : '';
     $header_avatar_url = '';
     $header_avatar_svg = '';
-    $popup_icon_url = '';
-    $popup_icon_svg = '';
+    $inherited_icon_url = '';
+    $inherited_icon_svg = '';
     $resolve_icon_svg = function (string $icon_key): string {
         switch ($icon_key) {
             case 'spark':
@@ -302,7 +390,9 @@ function render_header_html_logic(array $feature_flags, array $frontend_config, 
         }
     };
     $allowed_header_icons = ['chat-bubble', 'spark', 'openai', 'plus', 'question-mark'];
-    if ($is_popup) {
+    $show_identity = $is_popup;
+    if ($show_identity) {
+        $use_widget_icon = ($header_avatar_type === 'inherit');
         if ($header_avatar_type === 'custom') {
             if ($header_avatar_value !== '') {
                 $header_avatar_url = $header_avatar_value;
@@ -314,17 +404,19 @@ function render_header_html_logic(array $feature_flags, array $frontend_config, 
             $icon_key = in_array($header_avatar_value, $allowed_header_icons, true) ? $header_avatar_value : 'chat-bubble';
             $header_avatar_svg = $resolve_icon_svg($icon_key);
         } else {
-            $legacy_header_url = isset($frontend_config['headerAvatarUrl']) ? trim((string) $frontend_config['headerAvatarUrl']) : '';
-            $header_avatar_url = $legacy_header_url;
+            $use_widget_icon = true;
         }
 
-        if ($header_avatar_url === '' && $header_avatar_svg === '') {
+        if ($use_widget_icon || ($header_avatar_url === '' && $header_avatar_svg === '')) {
             $popup_icon_type = isset($frontend_config['popupIconType']) ? (string) $frontend_config['popupIconType'] : '';
             $popup_icon_value = isset($frontend_config['popupIconValue']) ? (string) $frontend_config['popupIconValue'] : '';
             if ($popup_icon_type === 'custom' && $popup_icon_value !== '') {
-                $popup_icon_url = $popup_icon_value;
-            } elseif ($popup_icon_value !== '') {
-                $popup_icon_svg = $resolve_icon_svg($popup_icon_value);
+                $inherited_icon_url = $popup_icon_value;
+            } else {
+                $icon_key = in_array($popup_icon_value, $allowed_header_icons, true)
+                    ? $popup_icon_value
+                    : BotSettingsManager::DEFAULT_POPUP_ICON_VALUE;
+                $inherited_icon_svg = $resolve_icon_svg($icon_key);
             }
         }
     }
@@ -346,11 +438,11 @@ function render_header_html_logic(array $feature_flags, array $frontend_config, 
     <div class="aipkit_chat_header">
         <div class="aipkit_header_info">
             <?php if (!$is_popup && $feature_flags['sidebar_ui_enabled']): ?>
-                <button type="button" class="aipkit_header_btn aipkit_sidebar_toggle_btn" title="<?php echo esc_attr($frontend_config['text']['sidebarToggle']); ?>" aria-label="<?php echo esc_attr($frontend_config['text']['sidebarToggle']); ?>" aria-expanded="false">
+                <button type="button" class="aipkit_header_btn aipkit_sidebar_toggle_btn aipkit_sidebar_toggle_btn--main" title="<?php echo esc_attr($frontend_config['text']['sidebarToggle']); ?>" aria-label="<?php echo esc_attr($frontend_config['text']['sidebarToggle']); ?>" aria-expanded="false">
                     <?php echo $sidebar_toggle_svg; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
                 </button>
             <?php endif; ?>
-            <?php if ($is_popup): ?>
+            <?php if ($show_identity): ?>
                 <div class="aipkit_header_identity">
                 <div class="aipkit_header_avatar aipkit_header_icon">
                     <?php if (!empty($header_avatar_url)) : ?>
@@ -359,11 +451,11 @@ function render_header_html_logic(array $feature_flags, array $frontend_config, 
                         <span class="aipkit_header_avatar_icon" aria-hidden="true">
                             <?php echo $header_avatar_svg; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
                         </span>
-                    <?php elseif (!empty($popup_icon_url)) : ?>
-                        <img src="<?php echo esc_url($popup_icon_url); ?>" alt="<?php echo esc_attr($header_name); ?>" class="aipkit_header_avatar_img" />
-                    <?php elseif (!empty($popup_icon_svg)) : ?>
+                    <?php elseif (!empty($inherited_icon_url)) : ?>
+                        <img src="<?php echo esc_url($inherited_icon_url); ?>" alt="<?php echo esc_attr($header_name); ?>" class="aipkit_header_avatar_img" />
+                    <?php elseif (!empty($inherited_icon_svg)) : ?>
                         <span class="aipkit_header_avatar_icon" aria-hidden="true">
-                            <?php echo $popup_icon_svg; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
+                            <?php echo $inherited_icon_svg; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
                         </span>
                     <?php elseif (!empty($fallback_avatar_svg)) : ?>
                         <span class="aipkit_header_avatar_icon" aria-hidden="true">
@@ -446,7 +538,6 @@ function render_input_area_html_logic(array $frontend_config, bool $is_inline = 
     $file_upload_svg = '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-file-upload"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M14 3v4a1 1 0 0 0 1 1h4" /><path d="M17 21h-10a2 2 0 0 1 -2 -2v-14a2 2 0 0 1 2 -2h7l5 5v11a2 2 0 0 1 -2 2z" /><path d="M12 11v6" /><path d="M9.5 13.5l2.5 -2.5l2.5 2.5" /></svg>';
     $send_svg = '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-arrow-up aipkit_send_icon"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 5l0 14" /><path d="M18 11l-6 -6" /><path d="M6 11l6 -6" /></svg>';
     $clear_svg = '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-eraser aipkit_clear_icon" hidden><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M19 20h-10.5l-4.21 -4.3a1 1 0 0 1 0 -1.41l10 -10a1 1 0 0 1 1.41 0l5 5a1 1 0 0 1 0 1.41l-9.2 9.3" /><path d="M18 13.3l-6.3 -6.3" /></svg>';
-    $stop_svg = '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-player-stop aipkit_stop_icon" hidden><path stroke="none" d="M0 0h24v24H0z" fill="none"/><rect x="7" y="7" width="10" height="10" rx="2" /></svg>';
     $microphone_svg = '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-microphone"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M9 2m0 3a3 3 0 0 1 3 -3h0a3 3 0 0 1 3 3v5a3 3 0 0 1 -3 3h0a3 3 0 0 1 -3 -3z" /><path d="M5 10a7 7 0 0 0 14 0" /><path d="M8 21l8 0" /><path d="M12 17l0 4" /></svg>';
     $volume_svg = '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-volume"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M15 8a5 5 0 0 1 0 8" /><path d="M17.7 5a9 9 0 0 1 0 14" /><path d="M6 15h-2a1 1 0 0 1 -1 -1v-4a1 1 0 0 1 1 -1h2l3.5 -4.5a.8 .8 0 0 1 1.5 .5v14a.8 .8 0 0 1 -1.5 .5l-3.5 -4.5" /></svg>';
     $world_www_svg = '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-world-www"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M19.5 7a9 9 0 0 0 -7.5 -4a8.991 8.991 0 0 0 -7.484 4" /><path d="M11.5 3a16.989 16.989 0 0 0 -1.826 4" /><path d="M12.5 3a16.989 16.989 0 0 1 1.828 4" /><path d="M19.5 17a9 9 0 0 1 -7.5 4a8.991 8.991 0 0 1 -7.484 -4" /><path d="M11.5 21a16.989 16.989 0 0 1 -1.826 -4" /><path d="M12.5 21a16.989 16.989 0 0 0 1.828 -4" /><path d="M2 10l1 4l1.5 -4l1.5 4l1 -4" /><path d="M17 10l1 4l1.5 -4l1.5 4l1 -4" /><path d="M9.5 10l1 4l1.5 -4l1.5 4l1 -4" /></svg>';
@@ -539,6 +630,7 @@ function render_input_area_html_logic(array $frontend_config, bool $is_inline = 
                     >
                         <?php echo $microphone_svg; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
                     </button>
+                    <span class="aipkit_chat_action_timer" aria-hidden="true" hidden></span>
                     <button
                         class="aipkit_input_action_btn aipkit_chat_action_btn aipkit_send_btn"
                         aria-label="<?php echo esc_attr($frontend_config['text']['sendMessage']); ?>"
@@ -547,20 +639,24 @@ function render_input_area_html_logic(array $frontend_config, bool $is_inline = 
                     >
                         <?php echo $send_svg; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
                         <?php echo $clear_svg; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
-                        <?php echo $stop_svg; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
                         <span class="aipkit_spinner" hidden></span>
-                        <span class="aipkit_chat_action_timer" aria-hidden="true" hidden></span>
                     </button>
                 </div>
             </div>
         </div>
         <?php if ($input_action_button_enabled && ($file_upload_ui_enabled && $image_upload_ui_enabled) ): ?>
             <div class="aipkit_input_action_menu" id="<?php echo esc_attr($input_action_menu_id); ?>" role="menu" aria-hidden="true" hidden>
-                <?php if ($file_upload_ui_enabled): ?>
-                    <button type="button" class="aipkit_input_action_menu_item" role="menuitem" aria-label="<?php esc_attr_e('Upload File (TXT, PDF)', 'gpt3-ai-content-generator'); ?>"><?php echo $file_upload_svg; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></button>
-                <?php endif; ?>
                 <?php if ($image_upload_ui_enabled): ?>
-                    <button type="button" class="aipkit_input_action_menu_item" role="menuitem" aria-label="<?php esc_attr_e('Upload image', 'gpt3-ai-content-generator'); ?>"><?php echo $image_upload_svg; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></button>
+                    <button type="button" class="aipkit_input_action_menu_item" role="menuitem" data-aipkit-upload-action="image" aria-label="<?php esc_attr_e('Upload image', 'gpt3-ai-content-generator'); ?>">
+                        <span class="aipkit_input_action_menu_icon" aria-hidden="true"><?php echo $image_upload_svg; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></span>
+                        <span class="aipkit_input_action_menu_label"><?php esc_html_e('Upload image', 'gpt3-ai-content-generator'); ?></span>
+                    </button>
+                <?php endif; ?>
+                <?php if ($file_upload_ui_enabled): ?>
+                    <button type="button" class="aipkit_input_action_menu_item" role="menuitem" data-aipkit-upload-action="file" aria-label="<?php esc_attr_e('Upload File (TXT, PDF)', 'gpt3-ai-content-generator'); ?>">
+                        <span class="aipkit_input_action_menu_icon" aria-hidden="true"><?php echo $file_upload_svg; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></span>
+                        <span class="aipkit_input_action_menu_label"><?php esc_html_e('Upload file', 'gpt3-ai-content-generator'); ?></span>
+                    </button>
                 <?php endif; ?>
             </div>
         <?php endif; ?>
@@ -592,18 +688,29 @@ function render_footer_html_logic(string $footer_text) {
  */
 function render_sidebar_html_logic(array $frontend_config)
 {
+    $sidebar_toggle_svg = '<svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-menu-2"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M4 6l16 0" /><path d="M4 12l16 0" /><path d="M4 18l16 0" /></svg>';
     $new_chat_svg = '<svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-plus"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 5l0 14" /><path d="M5 12l14 0" /></svg>';
+    $search_svg = '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-search"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M10 10m-7 0a7 7 0 1 0 14 0a7 7 0 1 0 -14 0"/><path d="M21 21l-6 -6"/></svg>';
     ?>
     <div class="aipkit_chat_sidebar" aria-hidden="true">
          <div class="aipkit_sidebar_header">
+            <button type="button" class="aipkit_header_btn aipkit_sidebar_toggle_btn aipkit_sidebar_toggle_btn--sidebar" title="<?php echo esc_attr($frontend_config['text']['sidebarToggle']); ?>" aria-label="<?php echo esc_attr($frontend_config['text']['sidebarToggle']); ?>" aria-expanded="false">
+                <?php echo $sidebar_toggle_svg; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
+            </button>
             <h4 class="aipkit_sidebar_title"><?php echo esc_html($frontend_config['text']['conversations']); ?></h4>
             <button type="button" class="aipkit_btn aipkit_btn-secondary aipkit_btn-small aipkit_sidebar_new_chat_btn" aria-label="<?php echo esc_attr($frontend_config['text']['newChat']); ?>">
                  <?php echo $new_chat_svg; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?> <?php echo esc_html($frontend_config['text']['newChat']); ?>
             </button>
          </div>
-         <div class="aipkit_sidebar_content" aria-live="polite">
+         <div class="aipkit_sidebar_search" hidden>
+            <label class="aipkit_sidebar_search_control">
+                <span class="aipkit_sidebar_search_icon" aria-hidden="true">
+                    <?php echo $search_svg; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
+                </span>
+                <input type="search" class="aipkit_sidebar_search_input" placeholder="<?php echo esc_attr($frontend_config['text']['searchConversations']); ?>" aria-label="<?php echo esc_attr($frontend_config['text']['searchConversations']); ?>" autocomplete="off" spellcheck="false" />
+            </label>
          </div>
-         <div class="aipkit_sidebar_footer">
+         <div class="aipkit_sidebar_content" aria-live="polite">
          </div>
     </div>
     <?php
@@ -623,43 +730,63 @@ function createActionsContainerHTML_logic(array $config): string {
     $thumb_up_svg = '<svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-thumb-up"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M7 11v8a1 1 0 0 1 -1 1h-2a1 1 0 0 1 -1 -1v-7a1 1 0 0 1 1 -1h3a4 4 0 0 0 4 -4v-1a2 2 0 0 1 4 0v5h3a2 2 0 0 1 2 2l-1 5a2 3 0 0 1 -2 2h-7a3 3 0 0 1 -3 -3" /></svg>';
     $thumb_down_svg = '<svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-thumb-down"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M7 13v-8a1 1 0 0 0 -1 -1h-2a1 1 0 0 0 -1 1v7a1 1 0 0 0 1 1h3a4 4 0 0 1 4 4v1a2 2 0 0 0 4 0v-5h3a2 2 0 0 0 2 -2l-1 -5a2 3 0 0 0 -2 -2h-7a3 3 0 0 0 -3 3" /></svg>';
 
-    $actionsHTML = '';
+    $utility_actions_html = '';
+    $feedback_actions_html = '';
     $texts = $config['text'] ?? [];
+    $saved_feedback = isset($config['feedback']) && in_array($config['feedback'], ['up', 'down'], true)
+        ? $config['feedback']
+        : '';
     if ($config['ttsEnabled'] ?? false) {
         $playTitle = $texts['playActionLabel'] ?? 'Play audio';
-        $actionsHTML .= sprintf(
-             '<button type="button" class="aipkit_action_btn aipkit_play_btn" title="%1$s" aria-label="%1$s">' .
-             '%2$s' .
+        $pauseTitle = $texts['pauseActionLabel'] ?? 'Pause audio';
+        $utility_actions_html .= sprintf(
+             '<button type="button" class="aipkit_action_btn aipkit_play_btn" title="%1$s" aria-label="%1$s" aria-pressed="false" data-play-label="%1$s" data-pause-label="%2$s">' .
+             '%3$s' .
              '</button>',
              esc_attr($playTitle),
+             esc_attr($pauseTitle),
              $play_svg
          );
     }
     if ($config['enableCopyButton'] ?? false) {
         $copyTitle = $texts['copyActionLabel'] ?? 'Copy response';
-        $actionsHTML .= sprintf(
-            '<button type="button" class="aipkit_action_btn aipkit_copy_btn" title="%1$s" aria-label="%1$s">%2$s</button>',
+        $copySuccessTitle = $texts['copySuccess'] ?? 'Copied!';
+        $utility_actions_html .= sprintf(
+            '<button type="button" class="aipkit_action_btn aipkit_copy_btn" title="%1$s" aria-label="%1$s" data-success-label="%2$s">%3$s</button>',
             esc_attr($copyTitle),
+            esc_attr($copySuccessTitle),
             $copy_svg
         );
     }
     if ($config['enableFeedback'] ?? false) {
         $likeTitle = $texts['feedbackLikeLabel'] ?? 'Like response';
         $dislikeTitle = $texts['feedbackDislikeLabel'] ?? 'Dislike response';
-        $actionsHTML .= sprintf(
-            '<button type="button" class="aipkit_action_btn aipkit_feedback_btn aipkit_thumb_up_btn" title="%1$s" aria-label="%1$s" data-feedback="up">%2$s</button>',
+        $up_selected = $saved_feedback === 'up';
+        $down_selected = $saved_feedback === 'down';
+        $feedback_actions_html .= sprintf(
+            '<button type="button" class="aipkit_action_btn aipkit_feedback_btn aipkit_thumb_up_btn%1$s" title="%2$s" aria-label="%2$s" aria-pressed="%3$s" data-feedback="up">%4$s</button>',
+            $up_selected ? ' aipkit_feedback_selected' : '',
             esc_attr($likeTitle),
+            $up_selected ? 'true' : 'false',
             $thumb_up_svg
         );
-         $actionsHTML .= sprintf(
-            '<button type="button" class="aipkit_action_btn aipkit_feedback_btn aipkit_thumb_down_btn" title="%1$s" aria-label="%1$s" data-feedback="down">%2$s</button>',
+         $feedback_actions_html .= sprintf(
+            '<button type="button" class="aipkit_action_btn aipkit_feedback_btn aipkit_thumb_down_btn%1$s" title="%2$s" aria-label="%2$s" aria-pressed="%3$s" data-feedback="down">%4$s</button>',
+            $down_selected ? ' aipkit_feedback_selected' : '',
             esc_attr($dislikeTitle),
+            $down_selected ? 'true' : 'false',
             $thumb_down_svg
         );
     }
 
-    if ($actionsHTML) {
-        return '<div class="aipkit_message_actions">' . $actionsHTML . '</div>';
+    if ($utility_actions_html || $feedback_actions_html) {
+        $utility_group = $utility_actions_html
+            ? '<span class="aipkit_message_action_group aipkit_message_action_group--utility">' . $utility_actions_html . '</span>'
+            : '';
+        $feedback_group = $feedback_actions_html
+            ? '<span class="aipkit_message_action_group aipkit_message_action_group--feedback">' . $feedback_actions_html . '</span>'
+            : '';
+        return '<div class="aipkit_message_actions" data-current-feedback="' . esc_attr($saved_feedback) . '">' . $utility_group . $feedback_group . '</div>';
     }
     return '';
 }

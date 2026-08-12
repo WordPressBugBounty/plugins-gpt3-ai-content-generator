@@ -187,12 +187,22 @@ function get_text_labels_logic(array $settings, array $consent_texts): array {
         'sidebarToggle' => __('Toggle Conversation Sidebar', 'gpt3-ai-content-generator'),
         'newChat' => __('New Chat', 'gpt3-ai-content-generator'),
         'conversations' => __('Conversations', 'gpt3-ai-content-generator'),
+        'searchConversations' => __('Search conversations', 'gpt3-ai-content-generator'),
         'historyGuests' => __('History unavailable for guests.', 'gpt3-ai-content-generator'),
         'historyEmpty' => __('No past conversations.', 'gpt3-ai-content-generator'),
+        'historySidebarEmpty' => __('No conversations yet — start one to see it here.', 'gpt3-ai-content-generator'),
+        'historySearchEmpty' => __('No conversations match your search.', 'gpt3-ai-content-generator'),
+        'historyLoadingOlder' => __('Loading older conversations...', 'gpt3-ai-content-generator'),
+        /* translators: %s: Uploaded file name. */
+        'fileUploading' => __('Uploading %s', 'gpt3-ai-content-generator'),
+        /* translators: %s: Uploaded file name. */
+        'fileIndexing' => __('Indexing %s', 'gpt3-ai-content-generator'),
+        'detachFile' => __('Detach file', 'gpt3-ai-content-generator'),
         'feedbackLikeLabel' => __('Like response', 'gpt3-ai-content-generator'),
         'feedbackDislikeLabel' => __('Dislike response', 'gpt3-ai-content-generator'),
         'feedbackSubmitted' => __('Feedback submitted', 'gpt3-ai-content-generator'),
         'copyActionLabel' => __('Copy response', 'gpt3-ai-content-generator'),
+        'copySuccess' => __('Copied!', 'gpt3-ai-content-generator'),
         'copyCodeLabel' => __('Copy code', 'gpt3-ai-content-generator'),
         'consentTitle' => $consent_texts['consent_title'],
         'consentMessage' => $consent_texts['consent_message'],
@@ -340,54 +350,18 @@ function build_config_array_logic(int $bot_id, \WP_Post $bot_post, array $settin
         }
 
         $custom_theme_settings_for_js = $settings['custom_theme_settings'] ?? [];
-        $custom_theme_settings_for_js = array_filter($custom_theme_settings_for_js, function ($value) {
-            return $value !== '' && $value !== null;
-        });
-
         $custom_theme_defaults = class_exists(BotSettingsManager::class)
             ? BotSettingsManager::get_custom_theme_defaults()
             : [];
-        $token_keys = [
-            'primary_color', 'secondary_color', 'auto_text_contrast',
-            'font_family', 'bubble_border_radius', 'container_border_radius',
-            'container_max_width', 'popup_width', 'container_height', 'container_min_height',
-            'container_max_height', 'popup_height', 'popup_min_height', 'popup_max_height'
-        ];
-        $numeric_keys = [
-            'bubble_border_radius', 'container_border_radius', 'container_max_width', 'popup_width',
-            'container_height', 'container_min_height', 'container_max_height',
-            'popup_height', 'popup_min_height', 'popup_max_height'
-        ];
-        $token_key_map = array_fill_keys($token_keys, true);
-        $has_tokens = false;
-        foreach ($token_keys as $token_key) {
-            if (array_key_exists($token_key, $custom_theme_settings_for_js)) {
-                $has_tokens = true;
-                break;
-            }
+        if (!empty($custom_theme_defaults)) {
+            $custom_theme_settings_for_js = array_intersect_key(
+                $custom_theme_settings_for_js,
+                $custom_theme_defaults
+            );
         }
-        if ($has_tokens && !empty($custom_theme_defaults)) {
-            foreach ($custom_theme_settings_for_js as $key => $value) {
-                if (isset($token_key_map[$key])) {
-                    continue;
-                }
-                if (!array_key_exists($key, $custom_theme_defaults)) {
-                    continue;
-                }
-                $default_value = $custom_theme_defaults[$key];
-                if (in_array($key, $numeric_keys, true)) {
-                    if (is_numeric($value) && is_numeric($default_value) && (int)$value === (int)$default_value) {
-                        unset($custom_theme_settings_for_js[$key]);
-                    }
-                } elseif (is_string($value) && is_string($default_value)) {
-                    if (strtolower($value) === strtolower($default_value)) {
-                        unset($custom_theme_settings_for_js[$key]);
-                    }
-                } elseif ($value === $default_value) {
-                    unset($custom_theme_settings_for_js[$key]);
-                }
-            }
-        }
+        $custom_theme_settings_for_js = array_filter($custom_theme_settings_for_js, static function ($value) {
+            return $value !== '' && $value !== null;
+        });
     }
     // --- END ---
 
@@ -443,7 +417,7 @@ function build_config_array_logic(int $bot_id, \WP_Post $bot_post, array $settin
             return in_array($value, ['small','medium','large','xlarge'], true) ? $value : $fallback;
         })(),
         'footerText' => $settings['footer_text'] ?? '',
-        'headerAvatarType' => $settings['header_avatar_type'] ?? (class_exists(BotSettingsManager::class) ? BotSettingsManager::DEFAULT_HEADER_AVATAR_TYPE : 'default'),
+        'headerAvatarType' => $settings['header_avatar_type'] ?? (class_exists(BotSettingsManager::class) ? BotSettingsManager::DEFAULT_HEADER_AVATAR_TYPE : 'inherit'),
         'headerAvatarValue' => $settings['header_avatar_value'] ?? (class_exists(BotSettingsManager::class) ? BotSettingsManager::DEFAULT_HEADER_AVATAR_VALUE : 'chat-bubble'),
         'headerAvatarUrl' => (($settings['header_avatar_type'] ?? '') === 'custom')
             ? ($settings['header_avatar_value'] ?? ($settings['header_avatar_url'] ?? ''))
@@ -468,7 +442,7 @@ function build_config_array_logic(int $bot_id, \WP_Post $bot_post, array $settin
         'enableVoiceInputUI' => $feature_flags['enable_voice_input_ui'] ?? false,
         'enableRealtimeVoiceUI' => $feature_flags['enable_realtime_voice_ui'] ?? false,
         'directVoiceMode' => $direct_voice_mode_flag,
-        'realtimeModel' => $settings['realtime_model'] ?? 'gpt-4o-realtime-preview',
+        'realtimeModel' => $settings['realtime_model'] ?? 'gpt-realtime-2.1',
         'sttProvider' => $settings['stt_provider'] ?? (class_exists(BotSettingsManager::class) ? BotSettingsManager::DEFAULT_STT_PROVIDER : 'OpenAI'),
         'imageTriggers' => $image_triggers,
         'fileUploadEnabledUI' => $feature_flags['file_upload_ui_enabled'] ?? false,

@@ -48,8 +48,9 @@ $retrieving_context_text = $bot_settings['retrieving_context_text'] ?? '';
                 data-aipkit-static-inline-settings-toggle
                 aria-expanded="false"
                 aria-controls="aipkit_display_chat_text_panel"
+                aria-label="<?php esc_attr_e('Toggle Chat text settings', 'gpt3-ai-content-generator'); ?>"
             >
-                <span class="dashicons dashicons-plus-alt2" aria-hidden="true"></span>
+                <span class="dashicons dashicons-arrow-down-alt2" aria-hidden="true"></span>
             </button>
         </div>
         <div

@@ -4,7 +4,7 @@ Tags: ai, chatbot, openai, ai writer, automation
 Requires at least: 6.0
 Tested up to: 7.0
 Requires PHP: 7.4
-Stable tag: 2.4.62
+Stable tag: 2.4.63
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -125,6 +125,12 @@ Yes. AIP supports GPT-5, GPT-4o, GPT-4 Turbo, Google Gemini 1.5, Imagen 4.0, and
 ---
 
 == Changelog ==
+
+= 2.4.63 =
+
+- Redesigned the Chatbot experience across popup, on-page, fullscreen, sidebar, uploads, message actions, themes, and motion.
+- Migrated Realtime Voice to GPT-Realtime 2.1 with the current secure WebRTC client-secret flow, updated voices, and more reliable session states.
+- Refreshed Chatbot settings with a more compact side panel, aligned controls, standardized fields, and a modern custom-theme editor.
 
 = 2.4.62 =
 

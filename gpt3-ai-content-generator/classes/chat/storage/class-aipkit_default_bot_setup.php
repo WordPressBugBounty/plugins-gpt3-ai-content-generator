@@ -55,6 +55,7 @@ class DefaultBotSetup
                 ]);
             }
             self::ensure_default_bot_hint_settings((int) $existing->ID);
+            self::ensure_default_bot_header_avatar_settings((int) $existing->ID);
         }
     }
 
@@ -77,6 +78,36 @@ class DefaultBotSetup
         if (!is_string($stored_hint_size) || !in_array($stored_hint_size, $allowed_hint_sizes, true)) {
             update_post_meta($bot_id, '_aipkit_popup_label_size', BotSettingsManager::DEFAULT_POPUP_LABEL_SIZE);
         }
+    }
+
+    /**
+     * Moves the built-in bot from the legacy sparkle default to the new linked
+     * header-avatar mode once, without changing explicit choices on other bots.
+     */
+    private static function ensure_default_bot_header_avatar_settings(int $bot_id): void
+    {
+        $migration_key = '_aipkit_header_avatar_link_mode_migrated';
+        if (get_post_meta($bot_id, $migration_key, true) === '1') {
+            return;
+        }
+
+        $avatar_type = get_post_meta($bot_id, '_aipkit_header_avatar_type', true);
+        $avatar_value = get_post_meta($bot_id, '_aipkit_header_avatar_value', true);
+        $avatar_url = get_post_meta($bot_id, '_aipkit_header_avatar_url', true);
+        $is_missing = !metadata_exists('post', $bot_id, '_aipkit_header_avatar_type');
+        $is_legacy_factory_default = (
+            $avatar_type === 'default'
+            && $avatar_value === 'spark'
+            && trim((string) $avatar_url) === ''
+        );
+
+        if ($is_missing || $is_legacy_factory_default) {
+            update_post_meta($bot_id, '_aipkit_header_avatar_type', BotSettingsManager::DEFAULT_HEADER_AVATAR_TYPE);
+            update_post_meta($bot_id, '_aipkit_header_avatar_value', BotSettingsManager::DEFAULT_HEADER_AVATAR_VALUE);
+            update_post_meta($bot_id, '_aipkit_header_avatar_url', BotSettingsManager::DEFAULT_HEADER_AVATAR_URL);
+        }
+
+        update_post_meta($bot_id, $migration_key, '1');
     }
 
     /**
@@ -157,7 +188,7 @@ class DefaultBotSetup
         }
 
         update_post_meta($post_id, '_aipkit_default_bot', '1');
-        BotSettingsManager::set_initial_bot_settings($post_id, $botName, 'inline');
+        BotSettingsManager::set_initial_bot_settings($post_id, $botName);
         return $post_id;
     }
 
@@ -198,9 +229,7 @@ class DefaultBotSetup
         $is_actually_default = (get_post_meta($bot_id, '_aipkit_default_bot', true) === '1');
         $was_site_wide = (get_post_meta($bot_id, '_aipkit_site_wide_enabled', true) === '1');
 
-        // The built-in chatbot defaults to on-page; user-created bots default to popup.
-        $default_deploy_mode = $is_actually_default ? 'inline' : 'popup';
-        BotSettingsManager::set_initial_bot_settings($bot_id, $bot_post->post_title, $default_deploy_mode);
+        BotSettingsManager::set_initial_bot_settings($bot_id, $bot_post->post_title);
 
         if (!$is_actually_default) {
             delete_post_meta($bot_id, '_aipkit_default_bot');

@@ -6,8 +6,14 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 $bot_id = isset($initial_active_bot_id) ? absint($initial_active_bot_id) : 0;
-$saved_theme_key = isset($saved_theme) ? (string) $saved_theme : 'dark';
-$selected_preset_key = isset($selected_theme_preset_key) ? sanitize_key((string) $selected_theme_preset_key) : '';
+$saved_theme_key = isset($saved_theme)
+    ? (string) $saved_theme
+    : \WPAICG\Chat\Storage\BotSettingsManager::DEFAULT_THEME;
+$selected_preset_key = isset($selected_theme_preset_key)
+    ? sanitize_key((string) $selected_theme_preset_key)
+    : (($saved_theme_key === 'custom')
+        ? \WPAICG\Chat\Storage\BotSettingsManager::DEFAULT_THEME_PRESET_KEY
+        : '');
 $custom_theme_disabled = isset($aipkit_hide_custom_theme) ? (bool) $aipkit_hide_custom_theme : false;
 
 $built_in_theme_colors = [
@@ -16,7 +22,7 @@ $built_in_theme_colors = [
         'secondary' => '#111111',
     ],
     'dark' => [
-        'primary' => '#0a0a0a',
+        'primary' => '#111111',
         'secondary' => '#006cff',
     ],
     'chatgpt' => [
@@ -139,9 +145,9 @@ if (isset($available_themes['custom'])) {
 }
 
 $preferred_color_signatures = [
+    'custom|ocean',
     'dark|',
     'light|',
-    'custom|ocean',
     'custom|lagoon',
     'custom|ember',
     'chatgpt|',
@@ -185,7 +191,7 @@ if (
         unset($visible_widget_color_options[$last_visible_signature]);
     }
     $priority_visible_widget_color_options = [];
-    foreach (['dark|', 'light|'] as $priority_signature) {
+    foreach (['custom|ocean', 'dark|', 'light|'] as $priority_signature) {
         if (isset($visible_widget_color_options[$priority_signature])) {
             $priority_visible_widget_color_options[$priority_signature] = $visible_widget_color_options[$priority_signature];
             unset($visible_widget_color_options[$priority_signature]);
@@ -206,11 +212,7 @@ foreach ($ordered_widget_color_options as $signature => $option) {
 $render_widget_color_radio = static function (array $option, string $variant) use ($bot_id, $selected_color_signature): void {
     $is_selected = $option['signature'] === $selected_color_signature;
     $is_disabled = !empty($option['disabled']);
-    $is_custom_editor = !empty($option['is_custom_editor']);
     $swatch_classes = 'aipkit_widget_color_swatch';
-    if ($is_custom_editor) {
-        $swatch_classes .= ' aipkit_widget_color_swatch--custom';
-    }
     if ($option['theme'] === 'light' && $option['preset'] === '') {
         $swatch_classes .= ' aipkit_widget_color_swatch--light';
     }
@@ -229,7 +231,7 @@ $render_widget_color_radio = static function (array $option, string $variant) us
     />
     <span
         class="<?php echo esc_attr($swatch_classes); ?>"
-        style="--aipkit-widget-color-primary: <?php echo esc_attr($option['primary']); ?>; --aipkit-widget-color-secondary: <?php echo esc_attr($option['secondary']); ?>;"
+        style="--aipkit-widget-color-primary: <?php echo esc_attr($option['primary']); ?>;"
         aria-hidden="true"
     ></span>
     <?php if ($variant === 'menu') : ?>
@@ -280,21 +282,23 @@ $render_widget_color_radio = static function (array $option, string $variant) us
                                     <div class="aipkit_popover_multiselect_item aipkit_interface_theme_item aipkit_interface_theme_item--custom aipkit_widget_color_menu_item aipkit_widget_color_menu_item--custom">
                                         <label class="aipkit_widget_color_menu_item_main">
                                             <?php $render_widget_color_radio($option, 'menu'); ?>
-                                            <span class="aipkit_widget_color_menu_check dashicons dashicons-yes" aria-hidden="true"></span>
                                         </label>
-                                        <button
-                                            type="button"
-                                            class="aipkit_popover_option_btn aipkit_theme_config_btn aipkit_theme_config_btn--inline"
-                                            aria-expanded="false"
-                                            aria-controls="aipkit_custom_theme_flyout"
-                                            data-aipkit-theme-custom-edit
-                                            title="<?php esc_attr_e('Edit custom colors', 'gpt3-ai-content-generator'); ?>"
-                                            <?php echo $custom_theme_disabled ? 'hidden' : ''; ?>
-                                            <?php disabled($custom_theme_disabled); ?>
-                                        >
-                                            <span class="dashicons dashicons-edit" aria-hidden="true"></span>
-                                            <span><?php esc_html_e('Edit', 'gpt3-ai-content-generator'); ?></span>
-                                        </button>
+                                        <span class="aipkit_widget_color_menu_trailing">
+                                            <span class="aipkit_widget_color_menu_check dashicons dashicons-yes" aria-hidden="true"></span>
+                                            <button
+                                                type="button"
+                                                class="aipkit_popover_option_btn aipkit_theme_config_btn aipkit_theme_config_btn--inline"
+                                                aria-expanded="false"
+                                                aria-controls="aipkit_custom_theme_modal"
+                                                aria-label="<?php esc_attr_e('Edit custom theme', 'gpt3-ai-content-generator'); ?>"
+                                                data-aipkit-theme-custom-edit
+                                                title="<?php esc_attr_e('Edit custom theme', 'gpt3-ai-content-generator'); ?>"
+                                                <?php echo $custom_theme_disabled ? 'hidden' : ''; ?>
+                                                <?php disabled($custom_theme_disabled); ?>
+                                            >
+                                                <span class="dashicons dashicons-edit" aria-hidden="true"></span>
+                                            </button>
+                                        </span>
                                     </div>
                                 <?php else : ?>
                                     <label class="aipkit_popover_multiselect_item aipkit_interface_theme_item aipkit_widget_color_menu_item">

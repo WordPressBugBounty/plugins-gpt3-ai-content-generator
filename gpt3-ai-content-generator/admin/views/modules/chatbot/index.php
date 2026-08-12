@@ -120,7 +120,7 @@ $build_inline_bot_switch_state_payload = static function (
     array $settings,
     int $default_bot_id
 ) use($build_chatbot_embed_code, $is_pro_plan) : array {
-    $popup_enabled = isset( $settings['popup_enabled'] ) && (string) $settings['popup_enabled'] === '1';
+    $popup_enabled = (string) ($settings['popup_enabled'] ?? BotSettingsManager::DEFAULT_POPUP_ENABLED) === '1';
     $raw_deploy_mode = ( isset( $settings['deploy_mode'] ) ? sanitize_key( (string) $settings['deploy_mode'] ) : '' );
     $deploy_mode = ( in_array( $raw_deploy_mode, ['inline', 'popup', 'external'], true ) ? $raw_deploy_mode : (( $popup_enabled ? 'popup' : 'inline' )) );
     if ( !$is_pro_plan && $deploy_mode === 'external' ) {
@@ -187,7 +187,7 @@ $inline_bot_switch_payload = [
 ];
 $active_bot_settings = ( $active_bot_post instanceof \WP_Post && isset( $all_chatbot_settings_by_id[$active_bot_post->ID] ) ? $all_chatbot_settings_by_id[$active_bot_post->ID] : [] );
 $active_bot_instructions = $active_bot_settings['instructions'] ?? '';
-$saved_theme = $active_bot_settings['theme'] ?? 'dark';
+$saved_theme = $active_bot_settings['theme'] ?? BotSettingsManager::DEFAULT_THEME;
 $saved_greeting = $active_bot_settings['greeting'] ?? '';
 $saved_subgreeting = $active_bot_settings['subgreeting'] ?? '';
 $aipkit_hide_custom_theme = false;
@@ -239,10 +239,10 @@ if ( $saved_theme === 'custom' && !empty( $custom_theme_presets ) ) {
         }
     }
 }
-$popup_enabled = $active_bot_settings['popup_enabled'] ?? '0';
-$popup_enabled = ( in_array( $popup_enabled, ['0', '1'], true ) ? $popup_enabled : '0' );
-$site_wide_enabled = $active_bot_settings['site_wide_enabled'] ?? '0';
-$site_wide_enabled = ( in_array( $site_wide_enabled, ['0', '1'], true ) ? $site_wide_enabled : '0' );
+$popup_enabled = $active_bot_settings['popup_enabled'] ?? BotSettingsManager::DEFAULT_POPUP_ENABLED;
+$popup_enabled = ( in_array( $popup_enabled, ['0', '1'], true ) ? $popup_enabled : BotSettingsManager::DEFAULT_POPUP_ENABLED );
+$site_wide_enabled = $active_bot_settings['site_wide_enabled'] ?? BotSettingsManager::DEFAULT_SITE_WIDE_ENABLED;
+$site_wide_enabled = ( in_array( $site_wide_enabled, ['0', '1'], true ) ? $site_wide_enabled : BotSettingsManager::DEFAULT_SITE_WIDE_ENABLED );
 $raw_deploy_mode = ( isset( $active_bot_settings['deploy_mode'] ) ? sanitize_key( (string) $active_bot_settings['deploy_mode'] ) : '' );
 $deploy_mode = ( in_array( $raw_deploy_mode, ['inline', 'popup', 'external'], true ) ? $raw_deploy_mode : (( $popup_enabled === '1' ? 'popup' : 'inline' )) );
 $deploy_popup_scope = ( $site_wide_enabled === '1' ? 'sitewide' : 'page' );
@@ -403,7 +403,7 @@ if ( $popup_icon_type === 'default' && !in_array( $popup_icon_value, $allowed_de
 }
 $saved_header_avatar_url = $active_bot_settings['header_avatar_url'] ?? '';
 $saved_header_avatar_type = $active_bot_settings['header_avatar_type'] ?? BotSettingsManager::DEFAULT_HEADER_AVATAR_TYPE;
-if ( !in_array( $saved_header_avatar_type, ['default', 'custom'], true ) ) {
+if ( !in_array( $saved_header_avatar_type, ['inherit', 'default', 'custom'], true ) ) {
     $saved_header_avatar_type = ( $saved_header_avatar_url !== '' ? 'custom' : BotSettingsManager::DEFAULT_HEADER_AVATAR_TYPE );
 }
 $saved_header_avatar_value = $active_bot_settings['header_avatar_value'] ?? BotSettingsManager::DEFAULT_HEADER_AVATAR_VALUE;
@@ -411,10 +411,13 @@ if ( $saved_header_avatar_type === 'custom' ) {
     if ( $saved_header_avatar_url === '' && !empty( $saved_header_avatar_value ) ) {
         $saved_header_avatar_url = $saved_header_avatar_value;
     }
-} else {
+} elseif ( $saved_header_avatar_type === 'default' ) {
     if ( !in_array( $saved_header_avatar_value, $allowed_default_icons, true ) ) {
         $saved_header_avatar_value = BotSettingsManager::DEFAULT_HEADER_AVATAR_VALUE;
     }
+    $saved_header_avatar_url = '';
+} else {
+    $saved_header_avatar_value = BotSettingsManager::DEFAULT_HEADER_AVATAR_VALUE;
     $saved_header_avatar_url = '';
 }
 $saved_header_online_text = $active_bot_settings['header_online_text'] ?? __( 'Online', 'gpt3-ai-content-generator' );
@@ -466,6 +469,10 @@ if ( $active_bot_post && isset( $active_bot_post->post_title ) ) {
 }
 if ( $saved_header_avatar_type === 'custom' && $saved_header_avatar_url !== '' ) {
     $quick_header_avatar_url = $saved_header_avatar_url;
+} elseif ( $saved_header_avatar_type === 'inherit' && $popup_icon_type === 'custom' && $popup_icon_value !== '' ) {
+    $quick_header_avatar_url = $popup_icon_value;
+} elseif ( $saved_header_avatar_type === 'inherit' && isset( $popup_icons[$popup_icon_value] ) ) {
+    $quick_header_avatar_icon_html = $popup_icons[$popup_icon_value];
 } elseif ( isset( $popup_icons[$saved_header_avatar_value] ) ) {
     $quick_header_avatar_icon_html = $popup_icons[$saved_header_avatar_value];
 } elseif ( isset( $popup_icons[BotSettingsManager::DEFAULT_HEADER_AVATAR_VALUE] ) ) {
@@ -712,18 +719,18 @@ $input_audio_format = $active_bot_settings['input_audio_format'] ?? BotSettingsM
 $output_audio_format = $active_bot_settings['output_audio_format'] ?? BotSettingsManager::DEFAULT_OUTPUT_AUDIO_FORMAT;
 $input_audio_noise_reduction = $active_bot_settings['input_audio_noise_reduction'] ?? BotSettingsManager::DEFAULT_INPUT_AUDIO_NOISE_REDUCTION;
 $input_audio_noise_reduction = ( in_array( $input_audio_noise_reduction, ['0', '1'], true ) ? $input_audio_noise_reduction : BotSettingsManager::DEFAULT_INPUT_AUDIO_NOISE_REDUCTION );
-$realtime_models = ['gpt-4o-realtime-preview', 'gpt-4o-mini-realtime'];
+$realtime_models = ['gpt-realtime-2.1', 'gpt-realtime-2.1-mini'];
 $realtime_voices = [
     'alloy',
     'ash',
     'ballad',
     'coral',
     'echo',
-    'fable',
-    'onyx',
-    'nova',
+    'sage',
     'shimmer',
-    'verse'
+    'verse',
+    'marin',
+    'cedar'
 ];
 $direct_voice_mode_disabled = !($quick_popup_enabled && $enable_realtime_voice === '1');
 // Provider/model data for AI selection.
@@ -1069,9 +1076,34 @@ if ( $active_bot_post ) {
                                             <span class="dashicons dashicons-edit"></span>
                                         </span>
                                     </button>
-                                    <span class="aipkit_widget_profile_label"><?php 
+                                    <span class="aipkit_widget_profile_copy">
+                                        <span class="aipkit_widget_profile_label"><?php 
     esc_html_e( 'Chat photo', 'gpt3-ai-content-generator' );
     ?></span>
+                                        <span class="aipkit_widget_profile_status" data-aipkit-avatar-link-status>
+                                            <?php 
+    if ( $saved_header_avatar_type === 'inherit' ) {
+        esc_html_e( 'Matches widget icon', 'gpt3-ai-content-generator' );
+    } elseif ( $saved_header_avatar_type === 'custom' ) {
+        esc_html_e( 'Custom image', 'gpt3-ai-content-generator' );
+    } else {
+        esc_html_e( 'Separate icon', 'gpt3-ai-content-generator' );
+    }
+    ?>
+                                        </span>
+                                    </span>
+                                    <button
+                                        type="button"
+                                        class="aipkit_widget_avatar_use_widget"
+                                        data-aipkit-avatar-use-widget
+                                        <?php 
+    echo ( $saved_header_avatar_type === 'inherit' ? 'hidden' : '' );
+    ?>
+                                    >
+                                        <?php 
+    esc_html_e( 'Use widget icon', 'gpt3-ai-content-generator' );
+    ?>
+                                    </button>
                                 </div>
                                 <div
                                     class="aipkit_widget_launcher_message"
@@ -1407,6 +1439,16 @@ if ( $active_bot_post ) {
     ?>
                                             </h2>
                                         </div>
+                                        <button
+                                            type="button"
+                                            class="aipkit_builder_sheet_close aipkit_chatbot_advanced_drawer_close"
+                                            data-aipkit-advanced-drawer-close
+                                            aria-label="<?php 
+    esc_attr_e( 'Close chatbot settings', 'gpt3-ai-content-generator' );
+    ?>"
+                                        >
+                                            <span class="dashicons dashicons-no-alt" aria-hidden="true"></span>
+                                        </button>
                                     </div>
                                     <div class="aipkit_builder_sheet_body aipkit_chatbot_advanced_drawer_body">
                             <section class="aipkit_builder_card aipkit_builder_card--settings aipkit_chatbot_settings_panel aipkit_chatbot_settings_panel--drawer" id="aipkit_chatbot_settings_panel">
@@ -1540,8 +1582,11 @@ if ( $active_bot_post ) {
                                                     data-aipkit-static-inline-settings-toggle
                                                     aria-expanded="false"
                                                     aria-controls="aipkit_embed_shortcode_panel"
+                                                    aria-label="<?php 
+    esc_attr_e( 'Toggle WordPress shortcode settings', 'gpt3-ai-content-generator' );
+    ?>"
                                                 >
-                                                    <span class="dashicons dashicons-plus-alt2" aria-hidden="true"></span>
+                                                    <span class="dashicons dashicons-arrow-down-alt2" aria-hidden="true"></span>
                                                 </button>
                                             </div>
                                             <div
@@ -1624,8 +1669,11 @@ if ( $active_bot_post ) {
                                                     data-aipkit-static-inline-settings-toggle
                                                     aria-expanded="false"
                                                     aria-controls="aipkit_embed_external_panel"
+                                                    aria-label="<?php 
+    esc_attr_e( 'Toggle external embed settings', 'gpt3-ai-content-generator' );
+    ?>"
                                                 >
-                                                    <span class="dashicons dashicons-plus-alt2" aria-hidden="true"></span>
+                                                    <span class="dashicons dashicons-arrow-down-alt2" aria-hidden="true"></span>
                                                 </button>
                                             </div>
                                             <div
@@ -2460,7 +2508,7 @@ if ( $active_bot_post && !$aipkit_hide_custom_theme ) {
         <?php 
     $bot_id = $initial_active_bot_id;
     $bot_settings = $active_bot_settings;
-    include __DIR__ . '/partials/appearance/custom-theme-flyout.php';
+    include __DIR__ . '/partials/appearance/custom-theme-modal.php';
     ?>
     <?php 
 }

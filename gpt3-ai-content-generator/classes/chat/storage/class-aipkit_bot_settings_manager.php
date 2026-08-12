@@ -23,6 +23,11 @@ if (!defined('ABSPATH')) {
 
 class BotSettingsManager
 {
+    public const DEFAULT_THEME = 'custom';
+    public const DEFAULT_THEME_PRESET_KEY = 'ocean';
+    public const DEFAULT_DEPLOY_MODE = 'popup';
+    public const DEFAULT_POPUP_ENABLED = '1';
+    public const DEFAULT_SITE_WIDE_ENABLED = '0';
     // --- Constants for Default Settings ---
     public const DEFAULT_TEMPERATURE = 1.0;
     public const DEFAULT_MAX_COMPLETION_TOKENS = 4000;
@@ -37,7 +42,7 @@ class BotSettingsManager
     public const DEFAULT_ENABLE_CONVERSATION_SIDEBAR = '0';
     public const DEFAULT_POPUP_ICON_TYPE = 'default';
     public const DEFAULT_POPUP_ICON_STYLE = 'circle';
-    public const DEFAULT_POPUP_ICON_VALUE = 'spark';
+    public const DEFAULT_POPUP_ICON_VALUE = 'chat-bubble';
     public const DEFAULT_POPUP_ICON_SIZE = 'medium'; // allowed: small|medium|large|xlarge
     // --- Popup Hint/Label Defaults ---
     public const DEFAULT_POPUP_LABEL_ENABLED = '1';
@@ -53,8 +58,8 @@ class BotSettingsManager
     public const DEFAULT_POPUP_LABEL_SIZE = 'large'; // allowed: small|medium|large|xlarge
     // --- Header Defaults ---
     public const DEFAULT_HEADER_AVATAR_URL = '';
-    public const DEFAULT_HEADER_AVATAR_TYPE = 'default';
-    public const DEFAULT_HEADER_AVATAR_VALUE = 'spark';
+    public const DEFAULT_HEADER_AVATAR_TYPE = 'inherit';
+    public const DEFAULT_HEADER_AVATAR_VALUE = self::DEFAULT_POPUP_ICON_VALUE;
     public const DEFAULT_HEADER_ONLINE_TEXT = 'Online';
     public const DEFAULT_CONTENT_AWARE_ENABLED = '0';
     public const DEFAULT_TOKEN_GUEST_LIMIT = null;
@@ -124,7 +129,7 @@ class BotSettingsManager
     public const DEFAULT_GOOGLE_GROUNDING_DYNAMIC_THRESHOLD = 0.3;
     public const DEFAULT_ENABLE_REALTIME_VOICE = '0';
     public const DEFAULT_DIRECT_VOICE_MODE = '0';
-    public const DEFAULT_REALTIME_MODEL = 'gpt-4o-realtime-preview';
+    public const DEFAULT_REALTIME_MODEL = 'gpt-realtime-2.1';
     public const DEFAULT_REALTIME_VOICE = 'alloy';
     public const DEFAULT_TURN_DETECTION = 'server_vad';
     public const DEFAULT_SPEED = 1.0;
@@ -134,68 +139,18 @@ class BotSettingsManager
     public const DEFAULT_REASONING_EFFORT = 'none';
 
     public const DEFAULT_CUSTOM_THEME_FONT_FAMILY = 'inherit';
-    public const DEFAULT_CUSTOM_THEME_BUBBLE_BORDER_RADIUS = 18;
-    public const DEFAULT_CTS_PRIMARY_COLOR = '#0F766E';
-    public const DEFAULT_CTS_SECONDARY_COLOR = '#ECFEFF';
+    public const DEFAULT_CUSTOM_THEME_BUBBLE_BORDER_RADIUS = 16;
+    public const DEFAULT_CTS_PRIMARY_COLOR = '#0B5FFF';
+    public const DEFAULT_CTS_SECONDARY_COLOR = '#F1F5FF';
     public const DEFAULT_CTS_ACCENT_COLOR = '#111111';
-    public const DEFAULT_CTS_APP_BG_COLOR = '#FFFFFF';
-    public const DEFAULT_CTS_SURFACE_COLOR = '#FFFFFF';
-    public const DEFAULT_CTS_TEXT_COLOR = '#111111';
-    public const DEFAULT_CTS_BORDER_COLOR = '#E5E5E5';
-    public const DEFAULT_CTS_AUTO_TEXT_CONTRAST = '1';
-    public const DEFAULT_CTS_CONTAINER_BG_COLOR = '#FFFFFF';
-    public const DEFAULT_CTS_CONTAINER_TEXT_COLOR = '#111111';
-    public const DEFAULT_CTS_CONTAINER_BORDER_COLOR = '#E5E5E5';
-    public const DEFAULT_CTS_CONTAINER_BORDER_RADIUS = 10; // Assuming this is a new general radius
-    public const DEFAULT_CTS_HEADER_BG_COLOR = '#FFFFFF';
-    public const DEFAULT_CTS_HEADER_TEXT_COLOR = '#6B6B6B';
-    public const DEFAULT_CTS_HEADER_BORDER_COLOR = '#E5E5E5';
-    public const DEFAULT_CTS_MESSAGES_BG_COLOR = '#FFFFFF';
-    public const DEFAULT_CTS_MESSAGES_SCROLLBAR_THUMB_COLOR = '#E5E5E5'; // Actual color default
-    public const DEFAULT_CTS_MESSAGES_SCROLLBAR_TRACK_COLOR = 'transparent'; // Actual color default
-    public const DEFAULT_CTS_BOT_BUBBLE_BG_COLOR = '#F3F3F3';
-    public const DEFAULT_CTS_BOT_BUBBLE_TEXT_COLOR = '#111111';
-    public const DEFAULT_CTS_USER_BUBBLE_BG_COLOR = '#006CFF';
-    public const DEFAULT_CTS_USER_BUBBLE_TEXT_COLOR = '#FFFFFF';
-    public const DEFAULT_CTS_INPUT_AREA_BG_COLOR = '#FFFFFF';
-    public const DEFAULT_CTS_INPUT_AREA_BORDER_COLOR = '#E5E5E5'; // Actual color default
-    public const DEFAULT_CTS_INPUT_WRAPPER_BG_COLOR = '#FFFFFF';
-    public const DEFAULT_CTS_INPUT_WRAPPER_BORDER_COLOR = '#E5E5E5'; // Actual color default
-    public const DEFAULT_CTS_INPUT_TEXT_COLOR = '#111111';
-    public const DEFAULT_CTS_INPUT_PLACEHOLDER_COLOR = '#737373'; // Actual color default
-    public const DEFAULT_CTS_INPUT_FOCUS_BORDER_COLOR = '#111111'; // Actual color default
-    public const DEFAULT_CTS_INPUT_FOCUS_SHADOW_COLOR = 'rgba(0, 0, 0, 0.12)'; // Actual color default
-    public const DEFAULT_CTS_SEND_BUTTON_BG_COLOR = '#111111';
-    public const DEFAULT_CTS_SEND_BUTTON_TEXT_COLOR = '#FFFFFF';
-    public const DEFAULT_CTS_ACTION_BUTTON_BG_COLOR = '#FFFFFF';
-    public const DEFAULT_CTS_ACTION_BUTTON_COLOR = '#6B6B6B';
-    public const DEFAULT_CTS_ACTION_BUTTON_BORDER_COLOR = '#E5E5E5';
-    public const DEFAULT_CTS_ACTION_BUTTON_HOVER_BG_COLOR = '#EDEDED';
-    public const DEFAULT_CTS_ACTION_BUTTON_HOVER_COLOR = '#111111';
-    public const DEFAULT_CTS_ACTION_BUTTON_HOVER_BORDER_COLOR = '#1F1F1F'; // Actual color default
-    public const DEFAULT_CTS_FOOTER_BG_COLOR = '#FFFFFF';
-    public const DEFAULT_CTS_FOOTER_TEXT_COLOR = '#6B6B6B';
-    public const DEFAULT_CTS_FOOTER_BORDER_COLOR = '#E5E5E5';
-    public const DEFAULT_CTS_SIDEBAR_BG_COLOR = '#FBFBFB';
-    public const DEFAULT_CTS_SIDEBAR_TEXT_COLOR = '#262626';
-    public const DEFAULT_CTS_SIDEBAR_BORDER_COLOR = '#E5E5E5';
-    public const DEFAULT_CTS_SIDEBAR_ACTIVE_BG_COLOR = '#F5F5F5';
-    public const DEFAULT_CTS_SIDEBAR_ACTIVE_TEXT_COLOR = '#343434';
-    public const DEFAULT_CTS_SIDEBAR_HOVER_BG_COLOR = '#F5F5F5';
-    public const DEFAULT_CTS_SIDEBAR_HOVER_TEXT_COLOR = '#343434';
-    public const DEFAULT_CTS_ACTION_MENU_BG_COLOR = '#FFFFFF';
-    public const DEFAULT_CTS_ACTION_MENU_BORDER_COLOR = '#E5E5E5';
-    public const DEFAULT_CTS_ACTION_MENU_ITEM_TEXT_COLOR = '#111111';
-    public const DEFAULT_CTS_ACTION_MENU_ITEM_HOVER_BG_COLOR = '#EDEDED';
-    public const DEFAULT_CTS_ACTION_MENU_ITEM_HOVER_TEXT_COLOR = '#111111';
     public const DEFAULT_CTS_CONTAINER_MAX_WIDTH = 896; // px
-    public const DEFAULT_CTS_POPUP_WIDTH = 450;         // px
-    public const DEFAULT_CTS_CONTAINER_HEIGHT = 560;    // px
-    public const DEFAULT_CTS_CONTAINER_MAX_HEIGHT = 70; // vh (number only)
+    public const DEFAULT_CTS_POPUP_WIDTH = 380;         // px
+    public const DEFAULT_CTS_CONTAINER_HEIGHT = 620;    // px
+    public const DEFAULT_CTS_CONTAINER_MAX_HEIGHT = 90; // vh (number only)
     public const DEFAULT_CTS_CONTAINER_MIN_HEIGHT = 320;  // px
-    public const DEFAULT_CTS_POPUP_HEIGHT = 560;        // px (can inherit from container_height)
+    public const DEFAULT_CTS_POPUP_HEIGHT = 620;        // px (can inherit from container_height)
     public const DEFAULT_CTS_POPUP_MIN_HEIGHT = 320;    // px (can inherit)
-    public const DEFAULT_CTS_POPUP_MAX_HEIGHT = 70;     // vh (can inherit, number only)
+    public const DEFAULT_CTS_POPUP_MAX_HEIGHT = 90;     // vh (can inherit, number only)
 
 
     private $site_wide_manager;
@@ -257,7 +212,7 @@ class BotSettingsManager
      * @param string $botName     Chatbot name.
      * @param string $deploy_mode Initial deployment mode: popup or inline.
      */
-    public static function set_initial_bot_settings(int $post_id, string $botName, string $deploy_mode = 'popup')
+    public static function set_initial_bot_settings(int $post_id, string $botName, string $deploy_mode = self::DEFAULT_DEPLOY_MODE)
     {
         $initializer_path = __DIR__ . '/class-aipkit-bot-settings-initializer.php';
         if (!class_exists(AIPKit_Bot_Settings_Initializer::class)) {
@@ -381,58 +336,8 @@ class BotSettingsManager
             'primary_color' => self::DEFAULT_CTS_PRIMARY_COLOR,
             'secondary_color' => self::DEFAULT_CTS_SECONDARY_COLOR,
             'accent_color' => self::DEFAULT_CTS_ACCENT_COLOR,
-            'app_bg_color' => self::DEFAULT_CTS_APP_BG_COLOR,
-            'surface_color' => self::DEFAULT_CTS_SURFACE_COLOR,
-            'text_color' => self::DEFAULT_CTS_TEXT_COLOR,
-            'border_color' => self::DEFAULT_CTS_BORDER_COLOR,
-            'auto_text_contrast' => self::DEFAULT_CTS_AUTO_TEXT_CONTRAST,
             'font_family' => self::DEFAULT_CUSTOM_THEME_FONT_FAMILY,
             'bubble_border_radius' => self::DEFAULT_CUSTOM_THEME_BUBBLE_BORDER_RADIUS,
-            'container_border_radius' => self::DEFAULT_CTS_CONTAINER_BORDER_RADIUS,
-            'container_bg_color' => self::DEFAULT_CTS_CONTAINER_BG_COLOR,
-            'container_text_color' => self::DEFAULT_CTS_CONTAINER_TEXT_COLOR,
-            'container_border_color' => self::DEFAULT_CTS_CONTAINER_BORDER_COLOR,
-            'header_bg_color' => self::DEFAULT_CTS_HEADER_BG_COLOR,
-            'header_text_color' => self::DEFAULT_CTS_HEADER_TEXT_COLOR,
-            'header_border_color' => self::DEFAULT_CTS_HEADER_BORDER_COLOR,
-            'messages_bg_color' => self::DEFAULT_CTS_MESSAGES_BG_COLOR,
-            'messages_scrollbar_thumb_color' => self::DEFAULT_CTS_MESSAGES_SCROLLBAR_THUMB_COLOR,
-            'messages_scrollbar_track_color' => self::DEFAULT_CTS_MESSAGES_SCROLLBAR_TRACK_COLOR,
-            'bot_bubble_bg_color' => self::DEFAULT_CTS_BOT_BUBBLE_BG_COLOR,
-            'bot_bubble_text_color' => self::DEFAULT_CTS_BOT_BUBBLE_TEXT_COLOR,
-            'user_bubble_bg_color' => self::DEFAULT_CTS_USER_BUBBLE_BG_COLOR,
-            'user_bubble_text_color' => self::DEFAULT_CTS_USER_BUBBLE_TEXT_COLOR,
-            'input_area_bg_color' => self::DEFAULT_CTS_INPUT_AREA_BG_COLOR,
-            'input_area_border_color' => self::DEFAULT_CTS_INPUT_AREA_BORDER_COLOR,
-            'input_wrapper_bg_color' => self::DEFAULT_CTS_INPUT_WRAPPER_BG_COLOR,
-            'input_wrapper_border_color' => self::DEFAULT_CTS_INPUT_WRAPPER_BORDER_COLOR,
-            'input_text_color' => self::DEFAULT_CTS_INPUT_TEXT_COLOR,
-            'input_placeholder_color' => self::DEFAULT_CTS_INPUT_PLACEHOLDER_COLOR,
-            'input_focus_border_color' => self::DEFAULT_CTS_INPUT_FOCUS_BORDER_COLOR,
-            'input_focus_shadow_color' => self::DEFAULT_CTS_INPUT_FOCUS_SHADOW_COLOR,
-            'send_button_bg_color' => self::DEFAULT_CTS_SEND_BUTTON_BG_COLOR,
-            'send_button_text_color' => self::DEFAULT_CTS_SEND_BUTTON_TEXT_COLOR,
-            'action_button_bg_color' => self::DEFAULT_CTS_ACTION_BUTTON_BG_COLOR,
-            'action_button_color' => self::DEFAULT_CTS_ACTION_BUTTON_COLOR,
-            'action_button_border_color' => self::DEFAULT_CTS_ACTION_BUTTON_BORDER_COLOR,
-            'action_button_hover_bg_color' => self::DEFAULT_CTS_ACTION_BUTTON_HOVER_BG_COLOR,
-            'action_button_hover_color' => self::DEFAULT_CTS_ACTION_BUTTON_HOVER_COLOR,
-            'action_button_hover_border_color' => self::DEFAULT_CTS_ACTION_BUTTON_HOVER_BORDER_COLOR,
-            'footer_bg_color' => self::DEFAULT_CTS_FOOTER_BG_COLOR,
-            'footer_text_color' => self::DEFAULT_CTS_FOOTER_TEXT_COLOR,
-            'footer_border_color' => self::DEFAULT_CTS_FOOTER_BORDER_COLOR,
-            'sidebar_bg_color' => self::DEFAULT_CTS_SIDEBAR_BG_COLOR,
-            'sidebar_text_color' => self::DEFAULT_CTS_SIDEBAR_TEXT_COLOR,
-            'sidebar_border_color' => self::DEFAULT_CTS_SIDEBAR_BORDER_COLOR,
-            'sidebar_active_bg_color' => self::DEFAULT_CTS_SIDEBAR_ACTIVE_BG_COLOR,
-            'sidebar_active_text_color' => self::DEFAULT_CTS_SIDEBAR_ACTIVE_TEXT_COLOR,
-            'sidebar_hover_bg_color' => self::DEFAULT_CTS_SIDEBAR_HOVER_BG_COLOR,
-            'sidebar_hover_text_color' => self::DEFAULT_CTS_SIDEBAR_HOVER_TEXT_COLOR,
-            'action_menu_bg_color' => self::DEFAULT_CTS_ACTION_MENU_BG_COLOR,
-            'action_menu_border_color' => self::DEFAULT_CTS_ACTION_MENU_BORDER_COLOR,
-            'action_menu_item_text_color' => self::DEFAULT_CTS_ACTION_MENU_ITEM_TEXT_COLOR,
-            'action_menu_item_hover_bg_color' => self::DEFAULT_CTS_ACTION_MENU_ITEM_HOVER_BG_COLOR,
-            'action_menu_item_hover_text_color' => self::DEFAULT_CTS_ACTION_MENU_ITEM_HOVER_TEXT_COLOR,
             'container_max_width' => self::DEFAULT_CTS_CONTAINER_MAX_WIDTH,
             'popup_width' => self::DEFAULT_CTS_POPUP_WIDTH,
             'container_height' => self::DEFAULT_CTS_CONTAINER_HEIGHT,
@@ -471,16 +376,16 @@ class BotSettingsManager
     {
         return [
             [
-                'key' => 'lagoon',
-                'label' => __('Lagoon', 'gpt3-ai-content-generator'),
-                'secondary' => '#ECFEFF',
-                'primary' => '#0F766E',
-            ],
-            [
                 'key' => 'ocean',
                 'label' => __('Ocean', 'gpt3-ai-content-generator'),
                 'secondary' => '#F1F5FF',
                 'primary' => '#0B5FFF',
+            ],
+            [
+                'key' => 'lagoon',
+                'label' => __('Lagoon', 'gpt3-ai-content-generator'),
+                'secondary' => '#ECFEFF',
+                'primary' => '#0F766E',
             ],
             [
                 'key' => 'forest',

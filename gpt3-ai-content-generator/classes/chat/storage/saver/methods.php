@@ -68,20 +68,19 @@ function sanitize_settings_logic(array $raw_settings, int $bot_id): array
     if (!class_exists(BotSettingsManager::class)) {
         // Fallback defaults if class is missing
         $custom_theme_defaults = [
-            'primary_color' => '#0F766E',
-            'secondary_color' => '#ECFEFF',
-            'auto_text_contrast' => '1',
+            'primary_color' => '#0B5FFF',
+            'secondary_color' => '#F1F5FF',
+            'accent_color' => '#111111',
             'font_family' => 'inherit',
-            'bubble_border_radius' => 18,
-            'container_border_radius' => 10,
+            'bubble_border_radius' => 16,
             'container_max_width' => 896,
-            'popup_width' => 450,
-            'container_height' => 560,
+            'popup_width' => 380,
+            'container_height' => 620,
             'container_min_height' => 320,
-            'container_max_height' => 70,
-                'popup_height' => 560,
-                'popup_min_height' => 320,
-                'popup_max_height' => 70,
+            'container_max_height' => 90,
+            'popup_height' => 620,
+            'popup_min_height' => 320,
+            'popup_max_height' => 90,
         ];
     } else {
         $custom_theme_defaults = BotSettingsManager::get_custom_theme_defaults();
@@ -91,12 +90,13 @@ function sanitize_settings_logic(array $raw_settings, int $bot_id): array
     $sanitized['subgreeting'] = isset($raw_settings['subgreeting']) ? sanitize_textarea_field($raw_settings['subgreeting']) : '';
     $sanitized['provider'] = isset($raw_settings['provider']) ? sanitize_text_field($raw_settings['provider']) : '';
     $valid_themes = ['light', 'dark', 'custom', 'chatgpt'];
-    $sanitized['theme'] = isset($raw_settings['theme']) && in_array($raw_settings['theme'], $valid_themes, true)
+    $has_valid_theme = isset($raw_settings['theme']) && in_array($raw_settings['theme'], $valid_themes, true);
+    $sanitized['theme'] = $has_valid_theme
         ? sanitize_text_field($raw_settings['theme'])
-        : 'dark';
+        : BotSettingsManager::DEFAULT_THEME;
     $raw_theme_preset_key = isset($raw_settings['theme_preset_key'])
         ? sanitize_key((string) $raw_settings['theme_preset_key'])
-        : '';
+        : ($has_valid_theme ? '' : BotSettingsManager::DEFAULT_THEME_PRESET_KEY);
     $valid_theme_preset_keys = [];
     if (class_exists(BotSettingsManager::class)) {
         $custom_theme_presets = BotSettingsManager::get_custom_theme_presets();
@@ -118,17 +118,21 @@ function sanitize_settings_logic(array $raw_settings, int $bot_id): array
         ? $raw_theme_preset_key
         : '';
     $sanitized['instructions'] = isset($raw_settings['instructions']) ? AIPKit_Prompt_Sanitizer::sanitize($raw_settings['instructions']) : '';
-    $sanitized['popup_enabled'] = (isset($raw_settings['popup_enabled']) && $raw_settings['popup_enabled'] === '1') ? '1' : '0';
+    $sanitized['popup_enabled'] = isset($raw_settings['popup_enabled'])
+        ? (($raw_settings['popup_enabled'] === '1') ? '1' : '0')
+        : BotSettingsManager::DEFAULT_POPUP_ENABLED;
     $sanitized['popup_position'] = isset($raw_settings['popup_position']) ? sanitize_key($raw_settings['popup_position']) : 'bottom-right';
     $sanitized['popup_delay'] = isset($raw_settings['popup_delay']) ? absint($raw_settings['popup_delay']) : BotSettingsManager::DEFAULT_POPUP_DELAY;
-    $sanitized['site_wide_enabled'] = (isset($raw_settings['site_wide_enabled']) && $raw_settings['site_wide_enabled'] === '1') ? '1' : '0';
+    $sanitized['site_wide_enabled'] = isset($raw_settings['site_wide_enabled'])
+        ? (($raw_settings['site_wide_enabled'] === '1') ? '1' : '0')
+        : BotSettingsManager::DEFAULT_SITE_WIDE_ENABLED;
     if ($sanitized['popup_enabled'] !== '1') {
         $sanitized['site_wide_enabled'] = '0';
     }
     $raw_deploy_mode = isset($raw_settings['deploy_mode']) ? sanitize_key((string) $raw_settings['deploy_mode']) : '';
     $sanitized['deploy_mode'] = in_array($raw_deploy_mode, ['inline', 'popup', 'external'], true)
         ? $raw_deploy_mode
-        : (($sanitized['popup_enabled'] === '1') ? 'popup' : 'inline');
+        : (($sanitized['popup_enabled'] === '1') ? BotSettingsManager::DEFAULT_DEPLOY_MODE : 'inline');
     $sanitized['popup_icon_style'] = isset($raw_settings['popup_icon_style']) && in_array($raw_settings['popup_icon_style'], ['circle', 'square', 'none']) ? sanitize_key($raw_settings['popup_icon_style']) : BotSettingsManager::DEFAULT_POPUP_ICON_STYLE;
     $allowed_icon_sizes = ['small','medium','large','xlarge'];
     $sanitized['popup_icon_size'] = isset($raw_settings['popup_icon_size']) && in_array($raw_settings['popup_icon_size'], $allowed_icon_sizes, true)
@@ -144,7 +148,7 @@ function sanitize_settings_logic(array $raw_settings, int $bot_id): array
     }
     $sanitized['footer_text'] = isset($raw_settings['footer_text']) ? wp_kses_post($raw_settings['footer_text']) : '';
     $allowed_header_icons = ['chat-bubble', 'spark', 'openai', 'plus', 'question-mark'];
-    $header_avatar_type = isset($raw_settings['header_avatar_type']) && in_array($raw_settings['header_avatar_type'], ['default', 'custom'], true)
+    $header_avatar_type = isset($raw_settings['header_avatar_type']) && in_array($raw_settings['header_avatar_type'], ['inherit', 'default', 'custom'], true)
         ? sanitize_key($raw_settings['header_avatar_type'])
         : BotSettingsManager::DEFAULT_HEADER_AVATAR_TYPE;
     if (!isset($raw_settings['header_avatar_type']) && !empty($raw_settings['header_avatar_url'])) {
@@ -157,11 +161,13 @@ function sanitize_settings_logic(array $raw_settings, int $bot_id): array
             ? esc_url_raw(trim((string)$raw_settings['header_avatar_url']))
             : BotSettingsManager::DEFAULT_HEADER_AVATAR_URL;
         $header_avatar_value = $header_avatar_url;
-    } else {
+    } elseif ($header_avatar_type === 'default') {
         $default_avatar_key = isset($raw_settings['header_avatar_default']) && in_array($raw_settings['header_avatar_default'], $allowed_header_icons, true)
             ? sanitize_key($raw_settings['header_avatar_default'])
             : BotSettingsManager::DEFAULT_HEADER_AVATAR_VALUE;
         $header_avatar_value = $default_avatar_key;
+    } else {
+        $header_avatar_value = BotSettingsManager::DEFAULT_HEADER_AVATAR_VALUE;
     }
     $sanitized['header_avatar_type'] = $header_avatar_type;
     $sanitized['header_avatar_value'] = $header_avatar_value;
@@ -472,9 +478,9 @@ function sanitize_settings_logic(array $raw_settings, int $bot_id): array
     // --- Sanitize Realtime Voice Agent settings ---
     $sanitized['enable_realtime_voice'] = (isset($raw_settings['enable_realtime_voice']) && $raw_settings['enable_realtime_voice'] === '1') ? '1' : '0';
     $sanitized['direct_voice_mode'] = (isset($raw_settings['direct_voice_mode']) && $raw_settings['direct_voice_mode'] === '1') ? '1' : '0';
-    $sanitized['realtime_model'] = isset($raw_settings['realtime_model']) && in_array($raw_settings['realtime_model'], ['gpt-4o-realtime-preview', 'gpt-4o-mini-realtime']) ? $raw_settings['realtime_model'] : 'gpt-4o-realtime-preview';
-    $sanitized['realtime_voice'] = isset($raw_settings['realtime_voice']) && in_array($raw_settings['realtime_voice'], ['alloy', 'ash', 'ballad', 'coral', 'echo', 'fable', 'onyx', 'nova', 'shimmer', 'verse']) ? $raw_settings['realtime_voice'] : 'alloy';
-    $sanitized['turn_detection'] = isset($raw_settings['turn_detection']) && in_array($raw_settings['turn_detection'], ['none', 'server_vad', 'semantic_vad']) ? $raw_settings['turn_detection'] : 'server_vad';
+    $sanitized['realtime_model'] = isset($raw_settings['realtime_model']) && in_array($raw_settings['realtime_model'], ['gpt-realtime-2.1', 'gpt-realtime-2.1-mini'], true) ? $raw_settings['realtime_model'] : BotSettingsManager::DEFAULT_REALTIME_MODEL;
+    $sanitized['realtime_voice'] = isset($raw_settings['realtime_voice']) && in_array($raw_settings['realtime_voice'], ['alloy', 'ash', 'ballad', 'coral', 'echo', 'sage', 'shimmer', 'verse', 'marin', 'cedar'], true) ? $raw_settings['realtime_voice'] : BotSettingsManager::DEFAULT_REALTIME_VOICE;
+    $sanitized['turn_detection'] = isset($raw_settings['turn_detection']) && in_array($raw_settings['turn_detection'], ['server_vad', 'semantic_vad'], true) ? $raw_settings['turn_detection'] : BotSettingsManager::DEFAULT_TURN_DETECTION;
     $sanitized['speed'] = isset($raw_settings['speed']) ? max(0.25, min(1.5, floatval($raw_settings['speed']))) : 1.0;
     $valid_audio_formats = ['pcm16', 'g711_ulaw', 'g711_alaw'];
     $sanitized['input_audio_format'] = isset($raw_settings['input_audio_format']) && in_array($raw_settings['input_audio_format'], $valid_audio_formats) ? $raw_settings['input_audio_format'] : 'pcm16';
@@ -557,10 +563,7 @@ function sanitize_settings_logic(array $raw_settings, int $bot_id): array
                 'Garamond, serif', '"Courier New", Courier, monospace', '"Brush Script MT", cursive', 'inherit'
             ];
             $custom_theme_settings_sanitized[$key] = in_array($value, $allowed_fonts, true) ? $value : ($custom_theme_defaults['font_family'] ?? 'inherit');
-        } elseif ($key === 'auto_text_contrast') {
-            $custom_theme_settings_sanitized[$key] = ($value === '0' || $value === 0) ? '0' : '1';
         } elseif ($key === 'bubble_border_radius' ||
-                   $key === 'container_border_radius' ||
                    $key === 'container_max_width' ||
                    $key === 'popup_width' ||
                    $key === 'container_height' ||

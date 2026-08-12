@@ -19,7 +19,7 @@ class AIPKit_Bot_Settings_Initializer
      * @param string $botName     Chatbot name.
      * @param string $deploy_mode Initial deployment mode: popup or inline.
      */
-    public static function initialize(int $post_id, string $botName, string $deploy_mode = 'popup')
+    public static function initialize(int $post_id, string $botName, string $deploy_mode = BotSettingsManager::DEFAULT_DEPLOY_MODE)
     {
         if (!class_exists('\WPAICG\AIPKit_Providers')) {
             $providers_path = WPAICG_PLUGIN_DIR . 'classes/dashboard/class-aipkit_providers.php';
@@ -62,17 +62,21 @@ class AIPKit_Bot_Settings_Initializer
         }
         delete_post_meta($post_id, '_aipkit_azure_deployment');
         delete_post_meta($post_id, '_aipkit_azure_endpoint');
-        update_post_meta($post_id, '_aipkit_theme', 'dark');
-        update_post_meta($post_id, '_aipkit_theme_preset_key', '');
+        update_post_meta($post_id, '_aipkit_theme', BotSettingsManager::DEFAULT_THEME);
+        update_post_meta($post_id, '_aipkit_theme_preset_key', BotSettingsManager::DEFAULT_THEME_PRESET_KEY);
         $default_instructions = "You are a helpful AI Assistant. Please be friendly. Today's date is [date].";
         update_post_meta($post_id, '_aipkit_instructions', $default_instructions);
-        $deploy_mode = ($deploy_mode === 'inline') ? 'inline' : 'popup';
-        $popup_enabled = ($deploy_mode === 'popup') ? '1' : '0';
+        $deploy_mode = ($deploy_mode === 'inline')
+            ? 'inline'
+            : BotSettingsManager::DEFAULT_DEPLOY_MODE;
+        $popup_enabled = ($deploy_mode === BotSettingsManager::DEFAULT_DEPLOY_MODE)
+            ? BotSettingsManager::DEFAULT_POPUP_ENABLED
+            : '0';
         update_post_meta($post_id, '_aipkit_deploy_mode', $deploy_mode);
         update_post_meta($post_id, '_aipkit_popup_enabled', $popup_enabled);
         update_post_meta($post_id, '_aipkit_popup_position', 'bottom-right');
         update_post_meta($post_id, '_aipkit_popup_delay', BotSettingsManager::DEFAULT_POPUP_DELAY);
-        update_post_meta($post_id, '_aipkit_site_wide_enabled', '0');
+        update_post_meta($post_id, '_aipkit_site_wide_enabled', BotSettingsManager::DEFAULT_SITE_WIDE_ENABLED);
         update_post_meta($post_id, '_aipkit_popup_icon_type', BotSettingsManager::DEFAULT_POPUP_ICON_TYPE);
         update_post_meta($post_id, '_aipkit_popup_icon_style', BotSettingsManager::DEFAULT_POPUP_ICON_STYLE);
         update_post_meta($post_id, '_aipkit_popup_icon_value', BotSettingsManager::DEFAULT_POPUP_ICON_VALUE);

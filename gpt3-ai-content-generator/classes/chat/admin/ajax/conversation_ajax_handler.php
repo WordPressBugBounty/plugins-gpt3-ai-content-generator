@@ -52,9 +52,10 @@ class ConversationAjaxHandler extends BaseAjaxHandler {
      * @param string      $conversation_uuid
      * @param string      $message_id
      * @param string      $feedback_type
+     * @param string      $operation_id
      * @return void
      */
-    private function emit_feedback_submitted_event(?int $user_id, int $bot_id, string $conversation_uuid, string $message_id, string $feedback_type): void
+    private function emit_feedback_submitted_event(?int $user_id, int $bot_id, string $conversation_uuid, string $message_id, string $feedback_type, string $operation_id): void
     {
         if (!class_exists(AIPKit_Event_Webhooks::class)) {
             return;
@@ -110,6 +111,7 @@ class ConversationAjaxHandler extends BaseAjaxHandler {
                     $message_id,
                     $feedback_type,
                     $user_id ? (string) $user_id : 'guest',
+                    $operation_id,
                 ])),
             ]
         );
@@ -195,6 +197,15 @@ class ConversationAjaxHandler extends BaseAjaxHandler {
         $conversation_uuid = isset($_POST['conversation_uuid']) ? sanitize_key(wp_unslash($_POST['conversation_uuid'])) : '';
         $message_id = isset($_POST['message_id']) ? sanitize_key(wp_unslash($_POST['message_id'])) : '';
         $feedback_type = isset($_POST['feedback_type']) ? sanitize_key(wp_unslash($_POST['feedback_type'])) : '';
+        $feedback_operation_id = isset($_POST['feedback_operation_id'])
+            ? sanitize_key(wp_unslash($_POST['feedback_operation_id']))
+            : '';
+        if ($feedback_operation_id === '') {
+            // Cached legacy clients cannot distinguish a retry from a later
+            // intentional repeat, so preserve distinct operations rather than
+            // incorrectly suppressing a future selection.
+            $feedback_operation_id = wp_generate_uuid4();
+        }
 
         if (!$this->feedback_manager) {
              wp_send_json_error(['message' => __('Feedback service unavailable.', 'gpt3-ai-content-generator')], 500); return;
@@ -216,14 +227,20 @@ class ConversationAjaxHandler extends BaseAjaxHandler {
                 $bot_id,
                 $conversation_uuid,
                 $message_id,
-                $feedback_type
+                $feedback_type,
+                $feedback_operation_id
             );
             if ($conversation_uuid) {
                 wp_cache_delete('conv_full_log_' . $conversation_uuid, 'aipkit_chat_logs');
                 wp_cache_delete('conv_meta_' . $conversation_uuid, 'aipkit_chat_logs');
             }
             // --- END: Invalidate cache ---
-            wp_send_json_success(['message' => __('Feedback saved.', 'gpt3-ai-content-generator')]);
+            wp_send_json_success([
+                'message' => $feedback_type === 'none'
+                    ? __('Feedback removed.', 'gpt3-ai-content-generator')
+                    : __('Feedback saved.', 'gpt3-ai-content-generator'),
+                'feedback' => $feedback_type,
+            ]);
         }
     }
 

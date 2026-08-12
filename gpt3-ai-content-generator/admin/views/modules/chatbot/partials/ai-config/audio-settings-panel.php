@@ -396,7 +396,6 @@ $selected_stt_provider_for_ui = array_key_exists((string) $stt_provider, $stt_pr
                         class="aipkit_popover_option_select aipkit_popover_option_select--compact"
                         <?php echo $rt_controls_disabled ? 'disabled' : ''; ?>
                     >
-                        <option value="none" <?php selected($turn_detection, 'none'); ?>><?php esc_html_e('Push to talk', 'gpt3-ai-content-generator'); ?></option>
                         <option value="server_vad" <?php selected($turn_detection, 'server_vad'); ?>><?php esc_html_e('Automatic', 'gpt3-ai-content-generator'); ?></option>
                         <option value="semantic_vad" <?php selected($turn_detection, 'semantic_vad'); ?>><?php esc_html_e('Smart', 'gpt3-ai-content-generator'); ?></option>
                     </select>

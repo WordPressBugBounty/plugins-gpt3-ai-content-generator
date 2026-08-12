@@ -92,10 +92,21 @@ $aipkit_current_popup_delay = absint($popup_delay);
                     value="<?php echo ($popup_icon_type === 'custom') ? esc_url($aipkit_popup_custom_icon_url_value) : ''; ?>"
                 />
             </div>
+            <?php $header_inherit_radio_id = 'aipkit_bot_' . absint($bot_id) . '_header_avatar_icon_deploy_inherit'; ?>
+            <label class="aipkit_option_card" for="<?php echo esc_attr($header_inherit_radio_id); ?>">
+                <input
+                    type="radio"
+                    id="<?php echo esc_attr($header_inherit_radio_id); ?>"
+                    name="header_avatar_default"
+                    value="__inherit__"
+                    <?php checked($saved_header_avatar_type, 'inherit'); ?>
+                />
+                <span><?php esc_html_e('Match widget icon', 'gpt3-ai-content-generator'); ?></span>
+            </label>
             <?php foreach ($popup_icons as $icon_key => $svg_html) : ?>
                 <?php
                 $radio_id = 'aipkit_bot_' . absint($bot_id) . '_header_avatar_icon_deploy_' . sanitize_key($icon_key);
-                $icon_checked = ($saved_header_avatar_type !== 'custom' && $saved_header_avatar_value === $icon_key);
+                $icon_checked = ($saved_header_avatar_type === 'default' && $saved_header_avatar_value === $icon_key);
                 ?>
                 <label class="aipkit_option_card" for="<?php echo esc_attr($radio_id); ?>">
                     <input
@@ -167,8 +178,9 @@ $aipkit_current_popup_delay = absint($popup_delay);
                         data-aipkit-static-inline-settings-toggle
                         aria-expanded="false"
                         aria-controls="aipkit_display_launcher_panel"
+                        aria-label="<?php esc_attr_e('Toggle Popup settings', 'gpt3-ai-content-generator'); ?>"
                     >
-                        <span class="dashicons dashicons-plus-alt2" aria-hidden="true"></span>
+                        <span class="dashicons dashicons-arrow-down-alt2" aria-hidden="true"></span>
                     </button>
                 </div>
                 <div
@@ -326,9 +338,10 @@ $aipkit_current_popup_delay = absint($popup_delay);
                         data-aipkit-static-inline-settings-toggle
                         aria-expanded="false"
                         aria-controls="aipkit_display_welcome_panel"
+                        aria-label="<?php esc_attr_e('Toggle Welcome message settings', 'gpt3-ai-content-generator'); ?>"
                         <?php disabled($popup_label_enabled !== '1'); ?>
                     >
-                        <span class="dashicons dashicons-plus-alt2" aria-hidden="true"></span>
+                        <span class="dashicons dashicons-arrow-down-alt2" aria-hidden="true"></span>
                     </button>
                 </div>
                 <div

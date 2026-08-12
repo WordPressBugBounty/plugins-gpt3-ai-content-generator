@@ -37,8 +37,9 @@ $bot_id = $initial_active_bot_id;
                 data-aipkit-static-inline-settings-toggle
                 aria-expanded="false"
                 aria-controls="aipkit_general_chat_options_panel"
+                aria-label="<?php esc_attr_e('Toggle Chat options settings', 'gpt3-ai-content-generator'); ?>"
             >
-                <span class="dashicons dashicons-plus-alt2" aria-hidden="true"></span>
+                <span class="dashicons dashicons-arrow-down-alt2" aria-hidden="true"></span>
             </button>
         </div>
         <div
@@ -75,8 +76,9 @@ $bot_id = $initial_active_bot_id;
                 data-aipkit-static-inline-settings-toggle
                 aria-expanded="false"
                 aria-controls="aipkit_general_knowledge_panel"
+                aria-label="<?php esc_attr_e('Toggle Knowledge settings', 'gpt3-ai-content-generator'); ?>"
             >
-                <span class="dashicons dashicons-plus-alt2" aria-hidden="true"></span>
+                <span class="dashicons dashicons-arrow-down-alt2" aria-hidden="true"></span>
             </button>
         </div>
         <div
@@ -115,8 +117,9 @@ $bot_id = $initial_active_bot_id;
                 data-aipkit-static-inline-settings-toggle
                 aria-expanded="false"
                 aria-controls="aipkit_general_capabilities_panel"
+                aria-label="<?php esc_attr_e('Toggle Capabilities settings', 'gpt3-ai-content-generator'); ?>"
             >
-                <span class="dashicons dashicons-plus-alt2" aria-hidden="true"></span>
+                <span class="dashicons dashicons-arrow-down-alt2" aria-hidden="true"></span>
             </button>
         </div>
         <div
@@ -158,8 +161,9 @@ $bot_id = $initial_active_bot_id;
                 data-aipkit-static-inline-settings-toggle
                 aria-expanded="false"
                 aria-controls="aipkit_general_model_panel"
+                aria-label="<?php esc_attr_e('Toggle Model settings', 'gpt3-ai-content-generator'); ?>"
             >
-                <span class="dashicons dashicons-plus-alt2" aria-hidden="true"></span>
+                <span class="dashicons dashicons-arrow-down-alt2" aria-hidden="true"></span>
             </button>
         </div>
         <div
@@ -202,8 +206,9 @@ $bot_id = $initial_active_bot_id;
                 data-aipkit-static-inline-settings-toggle
                 aria-expanded="false"
                 aria-controls="aipkit_general_limits_panel"
+                aria-label="<?php esc_attr_e('Toggle Limits settings', 'gpt3-ai-content-generator'); ?>"
             >
-                <span class="dashicons dashicons-plus-alt2" aria-hidden="true"></span>
+                <span class="dashicons dashicons-arrow-down-alt2" aria-hidden="true"></span>
             </button>
         </div>
         <div
@@ -252,8 +257,9 @@ $bot_id = $initial_active_bot_id;
                 data-aipkit-static-inline-settings-toggle
                 aria-expanded="false"
                 aria-controls="aipkit_general_apps_panel"
+                aria-label="<?php esc_attr_e('Toggle Apps settings', 'gpt3-ai-content-generator'); ?>"
             >
-                <span class="dashicons dashicons-plus-alt2" aria-hidden="true"></span>
+                <span class="dashicons dashicons-arrow-down-alt2" aria-hidden="true"></span>
             </button>
         </div>
         <div
@@ -297,8 +303,9 @@ $bot_id = $initial_active_bot_id;
                 data-aipkit-static-inline-settings-toggle
                 aria-expanded="false"
                 aria-controls="aipkit_general_rules_panel"
+                aria-label="<?php esc_attr_e('Toggle Rules settings', 'gpt3-ai-content-generator'); ?>"
             >
-                <span class="dashicons dashicons-plus-alt2" aria-hidden="true"></span>
+                <span class="dashicons dashicons-arrow-down-alt2" aria-hidden="true"></span>
             </button>
         </div>
         <div

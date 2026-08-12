@@ -23,20 +23,20 @@ class FeedbackManager
     }
 
     /**
-     * Stores feedback ('up' or 'down') for a specific message within a conversation.
+     * Stores or clears feedback for a specific message within a conversation.
      *
      * @param int|null $user_id The user ID (null for guests).
      * @param string|null $session_id The guest UUID (null for logged-in users).
      * @param int $bot_id The bot ID.
      * @param string $conversation_uuid The specific conversation thread UUID.
      * @param string $message_id The ID of the message receiving feedback.
-     * @param string $feedback_type 'up' or 'down'.
+     * @param string $feedback_type 'up', 'down', or 'none' to clear feedback.
      * @return bool|\WP_Error True on success, WP_Error on failure.
      */
     public function store_feedback_for_message(?int $user_id, ?string $session_id, int $bot_id, string $conversation_uuid, string $message_id, string $feedback_type)
     {
         // Validation
-        if (empty($bot_id) || empty($conversation_uuid) || empty($message_id) || !in_array($feedback_type, ['up', 'down'])) {
+        if (empty($bot_id) || empty($conversation_uuid) || empty($message_id) || !in_array($feedback_type, ['up', 'down', 'none'], true)) {
             return new \WP_Error('invalid_feedback_data', __('Missing required data for feedback.', 'gpt3-ai-content-generator'));
         }
         if (!$user_id && empty($session_id)) {
@@ -74,10 +74,14 @@ class FeedbackManager
         $messages_array = $conversation_data['messages'];
         $message_found = false;
 
-        // Find the message and add/update feedback
+        // Find the message and add, update, or clear feedback.
         foreach ($messages_array as &$msg) { // Use reference to modify
             if (isset($msg['message_id']) && $msg['message_id'] === $message_id) {
-                $msg['feedback'] = sanitize_key($feedback_type); // Add or overwrite feedback
+                if ($feedback_type === 'none') {
+                    unset($msg['feedback']);
+                } else {
+                    $msg['feedback'] = sanitize_key($feedback_type);
+                }
                 $message_found = true;
                 break;
             }

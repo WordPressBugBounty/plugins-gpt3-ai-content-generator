@@ -194,20 +194,19 @@ function get_appearance_settings_logic(int $bot_id, string $bot_name, callable $
         } else {
             // Define minimal defaults if class is missing to avoid undefined index errors later
             $custom_theme_defaults = [
-                'primary_color' => '#0F766E',
-                'secondary_color' => '#ECFEFF',
-                'auto_text_contrast' => '1',
+                'primary_color' => '#0B5FFF',
+                'secondary_color' => '#F1F5FF',
+                'accent_color' => '#111111',
                 'font_family' => 'inherit',
-                'bubble_border_radius' => 18,
-                'container_border_radius' => 10,
+                'bubble_border_radius' => 16,
                 'container_max_width' => 896,
-                'popup_width' => 450,
-                'container_height' => 560,
+                'popup_width' => 380,
+                'container_height' => 620,
                 'container_min_height' => 320,
-                'container_max_height' => 70,
-                'popup_height' => 560,
+                'container_max_height' => 90,
+                'popup_height' => 620,
                 'popup_min_height' => 320,
-                'popup_max_height' => 70,
+                'popup_max_height' => 90,
             ];
         }
     } else {
@@ -216,11 +215,15 @@ function get_appearance_settings_logic(int $bot_id, string $bot_name, callable $
 
 
     $valid_themes = ['light', 'dark', 'custom', 'chatgpt'];
-    $default_theme = 'dark';
-    $settings['theme'] = in_array($get_meta_fn('_aipkit_theme', $default_theme), $valid_themes)
-        ? $get_meta_fn('_aipkit_theme', $default_theme)
-        : $default_theme;
-    $raw_theme_preset_key = sanitize_key((string) $get_meta_fn('_aipkit_theme_preset_key', ''));
+    $stored_theme = sanitize_key((string) $get_meta_fn('_aipkit_theme', ''));
+    $has_valid_stored_theme = in_array($stored_theme, $valid_themes, true);
+    $settings['theme'] = $has_valid_stored_theme
+        ? $stored_theme
+        : BotSettingsManager::DEFAULT_THEME;
+    $preset_fallback = $has_valid_stored_theme
+        ? ''
+        : BotSettingsManager::DEFAULT_THEME_PRESET_KEY;
+    $raw_theme_preset_key = sanitize_key((string) $get_meta_fn('_aipkit_theme_preset_key', $preset_fallback));
     $valid_theme_preset_keys = [];
     if (class_exists(BotSettingsManager::class)) {
         $custom_theme_presets = BotSettingsManager::get_custom_theme_presets();
@@ -246,7 +249,7 @@ function get_appearance_settings_logic(int $bot_id, string $bot_name, callable $
     $header_avatar_url = $get_meta_fn('_aipkit_header_avatar_url', BotSettingsManager::DEFAULT_HEADER_AVATAR_URL);
     $header_avatar_type = $get_meta_fn('_aipkit_header_avatar_type', BotSettingsManager::DEFAULT_HEADER_AVATAR_TYPE);
     $header_avatar_value = $get_meta_fn('_aipkit_header_avatar_value', BotSettingsManager::DEFAULT_HEADER_AVATAR_VALUE);
-    if (!in_array($header_avatar_type, ['default', 'custom'], true)) {
+    if (!in_array($header_avatar_type, ['inherit', 'default', 'custom'], true)) {
         $header_avatar_type = $header_avatar_url !== '' ? 'custom' : BotSettingsManager::DEFAULT_HEADER_AVATAR_TYPE;
     }
     if ($header_avatar_type === 'custom') {
@@ -254,11 +257,14 @@ function get_appearance_settings_logic(int $bot_id, string $bot_name, callable $
             $header_avatar_url = $header_avatar_value;
         }
         $header_avatar_value = $header_avatar_url;
-    } else {
+    } elseif ($header_avatar_type === 'default') {
         $allowed_header_icons = ['chat-bubble', 'spark', 'openai', 'plus', 'question-mark'];
         if (!in_array($header_avatar_value, $allowed_header_icons, true)) {
             $header_avatar_value = BotSettingsManager::DEFAULT_HEADER_AVATAR_VALUE;
         }
+        $header_avatar_url = '';
+    } else {
+        $header_avatar_value = BotSettingsManager::DEFAULT_HEADER_AVATAR_VALUE;
         $header_avatar_url = '';
     }
     $settings['header_avatar_type'] = $header_avatar_type;
@@ -297,16 +303,16 @@ function get_appearance_settings_logic(int $bot_id, string $bot_name, callable $
     $settings['retrieving_context_text'] = $get_meta_fn('_aipkit_retrieving_context_text', BotSettingsManager::DEFAULT_RETRIEVING_CONTEXT_TEXT);
 
     // Popup settings
-    $settings['popup_enabled'] = in_array($get_meta_fn('_aipkit_popup_enabled', '0'), ['0','1'])
-        ? $get_meta_fn('_aipkit_popup_enabled', '0')
-        : '0';
+    $settings['popup_enabled'] = in_array($get_meta_fn('_aipkit_popup_enabled', BotSettingsManager::DEFAULT_POPUP_ENABLED), ['0','1'])
+        ? $get_meta_fn('_aipkit_popup_enabled', BotSettingsManager::DEFAULT_POPUP_ENABLED)
+        : BotSettingsManager::DEFAULT_POPUP_ENABLED;
     $settings['popup_position'] = in_array($get_meta_fn('_aipkit_popup_position', 'bottom-right'), ['bottom-right','bottom-left','top-right','top-left'])
         ? $get_meta_fn('_aipkit_popup_position', 'bottom-right')
         : 'bottom-right';
     $settings['popup_delay'] = absint($get_meta_fn('_aipkit_popup_delay', BotSettingsManager::DEFAULT_POPUP_DELAY));
-    $settings['site_wide_enabled'] = in_array($get_meta_fn('_aipkit_site_wide_enabled', '0'), ['0','1'])
-        ? $get_meta_fn('_aipkit_site_wide_enabled', '0')
-        : '0';
+    $settings['site_wide_enabled'] = in_array($get_meta_fn('_aipkit_site_wide_enabled', BotSettingsManager::DEFAULT_SITE_WIDE_ENABLED), ['0','1'])
+        ? $get_meta_fn('_aipkit_site_wide_enabled', BotSettingsManager::DEFAULT_SITE_WIDE_ENABLED)
+        : BotSettingsManager::DEFAULT_SITE_WIDE_ENABLED;
     $allowed_icon_sizes = ['small','medium','large','xlarge'];
     $icon_size_meta = $get_meta_fn('_aipkit_popup_icon_size', BotSettingsManager::DEFAULT_POPUP_ICON_SIZE);
     $settings['popup_icon_size'] = in_array($icon_size_meta, $allowed_icon_sizes, true) ? $icon_size_meta : BotSettingsManager::DEFAULT_POPUP_ICON_SIZE;
@@ -387,17 +393,13 @@ function get_appearance_settings_logic(int $bot_id, string $bot_name, callable $
         } else {
             // Specific handling for numeric dimension settings
             if (in_array($key, [
-                'bubble_border_radius', 'container_border_radius', 'container_max_width', 'popup_width',
+                'bubble_border_radius', 'container_max_width', 'popup_width',
                 'container_height', 'container_min_height',
                 'popup_height', 'popup_min_height'
-            ])) {
+            ], true)) {
                 $custom_theme_settings_retrieved[$key] = is_numeric($value_from_meta) ? max(0, absint($value_from_meta)) : $custom_theme_defaults[$key];
-            } elseif (in_array($key, ['container_max_height', 'popup_max_height'])) {
+            } elseif (in_array($key, ['container_max_height', 'popup_max_height'], true)) {
                 $custom_theme_settings_retrieved[$key] = is_numeric($value_from_meta) ? max(1, min(absint($value_from_meta), 100)) : $custom_theme_defaults[$key];
-            } elseif ($key === 'auto_text_contrast') {
-                $custom_theme_settings_retrieved[$key] = in_array((string)$value_from_meta, ['0', '1'], true)
-                    ? (string)$value_from_meta
-                    : ($custom_theme_defaults[$key] ?? '1');
             } else {
                 $custom_theme_settings_retrieved[$key] = $value_from_meta;
             }
@@ -1121,7 +1123,7 @@ function get_voice_agent_config_logic(int $bot_id, callable $get_meta_fn): array
     
     $default_enable_realtime = BotSettingsManager::DEFAULT_ENABLE_REALTIME_VOICE ?? '0';
     $default_direct_voice_mode = BotSettingsManager::DEFAULT_DIRECT_VOICE_MODE ?? '0';
-    $default_realtime_model = BotSettingsManager::DEFAULT_REALTIME_MODEL ?? 'gpt-4o-realtime-preview';
+    $default_realtime_model = BotSettingsManager::DEFAULT_REALTIME_MODEL ?? 'gpt-realtime-2.1';
     $default_realtime_voice = BotSettingsManager::DEFAULT_REALTIME_VOICE ?? 'alloy';
     $default_turn_detection = BotSettingsManager::DEFAULT_TURN_DETECTION ?? 'server_vad';
     $default_speed = BotSettingsManager::DEFAULT_SPEED ?? 1.0;
@@ -1147,13 +1149,13 @@ function get_voice_agent_config_logic(int $bot_id, callable $get_meta_fn): array
     if (!in_array($settings['output_audio_format'], $valid_audio_formats, true)) {
         $settings['output_audio_format'] = $default_output_audio_format;
     }
-    if (!in_array($settings['realtime_model'], ['gpt-4o-realtime-preview', 'gpt-4o-mini-realtime'])) {
+    if (!in_array($settings['realtime_model'], ['gpt-realtime-2.1', 'gpt-realtime-2.1-mini'], true)) {
         $settings['realtime_model'] = $default_realtime_model;
     }
-    if (!in_array($settings['realtime_voice'], ['alloy', 'ash', 'ballad', 'coral', 'echo', 'fable', 'onyx', 'nova', 'shimmer', 'verse'])) {
+    if (!in_array($settings['realtime_voice'], ['alloy', 'ash', 'ballad', 'coral', 'echo', 'sage', 'shimmer', 'verse', 'marin', 'cedar'], true)) {
         $settings['realtime_voice'] = $default_realtime_voice;
     }
-    if (!in_array($settings['turn_detection'], ['none', 'server_vad', 'semantic_vad'])) {
+    if (!in_array($settings['turn_detection'], ['server_vad', 'semantic_vad'], true)) {
         $settings['turn_detection'] = $default_turn_detection;
     }
     $settings['speed'] = max(0.25, min(1.5, $settings['speed']));
@@ -1174,9 +1176,17 @@ function get_embed_settings_logic(int $bot_id, callable $get_meta_fn): array
     $settings = [];
 
     $deploy_mode = sanitize_key((string) $get_meta_fn('_aipkit_deploy_mode', ''));
-    $settings['deploy_mode'] = in_array($deploy_mode, ['inline', 'popup', 'external'], true)
-        ? $deploy_mode
-        : '';
+    if (in_array($deploy_mode, ['inline', 'popup', 'external'], true)) {
+        $settings['deploy_mode'] = $deploy_mode;
+    } else {
+        $legacy_popup_enabled = (string) $get_meta_fn(
+            '_aipkit_popup_enabled',
+            BotSettingsManager::DEFAULT_POPUP_ENABLED
+        );
+        $settings['deploy_mode'] = ($legacy_popup_enabled === '0')
+            ? 'inline'
+            : BotSettingsManager::DEFAULT_DEPLOY_MODE;
+    }
 
     // Get the allowed domains, default to an empty string if not set.
     $settings['embed_allowed_domains'] = $get_meta_fn('_aipkit_embed_allowed_domains', '');

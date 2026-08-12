@@ -32,6 +32,7 @@ $render_display_feature_control = static function (array $feature): void {
     $is_checked = !empty($feature['checked']);
     $is_disabled = !empty($feature['disabled']);
     $is_hidden = !empty($feature['hidden']);
+    $show_toggle = !array_key_exists('show_toggle', $feature) || !empty($feature['show_toggle']);
     $row_class = isset($feature['row_class']) ? (string) $feature['row_class'] : '';
     $input_class = isset($feature['input_class']) ? (string) $feature['input_class'] : '';
     $extra_content = isset($feature['extra']) ? (string) $feature['extra'] : '';
@@ -43,18 +44,22 @@ $render_display_feature_control = static function (array $feature): void {
         <?php echo $is_hidden ? ' hidden' : ''; ?>
         <?php echo $is_expandable ? ' data-aipkit-inline-settings-row data-aipkit-inline-settings-target="' . esc_attr($panel_target) . '"' : ''; ?>
     >
-        <label class="aipkit_interface_feature_label aipkit_settings_big_checkbox<?php echo $is_disabled ? ' is-disabled' : ''; ?>" for="<?php echo esc_attr($feature_id); ?>">
-            <input
-                type="checkbox"
-                id="<?php echo esc_attr($feature_id); ?>"
-                class="aipkit_interface_control_option<?php echo $input_class !== '' ? ' ' . esc_attr($input_class) : ''; ?>"
-                value="<?php echo esc_attr($feature_key); ?>"
-                <?php checked($is_checked); ?>
-                <?php disabled($is_disabled); ?>
-            />
-            <span class="aipkit_settings_big_checkbox_box" aria-hidden="true">
-                <span class="dashicons dashicons-saved"></span>
-            </span>
+        <?php if ($show_toggle) : ?>
+            <label class="aipkit_interface_feature_label aipkit_settings_big_checkbox<?php echo $is_disabled ? ' is-disabled' : ''; ?>" for="<?php echo esc_attr($feature_id); ?>">
+                <input
+                    type="checkbox"
+                    id="<?php echo esc_attr($feature_id); ?>"
+                    class="aipkit_interface_control_option<?php echo $input_class !== '' ? ' ' . esc_attr($input_class) : ''; ?>"
+                    value="<?php echo esc_attr($feature_key); ?>"
+                    <?php checked($is_checked); ?>
+                    <?php disabled($is_disabled); ?>
+                />
+                <span class="aipkit_settings_big_checkbox_box" aria-hidden="true">
+                    <span class="dashicons dashicons-saved"></span>
+                </span>
+        <?php else : ?>
+            <div class="aipkit_interface_feature_label aipkit_settings_big_checkbox is-disabled">
+        <?php endif; ?>
             <span class="aipkit_interface_feature_text">
                 <span class="aipkit_interface_feature_title aipkit_popover_option_label">
                     <?php echo esc_html($feature_label); ?>
@@ -65,7 +70,11 @@ $render_display_feature_control = static function (array $feature): void {
                     </span>
                 <?php endif; ?>
             </span>
-        </label>
+        <?php if ($show_toggle) : ?>
+            </label>
+        <?php else : ?>
+            </div>
+        <?php endif; ?>
         <?php if ($extra_content !== '') : ?>
             <div class="aipkit_interface_feature_action">
                 <?php echo $extra_content; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
@@ -87,8 +96,8 @@ $render_display_feature_control = static function (array $feature): void {
         <?php
         if ($consent_feature_available) {
             $consent_extra = sprintf(
-                '<button type="button" class="aipkit_popover_option_btn aipkit_consent_config_btn aipkit_consent_config_btn--inline aipkit_interface_feature_expand_btn" data-feature="consent_notice" data-aipkit-inline-settings-toggle aria-expanded="false" aria-controls="aipkit_consent_panel" aria-label="%2$s" title="%2$s"%1$s><span class="dashicons dashicons-plus-alt2" aria-hidden="true"></span></button>',
-                ($enable_consent_compliance === '1') ? '' : ' hidden',
+                '<button type="button" class="aipkit_popover_option_btn aipkit_consent_config_btn aipkit_consent_config_btn--inline aipkit_interface_feature_expand_btn" data-feature="consent_notice" data-aipkit-inline-settings-toggle aria-expanded="false" aria-controls="aipkit_consent_panel" aria-label="%2$s" title="%2$s"%1$s><span class="dashicons dashicons-arrow-down-alt2" aria-hidden="true"></span></button>',
+                ($enable_consent_compliance === '1') ? ' aria-disabled="false"' : ' disabled aria-disabled="true"',
                 esc_attr__('Consent settings', 'gpt3-ai-content-generator')
             );
         } else {
@@ -112,7 +121,8 @@ $render_display_feature_control = static function (array $feature): void {
             'hint' => __('Require consent before chat.', 'gpt3-ai-content-generator'),
             'checked' => $consent_toggle_value === '1',
             'disabled' => !$consent_feature_available,
-            'row_class' => 'aipkit_interface_control_item--consent',
+            'show_toggle' => $consent_feature_available,
+            'row_class' => 'aipkit_interface_control_item--consent' . ($consent_feature_available ? '' : ' aipkit_interface_feature_row--upgrade'),
             'extra' => $consent_extra,
             'panel_target' => $consent_feature_available ? 'aipkit_consent_panel' : '',
         ]);
@@ -135,8 +145,8 @@ $render_display_feature_control = static function (array $feature): void {
             'input_class' => 'aipkit_interface_control_option--sidebar',
         ]);
         $starters_extra = sprintf(
-            '<button type="button" class="aipkit_popover_option_btn aipkit_starters_config_btn aipkit_starters_config_btn--inline aipkit_interface_feature_expand_btn" data-feature="conversation_starters" data-aipkit-inline-settings-toggle aria-expanded="false" aria-controls="aipkit_starters_panel" aria-label="%2$s" title="%2$s"%1$s><span class="dashicons dashicons-plus-alt2" aria-hidden="true"></span></button>',
-            ((string) $enable_conversation_starters === '1') ? '' : ' hidden',
+            '<button type="button" class="aipkit_popover_option_btn aipkit_starters_config_btn aipkit_starters_config_btn--inline aipkit_interface_feature_expand_btn" data-feature="conversation_starters" data-aipkit-inline-settings-toggle aria-expanded="false" aria-controls="aipkit_starters_panel" aria-label="%2$s" title="%2$s"%1$s><span class="dashicons dashicons-arrow-down-alt2" aria-hidden="true"></span></button>',
+            ((string) $enable_conversation_starters === '1') ? ' aria-disabled="false"' : ' disabled aria-disabled="true"',
             esc_attr__('Starter question settings', 'gpt3-ai-content-generator')
         );
         $render_display_feature_control([

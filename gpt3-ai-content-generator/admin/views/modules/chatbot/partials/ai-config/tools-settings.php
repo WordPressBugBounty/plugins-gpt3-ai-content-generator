@@ -120,27 +120,47 @@ if ($image_model_dropdown_label === '') {
     $image_model_dropdown_label = __('Select model', 'gpt3-ai-content-generator');
 }
 
-$render_tool_enable_control = static function (string $tool_key, array $tool_option, string $input_id, string $extra_label_class = '') use ($is_pro_plan, $pricing_url): void {
+$file_upload_locked_by_plan = !$is_pro_plan && !$can_enable_file_upload;
+$realtime_voice_locked_by_plan = !$is_pro_plan && $rt_disabled_by_plan;
+
+$render_tool_upgrade_button = static function () use ($pricing_url): void {
+    ?>
+    <a
+        class="aipkit_tools_enabled_item_upgrade aipkit_popover_upgrade_link aipkit_pro_upgrade_button"
+        href="<?php echo esc_url($pricing_url); ?>"
+        target="_blank"
+        rel="noopener noreferrer"
+    >
+        <?php esc_html_e('Upgrade', 'gpt3-ai-content-generator'); ?>
+    </a>
+    <?php
+};
+
+$render_tool_enable_control = static function (string $tool_key, array $tool_option, string $input_id, string $extra_label_class = '') use ($is_pro_plan): void {
     $is_disabled = !empty($tool_option['disabled']);
-    $show_upgrade = !$is_pro_plan
+    $is_plan_locked = !$is_pro_plan
         && $is_disabled
         && in_array($tool_key, ['file_upload', 'realtime_voice'], true);
     ?>
-    <div class="aipkit_tools_enable_control<?php echo $show_upgrade ? ' aipkit_tools_enable_control--has-upgrade' : ''; ?>">
-        <label class="aipkit_tools_enable_label aipkit_settings_big_checkbox<?php echo $is_disabled ? ' is-disabled' : ''; ?><?php echo $extra_label_class !== '' ? ' ' . esc_attr($extra_label_class) : ''; ?>" for="<?php echo esc_attr($input_id); ?>">
-            <input
-                type="checkbox"
-                id="<?php echo esc_attr($input_id); ?>"
-                class="aipkit_tools_enabled_option"
-                value="<?php echo esc_attr($tool_key); ?>"
-                data-tool-key="<?php echo esc_attr($tool_key); ?>"
-                data-static-disabled="<?php echo $is_disabled ? '1' : '0'; ?>"
-                <?php checked(!empty($tool_option['enabled'])); ?>
-                <?php disabled($is_disabled); ?>
-            />
-            <span class="aipkit_settings_big_checkbox_box" aria-hidden="true">
-                <span class="dashicons dashicons-saved"></span>
-            </span>
+    <div class="aipkit_tools_enable_control">
+        <?php if (!$is_plan_locked) : ?>
+            <label class="aipkit_tools_enable_label aipkit_settings_big_checkbox<?php echo $is_disabled ? ' is-disabled' : ''; ?><?php echo $extra_label_class !== '' ? ' ' . esc_attr($extra_label_class) : ''; ?>" for="<?php echo esc_attr($input_id); ?>">
+                <input
+                    type="checkbox"
+                    id="<?php echo esc_attr($input_id); ?>"
+                    class="aipkit_tools_enabled_option"
+                    value="<?php echo esc_attr($tool_key); ?>"
+                    data-tool-key="<?php echo esc_attr($tool_key); ?>"
+                    data-static-disabled="<?php echo $is_disabled ? '1' : '0'; ?>"
+                    <?php checked(!empty($tool_option['enabled'])); ?>
+                    <?php disabled($is_disabled); ?>
+                />
+                <span class="aipkit_settings_big_checkbox_box" aria-hidden="true">
+                    <span class="dashicons dashicons-saved"></span>
+                </span>
+        <?php else : ?>
+            <div class="aipkit_tools_enable_label aipkit_settings_big_checkbox is-disabled<?php echo $extra_label_class !== '' ? ' ' . esc_attr($extra_label_class) : ''; ?>">
+        <?php endif; ?>
             <span class="aipkit_tools_feature_text">
                 <span class="aipkit_tools_feature_label aipkit_popover_option_label">
                     <?php echo esc_html($tool_option['label']); ?>
@@ -149,16 +169,10 @@ $render_tool_enable_control = static function (string $tool_key, array $tool_opt
                     <?php echo esc_html($tool_option['hint']); ?>
                 </span>
             </span>
-        </label>
-        <?php if ($show_upgrade) : ?>
-            <a
-                class="aipkit_tools_enabled_item_upgrade aipkit_popover_upgrade_link aipkit_pro_upgrade_button"
-                href="<?php echo esc_url($pricing_url); ?>"
-                target="_blank"
-                rel="noopener noreferrer"
-            >
-                <?php esc_html_e('Upgrade', 'gpt3-ai-content-generator'); ?>
-            </a>
+        <?php if (!$is_plan_locked) : ?>
+            </label>
+        <?php else : ?>
+            </div>
         <?php endif; ?>
     </div>
     <?php
@@ -166,7 +180,7 @@ $render_tool_enable_control = static function (string $tool_key, array $tool_opt
 ?>
 
 <div class="aipkit_tools_feature_rows aipkit_display_settings_rows">
-    <div class="aipkit_tools_feature_row aipkit_popover_option_row aipkit_popover_option_row--file-upload<?php echo $can_enable_file_upload ? '' : ' aipkit_popover_option_row--disabled'; ?><?php echo !empty($tools_master_options['file_upload']['enabled']) ? ' aipkit_tools_feature_row--is-enabled' : ''; ?>" data-aipkit-tool-key="file_upload">
+    <div class="aipkit_tools_feature_row aipkit_popover_option_row aipkit_popover_option_row--file-upload<?php echo $can_enable_file_upload ? '' : ' aipkit_popover_option_row--disabled'; ?><?php echo $file_upload_locked_by_plan ? ' aipkit_tools_feature_row--upgrade' : ''; ?><?php echo !empty($tools_master_options['file_upload']['enabled']) ? ' aipkit_tools_feature_row--is-enabled' : ''; ?>" data-aipkit-tool-key="file_upload">
         <div class="aipkit_tools_feature_left">
             <?php $render_tool_enable_control('file_upload', $tools_master_options['file_upload'], 'aipkit_bot_' . $bot_id . '_file_upload_tool_toggle'); ?>
         </div>
@@ -185,6 +199,9 @@ $render_tool_enable_control = static function (string $tool_key, array $tool_opt
                 <option value="1" <?php selected($file_upload_toggle_value, '1'); ?>><?php esc_html_e('Yes', 'gpt3-ai-content-generator'); ?></option>
                 <option value="0" <?php selected($file_upload_toggle_value, '0'); ?>><?php esc_html_e('No', 'gpt3-ai-content-generator'); ?></option>
             </select>
+            <?php if ($file_upload_locked_by_plan) : ?>
+                <?php $render_tool_upgrade_button(); ?>
+            <?php endif; ?>
         </div>
     </div>
 
@@ -218,10 +235,11 @@ $render_tool_enable_control = static function (string $tool_key, array $tool_opt
                 aria-expanded="false"
                 aria-controls="aipkit_builder_image_generation_settings_modal"
                 aria-label="<?php esc_attr_e('Image generation settings', 'gpt3-ai-content-generator'); ?>"
+                aria-disabled="<?php echo (($enable_image_generation ?? '0') === '1') ? 'false' : 'true'; ?>"
                 title="<?php esc_attr_e('Settings', 'gpt3-ai-content-generator'); ?>"
-                style="<?php echo (($enable_image_generation ?? '0') === '1') ? '' : 'display:none;'; ?>"
+                <?php disabled(($enable_image_generation ?? '0') !== '1'); ?>
             >
-                <span class="dashicons dashicons-plus-alt2" aria-hidden="true"></span>
+                <span class="dashicons dashicons-arrow-down-alt2" aria-hidden="true"></span>
             </button>
             <div
                 id="aipkit_builder_image_generation_settings_modal"
@@ -423,10 +441,11 @@ $render_tool_enable_control = static function (string $tool_key, array $tool_opt
                 aria-expanded="false"
                 aria-controls="aipkit_builder_web_settings_modal"
                 aria-label="<?php esc_attr_e('Web search settings', 'gpt3-ai-content-generator'); ?>"
+                aria-disabled="<?php echo ($openai_web_search_enabled_val === '1') ? 'false' : 'true'; ?>"
                 title="<?php esc_attr_e('Settings', 'gpt3-ai-content-generator'); ?>"
-                style="<?php echo ($openai_web_search_enabled_val === '1') ? '' : 'display:none;'; ?>"
+                <?php disabled($openai_web_search_enabled_val !== '1'); ?>
             >
-                <span class="dashicons dashicons-plus-alt2" aria-hidden="true"></span>
+                <span class="dashicons dashicons-arrow-down-alt2" aria-hidden="true"></span>
             </button>
         </div>
     </div>
@@ -454,10 +473,11 @@ $render_tool_enable_control = static function (string $tool_key, array $tool_opt
                 aria-expanded="false"
                 aria-controls="aipkit_builder_web_settings_modal"
                 aria-label="<?php esc_attr_e('Web search settings', 'gpt3-ai-content-generator'); ?>"
+                aria-disabled="<?php echo ($google_search_grounding_enabled_val === '1') ? 'false' : 'true'; ?>"
                 title="<?php esc_attr_e('Settings', 'gpt3-ai-content-generator'); ?>"
-                style="<?php echo ($google_search_grounding_enabled_val === '1') ? '' : 'display:none;'; ?>"
+                <?php disabled($google_search_grounding_enabled_val !== '1'); ?>
             >
-                <span class="dashicons dashicons-plus-alt2" aria-hidden="true"></span>
+                <span class="dashicons dashicons-arrow-down-alt2" aria-hidden="true"></span>
             </button>
         </div>
     </div>
@@ -485,10 +505,11 @@ $render_tool_enable_control = static function (string $tool_key, array $tool_opt
                 aria-expanded="false"
                 aria-controls="aipkit_builder_web_settings_modal"
                 aria-label="<?php esc_attr_e('Web search settings', 'gpt3-ai-content-generator'); ?>"
+                aria-disabled="<?php echo ($claude_web_search_enabled_val === '1') ? 'false' : 'true'; ?>"
                 title="<?php esc_attr_e('Settings', 'gpt3-ai-content-generator'); ?>"
-                style="<?php echo ($claude_web_search_enabled_val === '1') ? '' : 'display:none;'; ?>"
+                <?php disabled($claude_web_search_enabled_val !== '1'); ?>
             >
-                <span class="dashicons dashicons-plus-alt2" aria-hidden="true"></span>
+                <span class="dashicons dashicons-arrow-down-alt2" aria-hidden="true"></span>
             </button>
         </div>
     </div>
@@ -516,10 +537,11 @@ $render_tool_enable_control = static function (string $tool_key, array $tool_opt
                 aria-expanded="false"
                 aria-controls="aipkit_builder_web_settings_modal"
                 aria-label="<?php esc_attr_e('Web search settings', 'gpt3-ai-content-generator'); ?>"
+                aria-disabled="<?php echo ($openrouter_web_search_enabled_val === '1') ? 'false' : 'true'; ?>"
                 title="<?php esc_attr_e('Settings', 'gpt3-ai-content-generator'); ?>"
-                style="<?php echo ($openrouter_web_search_enabled_val === '1') ? '' : 'display:none;'; ?>"
+                <?php disabled($openrouter_web_search_enabled_val !== '1'); ?>
             >
-                <span class="dashicons dashicons-plus-alt2" aria-hidden="true"></span>
+                <span class="dashicons dashicons-arrow-down-alt2" aria-hidden="true"></span>
             </button>
         </div>
     </div>
@@ -547,10 +569,11 @@ $render_tool_enable_control = static function (string $tool_key, array $tool_opt
                 aria-expanded="false"
                 aria-controls="aipkit_builder_web_settings_modal"
                 aria-label="<?php esc_attr_e('Web search settings', 'gpt3-ai-content-generator'); ?>"
+                aria-disabled="<?php echo ($xai_web_search_enabled_val === '1') ? 'false' : 'true'; ?>"
                 title="<?php esc_attr_e('Settings', 'gpt3-ai-content-generator'); ?>"
-                style="<?php echo ($xai_web_search_enabled_val === '1') ? '' : 'display:none;'; ?>"
+                <?php disabled($xai_web_search_enabled_val !== '1'); ?>
             >
-                <span class="dashicons dashicons-plus-alt2" aria-hidden="true"></span>
+                <span class="dashicons dashicons-arrow-down-alt2" aria-hidden="true"></span>
             </button>
         </div>
     </div>
@@ -578,10 +601,12 @@ $render_tool_enable_control = static function (string $tool_key, array $tool_opt
                 aria-expanded="false"
                 aria-controls="aipkit_builder_audio_settings_modal"
                 aria-label="<?php esc_attr_e('Speech to text settings', 'gpt3-ai-content-generator'); ?>"
+                aria-disabled="<?php echo ($enable_voice_input === '1' && !$stt_controls_hidden_for_tools) ? 'false' : 'true'; ?>"
                 title="<?php esc_attr_e('Settings', 'gpt3-ai-content-generator'); ?>"
-                style="<?php echo ($enable_voice_input === '1' && !$stt_controls_hidden_for_tools) ? '' : 'display:none;'; ?>"
+                style="<?php echo $stt_controls_hidden_for_tools ? 'display:none;' : ''; ?>"
+                <?php disabled($enable_voice_input !== '1' || $stt_controls_hidden_for_tools); ?>
             >
-                <span class="dashicons dashicons-plus-alt2" aria-hidden="true"></span>
+                <span class="dashicons dashicons-arrow-down-alt2" aria-hidden="true"></span>
             </button>
         </div>
     </div>
@@ -609,15 +634,20 @@ $render_tool_enable_control = static function (string $tool_key, array $tool_opt
                 aria-expanded="false"
                 aria-controls="aipkit_builder_audio_settings_modal"
                 aria-label="<?php esc_attr_e('Text to speech settings', 'gpt3-ai-content-generator'); ?>"
+                aria-disabled="<?php echo ($tts_enabled === '1') ? 'false' : 'true'; ?>"
                 title="<?php esc_attr_e('Settings', 'gpt3-ai-content-generator'); ?>"
-                style="<?php echo ($tts_enabled === '1') ? '' : 'display:none;'; ?>"
+                <?php disabled($tts_enabled !== '1'); ?>
             >
-                <span class="dashicons dashicons-plus-alt2" aria-hidden="true"></span>
+                <span class="dashicons dashicons-arrow-down-alt2" aria-hidden="true"></span>
             </button>
         </div>
     </div>
 
-    <div class="aipkit_tools_feature_row aipkit_popover_option_row aipkit_audio_toggle_realtime_row aipkit_tools_feature_row--expandable<?php echo $rt_disabled_by_plan ? ' aipkit_popover_option_row--disabled' : ''; ?><?php echo ($realtime_voice_toggle_value === '1') ? ' aipkit_tools_feature_row--is-enabled' : ''; ?>" data-aipkit-tool-key="realtime_voice" data-aipkit-inline-settings-row data-aipkit-inline-settings-target="aipkit_builder_audio_settings_modal">
+    <div
+        class="aipkit_tools_feature_row aipkit_popover_option_row aipkit_audio_toggle_realtime_row<?php echo $realtime_voice_locked_by_plan ? ' aipkit_popover_option_row--disabled aipkit_tools_feature_row--upgrade' : ' aipkit_tools_feature_row--expandable'; ?><?php echo ($realtime_voice_toggle_value === '1') ? ' aipkit_tools_feature_row--is-enabled' : ''; ?>"
+        data-aipkit-tool-key="realtime_voice"
+        <?php echo $realtime_voice_locked_by_plan ? '' : 'data-aipkit-inline-settings-row data-aipkit-inline-settings-target="aipkit_builder_audio_settings_modal"'; ?>
+    >
         <div class="aipkit_tools_feature_left">
             <?php $render_tool_enable_control('realtime_voice', $tools_master_options['realtime_voice'], 'aipkit_bot_' . $bot_id . '_realtime_voice_tool_toggle'); ?>
         </div>
@@ -633,19 +663,24 @@ $render_tool_enable_control = static function (string $tool_key, array $tool_opt
                 <option value="1" <?php selected($realtime_voice_toggle_value, '1'); ?>><?php esc_html_e('Yes', 'gpt3-ai-content-generator'); ?></option>
                 <option value="0" <?php selected($realtime_voice_toggle_value, '0'); ?>><?php esc_html_e('No', 'gpt3-ai-content-generator'); ?></option>
             </select>
-            <button
-                type="button"
-                class="aipkit_popover_option_btn aipkit_audio_settings_config_btn aipkit_tools_options_btn aipkit_interface_feature_expand_btn"
-                data-aipkit-inline-settings-toggle
-                data-audio-feature="realtime"
-                aria-expanded="false"
-                aria-controls="aipkit_builder_audio_settings_modal"
-                aria-label="<?php esc_attr_e('Realtime voice settings', 'gpt3-ai-content-generator'); ?>"
-                title="<?php esc_attr_e('Settings', 'gpt3-ai-content-generator'); ?>"
-                style="<?php echo ($realtime_voice_toggle_value === '1' && !$rt_disabled_by_plan) ? '' : 'display:none;'; ?>"
-            >
-                <span class="dashicons dashicons-plus-alt2" aria-hidden="true"></span>
-            </button>
+            <?php if ($realtime_voice_locked_by_plan) : ?>
+                <?php $render_tool_upgrade_button(); ?>
+            <?php else : ?>
+                <button
+                    type="button"
+                    class="aipkit_popover_option_btn aipkit_audio_settings_config_btn aipkit_tools_options_btn aipkit_interface_feature_expand_btn"
+                    data-aipkit-inline-settings-toggle
+                    data-audio-feature="realtime"
+                    aria-expanded="false"
+                    aria-controls="aipkit_builder_audio_settings_modal"
+                    aria-label="<?php esc_attr_e('Realtime voice settings', 'gpt3-ai-content-generator'); ?>"
+                    aria-disabled="<?php echo ($realtime_voice_toggle_value === '1') ? 'false' : 'true'; ?>"
+                    title="<?php esc_attr_e('Settings', 'gpt3-ai-content-generator'); ?>"
+                    <?php disabled($realtime_voice_toggle_value !== '1'); ?>
+                >
+                    <span class="dashicons dashicons-arrow-down-alt2" aria-hidden="true"></span>
+                </button>
+            <?php endif; ?>
         </div>
     </div>
 </div>

@@ -55,10 +55,11 @@ $knowledge_config_panel_id = 'aipkit_bot_' . $bot_id . '_knowledge_config_panel'
                         aria-expanded="false"
                         aria-controls="<?php echo esc_attr($knowledge_config_panel_id); ?>"
                         aria-label="<?php esc_attr_e('Vector search settings', 'gpt3-ai-content-generator'); ?>"
+                        aria-disabled="<?php echo ($enable_vector_store === '1') ? 'false' : 'true'; ?>"
                         title="<?php esc_attr_e('Settings', 'gpt3-ai-content-generator'); ?>"
-                        <?php echo ($enable_vector_store === '1') ? '' : 'hidden'; ?>
+                        <?php disabled($enable_vector_store !== '1'); ?>
                     >
-                        <span class="dashicons dashicons-plus-alt2" aria-hidden="true"></span>
+                        <span class="dashicons dashicons-arrow-down-alt2" aria-hidden="true"></span>
                     </button>
                 </div>
                 <div class="aipkit_context_source_choice_row aipkit_display_settings_row aipkit_context_source_choice_row--page-context">
