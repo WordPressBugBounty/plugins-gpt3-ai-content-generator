@@ -63,35 +63,10 @@ if (!defined('ABSPATH')) {
     </div>
 </div>
 
-<div class="aipkit_form-group aipkit_settings_simple_row" id="aipkit_settings_caches_row">
-    <div class="aipkit_form-label">
-        <?php esc_html_e('Caches', 'gpt3-ai-content-generator'); ?>
-        <span class="aipkit_form-label-helper"><?php esc_html_e('Clear cached model lists or transient data.', 'gpt3-ai-content-generator'); ?></span>
-    </div>
-    <div class="aipkit_settings_action_buttons">
-        <button
-            type="button"
-            id="aipkit_settings_clear_model_cache"
-            class="aipkit_btn aipkit_btn-secondary"
-            data-aipkit-settings-action="clear-model-cache"
-        >
-            <?php esc_html_e('Clear model cache', 'gpt3-ai-content-generator'); ?>
-        </button>
-        <button
-            type="button"
-            id="aipkit_settings_clear_transients"
-            class="aipkit_btn aipkit_btn-secondary"
-            data-aipkit-settings-action="clear-transients"
-        >
-            <?php esc_html_e('Clear transients', 'gpt3-ai-content-generator'); ?>
-        </button>
-    </div>
-</div>
-
 <div class="aipkit_form-group aipkit_settings_simple_row" id="aipkit_settings_sync_all_row">
     <div class="aipkit_form-label">
         <?php esc_html_e('Sync models', 'gpt3-ai-content-generator'); ?>
-        <span class="aipkit_form-label-helper"><?php esc_html_e('Refresh available models for every connected provider.', 'gpt3-ai-content-generator'); ?></span>
+        <span class="aipkit_form-label-helper"><?php esc_html_e('Refresh model catalogs for every connected provider.', 'gpt3-ai-content-generator'); ?></span>
     </div>
     <div class="aipkit_settings_action_buttons">
         <button
@@ -100,7 +75,7 @@ if (!defined('ABSPATH')) {
             class="aipkit_btn aipkit_btn-secondary"
             data-aipkit-settings-action="sync-all-models"
         >
-            <?php esc_html_e('Sync all', 'gpt3-ai-content-generator'); ?>
+            <?php esc_html_e('Sync all models', 'gpt3-ai-content-generator'); ?>
         </button>
     </div>
 </div>

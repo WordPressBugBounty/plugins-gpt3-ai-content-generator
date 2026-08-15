@@ -303,12 +303,12 @@ function get_capability_map_logic(): array {
     return [
         'chat' => true,
         'stream' => true,
-        'tools' => true,
-        'web_search_plugin' => true,
-        'image_input' => true,
-        'image_output' => true,
-        'image_generation' => true,
-        'embeddings' => true,
+        'tools' => false,
+        'web_search_plugin' => false,
+        'image_input' => false,
+        'image_output' => false,
+        'image_generation' => false,
+        'embeddings' => false,
     ];
 }
 
@@ -391,9 +391,13 @@ function resolve_model_capabilities_from_metadata_logic(array $metadata): array 
         $metadata['output_modalities'] ?? ($metadata['architecture']['output_modalities'] ?? [])
     );
     if (!empty($output_modalities)) {
+        $supports_text_output = in_array('text', $output_modalities, true)
+            || in_array('output_text', $output_modalities, true);
         $supports_image_output = in_array('image', $output_modalities, true)
             || in_array('image_url', $output_modalities, true)
             || in_array('output_image', $output_modalities, true);
+        $resolved['chat'] = $supports_text_output;
+        $resolved['stream'] = $supports_text_output;
         $resolved['image_output'] = $supports_image_output;
         $resolved['image_generation'] = $supports_image_output;
     }
@@ -520,7 +524,7 @@ function get_model_metadata_logic(string $model_id): ?array {
         return null;
     }
 
-    $synced_models = get_option('aipkit_openrouter_model_list', []);
+    $synced_models = \WPAICG\Core\Models\AIPKit_Model_Registry::get_legacy_model_list('OpenRouter');
     if (!is_array($synced_models)) {
         return null;
     }
@@ -559,7 +563,7 @@ function resolve_model_capabilities_logic(string $model_id): array {
  * Decision policy:
  * - If synced metadata explicitly declares support (`supported_features` / `supported_parameters`), trust it.
  * - If metadata exists and explicitly excludes tool/web capabilities, return false.
- * - If metadata is missing, return true to avoid breaking existing installs.
+ * - If metadata is missing, use conservative provider defaults.
  *
  * @param string $model_id OpenRouter model id.
  * @return bool

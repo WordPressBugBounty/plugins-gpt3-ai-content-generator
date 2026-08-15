@@ -62,9 +62,9 @@ function get_form_data_logic(\WPAICG\AIForms\Storage\AIPKit_AI_Form_Storage $sto
     // --- End Migration ---
 
 
-    $default_provider_config = [];
+    $new_ai_selection = [];
     if (class_exists(\WPAICG\AIPKit_Providers::class)) {
-        $default_provider_config = \WPAICG\AIPKit_Providers::get_default_provider_config();
+        $new_ai_selection = \WPAICG\AIPKit_Providers::get_new_text_generation_selection();
     }
 
     $global_ai_params = [];
@@ -85,8 +85,8 @@ function get_form_data_logic(\WPAICG\AIForms\Storage\AIPKit_AI_Form_Storage $sto
         'template_key' => sanitize_key((string) get_post_meta($form_id, '_aipkit_ai_form_template_key', true)),
         'prompt_template' => get_post_meta($form_id, '_aipkit_ai_form_prompt_template', true) ?: '',
         'structure' => $form_structure,
-        'ai_provider' => get_post_meta($form_id, '_aipkit_ai_form_ai_provider', true) ?: ($default_provider_config['provider'] ?? 'OpenAI'),
-        'ai_model' => get_post_meta($form_id, '_aipkit_ai_form_ai_model', true) ?: ($default_provider_config['model'] ?? ''),
+        'ai_provider' => get_post_meta($form_id, '_aipkit_ai_form_ai_provider', true) ?: ($new_ai_selection['provider'] ?? 'OpenAI'),
+        'ai_model' => get_post_meta($form_id, '_aipkit_ai_form_ai_model', true) ?: ($new_ai_selection['model'] ?? ''),
         'temperature' => (is_numeric($form_temp) && $form_temp !== '') ? floatval($form_temp) : ($global_ai_params['temperature'] ?? 1.0),
         'max_tokens' => (is_numeric($form_max_tokens) && $form_max_tokens !== '') ? absint($form_max_tokens) : ($global_ai_params['max_completion_tokens'] ?? 4000),
         'top_p' => (is_numeric($form_top_p) && $form_top_p !== '') ? floatval($form_top_p) : ($global_ai_params['top_p'] ?? 1.0),
@@ -99,7 +99,7 @@ function get_form_data_logic(\WPAICG\AIForms\Storage\AIPKit_AI_Form_Storage $sto
     if (class_exists(AIPKit_Providers::class)) {
         $data['ai_provider'] = AIPKit_Providers::normalize_main_provider(
             (string) ($data['ai_provider'] ?? ''),
-            (string) ($default_provider_config['provider'] ?? 'OpenAI')
+            (string) ($new_ai_selection['provider'] ?? 'OpenAI')
         );
     }
 

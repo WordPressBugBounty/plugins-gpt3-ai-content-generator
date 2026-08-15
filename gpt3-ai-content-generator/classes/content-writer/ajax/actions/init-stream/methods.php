@@ -6,6 +6,7 @@ use WPAICG\Core\Stream\Cache\AIPKit_SSE_Message_Cache;
 use WP_Error;
 use WPAICG\AIPKIT_AI_Settings;
 use WPAICG\ContentWriter\Ajax\Actions\Shared;
+use WPAICG\Core\Models\AIPKit_Model_Catalog;
 
 if (!defined('ABSPATH')) {
     exit;
@@ -92,7 +93,7 @@ function build_cache_payload_logic(
     'custom_keyword_prompt' => $settings['custom_keyword_prompt'] ?? '',
     'generate_images_enabled' => $settings['generate_images_enabled'] ?? '0',
     'image_provider' => $settings['image_provider'] ?? 'openai',
-    'image_model' => $settings['image_model'] ?? 'gpt-image-2',
+    'image_model' => $settings['image_model'] ?? AIPKit_Model_Catalog::get_default_id('OpenAIImage'),
     'image_provider_options' => $settings['image_provider_options'] ?? '{}',
     'image_prompt' => $settings['image_prompt'] ?? '',
     'image_count' => $settings['image_count'] ?? 1,

@@ -95,8 +95,8 @@ class Renderer {
      * Renders the chat input area HTML.
      * Internal method to be called by namespaced logic.
      */
-    public function render_input_area_html_internal(array $frontend_config, bool $is_inline = false, array $feature_flags = [], bool $allow_openai_web_search_tool = false, bool $allow_google_search_grounding = false) {
-        RendererMethods\render_input_area_html_logic($frontend_config, $is_inline, $feature_flags, $allow_openai_web_search_tool, $allow_google_search_grounding);
+    public function render_input_area_html_internal(array $frontend_config, array $feature_flags = [], bool $allow_openai_web_search_tool = false, bool $allow_google_search_grounding = false) {
+        RendererMethods\render_input_area_html_logic($frontend_config, $feature_flags, $allow_openai_web_search_tool, $allow_google_search_grounding);
     }
 
     /**

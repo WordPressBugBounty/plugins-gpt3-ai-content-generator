@@ -13,6 +13,7 @@ $hide_stt_provider_field = count($stt_provider_options) <= 1;
 $selected_stt_provider_for_ui = array_key_exists((string) $stt_provider, $stt_provider_options)
     ? (string) $stt_provider
     : 'OpenAI';
+$default_stt_model = \WPAICG\Chat\Storage\BotSettingsManager::get_default_model_id('OpenAISTT');
 ?>
 <div class="aipkit_popover_options_list">
     <div class="aipkit_popover_option_group aipkit_audio_feature_group aipkit_audio_feature_group--stt">
@@ -41,7 +42,7 @@ $selected_stt_provider_for_ui = array_key_exists((string) $stt_provider, $stt_pr
             class="aipkit_popover_option_row aipkit_stt_provider_row"
             data-stt-controls-hidden="<?php echo $hide_stt_controls ? '1' : '0'; ?>"
             data-stt-default-provider="OpenAI"
-            data-stt-default-model="whisper-1"
+            data-stt-default-model="<?php echo esc_attr($default_stt_model); ?>"
             style="display: <?php echo ($enable_voice_input === '1' && !$hide_stt_controls) ? 'block' : 'none'; ?>;"
         >
             <div class="aipkit_popover_option_main">
@@ -92,7 +93,7 @@ $selected_stt_provider_for_ui = array_key_exists((string) $stt_provider, $stt_pr
                             if (!$found_current_stt && !empty($stt_openai_model_id)) {
                                 echo '<option value="' . esc_attr($stt_openai_model_id) . '" selected>' . esc_html($stt_openai_model_id) . '</option>';
                             } elseif (empty($openai_stt_models) && empty($stt_openai_model_id)) {
-                                echo '<option value="whisper-1" selected>whisper-1 (Default)</option>';
+                                echo '<option value="' . esc_attr($default_stt_model) . '" selected>' . esc_html($default_stt_model) . ' (Default)</option>';
                             }
                             ?>
                         </select>
@@ -237,6 +238,7 @@ $selected_stt_provider_for_ui = array_key_exists((string) $stt_provider, $stt_pr
                                 id="aipkit_bot_<?php echo esc_attr($bot_id); ?>_tts_openai_model_id_sheet"
                                 name="tts_openai_model_id"
                                 class="aipkit_popover_option_select aipkit_popover_option_select--compact"
+                                data-aipkit-universal-model-provider="OpenAI"
                             >
                                 <?php
                                 if (!empty($openai_tts_models)) {
@@ -248,7 +250,8 @@ $selected_stt_provider_for_ui = array_key_exists((string) $stt_provider, $stt_pr
                                 } elseif (!empty($tts_openai_model_id)) {
                                     echo '<option value="' . esc_attr($tts_openai_model_id) . '" selected>' . esc_html($tts_openai_model_id) . ' (Saved)</option>';
                                 } else {
-                                    echo '<option value="' . esc_attr(\WPAICG\Chat\Storage\BotSettingsManager::DEFAULT_TTS_OPENAI_MODEL_ID) . '" selected>' . esc_html(\WPAICG\Chat\Storage\BotSettingsManager::DEFAULT_TTS_OPENAI_MODEL_ID) . ' (Default)</option>';
+                                    $default_tts_model = \WPAICG\Chat\Storage\BotSettingsManager::get_default_model_id('OpenAITTS');
+                                    echo '<option value="' . esc_attr($default_tts_model) . '" selected>' . esc_html($default_tts_model) . ' (Default)</option>';
                                 }
                                 ?>
                             </select>
@@ -291,6 +294,7 @@ $selected_stt_provider_for_ui = array_key_exists((string) $stt_provider, $stt_pr
                                 id="aipkit_bot_<?php echo esc_attr($bot_id); ?>_tts_elevenlabs_model_id_sheet"
                                 name="tts_elevenlabs_model_id"
                                 class="aipkit_popover_option_select aipkit_popover_option_select--compact"
+                                data-aipkit-universal-model-provider="ElevenLabs"
                             >
                                 <option value=""><?php esc_html_e('-- Select Model (Optional) --', 'gpt3-ai-content-generator'); ?></option>
                                 <?php

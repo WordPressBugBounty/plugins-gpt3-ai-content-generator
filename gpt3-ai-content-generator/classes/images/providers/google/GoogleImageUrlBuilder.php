@@ -17,7 +17,7 @@ class GoogleImageUrlBuilder {
     /**
      * Build the full API endpoint URL for a given Google Image Generation model.
      *
-     * @param string $model_id The specific model ID (e.g., 'gemini-3.1-flash-image-preview', 'imagen-4.0-generate-001').
+     * @param string $model_id The provider-specific image model ID.
      * @param array  $api_params Required parameters (base_url, api_version, api_key).
      * @return string|WP_Error The full URL or WP_Error.
      */

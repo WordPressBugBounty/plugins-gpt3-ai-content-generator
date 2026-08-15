@@ -75,6 +75,7 @@ if (!defined('ABSPATH')) {
                             <select
                                 id="aipkit_cw_vector_embedding_selection"
                                 class="aipkit_autosave_trigger aipkit_popover_option_select aipkit_cw_context_options_control"
+                                data-aipkit-universal-model-combined="1"
                                 data-aipkit-provider-labels="<?php echo esc_attr(wp_json_encode($embedding_provider_options)); ?>"
                                 aria-label="<?php esc_attr_e('Embedding provider and model', 'gpt3-ai-content-generator'); ?>"
                                 disabled

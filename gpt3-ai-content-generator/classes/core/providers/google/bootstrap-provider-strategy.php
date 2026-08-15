@@ -64,8 +64,6 @@ class GoogleResponseParser {
 
 class GoogleSettingsHandler {
 
-    const GOOGLE_TTS_VOICES_OPTION = 'aipkit_google_tts_voice_list';
-
     private static $default_safety_settings = [
         ['category' => 'HARM_CATEGORY_HARASSMENT', 'threshold' => 'BLOCK_NONE'],
         ['category' => 'HARM_CATEGORY_HATE_SPEECH', 'threshold' => 'BLOCK_NONE'],
@@ -87,11 +85,11 @@ class GoogleSettingsHandler {
     }
 
     public static function get_synced_google_tts_voices(): array {
-        return Methods\get_synced_google_tts_voices_logic(self::GOOGLE_TTS_VOICES_OPTION);
+        return Methods\get_synced_google_tts_voices_logic();
     }
 
     public static function ajax_sync_google_tts_voices() {
-        Methods\ajax_sync_google_tts_voices_logic(self::GOOGLE_TTS_VOICES_OPTION);
+        Methods\ajax_sync_google_tts_voices_logic();
     }
 }
 

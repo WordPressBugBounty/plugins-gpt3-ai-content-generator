@@ -274,7 +274,7 @@ function render_popup_mode_html_logic(
                     <?php if ($feature_flags['starters_ui_enabled']): ?>
                         <div class="aipkit_conversation_starters"></div>
                     <?php endif; ?>
-                    <?php $rendererInstance->render_input_area_html_internal($frontend_config, false, $feature_flags, $allow_openai_web_search_tool, $allow_google_search_grounding); ?>
+                    <?php $rendererInstance->render_input_area_html_internal($frontend_config, $feature_flags, $allow_openai_web_search_tool, $allow_google_search_grounding); ?>
                 </div>
             </div>
             <?php $rendererInstance->render_footer_html_internal($frontend_config['footerText']); ?>
@@ -345,7 +345,7 @@ function render_inline_mode_html_logic(
                 <?php if ($feature_flags['starters_ui_enabled']): ?>
                     <div class="aipkit_conversation_starters"></div>
                 <?php endif; ?>
-                <?php $rendererInstance->render_input_area_html_internal($frontend_config, true, $feature_flags, $allow_openai_web_search_tool, $allow_google_search_grounding); ?>
+                <?php $rendererInstance->render_input_area_html_internal($frontend_config, $feature_flags, $allow_openai_web_search_tool, $allow_google_search_grounding); ?>
             </div>
         </div>
         <?php $rendererInstance->render_footer_html_internal($frontend_config['footerText']); ?>
@@ -516,15 +516,12 @@ function render_header_html_logic(array $feature_flags, array $frontend_config, 
  * Logic for rendering the chat input area HTML.
  *
  * @param array $frontend_config
- * @param bool $is_inline Whether the bot is in inline mode.
  * @param array $feature_flags Determined feature flags.
  * @param bool $allow_openai_web_search_tool Whether the OpenAI web search tool is allowed for this bot.
  * @param bool $allow_google_search_grounding Whether Google Search Grounding is allowed for this bot.
  * @return void Echos HTML.
  */
-function render_input_area_html_logic(array $frontend_config, bool $is_inline = false, array $feature_flags = [], bool $allow_openai_web_search_tool = false, bool $allow_google_search_grounding = false) {
-    // Autofocus is disabled for now as it can cause issues with focus management in some browsers.
-    // $autofocus_attr = $is_inline ? 'autofocus' : '';
+function render_input_area_html_logic(array $frontend_config, array $feature_flags = [], bool $allow_openai_web_search_tool = false, bool $allow_google_search_grounding = false) {
     $input_action_button_enabled = $feature_flags['input_action_button_enabled'] ?? false;
     $file_upload_ui_enabled = $feature_flags['file_upload_ui_enabled'] ?? false;
     $image_upload_ui_enabled = $feature_flags['image_upload_ui_enabled'] ?? false;
@@ -539,6 +536,8 @@ function render_input_area_html_logic(array $frontend_config, bool $is_inline = 
     $send_svg = '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-arrow-up aipkit_send_icon"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 5l0 14" /><path d="M18 11l-6 -6" /><path d="M6 11l6 -6" /></svg>';
     $clear_svg = '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-eraser aipkit_clear_icon" hidden><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M19 20h-10.5l-4.21 -4.3a1 1 0 0 1 0 -1.41l10 -10a1 1 0 0 1 1.41 0l5 5a1 1 0 0 1 0 1.41l-9.2 9.3" /><path d="M18 13.3l-6.3 -6.3" /></svg>';
     $microphone_svg = '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-microphone"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M9 2m0 3a3 3 0 0 1 3 -3h0a3 3 0 0 1 3 3v5a3 3 0 0 1 -3 3h0a3 3 0 0 1 -3 -3z" /><path d="M5 10a7 7 0 0 0 14 0" /><path d="M8 21l8 0" /><path d="M12 17l0 4" /></svg>';
+    $voice_cancel_svg = '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 6l-12 12" /><path d="M6 6l12 12" /></svg>';
+    $voice_confirm_svg = '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12l5 5l10 -10" /></svg>';
     $volume_svg = '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-volume"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M15 8a5 5 0 0 1 0 8" /><path d="M17.7 5a9 9 0 0 1 0 14" /><path d="M6 15h-2a1 1 0 0 1 -1 -1v-4a1 1 0 0 1 1 -1h2l3.5 -4.5a.8 .8 0 0 1 1.5 .5v14a.8 .8 0 0 1 -1.5 .5l-3.5 -4.5" /></svg>';
     $world_www_svg = '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-world-www"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M19.5 7a9 9 0 0 0 -7.5 -4a8.991 8.991 0 0 0 -7.484 4" /><path d="M11.5 3a16.989 16.989 0 0 0 -1.826 4" /><path d="M12.5 3a16.989 16.989 0 0 1 1.828 4" /><path d="M19.5 17a9 9 0 0 1 -7.5 4a8.991 8.991 0 0 1 -7.484 -4" /><path d="M11.5 21a16.989 16.989 0 0 1 -1.826 -4" /><path d="M12.5 21a16.989 16.989 0 0 0 1.828 -4" /><path d="M2 10l1 4l1.5 -4l1.5 4l1 -4" /><path d="M17 10l1 4l1.5 -4l1.5 4l1 -4" /><path d="M9.5 10l1 4l1.5 -4l1.5 4l1 -4" /></svg>';
 
@@ -570,6 +569,37 @@ function render_input_area_html_logic(array $frontend_config, bool $is_inline = 
                 aria-label="<?php esc_attr_e('Chat message input', 'gpt3-ai-content-generator'); ?>"
                 rows="1"
             ></textarea>
+            <div
+                class="aipkit_voice_recording_panel"
+                role="group"
+                aria-label="<?php esc_attr_e('Voice recording', 'gpt3-ai-content-generator'); ?>"
+                hidden
+            >
+                <div class="aipkit_voice_waveform_stage" aria-hidden="true">
+                    <canvas class="aipkit_voice_waveform_canvas" width="320" height="40"></canvas>
+                    <div class="aipkit_voice_transcribing_indicator" hidden>
+                        <span class="aipkit_spinner"></span>
+                        <span><?php esc_html_e('Transcribing audio...', 'gpt3-ai-content-generator'); ?></span>
+                    </div>
+                </div>
+                <span class="aipkit_voice_recording_status" aria-live="polite"><?php esc_html_e('Listening...', 'gpt3-ai-content-generator'); ?></span>
+                <button
+                    type="button"
+                    class="aipkit_voice_recording_control aipkit_voice_cancel_btn"
+                    aria-label="<?php esc_attr_e('Cancel recording', 'gpt3-ai-content-generator'); ?>"
+                    title="<?php esc_attr_e('Cancel recording', 'gpt3-ai-content-generator'); ?>"
+                >
+                    <?php echo $voice_cancel_svg; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
+                </button>
+                <button
+                    type="button"
+                    class="aipkit_voice_recording_control aipkit_voice_confirm_btn"
+                    aria-label="<?php esc_attr_e('Finish recording', 'gpt3-ai-content-generator'); ?>"
+                    title="<?php esc_attr_e('Finish recording', 'gpt3-ai-content-generator'); ?>"
+                >
+                    <?php echo $voice_confirm_svg; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
+                </button>
+            </div>
              <div class="aipkit_chat_input_actions_bar">
                 <div class="aipkit_chat_input_actions_left">
                     <button
@@ -625,6 +655,7 @@ function render_input_area_html_logic(array $frontend_config, bool $is_inline = 
                         class="aipkit_input_action_btn aipkit_voice_input_btn"
                         aria-label="<?php esc_attr_e('Voice input', 'gpt3-ai-content-generator'); ?>"
                         title="<?php esc_attr_e('Voice input', 'gpt3-ai-content-generator'); ?>"
+                        aria-pressed="false"
                         type="button"
                         <?php if (!$voice_input_enabled_ui): ?>hidden<?php endif; ?>
                     >

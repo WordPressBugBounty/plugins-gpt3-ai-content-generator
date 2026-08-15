@@ -241,7 +241,16 @@ class DashboardAssets extends AIPKit_Admin_Asset_Base
         $xai_image_models = [];
         $recommended_models = [];
         $provider_status = [];
-        $default_models = [];
+        $new_ai_selection = [];
+        $model_catalog_config = class_exists(\WPAICG\Core\Models\AIPKit_Model_Catalog::class)
+            ? \WPAICG\Core\Models\AIPKit_Model_Catalog::get_client_config()
+            : [
+                'defaults' => [],
+                'seeds' => [],
+                'providerCatalogs' => [],
+                'providerPriority' => [],
+                'providerAccess' => [],
+            ];
         $current_provider = 'openai';
 
         if (class_exists(AIPKit_Providers::class)) {
@@ -266,13 +275,10 @@ class DashboardAssets extends AIPKit_Admin_Asset_Base
             ];
 
             $current_provider = strtolower(AIPKit_Providers::get_current_provider());
-            foreach (array_keys(AIPKit_Providers::get_provider_defaults_all()) as $provider_name) {
-                $provider_data = AIPKit_Providers::get_provider_data($provider_name);
-                $default_models[strtolower($provider_name)] = isset($provider_data['model'])
-                    ? sanitize_text_field((string) $provider_data['model'])
-                    : '';
-            }
+            $new_ai_selection = AIPKit_Providers::get_new_text_generation_selection();
             $provider_status = AIPKit_Providers::get_provider_status_map();
+            $provider_connection_states = AIPKit_Providers::get_provider_connection_states();
+            $model_sync_timestamps = AIPKit_Providers::get_model_sync_timestamps();
         }
 
         $embedding_provider_map = class_exists(AIPKit_Providers::class)
@@ -304,8 +310,9 @@ class DashboardAssets extends AIPKit_Admin_Asset_Base
                 'deepseek' => $deepseek_models,
                 'xai' => $xai_models,
             ],
-            'defaultModels' => $default_models,
+            'newAiSelection' => $new_ai_selection,
             'recommendedModels' => $recommended_models,
+            'modelCatalog' => $model_catalog_config,
             'embeddingProviderMap' => $embedding_provider_map,
             'embeddingModels' => $embedding_models,
             'imageGeneratorModels' => [
@@ -320,6 +327,11 @@ class DashboardAssets extends AIPKit_Admin_Asset_Base
                 'google' => class_exists(AIPKit_Providers::class) ? AIPKit_Providers::get_google_video_models() : [],
             ],
             'providerStatus' => $provider_status,
+            'modelRegistry' => [
+                'schemaVersion' => \WPAICG\Core\Models\AIPKit_Model_Registry::SCHEMA_VERSION,
+                'providerStates' => $provider_connection_states ?? [],
+                'syncTimestamps' => $model_sync_timestamps ?? [],
+            ],
             'text' => self::dashboard_texts(),
             'currentUserId' => get_current_user_id(),
         ]);
@@ -495,6 +507,10 @@ class RoleManagerAssets extends AIPKit_Admin_Asset_Base
                 'text' => [
                     'success' => __('Permissions saved.', 'gpt3-ai-content-generator'),
                     'fail' => __('Failed to save permissions.', 'gpt3-ai-content-generator'),
+                    /* translators: 1: enabled permission count, 2: total permission count. */
+                    'enabledCount' => __('%1$d of %2$d', 'gpt3-ai-content-generator'),
+                    /* translators: 1: visible role count, 2: total role count. */
+                    'comparisonCount' => __('%1$d of %2$d roles shown', 'gpt3-ai-content-generator'),
                 ],
             ]);
         }
@@ -581,7 +597,7 @@ class PostEnhancerAssets extends AIPKit_Admin_Asset_Base
             return;
         }
 
-        $default_ai_config = AIPKit_Providers::get_default_provider_config();
+        $default_ai_config = AIPKit_Providers::get_new_text_generation_selection();
         $default_ai_params = AIPKIT_AI_Settings::get_ai_parameters();
         $vector_store_localization = AIPKit_Providers::get_vector_store_localization_payload('post_enhancer_ui');
         $embedding_localization = AIPKit_Providers::get_embedding_localization_payload('post_enhancer_ui', false);

@@ -255,6 +255,7 @@ if ($vector_embedding_provider === '' || !isset($embedding_provider_options[$vec
                 <select
                     id="aipkit_ai_form_vector_embedding_select"
                     class="aipkit_ai_form_knowledge_base_settings_control aipkit_vector_embedding_select"
+                    data-aipkit-universal-model-combined="1"
                 >
                     <?php
                     echo '<option value="">' . esc_html__('-- Select Embedding --', 'gpt3-ai-content-generator') . '</option>';

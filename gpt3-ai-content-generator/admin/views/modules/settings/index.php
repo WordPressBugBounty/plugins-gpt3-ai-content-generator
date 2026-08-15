@@ -95,8 +95,6 @@ $claude_defaults     = AIPKit_Providers::get_provider_defaults('Claude');
 $deepseek_defaults   = AIPKit_Providers::get_provider_defaults('DeepSeek');
 $xai_defaults        = AIPKit_Providers::get_provider_defaults('xAI');
 $ollama_defaults     = AIPKit_Providers::get_provider_defaults('Ollama');
-$pinecone_defaults   = AIPKit_Providers::get_provider_defaults('Pinecone');
-$qdrant_defaults     = AIPKit_Providers::get_provider_defaults('Qdrant');
 $chroma_defaults     = AIPKit_Providers::get_provider_defaults('Chroma');
 
 ?>
@@ -344,6 +342,6 @@ $chroma_defaults     = AIPKit_Providers::get_provider_defaults('Chroma');
 </div>
 
 <div id="aipkit_google_tts_voices_json_main" style="display:none;" data-voices="<?php
-    $google_voices_main = class_exists(GoogleSettingsHandler::class) ? GoogleSettingsHandler::get_synced_google_tts_voices() : [];
+    $google_voices_main = AIPKit_Providers::get_google_tts_voices();
 echo esc_attr(wp_json_encode($google_voices_main ?: []));
 ?>"></div>

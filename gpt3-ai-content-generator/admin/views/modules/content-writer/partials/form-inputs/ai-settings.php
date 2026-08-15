@@ -48,7 +48,7 @@ $is_pro = class_exists('\\WPAICG\\aipkit_dashboard') && \WPAICG\aipkit_dashboard
     id="aipkit_content_writer_model"
     name="ai_model"
     class="aipkit_autosave_trigger"
-    value=""
+    value="<?php echo esc_attr($default_model); ?>"
 >
 
 <div class="aipkit_cw_ai_row">
@@ -73,6 +73,7 @@ $is_pro = class_exists('\\WPAICG\\aipkit_dashboard') && \WPAICG\aipkit_dashboard
             'source_id'    => 'aipkit_content_writer_ai_selection',
             'class_name'   => 'aipkit_cw_unified_model_selector',
             'show_trigger_logo' => false,
+            'capability' => 'text_generation',
         ];
         include dirname(__DIR__, 3) . '/shared/unified-model-selector.php';
         unset($aipkit_unified_model_selector_config);

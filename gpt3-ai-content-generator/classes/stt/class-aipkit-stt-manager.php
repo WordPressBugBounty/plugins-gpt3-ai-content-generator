@@ -225,13 +225,18 @@ class AIPKit_STT_Manager
                 'audio/mp3' => 'mp3',
                 'audio/ogg' => 'ogg',
                 'audio/ogg; codecs=opus' => 'ogg',
+                'audio/mp4' => 'mp4',
+                'video/mp4' => 'mp4',
+                'application/mp4' => 'mp4',
+                'audio/m4a' => 'm4a',
+                'audio/x-m4a' => 'm4a',
             ];
             if (isset($allowed_mime_map[$mime])) {
                 $audio_format = $allowed_mime_map[$mime];
             } else {
                 // Fallback: attempt extension parse
                 $ext = strtolower(pathinfo($original_name, PATHINFO_EXTENSION));
-                if (in_array($ext, ['webm', 'wav', 'mp3', 'ogg'])) {
+                if (in_array($ext, ['webm', 'wav', 'mp3', 'ogg', 'mp4', 'm4a'], true)) {
                     $audio_format = $ext;
                 } else {
                     wp_send_json_error(['message' => __('Unsupported audio MIME type.', 'gpt3-ai-content-generator')], 400);

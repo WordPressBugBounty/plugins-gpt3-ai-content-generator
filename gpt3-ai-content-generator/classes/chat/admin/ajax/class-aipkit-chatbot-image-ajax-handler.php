@@ -123,7 +123,7 @@ class ChatbotImageAjaxHandler extends BaseAjaxHandler
             'ip_address'         => $client_ip,
         ];
 
-        $selected_image_model = $bot_settings['chat_image_model_id'] ?? \WPAICG\Chat\Storage\BotSettingsManager::DEFAULT_CHAT_IMAGE_MODEL_ID;
+        $selected_image_model = $bot_settings['chat_image_model_id'] ?? \WPAICG\Chat\Storage\BotSettingsManager::get_default_model_id('OpenAIImage');
         $provider_for_image = 'OpenAI';
 
         $replicate_model_ids = [];

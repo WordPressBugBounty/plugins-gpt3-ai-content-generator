@@ -137,7 +137,7 @@ $kb_search_target_label = in_array($kb_search_vector_provider, ['qdrant', 'chrom
                     <span><?php esc_html_e('Embedding model', 'gpt3-ai-content-generator'); ?></span>
                     <span class="aipkit_form-label-helper"><?php esc_html_e('Model used to search the index.', 'gpt3-ai-content-generator'); ?></span>
                 </label>
-                <select id="aipkit_semantic_search_embedding_model" name="semantic_search_embedding_model" class="aipkit_form-input aipkit_autosave_trigger">
+                <select id="aipkit_semantic_search_embedding_model" name="semantic_search_embedding_model" class="aipkit_form-input aipkit_autosave_trigger" data-aipkit-universal-model-combined="1">
                     <?php
                     if (class_exists('\\WPAICG\\AIPKit_Providers')) {
                         echo wp_kses(

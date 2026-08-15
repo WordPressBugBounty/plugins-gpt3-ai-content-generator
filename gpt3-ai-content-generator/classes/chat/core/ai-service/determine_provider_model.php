@@ -31,9 +31,14 @@ function determine_provider_model(?\WPAICG\Chat\Core\AIService $serviceInstance,
                 return ['provider' => 'OpenAI', 'model' => '']; // Fallback
             }
         }
-        $global_config = \WPAICG\AIPKit_Providers::get_default_provider_config();
-        if (empty($provider)) $provider = $global_config['provider'];
-        if (empty($model)) $model = $global_config['model'];
+        $allowed_providers = empty($provider) ? [] : [(string) $provider];
+        $new_ai_selection = \WPAICG\AIPKit_Providers::get_new_text_generation_selection($allowed_providers);
+        if (empty($provider)) {
+            $provider = $new_ai_selection['provider'] ?? 'OpenAI';
+        }
+        if (empty($model)) {
+            $model = $new_ai_selection['model'] ?? '';
+        }
     }
     return ['provider' => $provider ?: 'OpenAI', 'model' => $model ?: ''];
 }

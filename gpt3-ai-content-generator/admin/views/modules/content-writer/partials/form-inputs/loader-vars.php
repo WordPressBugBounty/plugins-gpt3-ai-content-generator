@@ -12,8 +12,9 @@ use WPAICG\AIPKIT_AI_Settings;
 
 // Variable definitions
 $is_pro = aipkit_dashboard::is_pro_plan();
-$default_provider_config = AIPKit_Providers::get_default_provider_config();
-$default_provider = strtolower($default_provider_config['provider'] ?? 'openai');
+$new_ai_selection = AIPKit_Providers::get_new_text_generation_selection();
+$default_provider = strtolower($new_ai_selection['provider_key'] ?? 'openai');
+$default_model = (string) ($new_ai_selection['model'] ?? '');
 $ai_parameters = AIPKIT_AI_Settings::get_ai_parameters();
 $default_temperature = $ai_parameters['temperature'] ?? 1.0;
 

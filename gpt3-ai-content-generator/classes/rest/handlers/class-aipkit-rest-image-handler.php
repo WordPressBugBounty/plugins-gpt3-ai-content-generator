@@ -38,7 +38,7 @@ class AIPKit_REST_Image_Handler extends AIPKit_REST_Base_Handler {
                 'sanitize_callback' => 'sanitize_text_field',
             ),
             'model' => array(
-                'description' => __('The specific image model ID (e.g., gpt-image-2, gemini-3.1-flash-image-preview, imagen-4.0-generate-001).', 'gpt3-ai-content-generator'),
+                'description' => __('The provider-specific image model ID.', 'gpt3-ai-content-generator'),
                 'type'        => 'string',
                 'required'    => false,
                 'sanitize_callback' => 'sanitize_text_field',

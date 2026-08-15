@@ -4,6 +4,7 @@
 namespace WPAICG\Speech;
 
 use WP_Error;
+use WPAICG\Core\Models\AIPKit_Model_Catalog;
 use WPAICG\Core\Providers\OpenAI\OpenAIUrlBuilder; // Use the OpenAI URL builder
 
 if (!defined('ABSPATH')) {
@@ -13,7 +14,7 @@ if (!defined('ABSPATH')) {
 /**
  * OpenAI Text-to-Speech Provider Strategy.
  * Implements voice fetching and speech generation using OpenAI's TTS API.
- * UPDATED: Uses 'model_id' from options instead of hardcoding 'tts-1'.
+ * Uses the selected model ID, with the canonical catalog default as fallback.
  */
 class AIPKit_TTS_OpenAI_Provider_Strategy extends AIPKit_TTS_Base_Provider_Strategy {
 
@@ -36,7 +37,7 @@ class AIPKit_TTS_OpenAI_Provider_Strategy extends AIPKit_TTS_Base_Provider_Strat
      * @param string $text The text to synthesize.
      * @param array $api_params Must include 'api_key'. Optional: 'base_url', 'api_version'.
      * @param array $options Must include 'voice' (voice ID) and 'format' (e.g., 'mp3', 'opus').
-     *                       May include 'speed' (0.25 to 4.0) and 'model_id' (e.g., 'tts-1', 'tts-1-hd').
+     *                       May include 'speed' (0.25 to 4.0) and 'model_id'.
      * @return string|WP_Error Base64 encoded audio data string or WP_Error on failure.
      */
     public function generate_speech(string $text, array $api_params, array $options) {
@@ -46,7 +47,7 @@ class AIPKit_TTS_OpenAI_Provider_Strategy extends AIPKit_TTS_Base_Provider_Strat
         $speed = isset($options['speed']) ? floatval($options['speed']) : 1.0;
         $model_id = isset($options['model_id']) && !empty($options['model_id'])
                     ? $options['model_id']
-                    : BotSettingsManager::DEFAULT_TTS_OPENAI_MODEL_ID; // Use default if not provided
+                    : AIPKit_Model_Catalog::get_default_id('OpenAITTS');
 
 
         if (empty($api_key)) return new WP_Error('openai_tts_missing_key', __('OpenAI API Key is required.', 'gpt3-ai-content-generator'));
@@ -108,25 +109,11 @@ class AIPKit_TTS_OpenAI_Provider_Strategy extends AIPKit_TTS_Base_Provider_Strat
     }
 
     /**
-     * Returns the hardcoded list of OpenAI TTS voices.
-     *
      * @param array $api_params Ignored for OpenAI voices.
      * @return array List of voice objects.
      */
     public function get_voices(array $api_params = []) {
-        // As per documentation + OpenAI.fm demo
-        return [
-            ['id' => 'alloy', 'name' => 'Alloy', 'gender' => 'neutral'],
-            ['id' => 'echo', 'name' => 'Echo', 'gender' => 'male'],
-            ['id' => 'fable', 'name' => 'Fable', 'gender' => 'male'],
-            ['id' => 'onyx', 'name' => 'Onyx', 'gender' => 'male'],
-            ['id' => 'nova', 'name' => 'Nova', 'gender' => 'female'],
-            ['id' => 'shimmer', 'name' => 'Shimmer', 'gender' => 'female'],
-            // ['id' => 'ash', 'name' => 'Ash', 'gender' => 'male'],
-            // ['id' => 'ballad', 'name' => 'Ballad', 'gender' => 'neutral'],
-            // ['id' => 'coral', 'name' => 'Coral', 'gender' => 'female'],
-            // ['id' => 'sage', 'name' => 'Sage', 'gender' => 'female'],
-        ];
+        return AIPKit_Model_Catalog::get_seed_rows('OpenAIVoices');
     }
 
     /**

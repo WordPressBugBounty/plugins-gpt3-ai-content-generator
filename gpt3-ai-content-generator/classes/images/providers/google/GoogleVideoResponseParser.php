@@ -173,7 +173,7 @@ class GoogleVideoResponseParser {
      * @param string $model_id The model ID used for generation.
      * @return string|WP_Error The local video URL or WP_Error on failure.
      */
-    private static function download_video(string $video_uri, array $api_params, string $prompt = '', ?int $user_id = null, string $model_id = 'veo-3.0-generate-preview') {
+    private static function download_video(string $video_uri, array $api_params, string $prompt = '', ?int $user_id = null, string $model_id = '') {
     
         
         $api_key = $api_params['api_key'] ?? '';
@@ -272,30 +272,29 @@ class GoogleVideoResponseParser {
         try {
             $attachment_data = wp_generate_attachment_metadata($attachment_id, $file_path);
             
-            $metadata_result = wp_update_attachment_metadata($attachment_id, $attachment_data);
+            wp_update_attachment_metadata($attachment_id, $attachment_data);
         } catch (Exception $e) {
         }
 
         // Add custom meta to identify this as an AI-generated video
-        $meta1 = add_post_meta($attachment_id, '_aipkit_generated_video', '1');
-        $meta2 = add_post_meta($attachment_id, '_aipkit_video_model', $model_id);
-        $meta3 = add_post_meta($attachment_id, '_aipkit_video_provider', 'Google');
+        add_post_meta($attachment_id, '_aipkit_generated_video', '1');
+        add_post_meta($attachment_id, '_aipkit_video_model', $model_id);
+        add_post_meta($attachment_id, '_aipkit_video_provider', 'Google');
         
         // Add prompt and size metadata (similar to images)
-        $meta4 = $meta5 = $meta6 = true; // Initialize for logging
         if (!empty($prompt)) {
-            $meta4 = add_post_meta($attachment_id, '_aipkit_video_prompt', $prompt);
+            add_post_meta($attachment_id, '_aipkit_video_prompt', $prompt);
         }
         
         // Add size information if available from metadata
         if (isset($attachment_data['width']) && isset($attachment_data['height'])) {
             $size_string = $attachment_data['width'] . 'x' . $attachment_data['height'];
-            $meta5 = add_post_meta($attachment_id, '_aipkit_video_size', $size_string);
+            add_post_meta($attachment_id, '_aipkit_video_size', $size_string);
         }
         
         // Add duration if available
         if (isset($attachment_data['length'])) {
-            $meta6 = add_post_meta($attachment_id, '_aipkit_video_duration', $attachment_data['length']);
+            add_post_meta($attachment_id, '_aipkit_video_duration', $attachment_data['length']);
         }
 
         $final_url = wp_get_attachment_url($attachment_id);

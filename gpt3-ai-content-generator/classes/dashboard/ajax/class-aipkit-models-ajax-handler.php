@@ -4,7 +4,10 @@
 namespace WPAICG\Dashboard\Ajax;
 
 use WPAICG\AIPKit_Providers;
+use WPAICG\AIPKit_Role_Manager;
 use WPAICG\Core\AIPKit_Models_API;
+use WPAICG\Core\Models\AIPKit_Model_Catalog;
+use WPAICG\Core\Models\AIPKit_Model_Registry;
 use WPAICG\Core\Providers\ProviderStrategyFactory;
 use WPAICG\Speech\AIPKit_TTS_Provider_Strategy_Factory;
 use WPAICG\Images\AIPKit_Image_Provider_Strategy_Factory;
@@ -47,6 +50,137 @@ class ModelsAjaxHandler extends BaseDashboardAjaxHandler
                 require_once $tts_factory_path;
             }
         }
+    }
+
+    /**
+     * Return a filtered, paginated view of the universal model registry.
+     */
+    public function ajax_get_model_catalog()
+    {
+        $permission_check = $this->check_any_module_access_permissions(
+            AIPKit_Role_Manager::get_dashboard_access_modules()
+        );
+        if (is_wp_error($permission_check)) {
+            $this->send_wp_error($permission_check);
+            return;
+        }
+
+        $providers = $this->get_request_list('providers', 'sanitize_text_field');
+        $catalog_keys = $this->get_request_list('catalog_keys', 'sanitize_text_field');
+        $kinds = $this->get_request_list('kinds', 'sanitize_key');
+        $capabilities = $this->get_request_list('capabilities', 'sanitize_key');
+        $resource_types = $this->get_request_list('resource_types', 'sanitize_key');
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce is checked above.
+        $search = isset($_POST['search']) ? sanitize_text_field(wp_unslash($_POST['search'])) : '';
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce is checked above.
+        $page = isset($_POST['page']) ? max(1, absint($_POST['page'])) : 1;
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce is checked above.
+        $per_page = isset($_POST['per_page']) ? absint($_POST['per_page']) : 100;
+        $per_page = min(200, max(1, $per_page));
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce is verified by check_any_module_access_permissions().
+        $include_resources = !isset($_POST['include_resources']) || filter_var(wp_unslash($_POST['include_resources']), FILTER_VALIDATE_BOOLEAN);
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce is checked above.
+        $selected_provider = isset($_POST['selected_provider']) ? sanitize_text_field(wp_unslash($_POST['selected_provider'])) : '';
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce is checked above.
+        $selected_model = isset($_POST['selected_model']) ? sanitize_text_field(wp_unslash($_POST['selected_model'])) : '';
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce is checked above.
+        $selected_capability = isset($_POST['selected_capability']) ? sanitize_key(wp_unslash($_POST['selected_capability'])) : '';
+
+        $models = AIPKit_Providers::query_models([
+            'providers' => $providers,
+            'catalog_keys' => $catalog_keys,
+            'kinds' => $kinds,
+            'required_capabilities' => $capabilities,
+        ]);
+        $resources = $include_resources
+            ? AIPKit_Providers::query_provider_resources([
+                'providers' => $providers,
+                'catalog_keys' => $catalog_keys,
+                'resource_types' => $resource_types,
+            ])
+            : [];
+
+        if ($search !== '') {
+            $models = array_values(array_filter($models, function (array $record) use ($search): bool {
+                return $this->registry_record_matches_search($record, $search);
+            }));
+            $resources = array_values(array_filter($resources, function (array $record) use ($search): bool {
+                return $this->registry_record_matches_search($record, $search);
+            }));
+        }
+
+        $offset = ($page - 1) * $per_page;
+        $model_total = count($models);
+        $resource_total = count($resources);
+        $facets = $this->build_registry_facets($models, $resources);
+        $selection = ($selected_provider !== '' && $selected_model !== '')
+            ? AIPKit_Providers::resolve_model_selection(
+                $selected_provider,
+                $selected_model,
+                $selected_capability,
+                true
+            )
+            : null;
+
+        wp_send_json_success([
+            'models' => array_slice($models, $offset, $per_page),
+            'resources' => array_slice($resources, $offset, $per_page),
+            'provider_states' => AIPKit_Providers::get_provider_connection_states(),
+            'sync_timestamps' => AIPKit_Model_Registry::get_sync_timestamps(),
+            'manifest' => AIPKit_Model_Registry::get_manifest_summary(),
+            'facets' => $facets,
+            'selection' => $selection,
+            'pagination' => [
+                'page' => $page,
+                'per_page' => $per_page,
+                'model_total' => $model_total,
+                'model_pages' => max(1, (int) ceil($model_total / $per_page)),
+                'resource_total' => $resource_total,
+                'resource_pages' => max(1, (int) ceil($resource_total / $per_page)),
+            ],
+        ]);
+    }
+
+    /**
+     * Return the connected, unlocked providers eligible for bulk model sync.
+     */
+    public function ajax_get_model_sync_targets()
+    {
+        $permission_check = $this->check_module_access_permissions('settings');
+        if (is_wp_error($permission_check)) {
+            $this->send_wp_error($permission_check);
+            return;
+        }
+
+        $provider_states = AIPKit_Providers::get_provider_connection_states();
+        $ready_targets = [];
+
+        foreach (AIPKit_Model_Catalog::get_bulk_model_sync_targets() as $target) {
+            if (!is_array($target)) {
+                continue;
+            }
+
+            $provider = sanitize_text_field((string) ($target['provider'] ?? ''));
+            $connection_provider = sanitize_text_field((string) ($target['connection_provider'] ?? $provider));
+            $label = sanitize_text_field((string) ($target['label'] ?? $connection_provider));
+            if ($provider === '' || $connection_provider === '' || $label === '') {
+                continue;
+            }
+
+            $state = $provider_states[strtolower($connection_provider)] ?? [];
+            if (empty($state['configured']) || !empty($state['locked'])) {
+                continue;
+            }
+
+            $ready_targets[] = [
+                'provider' => $provider,
+                'label' => $label,
+            ];
+        }
+
+        wp_send_json_success([
+            'targets' => $ready_targets,
+        ]);
     }
 
     /**
@@ -193,31 +327,42 @@ class ModelsAjaxHandler extends BaseDashboardAjaxHandler
         }
 
         if (is_wp_error($result)) {
+            AIPKit_Model_Registry::mark_sync_error($provider_data_key, $provider, $result, $provData);
             $error_data = $result->get_error_data();
             $status_code = isset($error_data['status']) ? (int)$error_data['status'] : 500;
             wp_send_json_error(['message' => $result->get_error_message()], $status_code);
             return;
         }
 
-        $option_map = [
-            'OpenAI' => 'aipkit_openai_model_list', 'OpenRouter' => 'aipkit_openrouter_model_list',
-            'Google' => 'aipkit_google_model_list', 'Azure' => 'aipkit_azure_deployment_list', 'Claude' => 'aipkit_claude_model_list', 'AzureImage' => 'aipkit_azure_image_model_list', 'DeepSeek' => 'aipkit_deepseek_model_list', 'xAI' => 'aipkit_xai_model_list', 'ElevenLabs' => 'aipkit_elevenlabs_voice_list',
-            'ElevenLabsModels' => 'aipkit_elevenlabs_model_list',
-            'xAIImage' => 'aipkit_xai_image_model_list',
-            'PineconeIndexes' => 'aipkit_pinecone_index_list',
-            'QdrantCollections' => 'aipkit_qdrant_collection_list',
-            'ChromaCollections' => 'aipkit_chroma_collection_list',
-            'Replicate' => 'aipkit_replicate_model_list',
-            'AzureEmbedding' => 'aipkit_azure_embedding_model_list',
-            'Ollama' => 'aipkit_ollama_model_list',
+        $primary_catalog_map = [
+            'OpenAI' => 'OpenAI',
+            'OpenRouter' => 'OpenRouter',
+            'Google' => 'Google',
+            'Azure' => 'Azure',
+            'Claude' => 'Claude',
+            'DeepSeek' => 'DeepSeek',
+            'xAI' => 'xAI',
+            'ElevenLabs' => 'ElevenLabs',
+            'ElevenLabsModels' => 'ElevenLabsModels',
+            'xAIImage' => 'xAIImage',
+            'OpenAIVectorStores' => 'OpenAIVectorStores',
+            'PineconeIndexes' => 'PineconeIndexes',
+            'QdrantCollections' => 'QdrantCollections',
+            'ChromaCollections' => 'ChromaCollections',
+            'Replicate' => 'Replicate',
+            'Ollama' => 'Ollama',
         ];
 
-        $option_name = $option_map[$provider] ?? null;
+        $primary_catalog_key = $primary_catalog_map[$provider] ?? '';
+        $catalog_updates = [];
+        $secondary_sync_errors = [];
+        $secondary_sync_successes = [];
+        $vector_registry_updates = [];
         $response_models = $result; // Default to raw result
         $extra_response_payload = [];
         $value_to_save = $result;
 
-        if ($provider === 'OpenAIVectorStores' && $this->vector_store_registry) {
+        if ($provider === 'OpenAIVectorStores') {
             $stores_payload = $result;
             if (is_array($stores_payload) && isset($stores_payload['data']) && is_array($stores_payload['data'])) {
                 $stores_payload = $stores_payload['data'];
@@ -233,92 +378,52 @@ class ModelsAjaxHandler extends BaseDashboardAjaxHandler
                 }
             }
 
-            $this->vector_store_registry->update_registered_stores_for_provider('OpenAI', $active_stores);
+            $vector_registry_updates['OpenAI'] = $active_stores;
+            $value_to_save = $active_stores;
             $response_models = $active_stores;
             $extra_response_payload['stores'] = $active_stores;
         }
 
-        if ($option_name) {
-            $value_to_save = $result;
+        if ($primary_catalog_key !== '') {
+            if ($provider !== 'OpenAIVectorStores') {
+                $value_to_save = $result;
+            }
             // OpenAI and Google have multiple model types, split them here
             if ($provider === 'OpenAI') {
-                $chat_models = [];
-                $tts_models = [];
-                $stt_models = [];
-                $embedding_models = [];
-                foreach ($result as $model) {
-                    $id_lower = strtolower($model['id']);
-                    if (strpos($id_lower, 'tts-') === 0) {
-                        $tts_models[] = $model;
-                    } elseif (strpos($id_lower, 'whisper') !== false) {
-                        $stt_models[] = $model;
-                    } elseif (strpos($id_lower, 'embedding') !== false) {
-                        $embedding_models[] = $model;
-                    } else {
-                        $chat_models[] = $model;
-                    }
-                }
+                $openai_catalogs = AIPKit_Model_Registry::partition_openai_models($result);
+                $chat_models = $openai_catalogs['OpenAI'];
                 $value_to_save = AIPKit_Models_API::group_openai_models($chat_models);
                 $response_models = $value_to_save; // Set response to the grouped models
-                update_option('aipkit_openai_tts_model_list', $tts_models, 'no');
-                update_option('aipkit_openai_stt_model_list', $stt_models, 'no');
-                update_option('aipkit_openai_embedding_model_list', $embedding_models, 'no');
-            } elseif ($provider === 'Google') {
-                $chat_models = [];
-                $image_models = [];
-                $video_models = [];
-                $embedding_models = [];
-                foreach ($result as $model) {
-                    // Prefer capability-based detection using supportedGenerationMethods from Google API
-                    $methods = [];
-                    if (isset($model['supportedGenerationMethods']) && is_array($model['supportedGenerationMethods'])) {
-                        // Normalize to lowercase for safe comparison
-                        $methods = array_map('strtolower', $model['supportedGenerationMethods']);
-                    }
-
-                    $id = $model['id'] ?? '';
-                    $id_lower = strtolower($id);
-                    $is_embedding = in_array('embedcontent', $methods, true);
-                    $is_image = in_array('predict', $methods, true)
-                        // Include Gemini native image models that use generateContent.
-                        || (
-                            strpos($id_lower, 'gemini') !== false
-                            && (
-                                strpos($id_lower, 'image-generation') !== false
-                                || strpos($id_lower, 'flash-image') !== false
-                                || strpos($id_lower, 'pro-image') !== false
-                            )
-                        );
-                    $is_video = in_array('predictlongrunning', $methods, true)
-                        // Heuristic fallback: Veo or other video-prefixed names
-                        || (strpos($id_lower, 'veo') !== false);
-
-                    if ($is_embedding) {
-                        $embedding_models[] = $model;
-                    } elseif ($is_video) {
-                        $video_models[] = $model;
-                    } elseif ($is_image) {
-                        $image_models[] = $model;
-                    } else {
-                        $chat_models[] = $model;
+                foreach ($openai_catalogs as $catalog_key => $catalog_rows) {
+                    if ($catalog_key !== 'OpenAI') {
+                        $catalog_updates[$catalog_key] = $catalog_rows;
                     }
                 }
-                $value_to_save = $chat_models;
+            } elseif ($provider === 'Google') {
+                $google_catalogs = AIPKit_Model_Registry::partition_google_models($result);
+                $value_to_save = $google_catalogs['Google'];
                 $response_models = $value_to_save; // Set response to just the chat models
-                update_option('aipkit_google_embedding_model_list', $embedding_models, 'no');
-                update_option('aipkit_google_image_model_list', $image_models, 'no');
-                update_option('aipkit_google_video_model_list', $video_models, 'no');
+                foreach ($google_catalogs as $catalog_key => $catalog_rows) {
+                    if ($catalog_key !== 'Google') {
+                        $catalog_updates[$catalog_key] = $catalog_rows;
+                    }
+                }
             } elseif ($provider === 'OpenRouter') {
-                $existing_embedding_models = get_option('aipkit_openrouter_embedding_model_list', []);
+                $existing_embedding_models = AIPKit_Model_Registry::get_legacy_model_list('OpenRouterEmbedding');
                 $openrouter_embedding_models = is_array($existing_embedding_models) ? $existing_embedding_models : [];
                 $openrouter_image_models = [];
 
                 $openrouter_strategy = ProviderStrategyFactory::get_strategy('OpenRouter');
-                if (!is_wp_error($openrouter_strategy) && method_exists($openrouter_strategy, 'get_embedding_models')) {
+                if (is_wp_error($openrouter_strategy)) {
+                    $secondary_sync_errors['OpenRouterExtensions'] = $openrouter_strategy;
+                } elseif (method_exists($openrouter_strategy, 'get_embedding_models')) {
                     $embedding_models_result = $openrouter_strategy->get_embedding_models($api_params);
                     if (!is_wp_error($embedding_models_result) && is_array($embedding_models_result)) {
                         $openrouter_embedding_models = $embedding_models_result;
-                        update_option('aipkit_openrouter_embedding_model_list', $openrouter_embedding_models, 'no');
+                        $catalog_updates['OpenRouterEmbedding'] = $openrouter_embedding_models;
+                        $secondary_sync_successes[] = 'OpenRouterEmbedding';
+                    } elseif (is_wp_error($embedding_models_result)) {
+                        $secondary_sync_errors['OpenRouterEmbedding'] = $embedding_models_result;
                     }
                 }
                 if (!is_wp_error($openrouter_strategy) && method_exists($openrouter_strategy, 'get_image_models')) {
@@ -326,9 +431,11 @@ class ModelsAjaxHandler extends BaseDashboardAjaxHandler
                     if (!is_wp_error($image_models_result) && is_array($image_models_result)) {
                         $openrouter_image_models = $image_models_result;
                         $value_to_save = AIPKit_Providers::merge_model_rows($value_to_save, $openrouter_image_models);
+                        $secondary_sync_successes[] = 'OpenRouterImage';
+                    } elseif (is_wp_error($image_models_result)) {
+                        $secondary_sync_errors['OpenRouterImage'] = $image_models_result;
                     }
                 }
-                delete_option('aipkit_openrouter_image_model_list');
                 $extra_response_payload['embedding_models'] = $openrouter_embedding_models;
                 $extra_response_payload['image_models'] = $openrouter_image_models;
             } elseif ($provider === 'xAI') {
@@ -338,7 +445,7 @@ class ModelsAjaxHandler extends BaseDashboardAjaxHandler
                         require_once $factory_path;
                     }
                 }
-                $xai_image_models = get_option('aipkit_xai_image_model_list', []);
+                $xai_image_models = AIPKit_Model_Registry::get_legacy_model_list('xAIImage');
                 $xai_image_models = is_array($xai_image_models) ? $xai_image_models : [];
                 if (class_exists(AIPKit_Image_Provider_Strategy_Factory::class)) {
                     $xai_image_strategy = AIPKit_Image_Provider_Strategy_Factory::get_strategy('xAI');
@@ -346,8 +453,13 @@ class ModelsAjaxHandler extends BaseDashboardAjaxHandler
                         $xai_image_models_result = $xai_image_strategy->get_models($api_params);
                         if (!is_wp_error($xai_image_models_result) && is_array($xai_image_models_result)) {
                             $xai_image_models = $xai_image_models_result;
-                            update_option('aipkit_xai_image_model_list', $xai_image_models, 'no');
+                            $catalog_updates['xAIImage'] = $xai_image_models;
+                            $secondary_sync_successes[] = 'xAIImage';
+                        } elseif (is_wp_error($xai_image_models_result)) {
+                            $secondary_sync_errors['xAIImage'] = $xai_image_models_result;
                         }
+                    } elseif (is_wp_error($xai_image_strategy)) {
+                        $secondary_sync_errors['xAIImage'] = $xai_image_strategy;
                     }
                 }
                 $extra_response_payload['image_models'] = $xai_image_models;
@@ -442,12 +554,17 @@ class ModelsAjaxHandler extends BaseDashboardAjaxHandler
                 $value_to_save = $chat_models;
                 $response_models = $value_to_save; // Set response to just the chat models
 
+                $ollama_catalog_map = [
+                    'aipkit_ollama_embedding_model_list' => 'OllamaEmbedding',
+                    'aipkit_ollama_vision_model_list' => 'OllamaVision',
+                    'aipkit_ollama_model_capability_list' => 'OllamaCapabilities',
+                ];
                 foreach ($option_updates as $option_key => $option_value) {
                     $option_key = sanitize_key((string) $option_key);
-                    if (!is_array($option_value) || $option_key === '' || strpos($option_key, 'aipkit_') !== 0) {
+                    if (!is_array($option_value) || !isset($ollama_catalog_map[$option_key])) {
                         continue;
                     }
-                    update_option($option_key, $option_value, 'no');
+                    $catalog_updates[$ollama_catalog_map[$option_key]] = $option_value;
                 }
 
                 $extra_response_payload['embedding_models'] = $embedding_models;
@@ -484,8 +601,8 @@ class ModelsAjaxHandler extends BaseDashboardAjaxHandler
                         }
                     }
                 }
-                update_option('aipkit_azure_image_model_list', $image_deployments, 'no');
-                update_option('aipkit_azure_embedding_model_list', $embedding_deployments, 'no');
+                $catalog_updates['AzureImage'] = $image_deployments;
+                $catalog_updates['AzureEmbedding'] = $embedding_deployments;
                 $value_to_save = $chat_deployments;
                 
                 // Return grouped models for dashboard display
@@ -517,7 +634,7 @@ class ModelsAjaxHandler extends BaseDashboardAjaxHandler
                 if (!empty($enriched)) {
                     $value_to_save = $enriched;
                 }
-                $this->vector_store_registry->update_registered_stores_for_provider('Pinecone', $value_to_save);
+                $vector_registry_updates['Pinecone'] = $value_to_save;
             } elseif ($provider === 'QdrantCollections' && $this->vector_store_registry) {
                 // Enrich with describe results to capture vectors_count
                 $qdrant_config = [
@@ -536,7 +653,7 @@ class ModelsAjaxHandler extends BaseDashboardAjaxHandler
                 if (!empty($enriched)) {
                     $value_to_save = $enriched;
                 }
-                $this->vector_store_registry->update_registered_stores_for_provider('Qdrant', $value_to_save);
+                $vector_registry_updates['Qdrant'] = $value_to_save;
             } elseif ($provider === 'ChromaCollections' && $this->vector_store_registry) {
                 $chroma_config = [
                     'url' => $api_params['url'] ?? '',
@@ -556,35 +673,89 @@ class ModelsAjaxHandler extends BaseDashboardAjaxHandler
                 if (!empty($enriched)) {
                     $value_to_save = $enriched;
                 }
-                $this->vector_store_registry->update_registered_stores_for_provider('Chroma', $value_to_save);
+                $vector_registry_updates['Chroma'] = $value_to_save;
             }
-            update_option($option_name, $value_to_save, 'no');
+            $catalog_updates[$primary_catalog_key] = $value_to_save;
+        }
+
+        $synced_at = time();
+        $publish_result = AIPKit_Model_Registry::publish_catalogs(
+            $provider_data_key,
+            $catalog_updates,
+            [
+                'sync_scope' => $provider,
+                'synced_at' => $synced_at,
+                'connection' => $provData,
+                'sync_scopes' => $secondary_sync_successes,
+            ]
+        );
+        if (is_wp_error($publish_result)) {
+            $this->send_wp_error($publish_result);
+            return;
+        }
+
+        if ($this->vector_store_registry) {
+            foreach ($vector_registry_updates as $vector_provider => $vector_targets) {
+                $this->vector_store_registry->update_registered_stores_for_provider(
+                    $vector_provider,
+                    is_array($vector_targets) ? $vector_targets : [],
+                    false
+                );
+            }
+        }
+
+        $sync_warnings = [];
+        foreach ($secondary_sync_errors as $sync_scope => $sync_error) {
+            if (!is_wp_error($sync_error)) {
+                continue;
+            }
+            AIPKit_Model_Registry::mark_sync_error(
+                $provider_data_key,
+                (string) $sync_scope,
+                $sync_error,
+                $provData
+            );
+            $sync_warnings[] = [
+                'scope' => sanitize_text_field((string) $sync_scope),
+                'code' => sanitize_key((string) $sync_error->get_error_code()),
+                'message' => sanitize_text_field($sync_error->get_error_message()),
+            ];
         }
 
         AIPKit_Providers::clear_model_caches();
 
-        // Keep one trustworthy freshness timestamp per synced provider. This is
-        // written only after the provider request and model-list persistence
-        // both succeed, so UI surfaces never report a failed sync as current.
-        $synced_at = time();
-        $model_sync_timestamps = get_option('aipkit_model_sync_timestamps', []);
-        if (!is_array($model_sync_timestamps)) {
-            $model_sync_timestamps = [];
+        if ($primary_catalog_key !== '' && $provider !== 'OpenAIVectorStores') {
+            $normalized_response_models = $primary_catalog_key === 'OpenRouter'
+                ? AIPKit_Providers::get_openrouter_models()
+                : AIPKit_Model_Registry::get_legacy_model_list($primary_catalog_key);
+            if (is_array($normalized_response_models)) {
+                $response_models = $normalized_response_models;
+            }
         }
-        $model_sync_timestamps[$provider] = $synced_at;
-        update_option('aipkit_model_sync_timestamps', $model_sync_timestamps, 'no');
 
-        $recommended_models = $this->get_recommended_models_for_response(
-            $provider,
-            $response_models,
-            $value_to_save
-        );
+        $recommended_models = $this->get_recommended_models_for_response($provider);
+        $provider_states = AIPKit_Providers::get_provider_connection_states();
+        $provider_state = $provider_states[strtolower($provider_data_key)] ?? null;
 
-        $success_message = sprintf(
-            /* translators: %s: the provider name that was synced. */
-            __('%s synced successfully.', 'gpt3-ai-content-generator'),
-            $provider_data_key
-        );
+        $success_message = empty($sync_warnings)
+            ? sprintf(
+                /* translators: %s: the provider name that was synced. */
+                __('%s synced successfully.', 'gpt3-ai-content-generator'),
+                $provider_data_key
+            )
+            : sprintf(
+                /* translators: 1: provider name, 2: number of related catalog sync warnings */
+                _n(
+                    '%1$s models synced, but %2$d related catalog could not be refreshed.',
+                    '%1$s models synced, but %2$d related catalogs could not be refreshed.',
+                    count($sync_warnings),
+                    'gpt3-ai-content-generator'
+                ),
+                $provider_data_key,
+                count($sync_warnings)
+            );
+        $manifest = AIPKit_Model_Registry::get_manifest_summary();
+        $catalog_revision = (string) ($manifest['providers'][$provider_data_key]['revision'] ?? $publish_result['revision'] ?? '');
         wp_send_json_success(
             array_merge(
                 [
@@ -592,6 +763,9 @@ class ModelsAjaxHandler extends BaseDashboardAjaxHandler
                     'models'  => $response_models,
                     'recommended_models' => $recommended_models,
                     'synced_at' => $synced_at,
+                    'catalog_revision' => $catalog_revision,
+                    'provider_state' => $provider_state,
+                    'warnings' => $sync_warnings,
                 ],
                 $extra_response_payload
             )
@@ -602,12 +776,9 @@ class ModelsAjaxHandler extends BaseDashboardAjaxHandler
      * Builds a recommended-model payload for sync responses so UI grouping
      * can be rendered immediately without a page refresh.
      *
-     * @param string     $provider       Provider key.
-     * @param mixed      $response_models Models returned to UI.
-     * @param mixed      $stored_models   Models persisted to options.
      * @return array<int, array{id:string,name:string}>
      */
-    private function get_recommended_models_for_response(string $provider, $response_models, $stored_models): array
+    private function get_recommended_models_for_response(string $provider): array
     {
         $default_supported = ['OpenAI', 'OpenRouter', 'Google', 'Azure', 'Claude', 'DeepSeek', 'xAI', 'xAIImage'];
         $supported = apply_filters('aipkit_recommended_model_supported_providers', $default_supported);
@@ -617,39 +788,139 @@ class ModelsAjaxHandler extends BaseDashboardAjaxHandler
         }
 
         $recommended = AIPKit_Providers::get_recommended_models($provider);
-        if (!empty($recommended)) {
-            return is_array($recommended) ? $recommended : [];
-        }
+        return is_array($recommended) ? $recommended : [];
+    }
 
-        // Keep fallback behavior aligned with model-list builder for providers
-        // that derive recommended entries from existing synced rows.
-        $default_fallback_supported = ['Azure', 'DeepSeek', 'xAI', 'xAIImage'];
-        $fallback_supported = apply_filters('aipkit_recommended_model_fallback_providers', $default_fallback_supported);
-        $fallback_supported = is_array($fallback_supported) ? $fallback_supported : $default_fallback_supported;
-        if (!in_array($provider, $fallback_supported, true)) {
+    /**
+     * Read a scalar, comma-separated, or array request value as a safe list.
+     *
+     * @param callable-string $sanitizer
+     * @return array<int, string>
+     */
+    private function get_request_list(string $key, string $sanitizer): array
+    {
+        // The caller verifies the nonce; every scalar item is sanitized below.
+        // phpcs:disable WordPress.Security.NonceVerification.Missing
+        // phpcs:disable WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+        $value = isset($_POST[$key]) ? wp_unslash($_POST[$key]) : [];
+        // phpcs:enable WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+        // phpcs:enable WordPress.Security.NonceVerification.Missing
+        if (is_string($value)) {
+            $value = explode(',', $value);
+        }
+        if (!is_array($value)) {
             return [];
         }
 
-        $source_rows = $provider === 'Azure' ? $stored_models : $response_models;
-        if (!is_array($source_rows)) {
-            return [];
-        }
-
-        $fallback = [];
-        foreach ($source_rows as $row) {
-            if (!is_array($row)) {
+        $normalized = [];
+        foreach ($value as $item) {
+            if (!is_scalar($item)) {
                 continue;
             }
-            $id = (string) ($row['id'] ?? '');
-            if ($id === '') {
-                continue;
+            $item = call_user_func($sanitizer, (string) $item);
+            if ($item !== '') {
+                $normalized[$item] = true;
             }
-            $fallback[] = [
-                'id' => $id,
-                'name' => (string) ($row['name'] ?? $id),
-            ];
+        }
+        return array_keys($normalized);
+    }
+
+    /**
+     * Match the stable, user-visible fields exposed by the model catalog API.
+     *
+     * @param array<string, mixed> $record
+     */
+    private function registry_record_matches_search(array $record, string $search): bool
+    {
+        $haystack = implode(' ', [
+            (string) ($record['provider'] ?? ''),
+            (string) ($record['id'] ?? ''),
+            (string) ($record['canonical_id'] ?? ''),
+            (string) ($record['name'] ?? ''),
+            (string) ($record['family_label'] ?? ''),
+            implode(' ', is_array($record['kinds'] ?? null) ? $record['kinds'] : []),
+        ]);
+        return stripos($haystack, $search) !== false;
+    }
+
+    /**
+     * Return aggregate counts needed by provider and model-type navigation.
+     *
+     * @param array<int, array<string, mixed>> $models
+     * @param array<int, array<string, mixed>> $resources
+     * @return array<string, array<string, mixed>>
+     */
+    private function build_registry_facets(array $models, array $resources): array
+    {
+        $facets = [
+            'providers' => [],
+            'families' => [],
+            'kinds' => [],
+            'capabilities' => [],
+            'resource_types' => [],
+        ];
+
+        foreach ($models as $model) {
+            $provider = sanitize_text_field((string) ($model['provider'] ?? ''));
+            if ($provider !== '') {
+                if (!isset($facets['providers'][$provider])) {
+                    $facets['providers'][$provider] = ['models' => 0, 'resources' => 0];
+                }
+                $facets['providers'][$provider]['models']++;
+                $family_key = sanitize_key((string) ($model['family_key'] ?? 'other'));
+                if (!isset($facets['families'][$provider])) {
+                    $facets['families'][$provider] = [];
+                }
+                if (!isset($facets['families'][$provider][$family_key])) {
+                    $facets['families'][$provider][$family_key] = [
+                        'label' => sanitize_text_field((string) ($model['family_label'] ?? __('Other', 'gpt3-ai-content-generator'))),
+                        'order' => (int) ($model['family_order'] ?? 999),
+                        'collapsed' => !empty($model['family_collapsed']),
+                        'models' => 0,
+                    ];
+                }
+                $facets['families'][$provider][$family_key]['models']++;
+            }
+            foreach (($model['kinds'] ?? []) as $kind) {
+                $kind = sanitize_key((string) $kind);
+                if ($kind !== '') {
+                    $facets['kinds'][$kind] = ($facets['kinds'][$kind] ?? 0) + 1;
+                }
+            }
+            foreach (($model['capabilities'] ?? []) as $capability => $supported) {
+                $capability = sanitize_key((string) $capability);
+                if ($capability !== '' && $supported) {
+                    $facets['capabilities'][$capability] = ($facets['capabilities'][$capability] ?? 0) + 1;
+                }
+            }
         }
 
-        return array_slice($fallback, 0, 3);
+        foreach ($resources as $resource) {
+            $provider = sanitize_text_field((string) ($resource['provider'] ?? ''));
+            if ($provider !== '') {
+                if (!isset($facets['providers'][$provider])) {
+                    $facets['providers'][$provider] = ['models' => 0, 'resources' => 0];
+                }
+                $facets['providers'][$provider]['resources']++;
+            }
+            $resource_type = sanitize_key((string) ($resource['resource_type'] ?? ''));
+            if ($resource_type !== '') {
+                $facets['resource_types'][$resource_type] = ($facets['resource_types'][$resource_type] ?? 0) + 1;
+            }
+        }
+
+        ksort($facets['providers']);
+        ksort($facets['families']);
+        foreach ($facets['families'] as &$provider_families) {
+            uasort($provider_families, static function (array $left, array $right): int {
+                return ((int) $left['order'] <=> (int) $right['order'])
+                    ?: strcasecmp((string) $left['label'], (string) $right['label']);
+            });
+        }
+        unset($provider_families);
+        ksort($facets['kinds']);
+        ksort($facets['capabilities']);
+        ksort($facets['resource_types']);
+        return $facets;
     }
 }

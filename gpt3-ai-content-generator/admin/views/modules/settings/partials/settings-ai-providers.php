@@ -41,7 +41,7 @@ $aipkit_security_settings = class_exists(AIPKit_Global_Security_Settings::class)
 $aipkit_moderation_enabled = (string) ($aipkit_security_settings['openai_moderation_enabled'] ?? '0');
 $aipkit_moderation_message = (string) ($aipkit_security_settings['openai_moderation_message']
     ?? __('Your message was flagged by the moderation system and could not be sent.', 'gpt3-ai-content-generator'));
-$aipkit_model_sync_timestamps = get_option('aipkit_model_sync_timestamps', []);
+$aipkit_model_sync_timestamps = \WPAICG\AIPKit_Providers::get_model_sync_timestamps();
 $aipkit_model_sync_timestamps = is_array($aipkit_model_sync_timestamps) ? $aipkit_model_sync_timestamps : [];
 
 $aipkit_common_sampling_fields = [
@@ -376,7 +376,7 @@ $aipkit_render_model_options = static function (string $provider, string $curren
         }
         $group_label = (string) ($group['label'] ?? '');
         if ($group_label !== '') {
-            echo '<optgroup label="' . esc_attr($group_label) . '">';
+            echo '<optgroup label="' . esc_attr($group_label) . '" data-family-key="' . esc_attr((string) ($group['key'] ?? 'other')) . '">';
         }
         foreach ((array) $group['options'] as $option) {
             if (!is_array($option)) {
@@ -386,7 +386,13 @@ $aipkit_render_model_options = static function (string $provider, string $curren
             if ($value === '') {
                 continue;
             }
-            echo '<option value="' . esc_attr($value) . '" ' . selected(!empty($option['selected']), true, false) . '>'
+            echo '<option value="' . esc_attr($value) . '"'
+                . ' data-recommended="' . (!empty($option['recommended']) ? 'true' : 'false') . '"'
+                . ' data-family-key="' . esc_attr((string) ($option['family_key'] ?? $group['key'] ?? 'other')) . '"'
+                . ' data-family-label="' . esc_attr((string) ($option['family_label'] ?? $group_label)) . '"'
+                . ' data-family-order="' . esc_attr((string) ($option['family_order'] ?? $group['order'] ?? 999)) . '"'
+                . ' data-family-collapsed="' . (!empty($option['family_collapsed']) ? 'true' : 'false') . '" '
+                . selected(!empty($option['selected']), true, false) . '>'
                 . esc_html((string) ($option['label'] ?? $value)) . '</option>';
         }
         if ($group_label !== '') {
@@ -397,7 +403,9 @@ $aipkit_render_model_options = static function (string $provider, string $curren
     $manual_option = is_array($payload['manual_option'] ?? null) ? $payload['manual_option'] : null;
     if ($manual_option && (string) ($manual_option['value'] ?? '') !== '') {
         $manual_value = (string) $manual_option['value'];
-        echo '<option value="' . esc_attr($manual_value) . '" selected>'
+        echo '<option value="' . esc_attr($manual_value) . '" data-family-key="other" data-family-label="'
+            . esc_attr((string) ($manual_option['family_label'] ?? __('Other', 'gpt3-ai-content-generator')))
+            . '" data-family-order="999" data-family-collapsed="true" selected>'
             . esc_html((string) ($manual_option['label'] ?? $manual_value)) . '</option>';
     }
 

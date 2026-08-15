@@ -9,32 +9,6 @@ if (!defined('ABSPATH')) {
 
 // phpcs:disable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- This file only uses local helper/template variables and does not define public globals.
 
-// Get saved Azure deployment name if applicable
-$saved_azure_deployment = ($saved_provider === 'Azure') ? $saved_model : '';
-
-$get_recommended_models = static function (string $provider): array {
-    $models = \WPAICG\AIPKit_Providers::get_recommended_models($provider);
-    return array_values(array_filter($models, static function ($model) {
-        return is_array($model) && !empty($model['id']);
-    }));
-};
-
-$recommended_openai = $get_recommended_models('OpenAI');
-$recommended_openai_ids = array_column($recommended_openai, 'id');
-$recommended_openai_lookup = array_fill_keys($recommended_openai_ids, true);
-
-$recommended_openrouter = $get_recommended_models('OpenRouter');
-$recommended_openrouter_ids = array_column($recommended_openrouter, 'id');
-$recommended_openrouter_lookup = array_fill_keys($recommended_openrouter_ids, true);
-
-$recommended_google = $get_recommended_models('Google');
-$recommended_google_ids = array_column($recommended_google, 'id');
-$recommended_google_lookup = array_fill_keys($recommended_google_ids, true);
-
-$recommended_claude = $get_recommended_models('Claude');
-$recommended_claude_ids = array_column($recommended_claude, 'id');
-$recommended_claude_lookup = array_fill_keys($recommended_claude_ids, true);
-
 if (!isset($providers) || !is_array($providers) || empty($providers)) {
     $providers = isset($allowed_main_providers) && is_array($allowed_main_providers)
         ? $allowed_main_providers
@@ -45,21 +19,57 @@ $show_chatbot_selector = empty($is_next_layout) || !$is_next_layout;
 $provider_select_options = class_exists('\\WPAICG\\AIPKit_Provider_Model_List_Builder')
     ? \WPAICG\AIPKit_Provider_Model_List_Builder::get_provider_options($providers, (bool) ($is_pro ?? false))
     : [];
-$model_sync_timestamps = get_option('aipkit_model_sync_timestamps', []);
+$model_sync_timestamps = \WPAICG\AIPKit_Providers::get_model_sync_timestamps();
 if (!is_array($model_sync_timestamps)) {
     $model_sync_timestamps = [];
 }
 
-$render_simple_model_field = static function (array $config) use ($bot_id, $saved_model, $saved_provider): void {
+$render_model_options = static function (string $provider, string $current_model): void {
+    $payload = \WPAICG\AIPKit_Provider_Model_List_Builder::get_model_options($provider, $current_model);
+    foreach ((array) ($payload['groups'] ?? []) as $group) {
+        if (!is_array($group) || empty($group['options'])) {
+            continue;
+        }
+        $group_label = (string) ($group['label'] ?? '');
+        echo '<optgroup label="' . esc_attr($group_label) . '" data-family-key="' . esc_attr((string) ($group['key'] ?? 'other')) . '">';
+        foreach ((array) $group['options'] as $option) {
+            if (!is_array($option) || empty($option['value'])) {
+                continue;
+            }
+            $value = (string) $option['value'];
+            echo '<option value="' . esc_attr($value) . '"'
+                . ' data-recommended="' . (!empty($option['recommended']) ? 'true' : 'false') . '"'
+                . ' data-family-key="' . esc_attr((string) ($option['family_key'] ?? $group['key'] ?? 'other')) . '"'
+                . ' data-family-label="' . esc_attr((string) ($option['family_label'] ?? $group_label)) . '"'
+                . ' data-family-order="' . esc_attr((string) ($option['family_order'] ?? $group['order'] ?? 999)) . '"'
+                . ' data-family-collapsed="' . (!empty($option['family_collapsed']) ? 'true' : 'false') . '" '
+                . selected(!empty($option['selected']), true, false) . '>'
+                . esc_html((string) ($option['label'] ?? $value)) . '</option>';
+        }
+        echo '</optgroup>';
+    }
+
+    $manual_option = is_array($payload['manual_option'] ?? null) ? $payload['manual_option'] : null;
+    if ($manual_option && !empty($manual_option['value'])) {
+        $manual_value = (string) $manual_option['value'];
+        echo '<option value="' . esc_attr($manual_value) . '" data-family-key="other" data-family-label="'
+            . esc_attr((string) ($manual_option['family_label'] ?? __('Other', 'gpt3-ai-content-generator')))
+            . '" data-family-order="999" data-family-collapsed="true" selected>'
+            . esc_html((string) ($manual_option['label'] ?? $manual_value)) . '</option>';
+    }
+    if (empty($payload['has_selectable_options']) && !$manual_option) {
+        echo '<option value="">' . esc_html((string) ($payload['empty_option_label'] ?? __('(Sync models in main AI Settings)', 'gpt3-ai-content-generator'))) . '</option>';
+    }
+};
+
+$render_simple_model_field = static function (array $config) use ($bot_id, $saved_model, $saved_provider, $render_model_options): void {
     $provider = (string) ($config['provider'] ?? '');
     $slug = (string) ($config['slug'] ?? '');
-    $models = isset($config['models']) && is_array($config['models']) ? $config['models'] : [];
     if ($provider === '' || $slug === '') {
         return;
     }
     $field_id = 'aipkit_bot_' . $bot_id . '_' . $slug . '_model';
     $field_name = $slug . '_model';
-    $found_current = false;
     ?>
         <div
             class="aipkit_chatbot_model_field"
@@ -82,27 +92,7 @@ $render_simple_model_field = static function (array $config) use ($bot_id, $save
                     class="aipkit_form-input"
                     data-aipkit-model-state-select="1"
                 >
-                    <?php if (!empty($models)) : ?>
-                        <?php foreach ($models as $model) :
-                            $model_id = $model['id'] ?? '';
-                            $model_name = $model['name'] ?? $model_id;
-                            if ($model_id === $saved_model) {
-                                $found_current = true;
-                            }
-                            ?>
-                            <option
-                                value="<?php echo esc_attr($model_id); ?>"
-                                <?php selected($saved_model, $model_id); ?>
-                            >
-                                <?php echo esc_html($model_name); ?>
-                            </option>
-                        <?php endforeach; ?>
-                    <?php endif; ?>
-                    <?php if (!$found_current && !empty($saved_model) && $saved_provider === $provider) : ?>
-                        <option value="<?php echo esc_attr($saved_model); ?>" selected><?php echo esc_html($saved_model); ?></option>
-                    <?php elseif (empty($models) && !$found_current && empty($saved_model)) : ?>
-                        <option value=""><?php esc_html_e('(Sync models in main AI Settings)', 'gpt3-ai-content-generator'); ?></option>
-                    <?php endif; ?>
+                    <?php $render_model_options($provider, $saved_provider === $provider ? $saved_model : ''); ?>
                 </select>
             </div>
         </div>
@@ -173,6 +163,7 @@ $render_simple_model_field = static function (array $config) use ($bot_id, $save
         $aipkit_unified_model_selector_config = [
             'trigger_id' => 'aipkit_bot_' . $bot_id . '_unified_model_trigger',
             'initial_label' => $saved_model ?: __('Select model', 'gpt3-ai-content-generator'),
+            'capability' => 'text_generation',
         ];
         include dirname(__DIR__, 3) . '/shared/unified-model-selector.php';
         ?>
@@ -261,62 +252,7 @@ $render_simple_model_field = static function (array $config) use ($bot_id, $save
                     class="aipkit_form-input"
                     data-aipkit-model-state-select="1"
                 >
-                    <?php
-                     // $grouped_openai_models now only contains chat models (already filtered if applicable)
-                     $foundCurrentOpenAI = false;
-                    if (!empty($recommended_openai)) : ?>
-                        <optgroup label="<?php echo esc_attr__('Recommended', 'gpt3-ai-content-generator'); ?>">
-                            <?php foreach ($recommended_openai as $rec):
-                                $rec_id = $rec['id'] ?? '';
-                                $rec_name = $rec['name'] ?? $rec_id;
-                                if (!$rec_id) {
-                                    continue;
-                                }
-                                if ($rec_id === $saved_model) {
-                                    $foundCurrentOpenAI = true;
-                                }
-                                ?>
-                                <option
-                                    value="<?php echo esc_attr($rec_id); ?>"
-                                    <?php selected($saved_model, $rec_id); ?>
-                                >
-                                    <?php echo esc_html($rec_name); ?>
-                                </option>
-                            <?php endforeach; ?>
-                        </optgroup>
-                    <?php endif;
-                    if (!empty($grouped_openai_models) && is_array($grouped_openai_models)): ?>
-                        <?php foreach ($grouped_openai_models as $groupLabel => $groupItems): ?>
-                            <optgroup label="<?php echo esc_attr($groupLabel); ?>">
-                                <?php foreach ($groupItems as $m):
-                                    $model_id   = $m['id'] ?? '';
-                                    $model_name = $m['name'] ?? $model_id;
-                                    if (!empty($recommended_openai_lookup[$model_id])) {
-                                        continue;
-                                    }
-                                    if ($model_id === $saved_model) {
-                                        $foundCurrentOpenAI = true;
-                                    }
-                                    ?>
-                                    <option
-                                        value="<?php echo esc_attr($model_id); ?>"
-                                        <?php selected($saved_model, $model_id); ?>
-                                    >
-                                        <?php echo esc_html($model_name); ?>
-                                    </option>
-                                <?php endforeach; ?>
-                            </optgroup>
-                        <?php endforeach; ?>
-                    <?php endif; ?>
-                    <?php
-                    // If saved model not found OR list is empty
-                    // AND the saved model is NOT an OpenAI TTS model (as this dropdown is for CHAT models)
-                    if (!$foundCurrentOpenAI && !empty($saved_model) && $saved_provider === 'OpenAI' && strpos($saved_model, 'tts-') !== 0) {
-                        echo '<option value="' . esc_attr($saved_model) . '" selected>' . esc_html($saved_model) . '</option>';
-                    } elseif (empty($grouped_openai_models) && empty($recommended_openai) && (!$foundCurrentOpenAI || empty($saved_model) || strpos($saved_model, 'tts-') === 0)) {
-                        echo '<option value="">'.esc_html__('(Sync models in main AI Settings)', 'gpt3-ai-content-generator').'</option>';
-                    }
-?>
+                    <?php $render_model_options('OpenAI', $saved_provider === 'OpenAI' ? $saved_model : ''); ?>
                 </select>
             </div>
         </div>
@@ -342,68 +278,7 @@ $render_simple_model_field = static function (array $config) use ($bot_id, $save
                     class="aipkit_form-input"
                     data-aipkit-model-state-select="1"
                 >
-                    <?php
-$foundCurrentOR = false;
-if (!empty($recommended_openrouter)) : ?>
-                        <optgroup label="<?php echo esc_attr__('Recommended', 'gpt3-ai-content-generator'); ?>">
-                            <?php foreach ($recommended_openrouter as $rec):
-                                $rec_id = $rec['id'] ?? '';
-                                $rec_name = $rec['name'] ?? $rec_id;
-                                if (!$rec_id) {
-                                    continue;
-                                }
-                                if ($rec_id === $saved_model) {
-                                    $foundCurrentOR = true;
-                                }
-                                ?>
-                                <option
-                                    value="<?php echo esc_attr($rec_id); ?>"
-                                    <?php selected($saved_model, $rec_id); ?>
-                                >
-                                    <?php echo esc_html($rec_name); ?>
-                                </option>
-                            <?php endforeach; ?>
-                        </optgroup>
-                    <?php endif;
-if (!empty($openrouter_model_list)) {
-    $grouped = [];
-    foreach ($openrouter_model_list as $model) {
-        if (!empty($model['id']) && !empty($model['name'])) {
-            $parts  = explode('/', $model['id']);
-            $prefix = strtolower(trim($parts[0]));
-            if (!isset($grouped[$prefix])) {
-                $grouped[$prefix] = [];
-            }
-            $grouped[$prefix][] = $model;
-        }
-    }
-    ksort($grouped);
-    foreach ($grouped as $prefix => $modelsInGroup): ?>
-                            <optgroup label="<?php echo esc_attr(ucfirst($prefix)); ?>">
-                                <?php
-            usort($modelsInGroup, fn ($a, $b) => strcmp($a['name'], $b['name']));
-        foreach ($modelsInGroup as $m):
-            if (!empty($recommended_openrouter_lookup[$m['id'] ?? ''])) {
-                continue;
-            }
-            if ($m['id'] === $saved_model) {
-                $foundCurrentOR = true;
-            } ?>
-                                    <option
-                                        value="<?php echo esc_attr($m['id']); ?>"
-                                        <?php selected($saved_model, $m['id']); ?>
-                                    >
-                                        <?php echo esc_html($m['name']); ?>
-                                    </option>
-                                <?php endforeach; ?>
-                            </optgroup>
-                        <?php endforeach;
-}
-if (!$foundCurrentOR && !empty($saved_model) && $saved_provider === 'OpenRouter') { ?>
-                        <option value="<?php echo esc_attr($saved_model); ?>" selected><?php echo esc_html($saved_model); ?></option>
-                    <?php } elseif (empty($openrouter_model_list) && empty($recommended_openrouter) && empty($saved_model)) { ?>
-                        <option value=""><?php esc_html_e('(Sync models in main AI Settings)', 'gpt3-ai-content-generator'); ?></option>
-                    <?php } ?>
+                    <?php $render_model_options('OpenRouter', $saved_provider === 'OpenRouter' ? $saved_model : ''); ?>
                 </select>
             </div>
         </div>
@@ -429,63 +304,7 @@ if (!$foundCurrentOR && !empty($saved_model) && $saved_provider === 'OpenRouter'
                     class="aipkit_form-input"
                     data-aipkit-model-state-select="1"
                 >
-                     <?php
-$foundCurrentGoogle = false;
-if (!empty($recommended_google)) : ?>
-                        <optgroup label="<?php echo esc_attr__('Recommended', 'gpt3-ai-content-generator'); ?>">
-                            <?php foreach ($recommended_google as $rec):
-                                $rec_id = $rec['id'] ?? '';
-                                $rec_name = $rec['name'] ?? $rec_id;
-                                if (!$rec_id) {
-                                    continue;
-                                }
-                                if ($rec_id === $saved_model || $saved_model === 'models/' . $rec_id) {
-                                    $foundCurrentGoogle = true;
-                                }
-                                ?>
-                                <option
-                                    value="<?php echo esc_attr($rec_id); ?>"
-                                    <?php selected($saved_model, $rec_id); ?>
-                                >
-                                    <?php echo esc_html($rec_name); ?>
-                                </option>
-                            <?php endforeach; ?>
-                        </optgroup>
-                    <?php endif;
-if (!empty($google_model_list)): ?>
-                        <?php if (!empty($recommended_google)) : ?>
-                            <optgroup label="<?php echo esc_attr__('All models', 'gpt3-ai-content-generator'); ?>">
-                        <?php endif; ?>
-                        <?php foreach ($google_model_list as $gm):
-                            $gId   = $gm['id'] ?? ($gm['name'] ?? '');
-                            $gName = $gm['name'] ?? $gId;
-                            $selectedValue = $gId;
-                            $isSelected = ($saved_model === $selectedValue || $saved_model === 'models/'.$selectedValue);
-                            if ($isSelected) {
-                                $foundCurrentGoogle = true;
-                            }
-                            if (!empty($recommended_google_lookup[$selectedValue])) {
-                                continue;
-                            }
-                            ?>
-                            <option
-                                value="<?php echo esc_attr($selectedValue); ?>"
-                                <?php echo $isSelected ? 'selected' : ''; ?>
-                            >
-                                <?php echo esc_html($gName); ?>
-                            </option>
-                        <?php endforeach; ?>
-                        <?php if (!empty($recommended_google)) : ?>
-                            </optgroup>
-                        <?php endif; ?>
-                    <?php endif; ?>
-                    <?php
-                    if (!$foundCurrentGoogle && !empty($saved_model) && $saved_provider === 'Google'): ?>
-                         <?php $displayModel = (strpos($saved_model, 'models/') === 0) ? (string) substr($saved_model, 7) : $saved_model; ?>
-                        <option value="<?php echo esc_attr($saved_model); ?>" selected><?php echo esc_html($displayModel); ?></option>
-                    <?php elseif (empty($google_model_list) && empty($recommended_google) && !$foundCurrentGoogle && empty($saved_model)): ?>
-                        <option value=""><?php esc_html_e('(Sync models in main AI Settings)', 'gpt3-ai-content-generator'); ?></option>
-                    <?php endif; ?>
+                    <?php $render_model_options('Google', $saved_provider === 'Google' ? $saved_model : ''); ?>
                 </select>
             </div>
         </div>
@@ -511,59 +330,7 @@ if (!empty($google_model_list)): ?>
                     class="aipkit_form-input"
                     data-aipkit-model-state-select="1"
                 >
-                     <?php
-$foundCurrentClaude = false;
-if (!empty($recommended_claude)) : ?>
-                        <optgroup label="<?php echo esc_attr__('Recommended', 'gpt3-ai-content-generator'); ?>">
-                            <?php foreach ($recommended_claude as $rec):
-                                $rec_id = $rec['id'] ?? '';
-                                $rec_name = $rec['name'] ?? $rec_id;
-                                if (!$rec_id) {
-                                    continue;
-                                }
-                                if ($rec_id === $saved_model) {
-                                    $foundCurrentClaude = true;
-                                }
-                                ?>
-                                <option
-                                    value="<?php echo esc_attr($rec_id); ?>"
-                                    <?php selected($saved_model, $rec_id); ?>
-                                >
-                                    <?php echo esc_html($rec_name); ?>
-                                </option>
-                            <?php endforeach; ?>
-                        </optgroup>
-                    <?php endif;
-if (!empty($claude_model_list)): ?>
-                        <?php if (!empty($recommended_claude)) : ?>
-                            <optgroup label="<?php echo esc_attr__('All models', 'gpt3-ai-content-generator'); ?>">
-                        <?php endif; ?>
-                        <?php foreach ($claude_model_list as $model):
-                            $model_id = $model['id'] ?? '';
-                            $model_name = $model['name'] ?? $model_id;
-                            if (!$model_id || !empty($recommended_claude_lookup[$model_id])) {
-                                continue;
-                            }
-                            if ($model_id === $saved_model) {
-                                $foundCurrentClaude = true;
-                            }
-                            ?>
-                            <option
-                                value="<?php echo esc_attr($model_id); ?>"
-                                <?php selected($saved_model, $model_id); ?>
-                            >
-                                <?php echo esc_html($model_name); ?>
-                            </option>
-                        <?php endforeach; ?>
-                        <?php if (!empty($recommended_claude)) : ?>
-                            </optgroup>
-                        <?php endif; ?>
-                    <?php endif; ?>
-                    <?php if (!$foundCurrentClaude && !empty($saved_model) && $saved_provider === 'Claude'): ?>
-                        <option value="<?php echo esc_attr($saved_model); ?>" selected><?php echo esc_html($saved_model); ?></option>
-                    <?php elseif (empty($claude_model_list) && empty($recommended_claude) && !$foundCurrentClaude && empty($saved_model)): ?>
-                        <option value=""><?php esc_html_e('(Sync models in main AI Settings)', 'gpt3-ai-content-generator'); ?></option>
-                    <?php endif; ?>
+                    <?php $render_model_options('Claude', $saved_provider === 'Claude' ? $saved_model : ''); ?>
                 </select>
             </div>
         </div>
@@ -589,29 +356,7 @@ if (!empty($claude_model_list)): ?>
                     class="aipkit_form-input"
                     data-aipkit-model-state-select="1"
                 >
-                    <?php
-                    $foundOldAzure = false;
-if (is_array($azure_deployment_list) && !empty($azure_deployment_list)) {
-    foreach ($azure_deployment_list as $dep) {
-        $dep_id   = $dep['id'] ?? '';
-        $dep_name = $dep['name'] ?? $dep_id;
-        $label = $dep_id;
-        if (!empty($dep_name) && $dep_name !== $dep_id) {
-            $label .= ' (model: ' . $dep_name . ')';
-        }
-        $selected = selected($saved_azure_deployment, $dep_id, false);
-        if (!empty($selected)) {
-            $foundOldAzure = true;
-        }
-        echo '<option value="' . esc_attr($dep_id) . '" ' . esc_attr($selected) . '>' . esc_html($label) . '</option>';
-    }
-}
-if (!$foundOldAzure && !empty($saved_azure_deployment)) {
-    echo '<option value="'.esc_attr($saved_azure_deployment).'" selected>'.esc_html($saved_azure_deployment . ($foundOldAzure === false && !empty($azure_deployment_list) ? '' : '')).'</option>';
-} elseif (empty($saved_azure_deployment) && empty($azure_deployment_list)) {
-    echo '<option value="">'.esc_html__('(Sync deployments in main AI Settings)', 'gpt3-ai-content-generator').'</option>';
-}
-?>
+                    <?php $render_model_options('Azure', $saved_provider === 'Azure' ? $saved_model : ''); ?>
                 </select>
             </div>
         </div>
@@ -620,7 +365,6 @@ if (!$foundOldAzure && !empty($saved_azure_deployment)) {
         $render_simple_model_field([
             'provider' => 'DeepSeek',
             'slug' => 'deepseek',
-            'models' => $deepseek_model_list ?? [],
         ]);
         ?>
 
@@ -628,7 +372,6 @@ if (!$foundOldAzure && !empty($saved_azure_deployment)) {
         $render_simple_model_field([
             'provider' => 'xAI',
             'slug' => 'xai',
-            'models' => $xai_model_list ?? [],
         ]);
         ?>
 
@@ -636,7 +379,6 @@ if (!$foundOldAzure && !empty($saved_azure_deployment)) {
         $render_simple_model_field([
             'provider' => 'Ollama',
             'slug' => 'ollama',
-            'models' => $ollama_model_list ?? [],
         ]);
         ?>
 

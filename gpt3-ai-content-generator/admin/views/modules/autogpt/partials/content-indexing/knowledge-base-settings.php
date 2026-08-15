@@ -63,6 +63,7 @@ if (!defined('ABSPATH')) {
             'source_id' => 'aipkit_task_content_indexing_embedding_model',
             'initial_label' => __('Select model', 'gpt3-ai-content-generator'),
             'class_name' => 'aipkit_autogpt_unified_model_selector',
+            'capability' => 'embeddings',
             'search_placeholder' => __('Search embedding models...', 'gpt3-ai-content-generator'),
             'empty_text' => __('No embedding models found', 'gpt3-ai-content-generator'),
         ];

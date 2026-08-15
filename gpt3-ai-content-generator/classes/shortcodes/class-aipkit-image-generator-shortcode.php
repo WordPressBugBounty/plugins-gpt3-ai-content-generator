@@ -31,7 +31,7 @@ class AIPKit_Image_Generator_Shortcode
      *        - show_provider (bool|string 'true'/'false', default true)
      *        - show_model (bool|string 'true'/'false', default true)
      *        - provider (string 'openai', 'azure' etc. - presets the provider)
-     *        - model (string 'gpt-image-2', etc. - presets the model)
+     *        - model (string - presets the provider model ID)
      *        - size (string '1024x1024' etc. - presets the size)
      *        - number (int 1-4 - presets the number)
      *        - theme (string 'light', 'dark', 'custom', default 'dark')
@@ -73,7 +73,7 @@ class AIPKit_Image_Generator_Shortcode
             'show_provider' => 'true',
             'show_model'    => 'true',
             'provider'      => 'openai',
-            'model'         => 'gpt-image-2',
+            'model'         => AIPKit_Providers::get_default_openai_image_model(),
             'size'          => '1024x1024',
             'number'        => 1,
             'theme'         => 'dark',

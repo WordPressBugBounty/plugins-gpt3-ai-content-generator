@@ -119,12 +119,6 @@ class Ajax_Hooks_Registrar
             if (method_exists($settings_ajax_handler, 'ajax_restore_settings_restore_point')) {
                 add_action('wp_ajax_aipkit_restore_settings_restore_point', [$settings_ajax_handler, 'ajax_restore_settings_restore_point']);
             }
-            if (method_exists($settings_ajax_handler, 'ajax_clear_settings_model_cache')) {
-                add_action('wp_ajax_aipkit_clear_settings_model_cache', [$settings_ajax_handler, 'ajax_clear_settings_model_cache']);
-            }
-            if (method_exists($settings_ajax_handler, 'ajax_clear_settings_transients')) {
-                add_action('wp_ajax_aipkit_clear_settings_transients', [$settings_ajax_handler, 'ajax_clear_settings_transients']);
-            }
         }
 
         if ($event_webhook_delivery_issues_ajax_handler) {
@@ -137,6 +131,12 @@ class Ajax_Hooks_Registrar
         }
 
         if ($models_ajax_handler) {
+            if (method_exists($models_ajax_handler, 'ajax_get_model_catalog')) {
+                add_action('wp_ajax_aipkit_get_model_catalog', [$models_ajax_handler, 'ajax_get_model_catalog']);
+            }
+            if (method_exists($models_ajax_handler, 'ajax_get_model_sync_targets')) {
+                add_action('wp_ajax_aipkit_get_model_sync_targets', [$models_ajax_handler, 'ajax_get_model_sync_targets']);
+            }
             if (method_exists($models_ajax_handler, 'ajax_sync_models')) {
                 add_action('wp_ajax_aipkit_sync_models', [$models_ajax_handler, 'ajax_sync_models']);
             }

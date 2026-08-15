@@ -120,7 +120,7 @@ class AIPKit_PostEnhancer_Bulk_Process_Single_Field extends AIPKit_Post_Enhancer
 
         // AI setup
         $ai_caller = new AIPKit_AI_Caller();
-        $global_config = AIPKit_Providers::get_default_provider_config();
+        $global_config = AIPKit_Providers::get_new_text_generation_selection();
         $global_ai_params = AIPKIT_AI_Settings::get_ai_parameters();
 
         // Use AI config from the request, with fallback to globals
@@ -487,7 +487,7 @@ class AIPKit_PostEnhancer_Bulk_Process_Single_Field extends AIPKit_Post_Enhancer
 
         $analysis_result = $ai_caller->make_standard_call(
             'OpenAI',
-            'gpt-4.1-mini',
+            AIPKit_Providers::get_default_model_id('OpenAI'),
             [['role' => 'user', 'content' => $analysis_prompt]],
             $analysis_params,
             null,

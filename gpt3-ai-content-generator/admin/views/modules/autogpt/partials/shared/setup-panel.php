@@ -153,6 +153,7 @@ $aipkit_autogpt_setup_content_max_tokens_id = $aipkit_autogpt_setup_base . '_con
                 'source_id' => $aipkit_autogpt_setup_selection_id,
                 'initial_label' => __('Loading models...', 'gpt3-ai-content-generator'),
                 'class_name' => 'aipkit_autogpt_unified_model_selector',
+                'capability' => 'text_generation',
             ];
             include dirname(__DIR__, 3) . '/shared/unified-model-selector.php';
             ?>

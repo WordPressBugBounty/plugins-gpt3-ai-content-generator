@@ -61,6 +61,9 @@ class Provider_Dependencies_Loader
 class Core_Services_Loader {
     public static function load() {
         $core_path = WPAICG_PLUGIN_DIR . 'classes/core/';
+        $models_path = $core_path . 'models/';
+        require_once $models_path . 'class-aipkit-model-catalog.php';
+        require_once $models_path . 'class-aipkit-model-registry.php';
         $token_manager_path = $core_path . 'token-manager/AIPKit_Token_Manager.php';
         if (file_exists($token_manager_path)) {
             require_once $token_manager_path;

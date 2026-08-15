@@ -25,7 +25,6 @@ if (!class_exists(AIPKit_Content_Writer_Image_Provider_Options::class)) {
 class AIPKit_Content_Writer_Image_Handler
 {
     private $image_manager;
-    private $pexels_image_cache = []; // MODIFIED: Added instance property for Pexels caching
     private const DEFAULT_ALT_TEXT = 'Image';
 
     public function __construct()
@@ -774,7 +773,7 @@ class AIPKit_Content_Writer_Image_Handler
         }
 
         $ai_caller = new AIPKit_AI_Caller();
-        $global_config = AIPKit_Providers::get_default_provider_config();
+        $global_config = AIPKit_Providers::get_new_text_generation_selection();
         $global_ai_params = AIPKIT_AI_Settings::get_ai_parameters();
 
         $provider_raw = (string) ($settings['ai_provider'] ?? ($global_config['provider'] ?? 'OpenAI'));
@@ -1062,7 +1061,7 @@ class AIPKit_Content_Writer_Image_Handler
         $event_context_options = $this->get_image_event_context_options($settings);
 
         $current_user_id = get_current_user_id() ?: 1;
-        $resolved_image_model = sanitize_text_field((string) ($settings['image_model'] ?? 'gpt-image-2'));
+        $resolved_image_model = sanitize_text_field((string) ($settings['image_model'] ?? AIPKit_Providers::get_default_openai_image_model()));
         if ($image_provider === 'openai') {
             $resolved_image_model = AIPKit_Providers::normalize_openai_image_model($resolved_image_model);
         }
@@ -1364,7 +1363,7 @@ class AIPKit_Content_Writer_Image_Handler
 
         $analysis_result = $ai_caller->make_standard_call(
             'OpenAI',
-            'gpt-4.1-mini',
+            AIPKit_Providers::get_default_model_id('OpenAI'),
             [['role' => 'user', 'content' => $analysis_prompt]],
             $analysis_params,
             null,

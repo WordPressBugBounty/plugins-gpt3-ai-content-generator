@@ -4,7 +4,7 @@ Tags: ai, chatbot, openai, ai writer, automation
 Requires at least: 6.0
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 2.4.64
+Stable tag: 2.4.65
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -125,6 +125,13 @@ Yes. AIP supports GPT-5, GPT-4o, GPT-4 Turbo, Google Gemini 1.5, Imagen 4.0, and
 ---
 
 == Changelog ==
+
+= 2.4.65 =
+
+- Added a new AI model picker across all modules with search, favorites, recommendations, and provider grouping.
+- Redesigned Role Manager for easier role and permission management.
+- Improved Chatbot voice input with live waveform, cancel/confirm controls, and editable transcription.
+- Added WordPress 7.1 compatibility.
 
 = 2.4.64 =
 

@@ -7,6 +7,7 @@ use WPAICG\AIPKit_Providers;
 use WPAICG\AIPKIT_AI_Settings;
 use WPAICG\aipkit_dashboard;
 use WPAICG\Core\AIPKit_Event_Webhooks_Settings;
+use WPAICG\Core\Models\AIPKit_Model_Registry;
 use WPAICG\Core\Providers\Google\GoogleSettingsHandler;
 use WPAICG\Core\Moderation\AIPKit_Global_Security_Settings;
 use WPAICG\Images\AIPKit_Image_Settings_Ajax_Handler;
@@ -41,12 +42,14 @@ class SettingsAjaxHandler extends BaseDashboardAjaxHandler
         'aipkit_google_embedding_model_list',
         'aipkit_google_image_model_list',
         'aipkit_google_video_model_list',
+        'aipkit_google_tts_voice_list',
         'aipkit_azure_deployment_list',
         'aipkit_azure_embedding_model_list',
         'aipkit_azure_image_model_list',
         'aipkit_claude_model_list',
         'aipkit_deepseek_model_list',
         'aipkit_xai_model_list',
+        'aipkit_xai_image_model_list',
         'aipkit_ollama_model_list',
         'aipkit_ollama_embedding_model_list',
         'aipkit_ollama_vision_model_list',
@@ -115,6 +118,7 @@ class SettingsAjaxHandler extends BaseDashboardAjaxHandler
             $response = [
                 'message' => __('Settings saved successfully.', 'gpt3-ai-content-generator'),
                 'providerStatus' => AIPKit_Providers::get_provider_status_map(),
+                'providerConnectionStates' => AIPKit_Providers::get_provider_connection_states(),
             ];
             if ($updated_enhancer_actions !== null) {
                 $response['updated_enhancer_actions'] = $updated_enhancer_actions;
@@ -124,6 +128,7 @@ class SettingsAjaxHandler extends BaseDashboardAjaxHandler
             wp_send_json_success([
                 'message' => __('No changes detected.', 'gpt3-ai-content-generator'),
                 'providerStatus' => AIPKit_Providers::get_provider_status_map(),
+                'providerConnectionStates' => AIPKit_Providers::get_provider_connection_states(),
             ]);
         }
     }
@@ -952,63 +957,6 @@ class SettingsAjaxHandler extends BaseDashboardAjaxHandler
     }
 
     /**
-     * Clears in-memory and transient model caches.
-     */
-    public function ajax_clear_settings_model_cache()
-    {
-        $permission_check = $this->check_module_access_permissions('settings');
-        if (is_wp_error($permission_check)) {
-            $this->send_wp_error($permission_check);
-            return;
-        }
-
-        if (class_exists(AIPKit_Providers::class) && method_exists(AIPKit_Providers::class, 'clear_model_caches')) {
-            AIPKit_Providers::clear_model_caches();
-        }
-
-        wp_send_json_success([
-            'message' => __('Model cache cleared.', 'gpt3-ai-content-generator'),
-        ]);
-    }
-
-    /**
-     * Clears AIPKit transients and flushes object cache.
-     */
-    public function ajax_clear_settings_transients()
-    {
-        global $wpdb;
-
-        $permission_check = $this->check_module_access_permissions('settings');
-        if (is_wp_error($permission_check)) {
-            $this->send_wp_error($permission_check);
-            return;
-        }
-
-        $deleted_rows = 0;
-        $transient_like = $wpdb->esc_like('_transient_aipkit_') . '%';
-        $transient_timeout_like = $wpdb->esc_like('_transient_timeout_aipkit_') . '%';
-
-        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Maintenance action intentionally clears matching transient rows.
-        $deleted_data = $wpdb->query($wpdb->prepare("DELETE FROM {$wpdb->options} WHERE option_name LIKE %s", $transient_like));
-        if (is_numeric($deleted_data)) {
-            $deleted_rows += (int) $deleted_data;
-        }
-
-        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Maintenance action intentionally clears matching transient rows.
-        $deleted_timeout = $wpdb->query($wpdb->prepare("DELETE FROM {$wpdb->options} WHERE option_name LIKE %s", $transient_timeout_like));
-        if (is_numeric($deleted_timeout)) {
-            $deleted_rows += (int) $deleted_timeout;
-        }
-
-        wp_cache_flush();
-
-        wp_send_json_success([
-            /* translators: %d: number of transient rows removed */
-            'message' => sprintf(__('Transient cache cleared (%d rows removed).', 'gpt3-ai-content-generator'), $deleted_rows),
-        ]);
-    }
-
-    /**
      * Builds a normalized backup payload.
      */
     private function build_settings_backup_payload(): array
@@ -1017,13 +965,14 @@ class SettingsAjaxHandler extends BaseDashboardAjaxHandler
         $options = is_array($options) ? $options : [];
 
         return [
-            'format' => 'aipkit_settings_backup_v2',
+            'format' => 'aipkit_settings_backup_v3',
             'exported_at' => gmdate('c'),
             'plugin_version' => defined('WPAICG_VERSION') ? WPAICG_VERSION : '',
             'site_url' => home_url('/'),
             'aipkit_options' => $this->sanitize_imported_ai_settings($options),
             'additional_options' => $this->collect_additional_options_for_backup(),
             'model_lists' => $this->collect_model_list_options_for_backup(),
+            'model_registry' => AIPKit_Model_Registry::export_state(),
         ];
     }
 
@@ -1135,12 +1084,44 @@ class SettingsAjaxHandler extends BaseDashboardAjaxHandler
             }
         }
 
+        $model_registry_state = null;
+        if (isset($payload['model_registry'])) {
+            if (!is_array($payload['model_registry'])) {
+                return new WP_Error(
+                    'invalid_model_registry',
+                    __('Backup model registry data is invalid.', 'gpt3-ai-content-generator'),
+                    ['status' => 400]
+                );
+            }
+            if (isset($payload['model_registry']['snapshots']) && !is_array($payload['model_registry']['snapshots'])) {
+                return new WP_Error(
+                    'invalid_model_registry_snapshots',
+                    __('Backup model registry snapshots are invalid.', 'gpt3-ai-content-generator'),
+                    ['status' => 400]
+                );
+            }
+            $model_registry_state = $payload['model_registry'];
+            $registry_validation = AIPKit_Model_Registry::validate_import_state($model_registry_state);
+            if (is_wp_error($registry_validation)) {
+                return $registry_validation;
+            }
+        }
+
         update_option('aipkit_options', $sanitized_options, 'no');
         foreach ($normalized_additional_options as $option_name => $value) {
             update_option($option_name, $value, 'no');
         }
         foreach ($normalized_model_lists as $option_name => $model_list_value) {
             update_option($option_name, $model_list_value, 'no');
+        }
+
+        if (is_array($model_registry_state)) {
+            $registry_import_result = AIPKit_Model_Registry::import_state($model_registry_state);
+            if (is_wp_error($registry_import_result)) {
+                return $registry_import_result;
+            }
+        } elseif (!empty($normalized_model_lists)) {
+            AIPKit_Model_Registry::migrate_legacy_options(true);
         }
 
         if (class_exists(AIPKit_Providers::class) && method_exists(AIPKit_Providers::class, 'clear_model_caches')) {

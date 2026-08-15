@@ -280,6 +280,7 @@ $aipkit_autogpt_context_autosave_class = $aipkit_autogpt_context_use_autosave ? 
                                 'source_id' => $aipkit_autogpt_context_embedding_model_id,
                                 'initial_label' => __('Select provider first', 'gpt3-ai-content-generator'),
                                 'class_name' => 'aipkit_autogpt_unified_model_selector aipkit_autogpt_unified_model_selector--compact',
+                                'capability' => 'embeddings',
                                 'search_placeholder' => __('Search embedding models...', 'gpt3-ai-content-generator'),
                                 'empty_text' => __('No embedding models found', 'gpt3-ai-content-generator'),
                             ];

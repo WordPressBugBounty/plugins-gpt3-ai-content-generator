@@ -3,7 +3,8 @@
 
 namespace WPAICG;
 
-use WPAICG\Core\AIPKit_Models_API;
+use WPAICG\Core\Models\AIPKit_Model_Registry;
+use WPAICG\Core\Models\AIPKit_Model_Catalog;
 use WPAICG\Vector\AIPKit_Vector_Store_Registry;
 
 if (!defined('ABSPATH')) {
@@ -15,15 +16,6 @@ if (!defined('ABSPATH')) {
  */
 class AIPKit_Providers
 {
-    private const OPENAI_DEFAULT_IMAGE_MODEL = 'gpt-image-2';
-    private const OPENAI_IMAGE_MODELS = [
-        ['id' => 'gpt-image-2', 'name' => 'GPT Image 2'],
-        ['id' => 'gpt-image-1.5', 'name' => 'GPT Image 1.5'],
-        ['id' => 'gpt-image-1', 'name' => 'GPT Image 1'],
-        ['id' => 'gpt-image-1-mini', 'name' => 'GPT Image 1 mini'],
-    ];
-    private const DEEPSEEK_DEPRECATED_MODEL_SUFFIXES = ['chat', 'reasoner'];
-
     private static $provider_defaults = [
         'OpenAI' => [
             'api_key' => '', 'model' => '', 'embedding_model' => '',
@@ -89,188 +81,6 @@ class AIPKit_Providers
         ],
     ];
 
-    private static $model_catalog = [
-        'OpenAI' => [
-            'default' => 'gpt-5.4-mini',
-            'models' => [
-                'gpt-5.6-sol',
-                'gpt-5.6-terra',
-                'gpt-5.6-luna',
-                'gpt-5.4-mini',
-                'gpt-5.4',
-                'gpt-5.4-nano',
-                'gpt-4.1-mini',
-                'gpt-4.1',
-            ],
-        ],
-        'OpenAIEmbedding' => [
-            'default' => 'text-embedding-3-small',
-            'models' => [
-                ['id' => 'text-embedding-3-small', 'name' => 'Text Embedding 3 Small (1536)'],
-                ['id' => 'text-embedding-3-large', 'name' => 'Text Embedding 3 Large (3072)'],
-                ['id' => 'text-embedding-ada-002', 'name' => 'Text Embedding Ada 002 (1536)'],
-            ],
-        ],
-        'OpenRouter' => [
-            'default' => 'moonshotai/kimi-k2.5',
-            'models' => [
-                ['id' => 'moonshotai/kimi-k2.5', 'name' => 'Kimi K2.5'],
-                ['id' => 'anthropic/claude-sonnet-4.5', 'name' => 'Claude Sonnet 4.5'],
-                ['id' => 'anthropic/claude-opus-4.7', 'name' => 'Claude Opus 4.7'],
-                ['id' => 'anthropic/claude-opus-4.6', 'name' => 'Claude Opus 4.6'],
-                ['id' => 'google/gemini-3.5-flash', 'name' => 'Gemini 3.5 Flash'],
-                ['id' => 'google/gemini-2.5-flash', 'name' => 'Gemini 2.5 Flash'],
-                ['id' => 'deepseek/deepseek-v3.2', 'name' => 'DeepSeek V3.2'],
-                ['id' => 'openai/gpt-5-nano', 'name' => 'GPT-5 Nano'],
-                ['id' => 'x-ai/grok-4.1-fast', 'name' => 'Grok 4.1 Fast'],
-                ['id' => 'z-ai/glm-4.7', 'name' => 'GLM 4.7'],
-            ],
-        ],
-        'OpenRouterEmbedding' => [
-            'default' => '',
-            'models' => [],
-        ],
-        'Google' => [
-            'default' => 'gemini-2.5-flash',
-            'models' => [
-                ['id' => 'gemini-3.5-flash', 'name' => 'Gemini 3.5 Flash'],
-                ['id' => 'gemini-3-flash-preview', 'name' => 'Gemini 3 Flash Preview'],
-                ['id' => 'gemini-3-pro-preview', 'name' => 'Gemini 3 Pro Preview'],
-                ['id' => 'gemini-2.5-flash', 'name' => 'Gemini 2.5 Flash'],
-                ['id' => 'gemini-2.5-flash-lite', 'name' => 'Gemini 2.5 Flash Lite'],
-            ],
-        ],
-        'GoogleImage' => [
-            'default' => 'gemini-3.1-flash-image-preview',
-            'models' => [
-                ['id' => 'gemini-3.1-flash-image-preview', 'name' => 'Gemini 3.1 Flash Image Preview (Nano Banana 2)'],
-                ['id' => 'gemini-3-pro-image-preview', 'name' => 'Gemini 3 Pro Image Preview (Nano Banana Pro)'],
-                ['id' => 'gemini-2.5-flash-image', 'name' => 'Gemini 2.5 Flash Image (Nano Banana)'],
-                ['id' => 'imagen-4.0-generate-001', 'name' => 'Imagen 4'],
-                ['id' => 'imagen-4.0-fast-generate-001', 'name' => 'Imagen 4 Fast'],
-                ['id' => 'imagen-4.0-ultra-generate-001', 'name' => 'Imagen 4 Ultra'],
-            ],
-        ],
-        'xAIImage' => [
-            'default' => 'grok-imagine-image-quality',
-            'models' => [
-                ['id' => 'grok-imagine-image-quality', 'name' => 'Grok Imagine Image Quality'],
-                ['id' => 'grok-imagine-image', 'name' => 'Grok Imagine Image'],
-            ],
-        ],
-        'GoogleVideo' => [
-            'default' => '',
-            'models' => [],
-        ],
-        'GoogleEmbedding' => [
-            'default' => 'gemini-embedding-2-preview',
-            'models' => [
-                ['id' => 'gemini-embedding-2-preview', 'name' => 'Gemini Embedding 2 Preview (3072)', 'dimensions' => 3072],
-                ['id' => 'gemini-embedding-001', 'name' => 'Gemini Embedding 001 (3072)', 'dimensions' => 3072],
-                ['id' => 'models/text-embedding-004', 'name' => 'Embedding 004 (768)', 'dimensions' => 768],
-            ],
-        ],
-        'Claude' => [
-            'default' => 'claude-sonnet-4-6',
-            'models' => [
-                ['id' => 'claude-sonnet-4-6', 'name' => 'Claude Sonnet 4.6'],
-                ['id' => 'claude-opus-4-8', 'name' => 'Claude Opus 4.8'],
-                ['id' => 'claude-opus-4-7', 'name' => 'Claude Opus 4.7'],
-                ['id' => 'claude-opus-4-6', 'name' => 'Claude Opus 4.6'],
-                ['id' => 'claude-sonnet-4-5-20250929', 'name' => 'Claude Sonnet 4.5'],
-                ['id' => 'claude-opus-4-5-20251101', 'name' => 'Claude Opus 4.5'],
-            ],
-        ],
-        'Azure' => [
-            'default' => '',
-            'models' => [],
-        ],
-        'AzureImage' => [
-            'default' => '',
-            'models' => [],
-        ],
-        'AzureEmbedding' => [
-            'default' => '',
-            'models' => [],
-        ],
-        'DeepSeek' => [
-            'default' => 'deepseek-v4-flash',
-            'models' => [
-                ['id' => 'deepseek-v4-flash', 'name' => 'DeepSeek V4 Flash'],
-                ['id' => 'deepseek-v4-pro', 'name' => 'DeepSeek V4 Pro'],
-            ],
-        ],
-        'xAI' => [
-            'default' => 'grok-4-1-fast-non-reasoning',
-            'models' => [
-                ['id' => 'grok-4-1-fast-non-reasoning', 'name' => 'Grok 4.1 Fast Non-Reasoning'],
-                ['id' => 'grok-4', 'name' => 'Grok 4'],
-                ['id' => 'grok-4.20-reasoning', 'name' => 'Grok 4.20 Reasoning'],
-            ],
-        ],
-        'Ollama' => [
-            'default' => '',
-            'models' => [],
-        ],
-        'ElevenLabs' => [
-            'default' => '',
-            'models' => [],
-        ],
-        'ElevenLabsModels' => [
-            'default' => 'eleven_multilingual_v2',
-            'models' => ['eleven_multilingual_v2'],
-        ],
-        'OpenAITTS' => [
-            'default' => 'tts-1',
-            'models' => [['id' => 'tts-1', 'name' => 'TTS-1'], ['id' => 'tts-1-hd', 'name' => 'TTS-1-HD']],
-        ],
-        'OpenAISTT' => [
-            'default' => 'whisper-1',
-            'models' => [['id' => 'whisper-1', 'name' => 'Whisper-1']],
-        ],
-        'PineconeIndexes' => [
-            'default' => '',
-            'models' => [],
-        ],
-        'QdrantCollections' => [
-            'default' => '',
-            'models' => [],
-        ],
-        'ChromaCollections' => [
-            'default' => '',
-            'models' => [],
-        ],
-        'Replicate' => [
-            'default' => '',
-            'models' => [],
-        ],
-    ];
-
-    private static $model_list_options = [
-        'OpenAI'           => 'aipkit_openai_model_list',
-        'OpenAIEmbedding'  => 'aipkit_openai_embedding_model_list',
-        'OpenRouter'       => 'aipkit_openrouter_model_list',
-        'OpenRouterEmbedding' => 'aipkit_openrouter_embedding_model_list',
-        'Google'           => 'aipkit_google_model_list',
-        'GoogleImage'      => 'aipkit_google_image_model_list',
-        'xAIImage'         => 'aipkit_xai_image_model_list',
-        'GoogleVideo'      => 'aipkit_google_video_model_list',
-        'GoogleEmbedding'  => 'aipkit_google_embedding_model_list',
-        'Claude'           => 'aipkit_claude_model_list',
-        'Azure'            => 'aipkit_azure_deployment_list',
-        'AzureImage' => 'aipkit_azure_image_model_list', 'AzureEmbedding'   => 'aipkit_azure_embedding_model_list', 'DeepSeek'         => 'aipkit_deepseek_model_list',
-        'xAI'             => 'aipkit_xai_model_list',
-        'Ollama'           => 'aipkit_ollama_model_list',
-        'ElevenLabs'       => 'aipkit_elevenlabs_voice_list',
-        'ElevenLabsModels' => 'aipkit_elevenlabs_model_list',
-        'OpenAITTS'        => 'aipkit_openai_tts_model_list',
-        'OpenAISTT'        => 'aipkit_openai_stt_model_list',
-        'PineconeIndexes'   => 'aipkit_pinecone_index_list',
-        'QdrantCollections' => 'aipkit_qdrant_collection_list', // Added Qdrant option
-        'ChromaCollections' => 'aipkit_chroma_collection_list',
-        'Replicate' => 'aipkit_replicate_model_list',
-    ];
-
     private static $provider_capabilities = [
         'xAI' => [
             'text_generation' => true,
@@ -289,10 +99,6 @@ class AIPKit_Providers
             'chat_completions' => false,
         ],
     ];
-
-    /** @var array Holds request-level cache for model lists */
-    private static $cached_model_lists = [];
-    public const MODEL_LIST_TRANSIENT_TTL = 5 * MINUTE_IN_SECONDS;
 
     public static function normalize_provider_label(string $provider): string
     {
@@ -419,58 +225,9 @@ class AIPKit_Providers
         return array_keys($normalized);
     }
 
-    private static function get_model_catalog_entry(string $provider_key): array
-    {
-        $entry = self::$model_catalog[$provider_key] ?? ['default' => '', 'models' => []];
-        if (!is_array($entry)) {
-            return ['default' => '', 'models' => []];
-        }
-
-        return [
-            'default' => isset($entry['default']) ? sanitize_text_field((string) $entry['default']) : '',
-            'models' => isset($entry['models']) && is_array($entry['models']) ? $entry['models'] : [],
-        ];
-    }
-
-    private static function get_catalog_model_rows(string $provider_key): array
-    {
-        $entry = self::get_model_catalog_entry($provider_key);
-        return $entry['models'];
-    }
-
-    private static function get_catalog_model_ids(string $provider_key): array
-    {
-        $models = self::get_catalog_model_rows($provider_key);
-        $ids = [];
-
-        foreach ($models as $model) {
-            if (is_string($model)) {
-                $model_id = sanitize_text_field($model);
-            } elseif (is_array($model) && isset($model['id'])) {
-                $model_id = sanitize_text_field((string) $model['id']);
-            } else {
-                $model_id = '';
-            }
-
-            if ($model_id === '') {
-                continue;
-            }
-
-            $ids[] = $model_id;
-        }
-
-        return $ids;
-    }
-
     public static function get_default_model_id(string $provider_key): string
     {
-        $entry = self::get_model_catalog_entry($provider_key);
-        if ($entry['default'] !== '') {
-            return $entry['default'];
-        }
-
-        $catalog_ids = self::get_catalog_model_ids($provider_key);
-        return $catalog_ids[0] ?? '';
+        return AIPKit_Model_Registry::get_default_model_id($provider_key);
     }
 
     private static function get_hydrated_provider_defaults_all(): array
@@ -1019,32 +776,6 @@ class AIPKit_Providers
         return $normalized_models;
     }
 
-    private static function is_deprecated_deepseek_model_id(string $model_id): bool
-    {
-        $model_id = strtolower(trim($model_id));
-        if (strpos($model_id, 'deepseek-') !== 0) {
-            return false;
-        }
-
-        $suffix = (string) substr($model_id, strlen('deepseek-'));
-        return in_array($suffix, self::DEEPSEEK_DEPRECATED_MODEL_SUFFIXES, true);
-    }
-
-    private static function filter_deepseek_model_rows(array $models): array
-    {
-        $filtered_models = [];
-        foreach (self::normalize_embedding_model_rows($models) as $model_row) {
-            $model_id = isset($model_row['id']) ? (string) $model_row['id'] : '';
-            if ($model_id === '' || self::is_deprecated_deepseek_model_id($model_id)) {
-                continue;
-            }
-
-            $filtered_models[] = $model_row;
-        }
-
-        return $filtered_models;
-    }
-
     private static function merge_model_rows_by_id(array ...$model_lists): array
     {
         $merged_models = [];
@@ -1175,6 +906,79 @@ class AIPKit_Providers
         ];
     }
 
+    /**
+     * Return the canonical setup and synchronization state for every provider.
+     *
+     * @return array<string, array<string, mixed>>
+     */
+    public static function get_provider_connection_states(): array
+    {
+        $states = AIPKit_Model_Registry::get_provider_states(self::get_all_providers());
+        if (
+            isset($states['ollama'])
+            && class_exists(aipkit_dashboard::class)
+            && !aipkit_dashboard::is_pro_plan()
+        ) {
+            $states['ollama']['locked'] = true;
+            $states['ollama']['status'] = 'locked';
+            if (($states['ollama']['resource_status'] ?? 'not_applicable') !== 'not_applicable') {
+                $states['ollama']['resource_status'] = 'locked';
+            }
+        }
+        return $states;
+    }
+
+    /**
+     * Return compatibility-shaped timestamps sourced from registry snapshots.
+     *
+     * @return array<string, int>
+     */
+    public static function get_model_sync_timestamps(): array
+    {
+        return AIPKit_Model_Registry::get_sync_timestamps();
+    }
+
+    /**
+     * Query the universal model registry.
+     *
+     * @param array<string, mixed> $args
+     * @return array<int, array<string, mixed>>
+     */
+    public static function query_models(array $args = []): array
+    {
+        return AIPKit_Model_Registry::query_models($args);
+    }
+
+    /**
+     * Query voices, vector targets and other provider resources.
+     *
+     * @param array<string, mixed> $args
+     * @return array<int, array<string, mixed>>
+     */
+    public static function query_provider_resources(array $args = []): array
+    {
+        return AIPKit_Model_Registry::query_resources($args);
+    }
+
+    /**
+     * Resolve a provider/model pair against the universal registry.
+     *
+     * @return array<string, mixed>
+     */
+    public static function resolve_model_selection(
+        string $provider,
+        string $model_id,
+        string $required_capability = '',
+        bool $allow_manual = true
+    ): array {
+        return AIPKit_Model_Registry::resolve_selection(
+            $provider,
+            $model_id,
+            $required_capability,
+            $allow_manual
+        );
+    }
+
     public static function get_provider_data($provider)
     {
         $all = self::get_all_providers();
@@ -1193,7 +997,7 @@ class AIPKit_Providers
         if (
             $provider === 'DeepSeek'
             && isset($provider_data['model'])
-            && self::is_deprecated_deepseek_model_id((string) $provider_data['model'])
+            && AIPKit_Model_Catalog::is_deprecated_id('DeepSeek', (string) $provider_data['model'])
         ) {
             $provider_data['model'] = $defaults['model'] ?? self::get_default_model_id('DeepSeek');
         }
@@ -1220,6 +1024,26 @@ class AIPKit_Providers
         return $result;
     }
 
+    /**
+     * Resolve the provider/model used only for a newly created text-generation
+     * configuration. Saved provider model preferences are intentionally not
+     * treated as new-item defaults.
+     *
+     * @param array<int, string> $allowed_providers
+     * @return array<string, mixed>
+     */
+    public static function get_new_text_generation_selection(array $allowed_providers = []): array
+    {
+        if (empty($allowed_providers)) {
+            $allowed_providers = self::get_main_provider_allowlist();
+        }
+        return AIPKit_Model_Registry::resolve_new_model_selection('text_generation', [
+            'allowed_providers' => $allowed_providers,
+            'preferred_provider' => self::get_current_provider(),
+            'provider_configs' => self::get_all_providers(),
+        ]);
+    }
+
     public static function get_provider_defaults($provider)
     {
         $provider_defaults = self::get_hydrated_provider_defaults_all();
@@ -1232,73 +1056,7 @@ class AIPKit_Providers
 
     public static function get_recommended_models(string $provider_key): array
     {
-        $normalized_key = $provider_key;
-        $key_lower = strtolower($provider_key);
-        if ('openai' === $key_lower) {
-            $normalized_key = 'OpenAI';
-        } elseif ('openrouter' === $key_lower) {
-            $normalized_key = 'OpenRouter';
-        } elseif ('google' === $key_lower) {
-            $normalized_key = 'Google';
-        } elseif ('claude' === $key_lower) {
-            $normalized_key = 'Claude';
-        } elseif ('deepseek' === $key_lower) {
-            $normalized_key = 'DeepSeek';
-        } elseif ('xai' === $key_lower) {
-            $normalized_key = 'xAI';
-        } elseif ('xaiimage' === $key_lower || 'xai_image' === $key_lower || 'xai-image' === $key_lower) {
-            $normalized_key = 'xAIImage';
-        }
-
-        $recommended_ids = self::get_catalog_model_ids($normalized_key);
-        if (empty($recommended_ids)) {
-            return [];
-        }
-
-        $available_models = self::get_model_list($normalized_key);
-        $lookup = [];
-        $is_list = is_array($available_models) && array_keys($available_models) === range(0, count($available_models) - 1);
-
-        if ('OpenAI' === $normalized_key && !$is_list) {
-            foreach ($available_models as $group_models) {
-                if (!is_array($group_models)) {
-                    continue;
-                }
-                foreach ($group_models as $model) {
-                    if (!isset($model['id'])) {
-                        continue;
-                    }
-                    $lookup[$model['id']] = $model['name'] ?? $model['id'];
-                }
-            }
-        } elseif (is_array($available_models)) {
-            foreach ($available_models as $model) {
-                if (!is_array($model) || !isset($model['id'])) {
-                    continue;
-                }
-                $lookup[$model['id']] = $model['name'] ?? $model['id'];
-            }
-        }
-
-        $recommended = [];
-        foreach ($recommended_ids as $model_id) {
-            if (isset($lookup[$model_id])) {
-                $recommended[] = [
-                    'id' => $model_id,
-                    'name' => $lookup[$model_id],
-                ];
-            }
-        }
-
-        /**
-         * Filters recommended models for a provider.
-         *
-         * @param array  $recommended Recommended model list as [{id,name}].
-         * @param string $normalized_key Provider key (OpenAI, OpenRouter, Google).
-         * @param array  $recommended_ids Recommended model IDs in order.
-         * @param array  $lookup Available model lookup [id => name].
-         */
-        return apply_filters('aipkit_recommended_models', $recommended, $normalized_key, $recommended_ids, $lookup);
+        return AIPKit_Model_Registry::get_recommended_models($provider_key);
     }
 
     public static function save_provider_data($provider, $data)
@@ -1371,80 +1129,7 @@ class AIPKit_Providers
 
     public static function get_model_list(string $provider_key): array
     {
-        if (!isset(self::$model_list_options[$provider_key])) {
-            return [];
-        }
-
-        // 1. Check static request-level cache
-        if (isset(self::$cached_model_lists[$provider_key])) {
-            return self::$cached_model_lists[$provider_key];
-        }
-
-        // 2. Check transient cache
-        $transient_key = 'aipkit_' . strtolower($provider_key) . '_models_cache';
-        $cached_value = get_transient($transient_key);
-        if ($cached_value !== false) {
-            self::$cached_model_lists[$provider_key] = $cached_value;
-            return $cached_value;
-        }
-
-        // 3. Fetch from options (database)
-        $option_name = self::$model_list_options[$provider_key];
-        $model_list_from_option = get_option($option_name, []);
-        $processed_model_list = [];
-        $use_defaults = (empty($model_list_from_option) || !is_array($model_list_from_option));
-
-        if ($use_defaults) {
-            $default_list_raw = self::get_catalog_model_rows($provider_key);
-            if (in_array($provider_key, ['Google', 'Claude', 'Azure', 'DeepSeek', 'OpenRouter'])) {
-                $processed_model_list = self::normalize_embedding_model_rows($default_list_raw);
-            } elseif ($provider_key === 'OpenAI') {
-                $formatted_list = array_map(fn ($id) => ['id' => $id, 'name' => $id], $default_list_raw);
-                if (class_exists(AIPKit_Models_API::class)) {
-                    $processed_model_list = AIPKit_Models_API::group_openai_models($formatted_list);
-                } else {
-                    $fb_groups = ['gpt-5 models' => [], 'gpt-4 models' => [], 'gpt-3.5 models' => [], 'fine-tuned models' => [], 'o1 models' => [], 'o3 models' => [], 'o4 models' => [], 'others' => []];
-                    foreach ($formatted_list as $item) {
-                        $idL = strtolower($item['id']);
-                        if (strpos($item['id'], 'ft:') === 0 || strpos($item['id'], ':ft-') !== false) {
-                            $fb_groups['fine-tuned models'][] = $item;
-                        } elseif (strpos($idL, 'gpt-5') !== false) {
-                            $fb_groups['gpt-5 models'][] = $item;
-                        } elseif (strpos($idL, 'gpt-4') !== false) {
-                            $fb_groups['gpt-4 models'][] = $item;
-                        } elseif (strpos($idL, 'gpt-3.5') !== false) {
-                            $fb_groups['gpt-3.5 models'][] = $item;
-                        } elseif (strpos($idL, 'o1') !== false) {
-                            $fb_groups['o1 models'][] = $item;
-                        } elseif (strpos($idL, 'o3') !== false) {
-                            $fb_groups['o3 models'][] = $item;
-                        } elseif (strpos($idL, 'o4') !== false) {
-                            $fb_groups['o4 models'][] = $item;
-                        } else {
-                            $fb_groups['others'][] = $item;
-                        }
-                    }
-                    $processed_model_list = array_filter($fb_groups);
-                }
-            } else {
-                $processed_model_list = $default_list_raw;
-            }
-        } else {
-            $processed_model_list = $model_list_from_option;
-            if ($provider_key === 'DeepSeek') {
-                $processed_model_list = self::merge_model_rows_by_id(self::get_catalog_model_rows($provider_key), $processed_model_list);
-            }
-        }
-        $processed_model_list = is_array($processed_model_list) ? $processed_model_list : [];
-        if ($provider_key === 'DeepSeek') {
-            $processed_model_list = self::filter_deepseek_model_rows($processed_model_list);
-        }
-
-        // 4. Store in caches
-        self::$cached_model_lists[$provider_key] = $processed_model_list;
-        set_transient($transient_key, $processed_model_list, self::MODEL_LIST_TRANSIENT_TTL);
-
-        return $processed_model_list;
+        return AIPKit_Model_Registry::get_legacy_model_list($provider_key);
     }
 
     /**
@@ -1453,11 +1138,7 @@ class AIPKit_Providers
      */
     public static function clear_model_caches(): void
     {
-        self::$cached_model_lists = []; // Clear static cache
-        foreach (array_keys(self::$model_list_options) as $provider_key) {
-            $transient_key = 'aipkit_' . strtolower($provider_key) . '_models_cache';
-            delete_transient($transient_key);
-        }
+        AIPKit_Model_Registry::clear_caches();
     }
 
 
@@ -1467,18 +1148,15 @@ class AIPKit_Providers
     }
     public static function get_openai_image_models(): array
     {
-        return self::OPENAI_IMAGE_MODELS;
+        return self::get_model_list('OpenAIImage');
     }
     public static function get_default_openai_image_model(): string
     {
-        return self::OPENAI_DEFAULT_IMAGE_MODEL;
+        return self::get_default_model_id('OpenAIImage');
     }
     public static function get_xai_image_models(): array
     {
-        $catalog_models = self::get_catalog_model_rows('xAIImage');
-        $synced_models = self::get_model_list('xAIImage');
-
-        return self::merge_model_rows_by_id($catalog_models, $synced_models);
+        return self::get_model_list('xAIImage');
     }
     public static function get_default_xai_image_model(): string
     {
@@ -1514,9 +1192,10 @@ class AIPKit_Providers
     public static function openai_image_model_supports_transparent_background(string $model): bool
     {
         $normalized_model = strtolower(trim($model));
+        $unsupported_model = strtolower(self::get_default_openai_image_model());
 
         return self::is_openai_gpt_image_model($normalized_model)
-            && strncmp($normalized_model, 'gpt-image-2', strlen('gpt-image-2')) !== 0;
+            && ($unsupported_model === '' || strncmp($normalized_model, $unsupported_model, strlen($unsupported_model)) !== 0);
     }
     public static function is_supported_openai_image_model(string $model): bool
     {
@@ -1567,9 +1246,9 @@ class AIPKit_Providers
                 continue;
             }
 
-            $capabilities = function_exists($resolver_fn)
-                ? (array) call_user_func($resolver_fn, $model)
-                : [];
+            $capabilities = isset($model['capabilities']) && is_array($model['capabilities'])
+                ? $model['capabilities']
+                : (function_exists($resolver_fn) ? (array) call_user_func($resolver_fn, $model) : []);
             $supports_image = !empty($capabilities['image_output']) || !empty($capabilities['image_generation']);
             if (!$supports_image) {
                 continue;
@@ -1622,6 +1301,13 @@ class AIPKit_Providers
                 continue;
             }
 
+            if (isset($model['capabilities']) && is_array($model['capabilities'])) {
+                if (!empty($model['capabilities']['text_generation'])) {
+                    $text_models[] = $model;
+                }
+                continue;
+            }
+
             $output_modalities = isset($model['output_modalities']) && is_array($model['output_modalities'])
                 ? array_values(array_unique(array_map(
                     static fn($modality): string => strtolower(trim((string) $modality)),
@@ -1657,10 +1343,7 @@ class AIPKit_Providers
     }
     public static function get_google_image_models(): array
     {
-        $catalog_models = self::get_catalog_model_rows('GoogleImage');
-        $synced_models = self::get_model_list('GoogleImage');
-
-        return self::merge_model_rows_by_id($catalog_models, $synced_models);
+        return self::get_model_list('GoogleImage');
     }
     public static function get_default_google_image_model(): string
     {
@@ -1838,7 +1521,57 @@ class AIPKit_Providers
     }
     public static function get_openai_stt_models(): array
     {
-        return self::get_model_list('OpenAISTT');
+        $models = self::get_model_list('OpenAISTT');
+        $preferred_ids = AIPKit_Model_Catalog::get_seed_ids('OpenAISTT');
+        $models_by_id = [];
+
+        foreach ($models as $model) {
+            $model_id = is_array($model)
+                ? sanitize_text_field((string) ($model['id'] ?? ''))
+                : sanitize_text_field((string) $model);
+            if ($model_id !== '') {
+                $models_by_id[$model_id] = is_array($model)
+                    ? $model
+                    : ['id' => $model_id, 'name' => $model_id];
+            }
+        }
+
+        $preferred_models = [];
+        foreach ($preferred_ids as $model_id) {
+            if (isset($models_by_id[$model_id])) {
+                $preferred_models[] = $models_by_id[$model_id];
+            }
+        }
+
+        return $preferred_models;
+    }
+    public static function get_openai_realtime_models(): array
+    {
+        return self::get_model_list('OpenAIRealtime');
+    }
+    public static function get_openai_tts_voices(): array
+    {
+        return self::get_model_list('OpenAIVoices');
+    }
+    public static function get_openai_realtime_voices(): array
+    {
+        return self::get_model_list('OpenAIRealtimeVoices');
+    }
+    public static function get_google_tts_voices(): array
+    {
+        return self::get_model_list('GoogleTTSVoices');
+    }
+    public static function get_ollama_embedding_models(): array
+    {
+        return self::get_model_list('OllamaEmbedding');
+    }
+    public static function get_ollama_vision_models(): array
+    {
+        return self::get_model_list('OllamaVision');
+    }
+    public static function get_ollama_capability_models(): array
+    {
+        return self::get_model_list('OllamaCapabilities');
     }
     public static function get_pinecone_indexes(): array
     {

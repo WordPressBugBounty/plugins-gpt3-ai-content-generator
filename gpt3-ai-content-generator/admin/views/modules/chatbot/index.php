@@ -245,7 +245,6 @@ $site_wide_enabled = $active_bot_settings['site_wide_enabled'] ?? BotSettingsMan
 $site_wide_enabled = ( in_array( $site_wide_enabled, ['0', '1'], true ) ? $site_wide_enabled : BotSettingsManager::DEFAULT_SITE_WIDE_ENABLED );
 $raw_deploy_mode = ( isset( $active_bot_settings['deploy_mode'] ) ? sanitize_key( (string) $active_bot_settings['deploy_mode'] ) : '' );
 $deploy_mode = ( in_array( $raw_deploy_mode, ['inline', 'popup', 'external'], true ) ? $raw_deploy_mode : (( $popup_enabled === '1' ? 'popup' : 'inline' )) );
-$deploy_popup_scope = ( $site_wide_enabled === '1' ? 'sitewide' : 'page' );
 $quick_popup_enabled = $popup_enabled === '1' || $deploy_mode === 'popup' || $deploy_mode === 'external';
 $quick_deploy_mode = ( $deploy_mode === 'external' ? 'external' : (( $quick_popup_enabled ? 'popup' : 'inline' )) );
 $quick_site_wide_enabled = $quick_deploy_mode === 'popup' && $site_wide_enabled === '1';
@@ -563,7 +562,7 @@ $default_embedding_provider_key = ( isset( $embedding_provider_options[BotSettin
 if ( !in_array( $vector_embedding_provider, $allowed_embedding_providers, true ) ) {
     $vector_embedding_provider = $default_embedding_provider_key;
 }
-$vector_embedding_model = $active_bot_settings['vector_embedding_model'] ?? BotSettingsManager::DEFAULT_VECTOR_EMBEDDING_MODEL;
+$vector_embedding_model = $active_bot_settings['vector_embedding_model'] ?? BotSettingsManager::get_default_model_id( 'OpenAIEmbedding' );
 $qdrant_collection_names = [];
 if ( !empty( $active_bot_settings['qdrant_collection_names'] ) && is_array( $active_bot_settings['qdrant_collection_names'] ) ) {
     $qdrant_collection_names = $active_bot_settings['qdrant_collection_names'];
@@ -620,7 +619,7 @@ $azure_api_key = $azure_provider_data['api_key'] ?? '';
 $claude_api_key = $claude_provider_data['api_key'] ?? '';
 $xai_api_key = $xai_provider_data['api_key'] ?? '';
 $image_triggers = $active_bot_settings['image_triggers'] ?? BotSettingsManager::DEFAULT_IMAGE_TRIGGERS;
-$chat_image_model_id = $active_bot_settings['chat_image_model_id'] ?? BotSettingsManager::DEFAULT_CHAT_IMAGE_MODEL_ID;
+$chat_image_model_id = $active_bot_settings['chat_image_model_id'] ?? BotSettingsManager::get_default_model_id( 'OpenAIImage' );
 $enable_image_generation = $active_bot_settings['enable_image_generation'] ?? BotSettingsManager::DEFAULT_ENABLE_IMAGE_GENERATION;
 $enable_image_generation = ( in_array( $enable_image_generation, ['0', '1'], true ) ? $enable_image_generation : BotSettingsManager::DEFAULT_ENABLE_IMAGE_GENERATION );
 $replicate_model_list = AIPKit_Providers::get_replicate_models();
@@ -660,7 +659,7 @@ $allowed_stt_providers = ['OpenAI', 'Azure'];
 if ( !in_array( $stt_provider, $allowed_stt_providers, true ) ) {
     $stt_provider = BotSettingsManager::DEFAULT_STT_PROVIDER;
 }
-$stt_openai_model_id = $active_bot_settings['stt_openai_model_id'] ?? BotSettingsManager::DEFAULT_STT_OPENAI_MODEL_ID;
+$stt_openai_model_id = $active_bot_settings['stt_openai_model_id'] ?? BotSettingsManager::get_default_model_id( 'OpenAISTT' );
 $openai_stt_models = AIPKit_Providers::get_openai_stt_models();
 $tts_enabled = $active_bot_settings['tts_enabled'] ?? BotSettingsManager::DEFAULT_TTS_ENABLED;
 $tts_enabled = ( in_array( $tts_enabled, ['0', '1'], true ) ? $tts_enabled : BotSettingsManager::DEFAULT_TTS_ENABLED );
@@ -670,48 +669,23 @@ if ( !in_array( $tts_provider, $tts_providers, true ) ) {
     $tts_provider = BotSettingsManager::DEFAULT_TTS_PROVIDER;
 }
 $tts_google_voice_id = $active_bot_settings['tts_google_voice_id'] ?? '';
-$tts_openai_voice_id = $active_bot_settings['tts_openai_voice_id'] ?? 'alloy';
-$tts_openai_model_id = $active_bot_settings['tts_openai_model_id'] ?? BotSettingsManager::DEFAULT_TTS_OPENAI_MODEL_ID;
+$tts_openai_voice_id = $active_bot_settings['tts_openai_voice_id'] ?? BotSettingsManager::get_default_model_id( 'OpenAIVoices' );
+$tts_openai_model_id = $active_bot_settings['tts_openai_model_id'] ?? BotSettingsManager::get_default_model_id( 'OpenAITTS' );
 $tts_elevenlabs_voice_id = $active_bot_settings['tts_elevenlabs_voice_id'] ?? '';
-$tts_elevenlabs_model_id = $active_bot_settings['tts_elevenlabs_model_id'] ?? BotSettingsManager::DEFAULT_TTS_ELEVENLABS_MODEL_ID;
+$tts_elevenlabs_model_id = $active_bot_settings['tts_elevenlabs_model_id'] ?? BotSettingsManager::get_default_model_id( 'ElevenLabsModels' );
 $tts_auto_play = $active_bot_settings['tts_auto_play'] ?? BotSettingsManager::DEFAULT_TTS_AUTO_PLAY;
 $tts_auto_play = ( in_array( $tts_auto_play, ['0', '1'], true ) ? $tts_auto_play : BotSettingsManager::DEFAULT_TTS_AUTO_PLAY );
-$google_tts_voices = ( class_exists( '\\WPAICG\\Core\\Providers\\Google\\GoogleSettingsHandler' ) ? \WPAICG\Core\Providers\Google\GoogleSettingsHandler::get_synced_google_tts_voices() : [] );
+$google_tts_voices = AIPKit_Providers::get_google_tts_voices();
 $elevenlabs_tts_voices = AIPKit_Providers::get_elevenlabs_voices();
 $elevenlabs_tts_models = AIPKit_Providers::get_elevenlabs_models();
 $openai_tts_models = AIPKit_Providers::get_openai_tts_models();
-$openai_tts_voices = [
-    [
-        'id'   => 'alloy',
-        'name' => 'Alloy',
-    ],
-    [
-        'id'   => 'echo',
-        'name' => 'Echo',
-    ],
-    [
-        'id'   => 'fable',
-        'name' => 'Fable',
-    ],
-    [
-        'id'   => 'onyx',
-        'name' => 'Onyx',
-    ],
-    [
-        'id'   => 'nova',
-        'name' => 'Nova',
-    ],
-    [
-        'id'   => 'shimmer',
-        'name' => 'Shimmer',
-    ]
-];
+$openai_tts_voices = AIPKit_Providers::get_openai_tts_voices();
 $enable_realtime_voice = $active_bot_settings['enable_realtime_voice'] ?? BotSettingsManager::DEFAULT_ENABLE_REALTIME_VOICE;
 $enable_realtime_voice = ( in_array( $enable_realtime_voice, ['0', '1'], true ) ? $enable_realtime_voice : BotSettingsManager::DEFAULT_ENABLE_REALTIME_VOICE );
 $direct_voice_mode = $active_bot_settings['direct_voice_mode'] ?? BotSettingsManager::DEFAULT_DIRECT_VOICE_MODE;
 $direct_voice_mode = ( in_array( $direct_voice_mode, ['0', '1'], true ) ? $direct_voice_mode : BotSettingsManager::DEFAULT_DIRECT_VOICE_MODE );
-$realtime_model = $active_bot_settings['realtime_model'] ?? BotSettingsManager::DEFAULT_REALTIME_MODEL;
-$realtime_voice = $active_bot_settings['realtime_voice'] ?? BotSettingsManager::DEFAULT_REALTIME_VOICE;
+$realtime_model = $active_bot_settings['realtime_model'] ?? BotSettingsManager::get_default_model_id( 'OpenAIRealtime' );
+$realtime_voice = $active_bot_settings['realtime_voice'] ?? BotSettingsManager::get_default_model_id( 'OpenAIRealtimeVoices' );
 $turn_detection = $active_bot_settings['turn_detection'] ?? BotSettingsManager::DEFAULT_TURN_DETECTION;
 $speed = ( isset( $active_bot_settings['speed'] ) ? floatval( $active_bot_settings['speed'] ) : BotSettingsManager::DEFAULT_SPEED );
 $speed = max( 0.25, min( $speed, 1.5 ) );
@@ -719,19 +693,10 @@ $input_audio_format = $active_bot_settings['input_audio_format'] ?? BotSettingsM
 $output_audio_format = $active_bot_settings['output_audio_format'] ?? BotSettingsManager::DEFAULT_OUTPUT_AUDIO_FORMAT;
 $input_audio_noise_reduction = $active_bot_settings['input_audio_noise_reduction'] ?? BotSettingsManager::DEFAULT_INPUT_AUDIO_NOISE_REDUCTION;
 $input_audio_noise_reduction = ( in_array( $input_audio_noise_reduction, ['0', '1'], true ) ? $input_audio_noise_reduction : BotSettingsManager::DEFAULT_INPUT_AUDIO_NOISE_REDUCTION );
-$realtime_models = ['gpt-realtime-2.1', 'gpt-realtime-2.1-mini'];
-$realtime_voices = [
-    'alloy',
-    'ash',
-    'ballad',
-    'coral',
-    'echo',
-    'sage',
-    'shimmer',
-    'verse',
-    'marin',
-    'cedar'
-];
+$realtime_models = array_values( array_filter( array_map( static function ( $model ) : string {
+    return ( is_array( $model ) ? sanitize_text_field( (string) ($model['id'] ?? '') ) : '' );
+}, AIPKit_Providers::get_openai_realtime_models() ) ) );
+$realtime_voices = array_column( AIPKit_Providers::get_openai_realtime_voices(), 'id' );
 $direct_voice_mode_disabled = !($quick_popup_enabled && $enable_realtime_voice === '1');
 // Provider/model data for AI selection.
 $allowed_main_providers = ( class_exists( AIPKit_Providers::class ) ? AIPKit_Providers::get_main_provider_allowlist() : [
@@ -768,14 +733,6 @@ if ( class_exists( aipkit_dashboard::class ) ) {
     }
 }
 $file_upload_toggle_value = ( $can_enable_file_upload && $enable_file_upload === '1' ? '1' : '0' );
-$grouped_openai_models = get_option( 'aipkit_openai_model_list', [] );
-$openrouter_model_list = AIPKit_Providers::get_openrouter_models();
-$google_model_list = get_option( 'aipkit_google_model_list', [] );
-$azure_deployment_list = AIPKit_Providers::get_azure_deployments();
-$claude_model_list = AIPKit_Providers::get_claude_models();
-$deepseek_model_list = AIPKit_Providers::get_deepseek_models();
-$xai_model_list = AIPKit_Providers::get_xai_models();
-$ollama_model_list = AIPKit_Providers::get_ollama_models();
 $saved_provider = ( isset( $active_bot_settings['provider'] ) ? sanitize_text_field( (string) $active_bot_settings['provider'] ) : $default_main_provider );
 $saved_model = $active_bot_settings['model'] ?? '';
 if ( class_exists( AIPKit_Providers::class ) ) {
@@ -802,7 +759,6 @@ if ( class_exists( AIPKit_Providers::class ) ) {
 // Preview placeholder content
 $preview_placeholder_key = ( $active_bot_post ? 'previewLoading' : 'previewPlaceholderSelect' );
 $preview_placeholder_text = ( $active_bot_post ? __( 'Loading preview...', 'gpt3-ai-content-generator' ) : __( 'Select a bot to see the preview.', 'gpt3-ai-content-generator' ) );
-$is_default_active = $active_bot_post && $default_bot_id && $active_bot_post->ID === $default_bot_id;
 $aipkit_notice_id = 'aipkit_provider_notice_chatbot';
 $aipkit_notice_class = 'aipkit_provider_key_notice--centered-workspace';
 $aipkit_notice_context = __( 'use this chatbot', 'gpt3-ai-content-generator' );
@@ -2535,7 +2491,7 @@ echo ( $inline_bot_switch_payload_json !== false ? $inline_bot_switch_payload_js
 ?></script>
 
 <div id="aipkit_google_tts_voices_json_main" class="aipkit_hidden" data-voices="<?php 
-$google_voices_main = ( class_exists( '\\WPAICG\\Core\\Providers\\Google\\GoogleSettingsHandler' ) ? \WPAICG\Core\Providers\Google\GoogleSettingsHandler::get_synced_google_tts_voices() : [] );
+$google_voices_main = AIPKit_Providers::get_google_tts_voices();
 echo esc_attr( wp_json_encode( ( $google_voices_main ?: [] ) ) );
 ?>"></div>
 <?php 

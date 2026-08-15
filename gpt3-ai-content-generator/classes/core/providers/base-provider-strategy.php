@@ -56,12 +56,16 @@ abstract class BaseProviderStrategy implements ProviderStrategyInterface
             $id = $model[$id_key] ?? null;
             if (!empty($id)) {
                 $name = $model[$name_key] ?? $id;
-                $formatted[] = [
+                $formatted_item = [
                     'id'   => $id,
                     'name' => $name,
                     'status' => $model['status'] ?? null,
                     'version' => $model['version'] ?? null,
                 ];
+                if (isset($model['details']) && is_array($model['details'])) {
+                    $formatted_item['details'] = $model['details'];
+                }
+                $formatted[] = $formatted_item;
             }
         }
         usort($formatted, fn ($a, $b) => strcasecmp($a['name'] ?? '', $b['name'] ?? ''));

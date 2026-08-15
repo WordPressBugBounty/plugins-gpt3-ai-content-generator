@@ -202,7 +202,7 @@ function _shared_format_logic(string $instructions, array $history, array $ai_pa
  *
  * @param string $option_name The name of the WordPress option to store synced voices.
  */
-function ajax_sync_google_tts_voices_logic(string $option_name) {
+function ajax_sync_google_tts_voices_logic() {
     if (!\WPAICG\AIPKit_Role_Manager::user_can_access_module('settings')) {
         wp_send_json_error(['message' => __('You do not have permission to perform this action.', 'gpt3-ai-content-generator')], 403);
         return;
@@ -230,19 +230,32 @@ function ajax_sync_google_tts_voices_logic(string $option_name) {
 
     $strategy = \WPAICG\Speech\AIPKit_TTS_Provider_Strategy_Factory::get_strategy('Google');
     if (is_wp_error($strategy)) {
+        \WPAICG\Core\Models\AIPKit_Model_Registry::mark_sync_error('Google', 'GoogleTTSVoices', $strategy, $google_data);
         wp_send_json_error(['message' => $strategy->get_error_message()], 500);
         return;
     }
 
     $voices = $strategy->get_voices(['api_key' => $api_key]);
     if (is_wp_error($voices)) {
+         \WPAICG\Core\Models\AIPKit_Model_Registry::mark_sync_error('Google', 'GoogleTTSVoices', $voices, $google_data);
          $error_data = $voices->get_error_data();
          $status_code = isset($error_data['status']) ? (int)$error_data['status'] : 500;
          wp_send_json_error(['message' => $voices->get_error_message()], $status_code);
         return;
     }
 
-    update_option($option_name, $voices, 'no');
+    $publish_result = \WPAICG\Core\Models\AIPKit_Model_Registry::publish_catalogs(
+        'Google',
+        ['GoogleTTSVoices' => $voices],
+        [
+            'sync_scope' => 'GoogleTTSVoices',
+            'connection' => $google_data,
+        ]
+    );
+    if (is_wp_error($publish_result)) {
+        wp_send_json_error(['message' => $publish_result->get_error_message()], 500);
+        return;
+    }
 
     wp_send_json_success([
         'message' => __('Sync ok.', 'gpt3-ai-content-generator'),
@@ -976,8 +989,8 @@ function get_safety_settings_logic(array $default_safety_settings): array {
  * @param string $option_name The name of the WordPress option storing the voices.
  * @return array List of voice data arrays.
  */
-function get_synced_google_tts_voices_logic(string $option_name): array {
-    return get_option($option_name, []);
+function get_synced_google_tts_voices_logic(): array {
+    return \WPAICG\Core\Models\AIPKit_Model_Registry::get_legacy_model_list('GoogleTTSVoices');
 }
 
 // --- map-sse-event.php ---

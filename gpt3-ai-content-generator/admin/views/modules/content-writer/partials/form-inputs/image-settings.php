@@ -65,6 +65,7 @@ $default_image_description_prompt_update = AIPKit_Content_Writer_Prompts::get_de
                         'source_id' => 'aipkit_content_writer_image_selection',
                         'initial_label' => __('Select image source', 'gpt3-ai-content-generator'),
                         'class_name' => 'aipkit_cw_image_unified_model_selector',
+                        'capability' => 'image_generation',
                         'show_trigger_logo' => true,
                         'search_placeholder' => __('Search image sources...', 'gpt3-ai-content-generator'),
                         'empty_text' => __('No image sources found', 'gpt3-ai-content-generator'),

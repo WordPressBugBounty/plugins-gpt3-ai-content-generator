@@ -373,7 +373,7 @@ $all_selectable_post_types = array_filter($all_selectable_post_types, function (
                                 <label class="aipkit_sources_training_control_label" for="aipkit_sources_embedding_model">
                                     <?php esc_html_e('Embedding model', 'gpt3-ai-content-generator'); ?>
                                 </label>
-                                <select id="aipkit_sources_embedding_model" class="aipkit_sources_filter_select aipkit_sources_training_select">
+                                <select id="aipkit_sources_embedding_model" class="aipkit_sources_filter_select aipkit_sources_training_select" data-aipkit-universal-model-combined="1">
                                     <option value=""><?php esc_html_e('Select embedding model', 'gpt3-ai-content-generator'); ?></option>
                                 </select>
                             </span>

@@ -36,7 +36,7 @@ class AIPKit_Image_Google_Provider_Strategy extends AIPKit_Image_Base_Provider_S
      */
     public function generate_image(string $prompt, array $api_params, array $options = []) {
         $api_key = $api_params['api_key'] ?? null;
-        $model_id = $options['model'] ?? null; // Full model ID like 'gemini-3.1-flash-image-preview' or 'veo-3.0-generate-preview'
+        $model_id = $options['model'] ?? null;
         $image_mode = isset($options['image_mode']) && $options['image_mode'] === 'edit' ? 'edit' : 'generate';
 
         if (empty($api_key)) return new WP_Error('google_missing_key', __('Google API Key is required for generation.', 'gpt3-ai-content-generator'));

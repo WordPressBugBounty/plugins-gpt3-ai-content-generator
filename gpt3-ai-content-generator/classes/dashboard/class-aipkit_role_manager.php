@@ -47,71 +47,55 @@ class AIPKit_Role_Manager
         return [
             'core' => [
                 'label' => __('Core Modules', 'gpt3-ai-content-generator'),
-                'description' => __('Main AI Puffer workspaces in the admin area.', 'gpt3-ai-content-generator'),
                 'modules' => [
                     'chatbot' => [
                         'label' => __('Chatbots', 'gpt3-ai-content-generator'),
-                        'description' => __('Create and manage popup, embedded, and external chatbots.', 'gpt3-ai-content-generator'),
                     ],
                     'content-writer' => [
                         'label' => __('Content Writer', 'gpt3-ai-content-generator'),
-                        'description' => __('Generate, rewrite, and optimize WordPress content.', 'gpt3-ai-content-generator'),
                     ],
                     'autogpt' => [
                         'label' => __('Automations', 'gpt3-ai-content-generator'),
-                        'description' => __('Run scheduled content, rewrite, indexing, and comment tasks.', 'gpt3-ai-content-generator'),
                     ],
                     'ai-forms' => [
                         'label' => __('AI Forms', 'gpt3-ai-content-generator'),
-                        'description' => __('Build forms that send structured input to AI.', 'gpt3-ai-content-generator'),
                     ],
                     'image-generator' => [
                         'label' => __('Images', 'gpt3-ai-content-generator'),
-                        'description' => __('Generate images, edits, and videos.', 'gpt3-ai-content-generator'),
                     ],
                     'sources' => [
                         'label' => __('Knowledge Base', 'gpt3-ai-content-generator'),
-                        'description' => __('Manage data sources, vector stores, indexes, and collections.', 'gpt3-ai-content-generator'),
                     ],
                     'stats' => [
                         'label' => __('Usage', 'gpt3-ai-content-generator'),
-                        'description' => __('Review logs, limits, pricing, balances, and credit activity.', 'gpt3-ai-content-generator'),
                     ],
                 ],
             ],
             'utilities' => [
                 'label' => __('WordPress Utilities', 'gpt3-ai-content-generator'),
-                'description' => __('Tools that appear inside normal WordPress post, page, product, and editor screens.', 'gpt3-ai-content-generator'),
                 'modules' => [
                     'bulk_assistant' => [
                         'label' => __('Content Assistant', 'gpt3-ai-content-generator'),
-                        'description' => __('Show the Assistant button on supported post and product list screens.', 'gpt3-ai-content-generator'),
                     ],
                     'row_assistant' => [
                         'label' => __('Row Assistant Menu', 'gpt3-ai-content-generator'),
-                        'description' => __('Show per-row Assistant actions on supported post and product list screens.', 'gpt3-ai-content-generator'),
                     ],
                     'vector_content_indexer' => [
                         'label' => __('Content Indexing', 'gpt3-ai-content-generator'),
-                        'description' => __('Show Index button and indexing tools on supported post lists.', 'gpt3-ai-content-generator'),
                     ],
                     'classic_editor_assistant' => [
                         'label' => __('Classic Editor Assistant', 'gpt3-ai-content-generator'),
-                        'description' => __('Show Assistant actions in the Classic Editor toolbar.', 'gpt3-ai-content-generator'),
                     ],
                     'block_editor_assistant' => [
                         'label' => __('Block Editor Assistant', 'gpt3-ai-content-generator'),
-                        'description' => __('Show Assistant actions in the block editor toolbar.', 'gpt3-ai-content-generator'),
                     ],
                 ],
             ],
             'administration' => [
                 'label' => __('Administration', 'gpt3-ai-content-generator'),
-                'description' => __('Global plugin configuration and provider settings.', 'gpt3-ai-content-generator'),
                 'modules' => [
                     'settings' => [
                         'label' => __('Settings', 'gpt3-ai-content-generator'),
-                        'description' => __('Configure providers, integrations, and global behavior.', 'gpt3-ai-content-generator'),
                     ],
                 ],
             ],

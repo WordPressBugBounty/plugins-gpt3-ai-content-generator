@@ -16,7 +16,7 @@ class GoogleVideoUrlBuilder {
     /**
      * Build the full API endpoint URL for a given Google Video Generation model.
      *
-     * @param string $model_id The specific model ID (e.g., 'veo-3.0-generate-preview').
+     * @param string $model_id The provider-specific video model ID.
      * @param array  $api_params Required parameters (base_url, api_version, api_key).
      * @param string $operation The operation type ('generate' or 'poll').
      * @return string|WP_Error The full URL or WP_Error.

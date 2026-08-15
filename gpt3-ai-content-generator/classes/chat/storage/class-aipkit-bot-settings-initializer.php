@@ -51,9 +51,9 @@ class AIPKit_Bot_Settings_Initializer
         update_post_meta($post_id, '_aipkit_header_avatar_type', BotSettingsManager::DEFAULT_HEADER_AVATAR_TYPE);
         update_post_meta($post_id, '_aipkit_header_avatar_value', BotSettingsManager::DEFAULT_HEADER_AVATAR_VALUE);
         update_post_meta($post_id, '_aipkit_header_online_text', __('Online', 'gpt3-ai-content-generator'));
-        $global = AIPKit_Providers::get_default_provider_config();
-        $global_provider = $global['provider'];
-        $global_model = $global['model'];
+        $new_ai_selection = AIPKit_Providers::get_new_text_generation_selection();
+        $global_provider = (string) ($new_ai_selection['provider'] ?? 'OpenAI');
+        $global_model = (string) ($new_ai_selection['model'] ?? '');
         update_post_meta($post_id, '_aipkit_provider', $global_provider);
         if (!empty($global_model)) {
             update_post_meta($post_id, '_aipkit_model', $global_model);
@@ -134,17 +134,17 @@ class AIPKit_Bot_Settings_Initializer
         update_post_meta($post_id, '_aipkit_tts_enabled', BotSettingsManager::DEFAULT_TTS_ENABLED);
         update_post_meta($post_id, '_aipkit_tts_provider', BotSettingsManager::DEFAULT_TTS_PROVIDER);
         update_post_meta($post_id, '_aipkit_tts_google_voice_id', '');
-        update_post_meta($post_id, '_aipkit_tts_openai_voice_id', '');
-        update_post_meta($post_id, '_aipkit_tts_openai_model_id', BotSettingsManager::DEFAULT_TTS_OPENAI_MODEL_ID);
+        update_post_meta($post_id, '_aipkit_tts_openai_voice_id', BotSettingsManager::get_default_model_id('OpenAIVoices'));
+        update_post_meta($post_id, '_aipkit_tts_openai_model_id', BotSettingsManager::get_default_model_id('OpenAITTS'));
         update_post_meta($post_id, '_aipkit_tts_elevenlabs_voice_id', '');
-        update_post_meta($post_id, '_aipkit_tts_elevenlabs_model_id', BotSettingsManager::DEFAULT_TTS_ELEVENLABS_MODEL_ID);
+        update_post_meta($post_id, '_aipkit_tts_elevenlabs_model_id', BotSettingsManager::get_default_model_id('ElevenLabsModels'));
         update_post_meta($post_id, '_aipkit_tts_auto_play', BotSettingsManager::DEFAULT_TTS_AUTO_PLAY);
         update_post_meta($post_id, '_aipkit_enable_voice_input', BotSettingsManager::DEFAULT_ENABLE_VOICE_INPUT);
         update_post_meta($post_id, '_aipkit_stt_provider', BotSettingsManager::DEFAULT_STT_PROVIDER);
-        update_post_meta($post_id, '_aipkit_stt_openai_model_id', BotSettingsManager::DEFAULT_STT_OPENAI_MODEL_ID);
+        update_post_meta($post_id, '_aipkit_stt_openai_model_id', BotSettingsManager::get_default_model_id('OpenAISTT'));
         update_post_meta($post_id, '_aipkit_stt_azure_model_id', BotSettingsManager::DEFAULT_STT_AZURE_MODEL_ID);
         update_post_meta($post_id, '_aipkit_image_triggers', BotSettingsManager::DEFAULT_IMAGE_TRIGGERS);
-        update_post_meta($post_id, '_aipkit_chat_image_model_id', BotSettingsManager::DEFAULT_CHAT_IMAGE_MODEL_ID);
+        update_post_meta($post_id, '_aipkit_chat_image_model_id', BotSettingsManager::get_default_model_id('OpenAIImage'));
         update_post_meta($post_id, '_aipkit_enable_image_generation', BotSettingsManager::DEFAULT_ENABLE_IMAGE_GENERATION);
         update_post_meta($post_id, '_aipkit_enable_file_upload', BotSettingsManager::DEFAULT_ENABLE_FILE_UPLOAD);
         update_post_meta($post_id, '_aipkit_enable_image_upload', BotSettingsManager::DEFAULT_ENABLE_IMAGE_UPLOAD);
@@ -158,7 +158,7 @@ class AIPKit_Bot_Settings_Initializer
         update_post_meta($post_id, '_aipkit_chroma_collection_name', '');
         update_post_meta($post_id, '_aipkit_chroma_collection_names', '[]');
         update_post_meta($post_id, '_aipkit_vector_embedding_provider', BotSettingsManager::DEFAULT_VECTOR_EMBEDDING_PROVIDER);
-        update_post_meta($post_id, '_aipkit_vector_embedding_model', BotSettingsManager::DEFAULT_VECTOR_EMBEDDING_MODEL);
+        update_post_meta($post_id, '_aipkit_vector_embedding_model', BotSettingsManager::get_default_model_id('OpenAIEmbedding'));
         update_post_meta($post_id, '_aipkit_vector_store_top_k', BotSettingsManager::DEFAULT_VECTOR_STORE_TOP_K);
         update_post_meta($post_id, '_aipkit_vector_store_confidence_threshold', BotSettingsManager::DEFAULT_VECTOR_STORE_CONFIDENCE_THRESHOLD); // NEW
         update_post_meta($post_id, '_aipkit_openai_web_search_enabled', BotSettingsManager::DEFAULT_OPENAI_WEB_SEARCH_ENABLED);
@@ -193,8 +193,8 @@ class AIPKit_Bot_Settings_Initializer
 
         update_post_meta($post_id, '_aipkit_enable_realtime_voice', BotSettingsManager::DEFAULT_ENABLE_REALTIME_VOICE);
         update_post_meta($post_id, '_aipkit_direct_voice_mode', BotSettingsManager::DEFAULT_DIRECT_VOICE_MODE);
-        update_post_meta($post_id, '_aipkit_realtime_model', BotSettingsManager::DEFAULT_REALTIME_MODEL);
-        update_post_meta($post_id, '_aipkit_realtime_voice', BotSettingsManager::DEFAULT_REALTIME_VOICE);
+        update_post_meta($post_id, '_aipkit_realtime_model', BotSettingsManager::get_default_model_id('OpenAIRealtime'));
+        update_post_meta($post_id, '_aipkit_realtime_voice', BotSettingsManager::get_default_model_id('OpenAIRealtimeVoices'));
         update_post_meta($post_id, '_aipkit_turn_detection', BotSettingsManager::DEFAULT_TURN_DETECTION);
         update_post_meta($post_id, '_aipkit_speed', (string)BotSettingsManager::DEFAULT_SPEED);
         update_post_meta($post_id, '_aipkit_input_audio_format', BotSettingsManager::DEFAULT_INPUT_AUDIO_FORMAT);

@@ -6,6 +6,7 @@ use WP_Error;
 use WPAICG\Core\Providers\Traits\ChatCompletionsPayloadTrait; 
 use WPAICG\Core\Providers\Traits\ChatCompletionsResponseParserTrait; 
 use WPAICG\Core\Providers\Traits\ChatCompletionsSSEParserTrait; 
+use WPAICG\Core\Models\AIPKit_Model_Catalog;
 
 if (!defined('ABSPATH')) {
     exit; // Exit if accessed directly
@@ -21,8 +22,6 @@ class DeepSeekProviderStrategy extends BaseProviderStrategy {
     use ChatCompletionsPayloadTrait;
     use ChatCompletionsResponseParserTrait;
     use ChatCompletionsSSEParserTrait;
-
-    private const DEPRECATED_MODEL_SUFFIXES = ['chat', 'reasoner'];
 
     /**
      * @return string|\WP_Error
@@ -126,7 +125,7 @@ class DeepSeekProviderStrategy extends BaseProviderStrategy {
             }
 
             $model_id = isset($model['id']) ? sanitize_text_field((string) $model['id']) : '';
-            if ($model_id === '' || strpos($model_id, 'deepseek-') !== 0 || self::is_deprecated_model_id($model_id)) {
+            if ($model_id === '' || strpos($model_id, 'deepseek-') !== 0 || AIPKit_Model_Catalog::is_deprecated_id('DeepSeek', $model_id)) {
                 continue;
             }
 
@@ -145,10 +144,10 @@ class DeepSeekProviderStrategy extends BaseProviderStrategy {
      * @return array<int, array<string, string>>
      */
     private static function sort_model_rows(array $models): array {
-        $priority = [
-            'deepseek-v4-flash' => 10,
-            'deepseek-v4-pro' => 20,
-        ];
+        $priority = [];
+        foreach (AIPKit_Model_Catalog::get_seed_ids('DeepSeek') as $index => $model_id) {
+            $priority[$model_id] = ($index + 1) * 10;
+        }
 
         usort($models, static function(array $a, array $b) use ($priority): int {
             $a_id = (string) ($a['id'] ?? '');
@@ -167,10 +166,13 @@ class DeepSeekProviderStrategy extends BaseProviderStrategy {
     }
 
     private static function get_model_display_name(string $model_id): string {
-        $known_names = [
-            'deepseek-v4-flash' => 'DeepSeek V4 Flash',
-            'deepseek-v4-pro' => 'DeepSeek V4 Pro',
-        ];
+        $known_names = [];
+        foreach (AIPKit_Model_Catalog::get_seed_rows('DeepSeek') as $row) {
+            if (!is_array($row) || empty($row['id'])) {
+                continue;
+            }
+            $known_names[(string) $row['id']] = (string) ($row['name'] ?? $row['id']);
+        }
 
         if (isset($known_names[$model_id])) {
             return $known_names[$model_id];
@@ -179,16 +181,6 @@ class DeepSeekProviderStrategy extends BaseProviderStrategy {
         $label = preg_replace('/^deepseek-/i', 'DeepSeek ', $model_id);
         $label = str_replace(['-', '_'], ' ', (string) $label);
         return ucwords($label);
-    }
-
-    private static function is_deprecated_model_id(string $model_id): bool {
-        $model_id = strtolower(trim($model_id));
-        if (strpos($model_id, 'deepseek-') !== 0) {
-            return false;
-        }
-
-        $suffix = (string) substr($model_id, strlen('deepseek-'));
-        return in_array($suffix, self::DEPRECATED_MODEL_SUFFIXES, true);
     }
 
     public function build_sse_payload(array $messages, $system_instruction, array $ai_params, string $model): array {

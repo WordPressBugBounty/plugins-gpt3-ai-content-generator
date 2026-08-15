@@ -83,6 +83,9 @@ class AIPKit_Shared_Assets_Manager
             return $value !== '' ? $value : $default;
         };
         $providers_available = class_exists('\\WPAICG\\AIPKit_Providers');
+        $model_catalog_config = class_exists('\\WPAICG\\Core\\Models\\AIPKit_Model_Catalog')
+            ? \WPAICG\Core\Models\AIPKit_Model_Catalog::get_client_config()
+            : ['defaults' => [], 'seeds' => []];
 
         return [
             'ajaxUrl' => admin_url('admin-ajax.php'),
@@ -131,6 +134,7 @@ class AIPKit_Shared_Assets_Manager
             'edit_upload_max_bytes' => 10 * 1024 * 1024,
             'edit_upload_allowed_mime_types' => ['image/jpeg', 'image/png', 'image/webp', 'image/gif'],
             'xai_edit_upload_allowed_mime_types' => ['image/jpeg', 'image/png'],
+            'model_catalog' => $model_catalog_config,
             'openai_models' => $providers_available ? \WPAICG\AIPKit_Providers::get_openai_image_models() : [],
             'azure_models' => $providers_available ? \WPAICG\AIPKit_Providers::get_azure_image_models() : [],
             'google_models' => [

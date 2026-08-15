@@ -218,6 +218,7 @@ $aipkit_cw_featured_image_prompt_item = $aipkit_cw_image_prompt_items['featured_
                             'source_id' => 'aipkit_task_cw_image_selection',
                             'initial_label' => __('Select model', 'gpt3-ai-content-generator'),
                             'class_name' => 'aipkit_autogpt_unified_model_selector',
+                            'capability' => 'image_generation',
                         ];
                         include dirname(__DIR__, 3) . '/shared/unified-model-selector.php';
                         ?>

@@ -16,6 +16,10 @@ class AIPKit_Vector_Store_Registry {
 
     const OPTION_NAME = 'aipkit_vector_stores_registry';
     private const PROVIDER_CACHE_CONFIG = [
+        'OpenAI' => [
+            'option' => '',
+            'model_key' => 'OpenAIVectorStores',
+        ],
         'Pinecone' => [
             'option' => 'aipkit_pinecone_index_list',
             'model_key' => 'PineconeIndexes',
@@ -60,9 +64,10 @@ class AIPKit_Vector_Store_Registry {
      * @param array $stores_list An array of store objects (e.g., from API response).
      *                           Each object should ideally have at least 'id' and 'name'.
      *                           For Pinecone, 'id' will be the 'name' of the index.
+     * @param bool $publish_model_registry Whether to mirror this write to the universal registry.
      */
-    public static function update_registered_stores_for_provider(string $provider, array $stores_list): void {
-        self::replace_provider_cache($provider, $stores_list);
+    public static function update_registered_stores_for_provider(string $provider, array $stores_list, bool $publish_model_registry = true): void {
+        self::replace_provider_cache($provider, $stores_list, $publish_model_registry);
     }
 
     /**
@@ -70,9 +75,10 @@ class AIPKit_Vector_Store_Registry {
      *
      * @param string $provider Provider name.
      * @param array<int, mixed> $stores_list Live stores/indexes/collections.
+     * @param bool $publish_model_registry Whether to mirror this write to the universal registry.
      * @return array<int, array<string, mixed>> Normalized stores written to cache.
      */
-    public static function replace_provider_cache(string $provider, array $stores_list): array {
+    public static function replace_provider_cache(string $provider, array $stores_list, bool $publish_model_registry = true): array {
         $provider = self::normalize_provider_name($provider);
         if ($provider === '') {
             return [];
@@ -86,6 +92,9 @@ class AIPKit_Vector_Store_Registry {
 
         self::persist_provider_option_cache($provider, $normalized_stores);
         self::clear_provider_runtime_cache($provider);
+        if ($publish_model_registry) {
+            self::publish_model_registry_catalog($provider, $normalized_stores);
+        }
 
         return $normalized_stores;
     }
@@ -163,6 +172,7 @@ class AIPKit_Vector_Store_Registry {
             foreach (array_keys(self::PROVIDER_CACHE_CONFIG) as $provider_name) {
                 self::persist_provider_option_cache($provider_name, []);
                 self::clear_provider_runtime_cache($provider_name);
+                self::invalidate_model_registry_catalog($provider_name);
             }
         } else {
             $provider = self::normalize_provider_name($provider);
@@ -174,6 +184,7 @@ class AIPKit_Vector_Store_Registry {
             }
             self::persist_provider_option_cache($provider, []);
             self::clear_provider_runtime_cache($provider);
+            self::invalidate_model_registry_catalog($provider);
         }
     }
 
@@ -302,6 +313,44 @@ class AIPKit_Vector_Store_Registry {
         if (class_exists('\\WPAICG\\AIPKit_Providers') && method_exists('\\WPAICG\\AIPKit_Providers', 'clear_model_caches')) {
             \WPAICG\AIPKit_Providers::clear_model_caches();
         }
+    }
+
+    /**
+     * Mirror a confirmed provider target list into the universal registry.
+     *
+     * @param array<int, array<string, mixed>> $stores
+     */
+    private static function publish_model_registry_catalog(string $provider, array $stores): void {
+        $config = self::PROVIDER_CACHE_CONFIG[$provider] ?? null;
+        $catalog_key = is_array($config) ? (string) ($config['model_key'] ?? '') : '';
+        if ($catalog_key === '' || !class_exists('\\WPAICG\\Core\\Models\\AIPKit_Model_Registry')) {
+            return;
+        }
+
+        $connection = [];
+        if (class_exists('\\WPAICG\\AIPKit_Providers')) {
+            $connection = \WPAICG\AIPKit_Providers::get_provider_data($provider);
+        }
+        \WPAICG\Core\Models\AIPKit_Model_Registry::publish_catalogs(
+            $provider,
+            [$catalog_key => $stores],
+            [
+                'sync_scope' => $catalog_key,
+                'connection' => is_array($connection) ? $connection : [],
+            ]
+        );
+    }
+
+    /**
+     * Remove targets tied to connection details that are no longer current.
+     */
+    private static function invalidate_model_registry_catalog(string $provider): void {
+        $config = self::PROVIDER_CACHE_CONFIG[$provider] ?? null;
+        $catalog_key = is_array($config) ? (string) ($config['model_key'] ?? '') : '';
+        if ($catalog_key === '' || !class_exists('\\WPAICG\\Core\\Models\\AIPKit_Model_Registry')) {
+            return;
+        }
+        \WPAICG\Core\Models\AIPKit_Model_Registry::invalidate_catalogs($provider, [$catalog_key]);
     }
 
     /**

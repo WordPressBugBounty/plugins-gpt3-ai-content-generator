@@ -10,6 +10,7 @@ use WPAICG\aipkit_dashboard;
 use WPAICG\AIPKit_Providers;
 use WPAICG\Utils\AIPKit_Prompt_Sanitizer;
 use WPAICG\Chat\Storage\SiteWideBotManager;
+use WPAICG\Core\Models\AIPKit_Model_Catalog;
 
 if (!defined('ABSPATH')) {
     exit; // Exit if accessed directly
@@ -285,8 +286,8 @@ function sanitize_settings_logic(array $raw_settings, int $bot_id): array
         $sanitized['tts_provider'] = BotSettingsManager::DEFAULT_TTS_PROVIDER;
     }
     $sanitized['tts_google_voice_id'] = isset($raw_settings['tts_google_voice_id']) ? sanitize_text_field($raw_settings['tts_google_voice_id']) : '';
-    $sanitized['tts_openai_voice_id'] = isset($raw_settings['tts_openai_voice_id']) ? sanitize_text_field($raw_settings['tts_openai_voice_id']) : 'alloy';
-    $sanitized['tts_openai_model_id'] = isset($raw_settings['tts_openai_model_id']) ? sanitize_text_field($raw_settings['tts_openai_model_id']) : BotSettingsManager::DEFAULT_TTS_OPENAI_MODEL_ID;
+    $sanitized['tts_openai_voice_id'] = isset($raw_settings['tts_openai_voice_id']) ? sanitize_text_field($raw_settings['tts_openai_voice_id']) : BotSettingsManager::get_default_model_id('OpenAIVoices');
+    $sanitized['tts_openai_model_id'] = isset($raw_settings['tts_openai_model_id']) ? sanitize_text_field($raw_settings['tts_openai_model_id']) : BotSettingsManager::get_default_model_id('OpenAITTS');
     $sanitized['tts_elevenlabs_voice_id'] = isset($raw_settings['tts_elevenlabs_voice_id']) ? sanitize_text_field($raw_settings['tts_elevenlabs_voice_id']) : '';
     $sanitized['tts_elevenlabs_model_id'] = isset($raw_settings['tts_elevenlabs_model_id']) ? sanitize_text_field($raw_settings['tts_elevenlabs_model_id']) : '';
     $sanitized['tts_auto_play'] = (isset($raw_settings['tts_auto_play']) && $raw_settings['tts_auto_play'] === '1') ? '1' : '0';
@@ -295,13 +296,17 @@ function sanitize_settings_logic(array $raw_settings, int $bot_id): array
     if (!in_array($sanitized['stt_provider'], ['OpenAI', 'Azure'])) {
         $sanitized['stt_provider'] = BotSettingsManager::DEFAULT_STT_PROVIDER;
     }
-    $sanitized['stt_openai_model_id'] = isset($raw_settings['stt_openai_model_id']) ? sanitize_text_field($raw_settings['stt_openai_model_id']) : BotSettingsManager::DEFAULT_STT_OPENAI_MODEL_ID;
+    $sanitized['stt_openai_model_id'] = AIPKit_Model_Catalog::sanitize_openai_file_transcription_model(
+        isset($raw_settings['stt_openai_model_id'])
+            ? (string) $raw_settings['stt_openai_model_id']
+            : BotSettingsManager::get_default_model_id('OpenAISTT')
+    );
     $sanitized['stt_azure_model_id'] = isset($raw_settings['stt_azure_model_id']) ? sanitize_text_field($raw_settings['stt_azure_model_id']) : BotSettingsManager::DEFAULT_STT_AZURE_MODEL_ID;
     $raw_image_triggers = isset($raw_settings['image_triggers']) ? sanitize_text_field($raw_settings['image_triggers']) : BotSettingsManager::DEFAULT_IMAGE_TRIGGERS;
     $triggers_array = array_map('trim', explode(',', $raw_image_triggers));
     $triggers_array = array_filter($triggers_array, function ($trigger) { return !empty($trigger) && preg_match('/^\/[a-zA-Z0-9_]+$/', $trigger); });
     $sanitized['image_triggers'] = !empty($triggers_array) ? implode(',', $triggers_array) : BotSettingsManager::DEFAULT_IMAGE_TRIGGERS;
-    $sanitized['chat_image_model_id'] = isset($raw_settings['chat_image_model_id']) ? sanitize_text_field($raw_settings['chat_image_model_id']) : BotSettingsManager::DEFAULT_CHAT_IMAGE_MODEL_ID;
+    $sanitized['chat_image_model_id'] = isset($raw_settings['chat_image_model_id']) ? sanitize_text_field($raw_settings['chat_image_model_id']) : BotSettingsManager::get_default_model_id('OpenAIImage');
     $sanitized['enable_image_generation'] = (isset($raw_settings['enable_image_generation']) && $raw_settings['enable_image_generation'] === '1') ? '1' : '0';
     $sanitized['enable_file_upload'] = (isset($raw_settings['enable_file_upload']) && $raw_settings['enable_file_upload'] === '1') ? '1' : '0';
     $sanitized['enable_image_upload'] = (isset($raw_settings['enable_image_upload']) && $raw_settings['enable_image_upload'] === '1') ? '1' : '0';
@@ -478,8 +483,10 @@ function sanitize_settings_logic(array $raw_settings, int $bot_id): array
     // --- Sanitize Realtime Voice Agent settings ---
     $sanitized['enable_realtime_voice'] = (isset($raw_settings['enable_realtime_voice']) && $raw_settings['enable_realtime_voice'] === '1') ? '1' : '0';
     $sanitized['direct_voice_mode'] = (isset($raw_settings['direct_voice_mode']) && $raw_settings['direct_voice_mode'] === '1') ? '1' : '0';
-    $sanitized['realtime_model'] = isset($raw_settings['realtime_model']) && in_array($raw_settings['realtime_model'], ['gpt-realtime-2.1', 'gpt-realtime-2.1-mini'], true) ? $raw_settings['realtime_model'] : BotSettingsManager::DEFAULT_REALTIME_MODEL;
-    $sanitized['realtime_voice'] = isset($raw_settings['realtime_voice']) && in_array($raw_settings['realtime_voice'], ['alloy', 'ash', 'ballad', 'coral', 'echo', 'sage', 'shimmer', 'verse', 'marin', 'cedar'], true) ? $raw_settings['realtime_voice'] : BotSettingsManager::DEFAULT_REALTIME_VOICE;
+    $allowed_realtime_models = array_column(AIPKit_Providers::get_openai_realtime_models(), 'id');
+    $sanitized['realtime_model'] = isset($raw_settings['realtime_model']) && in_array($raw_settings['realtime_model'], $allowed_realtime_models, true) ? $raw_settings['realtime_model'] : BotSettingsManager::get_default_model_id('OpenAIRealtime');
+    $allowed_realtime_voices = array_column(AIPKit_Providers::get_openai_realtime_voices(), 'id');
+    $sanitized['realtime_voice'] = isset($raw_settings['realtime_voice']) && in_array($raw_settings['realtime_voice'], $allowed_realtime_voices, true) ? $raw_settings['realtime_voice'] : BotSettingsManager::get_default_model_id('OpenAIRealtimeVoices');
     $sanitized['turn_detection'] = isset($raw_settings['turn_detection']) && in_array($raw_settings['turn_detection'], ['server_vad', 'semantic_vad'], true) ? $raw_settings['turn_detection'] : BotSettingsManager::DEFAULT_TURN_DETECTION;
     $sanitized['speed'] = isset($raw_settings['speed']) ? max(0.25, min(1.5, floatval($raw_settings['speed']))) : 1.0;
     $valid_audio_formats = ['pcm16', 'g711_ulaw', 'g711_alaw'];

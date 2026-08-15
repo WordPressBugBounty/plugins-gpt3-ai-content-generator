@@ -9,6 +9,7 @@ use WPAICG\Chat\Storage\BotSettingsManager;
 use WPAICG\AIPKit_Providers;
 use WPAICG\AIPKIT_AI_Settings;
 use WPAICG\Core\AIPKit_OpenAI_Reasoning;
+use WPAICG\Core\Models\AIPKit_Model_Catalog;
 
 if (!defined('ABSPATH')) {
     exit; // Exit if accessed directly
@@ -482,14 +483,14 @@ function get_contextual_settings_logic(int $bot_id, callable $get_meta_fn): arra
         $settings['image_triggers'] = BotSettingsManager::DEFAULT_IMAGE_TRIGGERS;
     }
 
-    $settings['chat_image_model_id'] = $get_meta_fn('_aipkit_chat_image_model_id', BotSettingsManager::DEFAULT_CHAT_IMAGE_MODEL_ID);
+    $settings['chat_image_model_id'] = $get_meta_fn('_aipkit_chat_image_model_id', BotSettingsManager::get_default_model_id('OpenAIImage'));
     $settings['enable_image_generation'] = in_array($get_meta_fn('_aipkit_enable_image_generation', BotSettingsManager::DEFAULT_ENABLE_IMAGE_GENERATION), ['0','1'], true)
         ? $get_meta_fn('_aipkit_enable_image_generation', BotSettingsManager::DEFAULT_ENABLE_IMAGE_GENERATION)
         : BotSettingsManager::DEFAULT_ENABLE_IMAGE_GENERATION;
     // Build valid image models dynamically
     $valid_image_models = class_exists('\\WPAICG\\AIPKit_Providers')
         ? \WPAICG\AIPKit_Providers::get_openai_image_model_ids()
-        : [BotSettingsManager::DEFAULT_CHAT_IMAGE_MODEL_ID];
+        : [BotSettingsManager::get_default_model_id('OpenAIImage')];
     if (class_exists('\\WPAICG\\AIPKit_Providers')) {
         // Add Google image models
         $google_models = \WPAICG\AIPKit_Providers::get_google_image_models();
@@ -535,7 +536,7 @@ function get_contextual_settings_logic(int $bot_id, callable $get_meta_fn): arra
     }
 
     if (!in_array($settings['chat_image_model_id'], $valid_image_models)) {
-        $settings['chat_image_model_id'] = BotSettingsManager::DEFAULT_CHAT_IMAGE_MODEL_ID;
+        $settings['chat_image_model_id'] = BotSettingsManager::get_default_model_id('OpenAIImage');
     }
 
     return $settings;
@@ -610,7 +611,7 @@ function get_vector_store_config_logic(int $bot_id, callable $get_meta_fn): arra
     if (!in_array($settings['vector_embedding_provider'], $allowed_embedding_provider_keys, true)) {
         $settings['vector_embedding_provider'] = BotSettingsManager::DEFAULT_VECTOR_EMBEDDING_PROVIDER;
     }
-    $settings['vector_embedding_model'] = $get_meta_fn('_aipkit_vector_embedding_model', BotSettingsManager::DEFAULT_VECTOR_EMBEDDING_MODEL);
+    $settings['vector_embedding_model'] = $get_meta_fn('_aipkit_vector_embedding_model', BotSettingsManager::get_default_model_id('OpenAIEmbedding'));
 
     $top_k_val = $get_meta_fn('_aipkit_vector_store_top_k', BotSettingsManager::DEFAULT_VECTOR_STORE_TOP_K);
     $settings['vector_store_top_k'] = max(1, min(absint($top_k_val), 20));
@@ -651,10 +652,10 @@ function get_tts_config_logic(int $bot_id, callable $get_meta_fn): array
     }
 
     $settings['tts_google_voice_id'] = $get_meta_fn('_aipkit_tts_google_voice_id', '');
-    $settings['tts_openai_voice_id'] = $get_meta_fn('_aipkit_tts_openai_voice_id', 'alloy');
-    $settings['tts_openai_model_id'] = $get_meta_fn('_aipkit_tts_openai_model_id', BotSettingsManager::DEFAULT_TTS_OPENAI_MODEL_ID);
+    $settings['tts_openai_voice_id'] = $get_meta_fn('_aipkit_tts_openai_voice_id', BotSettingsManager::get_default_model_id('OpenAIVoices'));
+    $settings['tts_openai_model_id'] = $get_meta_fn('_aipkit_tts_openai_model_id', BotSettingsManager::get_default_model_id('OpenAITTS'));
     $settings['tts_elevenlabs_voice_id'] = $get_meta_fn('_aipkit_tts_elevenlabs_voice_id', '');
-    $settings['tts_elevenlabs_model_id'] = $get_meta_fn('_aipkit_tts_elevenlabs_model_id', BotSettingsManager::DEFAULT_TTS_ELEVENLABS_MODEL_ID);
+    $settings['tts_elevenlabs_model_id'] = $get_meta_fn('_aipkit_tts_elevenlabs_model_id', BotSettingsManager::get_default_model_id('ElevenLabsModels'));
 
     $settings['tts_voice_id'] = ''; // Determine combined voice ID based on provider
     switch ($settings['tts_provider']) {
@@ -701,7 +702,9 @@ function get_stt_config_logic(int $bot_id, callable $get_meta_fn): array
         $settings['stt_provider'] = BotSettingsManager::DEFAULT_STT_PROVIDER;
     }
 
-    $settings['stt_openai_model_id'] = $get_meta_fn('_aipkit_stt_openai_model_id', BotSettingsManager::DEFAULT_STT_OPENAI_MODEL_ID);
+    $settings['stt_openai_model_id'] = AIPKit_Model_Catalog::sanitize_openai_file_transcription_model(
+        (string) $get_meta_fn('_aipkit_stt_openai_model_id', BotSettingsManager::get_default_model_id('OpenAISTT'))
+    );
     $settings['stt_azure_model_id'] = $get_meta_fn('_aipkit_stt_azure_model_id', BotSettingsManager::DEFAULT_STT_AZURE_MODEL_ID);
 
     return $settings;
@@ -1123,8 +1126,8 @@ function get_voice_agent_config_logic(int $bot_id, callable $get_meta_fn): array
     
     $default_enable_realtime = BotSettingsManager::DEFAULT_ENABLE_REALTIME_VOICE ?? '0';
     $default_direct_voice_mode = BotSettingsManager::DEFAULT_DIRECT_VOICE_MODE ?? '0';
-    $default_realtime_model = BotSettingsManager::DEFAULT_REALTIME_MODEL ?? 'gpt-realtime-2.1';
-    $default_realtime_voice = BotSettingsManager::DEFAULT_REALTIME_VOICE ?? 'alloy';
+    $default_realtime_model = BotSettingsManager::get_default_model_id('OpenAIRealtime');
+    $default_realtime_voice = BotSettingsManager::get_default_model_id('OpenAIRealtimeVoices');
     $default_turn_detection = BotSettingsManager::DEFAULT_TURN_DETECTION ?? 'server_vad';
     $default_speed = BotSettingsManager::DEFAULT_SPEED ?? 1.0;
     $default_input_audio_format = BotSettingsManager::DEFAULT_INPUT_AUDIO_FORMAT ?? 'pcm16';
@@ -1149,10 +1152,12 @@ function get_voice_agent_config_logic(int $bot_id, callable $get_meta_fn): array
     if (!in_array($settings['output_audio_format'], $valid_audio_formats, true)) {
         $settings['output_audio_format'] = $default_output_audio_format;
     }
-    if (!in_array($settings['realtime_model'], ['gpt-realtime-2.1', 'gpt-realtime-2.1-mini'], true)) {
+    $allowed_realtime_models = array_column(AIPKit_Providers::get_openai_realtime_models(), 'id');
+    if (!in_array($settings['realtime_model'], $allowed_realtime_models, true)) {
         $settings['realtime_model'] = $default_realtime_model;
     }
-    if (!in_array($settings['realtime_voice'], ['alloy', 'ash', 'ballad', 'coral', 'echo', 'sage', 'shimmer', 'verse', 'marin', 'cedar'], true)) {
+    $allowed_realtime_voices = array_column(AIPKit_Providers::get_openai_realtime_voices(), 'id');
+    if (!in_array($settings['realtime_voice'], $allowed_realtime_voices, true)) {
         $settings['realtime_voice'] = $default_realtime_voice;
     }
     if (!in_array($settings['turn_detection'], ['server_vad', 'semantic_vad'], true)) {

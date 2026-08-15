@@ -15,7 +15,7 @@ if (!defined('ABSPATH')) {
 // $providers, $default_temp, $default_max_tokens, $default_top_p, $default_frequency_penalty, $default_presence_penalty
 // Variables passed down from ai-forms/index.php:
 // $openai_vector_stores, $pinecone_indexes, $qdrant_collections, $chroma_collections, $openai_embedding_models, $google_embedding_models
-$model_sync_timestamps = get_option('aipkit_model_sync_timestamps', []);
+$model_sync_timestamps = \WPAICG\AIPKit_Providers::get_model_sync_timestamps();
 if (!is_array($model_sync_timestamps)) {
     $model_sync_timestamps = [];
 }
@@ -79,6 +79,7 @@ if (!is_array($model_sync_timestamps)) {
                         'initial_label' => __('Select model', 'gpt3-ai-content-generator'),
                         'source_id' => 'aipkit_ai_form_ai_selection',
                         'class_name' => 'aipkit_ai_form_unified_model_selector',
+                        'capability' => 'text_generation',
                     ];
                     include dirname(__DIR__, 2) . '/shared/unified-model-selector.php';
                     unset($aipkit_unified_model_selector_config);

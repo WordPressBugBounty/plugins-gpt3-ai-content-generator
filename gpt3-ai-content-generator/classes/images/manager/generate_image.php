@@ -64,7 +64,9 @@ function generate_image_logic(AIPKit_Image_Manager $managerInstance, string $pro
                 break;
             }
         }
-        $final_options['model'] = $first_openrouter_model !== '' ? $first_openrouter_model : 'google/gemini-2.5-flash-image-preview';
+        $final_options['model'] = $first_openrouter_model !== ''
+            ? $first_openrouter_model
+            : 'google/' . AIPKit_Providers::get_default_google_image_model();
     } elseif (empty($final_options['model']) && $provider_normalized === 'Google') {
         $final_options['model'] = AIPKit_Providers::get_default_google_image_model();
     } elseif (empty($final_options['model']) && $provider_normalized === 'xAI') {

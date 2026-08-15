@@ -5,6 +5,7 @@
 namespace WPAICG\STT; // Use new STT namespace
 
 use WP_Error;
+use WPAICG\Core\Models\AIPKit_Model_Catalog;
 use WPAICG\Core\Providers\OpenAI\OpenAIUrlBuilder;
 
 if (!defined('ABSPATH')) {
@@ -85,10 +86,10 @@ class AIPKit_STT_OpenAI_Provider_Strategy extends AIPKit_STT_Base_Provider_Strat
         // --- End temporary file ---
 
 
-        // --- Select Model ---
-        // *** Use model from options, fallback to whisper-1 ***
-        $stt_model = !empty($options['stt_model']) ? sanitize_text_field($options['stt_model']) : 'whisper-1';
-        // --- End Select Model ---
+        $stt_model = !empty($options['stt_model'])
+            ? sanitize_text_field($options['stt_model'])
+            : AIPKit_Model_Catalog::get_default_id('OpenAISTT');
+        $stt_model = AIPKit_Model_Catalog::sanitize_openai_file_transcription_model($stt_model);
 
         // --- Prepare cURL Request ---
         $post_fields = [

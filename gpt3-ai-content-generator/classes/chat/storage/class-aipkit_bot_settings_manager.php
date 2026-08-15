@@ -16,6 +16,7 @@ use WP_Error;
 use WPAICG\Chat\Storage\AIPKit_Bot_Settings_Getter;
 use WPAICG\Chat\Storage\AIPKit_Bot_Settings_Saver; // Use the new saver class
 use WPAICG\Chat\Storage\AIPKit_Bot_Settings_Initializer;
+use WPAICG\Core\Models\AIPKit_Model_Catalog;
 
 if (!defined('ABSPATH')) {
     exit; // Exit if accessed directly
@@ -75,15 +76,11 @@ class BotSettingsManager
     public const DEFAULT_TOKEN_LIMIT_SECONDARY_ACTION_URL = '';
     public const DEFAULT_TTS_ENABLED = '0';
     public const DEFAULT_TTS_PROVIDER = 'Google';
-    public const DEFAULT_TTS_OPENAI_MODEL_ID = 'tts-1';
-    public const DEFAULT_TTS_ELEVENLABS_MODEL_ID = '';
     public const DEFAULT_TTS_AUTO_PLAY = '0';
     public const DEFAULT_ENABLE_VOICE_INPUT = '0';
     public const DEFAULT_STT_PROVIDER = 'OpenAI';
-    public const DEFAULT_STT_OPENAI_MODEL_ID = 'whisper-1';
     public const DEFAULT_STT_AZURE_MODEL_ID = '';
     public const DEFAULT_IMAGE_TRIGGERS = '/image, /generate';
-    public const DEFAULT_CHAT_IMAGE_MODEL_ID = 'gpt-image-2';
     public const DEFAULT_ENABLE_IMAGE_GENERATION = '0';
     public const DEFAULT_ENABLE_FILE_UPLOAD = '0';
     public const DEFAULT_ENABLE_IMAGE_UPLOAD = '0';
@@ -99,7 +96,6 @@ class BotSettingsManager
     // --- Pinecone & Embedding Specific Constants ---
     public const DEFAULT_PINECONE_INDEX_NAME = '';
     public const DEFAULT_VECTOR_EMBEDDING_PROVIDER = 'openai';
-    public const DEFAULT_VECTOR_EMBEDDING_MODEL = 'text-embedding-3-small';
     // --- Qdrant Specific Constants ---
     public const DEFAULT_QDRANT_COLLECTION_NAME = '';
     // --- OpenAI Web Search Constants ---
@@ -129,8 +125,6 @@ class BotSettingsManager
     public const DEFAULT_GOOGLE_GROUNDING_DYNAMIC_THRESHOLD = 0.3;
     public const DEFAULT_ENABLE_REALTIME_VOICE = '0';
     public const DEFAULT_DIRECT_VOICE_MODE = '0';
-    public const DEFAULT_REALTIME_MODEL = 'gpt-realtime-2.1';
-    public const DEFAULT_REALTIME_VOICE = 'alloy';
     public const DEFAULT_TURN_DETECTION = 'server_vad';
     public const DEFAULT_SPEED = 1.0;
     public const DEFAULT_INPUT_AUDIO_FORMAT = 'pcm16';
@@ -151,6 +145,11 @@ class BotSettingsManager
     public const DEFAULT_CTS_POPUP_HEIGHT = 620;        // px (can inherit from container_height)
     public const DEFAULT_CTS_POPUP_MIN_HEIGHT = 320;    // px (can inherit)
     public const DEFAULT_CTS_POPUP_MAX_HEIGHT = 90;     // vh (can inherit, number only)
+
+    public static function get_default_model_id(string $catalog_key): string
+    {
+        return AIPKit_Model_Catalog::get_default_id($catalog_key);
+    }
 
 
     private $site_wide_manager;

@@ -888,7 +888,7 @@ function format_chat_logic_for_payload_formatter(
 function format_embeddings_logic_for_payload_formatter($input, array $options): array {
     $payload = [
         'input' => $input,
-        'model' => $options['model'] ?? 'text-embedding-3-small',
+        'model' => $options['model'] ?? AIPKit_Providers::get_default_model_id('OpenAIEmbedding'),
     ];
 
     if (isset($options['dimensions']) && is_int($options['dimensions']) && $options['dimensions'] > 0) {

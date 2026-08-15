@@ -49,7 +49,7 @@ class AIPKit_PostEnhancer_Process_Text extends AIPKit_Post_Enhancer_Base_Ajax_Ac
         }
 
         // AI Call setup
-        $global_config = AIPKit_Providers::get_default_provider_config();
+        $global_config = AIPKit_Providers::get_new_text_generation_selection();
         $ai_params = AIPKIT_AI_Settings::get_ai_parameters();
         $provider = $global_config['provider'];
         $model = $global_config['model'];

@@ -59,7 +59,7 @@ function get_current_suggestion_value_logic(string $type, \WP_Post $post): strin
 
 function generate_suggestions_logic(string $type, \WP_Post $post, string $final_prompt): void
 {
-    $global_config = AIPKit_Providers::get_default_provider_config();
+    $global_config = AIPKit_Providers::get_new_text_generation_selection();
     $ai_params = AIPKIT_AI_Settings::get_ai_parameters();
     $provider = $global_config['provider'];
     $model = $global_config['model'];

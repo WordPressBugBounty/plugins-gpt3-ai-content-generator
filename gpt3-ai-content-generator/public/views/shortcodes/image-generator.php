@@ -11,6 +11,7 @@ if (!defined('ABSPATH')) {
 // phpcs:disable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- This file only uses local helper/template variables and does not define public globals.
 
 use WPAICG\AIPKit_Providers;
+use WPAICG\Core\Models\AIPKit_Model_Catalog;
 
 // Variables passed from the shortcode class: $nonce,
 // $show_provider, $show_model,
@@ -340,8 +341,8 @@ $initial_action_label = $current_image_mode === 'edit' ? $edit_label : $generate
                                  <?php // Options populated by JS, but set selected based on final_model?>
                                  <?php if ($final_provider === 'OpenAI'): ?>
                                     <?php
-                            // Sort OpenAI models for display with the current default first.
-                            $sorted_openai_keys_render = ['gpt-image-2', 'gpt-image-1.5', 'gpt-image-1', 'gpt-image-1-mini'];
+                            // Keep built-in models first using the canonical catalog order.
+                            $sorted_openai_keys_render = AIPKit_Model_Catalog::get_seed_ids('OpenAIImage');
                                      $final_openai_models_render = [];
                                      foreach ($sorted_openai_keys_render as $key) {
                                          if (isset($openai_models_display[$key])) {

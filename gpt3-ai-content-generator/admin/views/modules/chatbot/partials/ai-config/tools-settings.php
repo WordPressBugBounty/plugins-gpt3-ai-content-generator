@@ -87,37 +87,15 @@ $tools_master_options = [
     ],
 ];
 
-$image_model_groups = [];
 $known_image_model_ids = [];
-$image_model_dropdown_label = '';
 foreach ($available_image_models as $provider_group => $models) {
     foreach ($models as $model) {
         $model_id = isset($model['id']) ? (string) $model['id'] : '';
-        $model_name = isset($model['name']) ? (string) $model['name'] : $model_id;
-        if ($model_id === '' || $model_name === '') {
+        if ($model_id === '') {
             continue;
         }
-        if (!isset($image_model_groups[$provider_group])) {
-            $image_model_groups[$provider_group] = [];
-        }
-        $image_model_groups[$provider_group][] = [
-            'id' => $model_id,
-            'name' => $model_name,
-        ];
         $known_image_model_ids[] = $model_id;
-        if ((string) $chat_image_model_id === $model_id) {
-            $image_model_dropdown_label = $model_name;
-        }
     }
-}
-if (!isset($image_model_groups['Replicate'])) {
-    $image_model_groups['Replicate'] = [];
-}
-if ($image_model_dropdown_label === '' && !empty($chat_image_model_id)) {
-    $image_model_dropdown_label = (string) $chat_image_model_id;
-}
-if ($image_model_dropdown_label === '') {
-    $image_model_dropdown_label = __('Select model', 'gpt3-ai-content-generator');
 }
 
 $file_upload_locked_by_plan = !$is_pro_plan && !$can_enable_file_upload;
@@ -256,94 +234,41 @@ $render_tool_enable_control = static function (string $tool_key, array $tool_opt
                             <div class="aipkit_tools_image_generation_field">
                                 <label
                                     class="aipkit_popover_option_label"
-                                    for="aipkit_bot_<?php echo esc_attr($bot_id); ?>_chat_image_model_id_tools_btn"
+                                    for="aipkit_bot_<?php echo esc_attr($bot_id); ?>_chat_image_model_id_tools"
                                 >
                                     <?php esc_html_e('Model', 'gpt3-ai-content-generator'); ?>
                                 </label>
-                                <div
-                                    class="aipkit_popover_multiselect aipkit_tools_image_model_dropdown"
-                                    data-aipkit-image-model-dropdown
-                                    data-placeholder="<?php echo esc_attr__('Select model', 'gpt3-ai-content-generator'); ?>"
+                                <select
+                                    id="aipkit_bot_<?php echo esc_attr($bot_id); ?>_chat_image_model_id_tools"
+                                    name="chat_image_model_id"
+                                    class="aipkit_form-input aipkit_popover_option_select aipkit_tools_image_model_select"
+                                    data-aipkit-universal-model-combined="1"
                                 >
-                                    <button
-                                        type="button"
-                                        id="aipkit_bot_<?php echo esc_attr($bot_id); ?>_chat_image_model_id_tools_btn"
-                                        class="aipkit_popover_multiselect_btn"
-                                        aria-expanded="false"
-                                        aria-controls="aipkit_bot_<?php echo esc_attr($bot_id); ?>_chat_image_model_id_tools_panel"
-                                    >
-                                        <span class="aipkit_popover_multiselect_label">
-                                            <?php echo esc_html($image_model_dropdown_label); ?>
-                                        </span>
-                                    </button>
-                                    <div
-                                        id="aipkit_bot_<?php echo esc_attr($bot_id); ?>_chat_image_model_id_tools_panel"
-                                        class="aipkit_popover_multiselect_panel aipkit_tools_image_model_panel"
-                                        role="menu"
-                                        hidden
-                                    >
-                                        <div class="aipkit_popover_multiselect_options aipkit_tools_image_model_options">
-                                            <?php foreach ($image_model_groups as $provider_group => $image_model_options) : ?>
-                                                <div class="aipkit_tools_image_model_group">
-                                                    <div class="aipkit_tools_image_model_group_heading">
-                                                        <p class="aipkit_tools_image_model_group_title">
-                                                            <?php echo esc_html($provider_group); ?>
-                                                        </p>
-                                                    </div>
-                                                    <?php if (empty($image_model_options) && stripos((string) $provider_group, 'replicate') !== false) : ?>
-                                                        <div class="aipkit_tools_image_model_group_notice">
-                                                            <button
-                                                                type="button"
-                                                                class="aipkit_popover_option_btn aipkit_tools_image_model_notice_btn"
-                                                                data-aipkit-image-provider-notice-trigger="replicate"
-                                                            >
-                                                                <?php esc_html_e('Configure in Settings', 'gpt3-ai-content-generator'); ?>
-                                                            </button>
-                                                        </div>
-                                                    <?php endif; ?>
-                                                    <?php foreach ($image_model_options as $image_model_option) : ?>
-                                                        <label class="aipkit_popover_multiselect_item aipkit_tools_image_model_item">
-                                                            <span class="aipkit_tools_image_model_item_label">
-                                                                <input
-                                                                    type="radio"
-                                                                    class="aipkit_tools_image_model_radio"
-                                                                    name="aipkit_image_model_choice_<?php echo esc_attr($bot_id); ?>"
-                                                                    value="<?php echo esc_attr($image_model_option['id']); ?>"
-                                                                    data-provider-group="<?php echo esc_attr($provider_group); ?>"
-                                                                    <?php checked((string) $chat_image_model_id, (string) $image_model_option['id']); ?>
-                                                                />
-                                                                <span class="aipkit_popover_multiselect_text"><?php echo esc_html($image_model_option['name']); ?></span>
-                                                            </span>
-                                                        </label>
-                                                    <?php endforeach; ?>
-                                                </div>
+                                    <option value=""><?php esc_html_e('Select model', 'gpt3-ai-content-generator'); ?></option>
+                                    <?php foreach ($available_image_models as $provider_group => $models) : ?>
+                                        <optgroup label="<?php echo esc_attr($provider_group); ?>" data-provider="<?php echo esc_attr($provider_group); ?>">
+                                            <?php foreach ($models as $model) : ?>
+                                                <option
+                                                    value="<?php echo esc_attr($model['id']); ?>"
+                                                    data-provider="<?php echo esc_attr($provider_group); ?>"
+                                                    data-provider-group="<?php echo esc_attr($provider_group); ?>"
+                                                    data-model="<?php echo esc_attr($model['id']); ?>"
+                                                    <?php selected($chat_image_model_id, $model['id']); ?>
+                                                >
+                                                    <?php echo esc_html($model['name']); ?>
+                                                </option>
                                             <?php endforeach; ?>
-                                            <?php if (!empty($chat_image_model_id) && !in_array((string) $chat_image_model_id, $known_image_model_ids, true)) : ?>
-                                                <div class="aipkit_tools_image_model_group aipkit_tools_image_model_group--current">
-                                                    <p class="aipkit_tools_image_model_group_title">
-                                                        <?php esc_html_e('Current', 'gpt3-ai-content-generator'); ?>
-                                                    </p>
-                                                    <label class="aipkit_popover_multiselect_item aipkit_tools_image_model_item">
-                                                        <span class="aipkit_tools_image_model_item_label">
-                                                            <input
-                                                                type="radio"
-                                                                class="aipkit_tools_image_model_radio"
-                                                                name="aipkit_image_model_choice_<?php echo esc_attr($bot_id); ?>"
-                                                                value="<?php echo esc_attr($chat_image_model_id); ?>"
-                                                                checked
-                                                            />
-                                                            <span class="aipkit_popover_multiselect_text">
-                                                                <?php
-                                                                echo esc_html((string) $chat_image_model_id);
-                                                                ?>
-                                                            </span>
-                                                        </span>
-                                                    </label>
-                                                </div>
-                                            <?php endif; ?>
-                                        </div>
-                                    </div>
-                                </div>
+                                        </optgroup>
+                                    <?php endforeach; ?>
+                                    <?php if (!array_key_exists('Replicate', $available_image_models)) : ?>
+                                        <optgroup label="Replicate" data-provider="Replicate"></optgroup>
+                                    <?php endif; ?>
+                                    <?php if (!empty($chat_image_model_id) && !in_array((string) $chat_image_model_id, $known_image_model_ids, true)) : ?>
+                                        <option value="<?php echo esc_attr($chat_image_model_id); ?>" data-provider="manual" data-provider-label="<?php esc_attr_e('Current', 'gpt3-ai-content-generator'); ?>" data-model="<?php echo esc_attr($chat_image_model_id); ?>" selected="selected">
+                                            <?php echo esc_html((string) $chat_image_model_id); ?>
+                                        </option>
+                                    <?php endif; ?>
+                                </select>
                             </div>
                             <div class="aipkit_tools_image_generation_field">
                                 <label
@@ -364,42 +289,9 @@ $render_tool_enable_control = static function (string $tool_key, array $tool_opt
                             </div>
                         </div>
             <select
-                id="aipkit_bot_<?php echo esc_attr($bot_id); ?>_chat_image_model_id_tools"
-                name="chat_image_model_id"
-                class="aipkit_form-input aipkit_popover_option_select aipkit_tools_image_model_hidden_select"
-            >
-                <option
-                    value=""
-                    data-provider-group=""
-                    <?php selected((string) $chat_image_model_id, ''); ?>
-                >
-                    <?php esc_html_e('Select model', 'gpt3-ai-content-generator'); ?>
-                </option>
-                <?php foreach ($available_image_models as $provider_group => $models) : ?>
-                    <optgroup label="<?php echo esc_attr($provider_group); ?>">
-                        <?php foreach ($models as $model) : ?>
-                            <option
-                                value="<?php echo esc_attr($model['id']); ?>"
-                                data-provider-group="<?php echo esc_attr($provider_group); ?>"
-                                <?php selected($chat_image_model_id, $model['id']); ?>
-                            >
-                                <?php echo esc_html($model['name']); ?>
-                            </option>
-                        <?php endforeach; ?>
-                    </optgroup>
-                <?php endforeach; ?>
-                <?php if (!empty($chat_image_model_id) && !in_array((string) $chat_image_model_id, $known_image_model_ids, true)) : ?>
-                    <option value="<?php echo esc_attr($chat_image_model_id); ?>" selected="selected">
-                        <?php
-                        echo esc_html((string) $chat_image_model_id);
-                        ?>
-                    </option>
-                <?php endif; ?>
-            </select>
-            <select
                 id="aipkit_bot_<?php echo esc_attr($bot_id); ?>_image_generation_visibility_tools"
                 name="enable_image_generation"
-                class="aipkit_form-input aipkit_popover_option_select aipkit_tools_image_generation_toggle aipkit_tools_state_field aipkit_tools_image_model_hidden_select"
+                class="aipkit_form-input aipkit_popover_option_select aipkit_tools_image_generation_toggle aipkit_tools_state_field aipkit_tools_state_field_hidden"
                 aria-hidden="true"
                 tabindex="-1"
             >

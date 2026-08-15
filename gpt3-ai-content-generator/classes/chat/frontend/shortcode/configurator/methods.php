@@ -6,6 +6,7 @@ use WPAICG\Chat\Storage\BotSettingsManager;
 use WPAICG\AIPKit_Providers;
 use WPAICG\Lib\Addons\AIPKit_Consent_Compliance; // For consent required check
 use WPAICG\aipkit_dashboard; // For addon/plan status checks
+use WPAICG\Core\Models\AIPKit_Model_Catalog;
 
 if (!defined('ABSPATH')) {
     exit; // Exit if accessed directly
@@ -81,15 +82,15 @@ function get_tts_settings_logic(array $settings): array {
             'tts_provider' => 'Google',
             'tts_voice_id' => '',
             'tts_auto_play' => false,
-            'tts_openai_model_id' => 'tts-1', // Default if BotSettingsManager constants not available
-            'tts_elevenlabs_model_id' => '',  // Default if BotSettingsManager constants not available
+            'tts_openai_model_id' => AIPKit_Model_Catalog::get_default_id('OpenAITTS'),
+            'tts_elevenlabs_model_id' => AIPKit_Model_Catalog::get_default_id('ElevenLabsModels'),
         ];
     }
     $tts_provider = $settings['tts_provider'] ?? BotSettingsManager::DEFAULT_TTS_PROVIDER;
     $tts_voice_id = $settings['tts_voice_id'] ?? ''; // This should be the combined one after bot settings are fetched
     $tts_auto_play = ($settings['tts_auto_play'] ?? BotSettingsManager::DEFAULT_TTS_AUTO_PLAY) === '1';
-    $tts_openai_model_id = $settings['tts_openai_model_id'] ?? BotSettingsManager::DEFAULT_TTS_OPENAI_MODEL_ID;
-    $tts_elevenlabs_model_id = $settings['tts_elevenlabs_model_id'] ?? BotSettingsManager::DEFAULT_TTS_ELEVENLABS_MODEL_ID;
+    $tts_openai_model_id = $settings['tts_openai_model_id'] ?? BotSettingsManager::get_default_model_id('OpenAITTS');
+    $tts_elevenlabs_model_id = $settings['tts_elevenlabs_model_id'] ?? BotSettingsManager::get_default_model_id('ElevenLabsModels');
 
     return [
         'tts_provider' => $tts_provider,
@@ -208,6 +209,20 @@ function get_text_labels_logic(array $settings, array $consent_texts): array {
         'consentMessage' => $consent_texts['consent_message'],
         'consentButton' => $consent_texts['consent_button'],
         'playActionLabel' => __('Play audio', 'gpt3-ai-content-generator'),
+        'voiceInput' => __('Voice input', 'gpt3-ai-content-generator'),
+        'voiceStarting' => __('Starting microphone...', 'gpt3-ai-content-generator'),
+        'voiceRecording' => __('Listening...', 'gpt3-ai-content-generator'),
+        'voiceCancelRecording' => __('Cancel recording', 'gpt3-ai-content-generator'),
+        'voiceFinishRecording' => __('Finish recording', 'gpt3-ai-content-generator'),
+        'voiceTranscribing' => __('Transcribing audio...', 'gpt3-ai-content-generator'),
+        'voiceAlreadyActive' => __('Voice recording is already active in another chatbot.', 'gpt3-ai-content-generator'),
+        'voiceUnavailableScriptError' => __('Voice input is currently unavailable.', 'gpt3-ai-content-generator'),
+        'voiceRequiresHttps' => __('Voice recording requires a secure HTTPS connection.', 'gpt3-ai-content-generator'),
+        'voiceBrowserUnsupported' => __('Voice recording is not supported by this browser.', 'gpt3-ai-content-generator'),
+        'voiceRecordingFailedPrefix' => __('Recording failed', 'gpt3-ai-content-generator'),
+        'voiceTranscriptionFailedPrefix' => __('Transcription failed', 'gpt3-ai-content-generator'),
+        'voiceProcessingError' => __('Error processing recorded audio.', 'gpt3-ai-content-generator'),
+        'voiceConfigError' => __('Failed to process audio: configuration error.', 'gpt3-ai-content-generator'),
         'imageCommandEmptyPrompt' => __('Please provide a description after the image command (e.g., /image a cat playing with a ball).', 'gpt3-ai-content-generator'),
         'pauseActionLabel' => __('Pause audio', 'gpt3-ai-content-generator'),
         'webSearchToggle' => __('Toggle Web Search', 'gpt3-ai-content-generator'),
@@ -442,7 +457,7 @@ function build_config_array_logic(int $bot_id, \WP_Post $bot_post, array $settin
         'enableVoiceInputUI' => $feature_flags['enable_voice_input_ui'] ?? false,
         'enableRealtimeVoiceUI' => $feature_flags['enable_realtime_voice_ui'] ?? false,
         'directVoiceMode' => $direct_voice_mode_flag,
-        'realtimeModel' => $settings['realtime_model'] ?? 'gpt-realtime-2.1',
+        'realtimeModel' => $settings['realtime_model'] ?? AIPKit_Model_Catalog::get_default_id('OpenAIRealtime'),
         'sttProvider' => $settings['stt_provider'] ?? (class_exists(BotSettingsManager::class) ? BotSettingsManager::DEFAULT_STT_PROVIDER : 'OpenAI'),
         'imageTriggers' => $image_triggers,
         'fileUploadEnabledUI' => $feature_flags['file_upload_ui_enabled'] ?? false,

@@ -35,11 +35,11 @@ function get_cw_base_template_config(int $user_id): array
         return [];
     }
 
-    $default_provider_config = AIPKit_Providers::get_default_provider_config();
+    $new_ai_selection = AIPKit_Providers::get_new_text_generation_selection();
     $ai_parameters = AIPKIT_AI_Settings::get_ai_parameters();
 
-    $provider_for_template = $default_provider_config['provider'] ?? 'OpenAI';
-    $model_for_template = $default_provider_config['model'] ?? '';
+    $provider_for_template = $new_ai_selection['provider'] ?? 'OpenAI';
+    $model_for_template = $new_ai_selection['model'] ?? '';
     return [
         'ai_provider' => $provider_for_template,
         'ai_model' => $model_for_template,
@@ -93,7 +93,7 @@ function get_cw_base_template_config(int $user_id): array
         'seo_score_disabled_rules' => class_exists(AIPKit_Content_Writer_SEO_Config::class) ? AIPKit_Content_Writer_SEO_Config::default_disabled_rules() : '[]',
         'generate_images_enabled' => '0',
         'image_provider' => 'openai',
-        'image_model' => 'gpt-image-2',
+        'image_model' => AIPKit_Providers::get_default_openai_image_model(),
         'image_provider_options' => '{}',
         'image_prompt' => AIPKit_Content_Writer_Prompts::get_default_image_prompt(),
         'image_prompt_update' => '',
@@ -130,7 +130,7 @@ function get_cw_base_template_config(int $user_id): array
         'qdrant_collection_name' => '',
         'chroma_collection_name' => '',
         'vector_embedding_provider' => 'openai',
-        'vector_embedding_model' => 'text-embedding-3-small',
+        'vector_embedding_model' => AIPKit_Providers::get_default_model_id('OpenAIEmbedding'),
         'vector_store_top_k' => '3',
         'vector_store_confidence_threshold' => '20',
     ];
@@ -416,7 +416,6 @@ function get_cw_first_image_model_id(array $models): string
  */
 function get_cw_google_ultra_image_model_id(array $models): string
 {
-    $preferred_id = 'imagen-4.0-ultra-generate-preview-06-06';
     $fallback_match = '';
 
     foreach ($models as $model) {
@@ -425,11 +424,8 @@ function get_cw_google_ultra_image_model_id(array $models): string
         }
         $model_id = isset($model['id']) ? (string) $model['id'] : '';
         $model_name = isset($model['name']) ? (string) $model['name'] : '';
-        if ($model_id === $preferred_id) {
-            return $preferred_id;
-        }
         $combined = strtolower($model_id . ' ' . $model_name);
-        if (strpos($combined, 'imagen 4 ultra') !== false || strpos($combined, 'imagen-4.0-ultra') !== false) {
+        if (strpos($combined, 'imagen') !== false && strpos($combined, 'ultra') !== false) {
             $fallback_match = $model_id ?: $fallback_match;
         }
     }
@@ -438,7 +434,7 @@ function get_cw_google_ultra_image_model_id(array $models): string
         return $fallback_match;
     }
 
-    return get_cw_first_image_model_id($models) ?: $preferred_id;
+    return get_cw_first_image_model_id($models) ?: AIPKit_Providers::get_default_google_image_model();
 }
 
 /**
@@ -451,7 +447,7 @@ function get_cw_starter_template_image_defaults(string $main_provider): array
 {
     $fallback = [
         'provider' => 'openai',
-        'model' => 'gpt-image-2',
+        'model' => AIPKit_Providers::get_default_openai_image_model(),
     ];
 
     if (!class_exists(AIPKit_Providers::class)) {
@@ -507,7 +503,7 @@ function get_cw_starter_template_definitions(array $base_config): array
     }
     $image_defaults = get_cw_starter_template_image_defaults($default_provider);
     $default_image_provider = $image_defaults['provider'] ?? 'openai';
-    $default_image_model = $image_defaults['model'] ?? 'gpt-image-2';
+    $default_image_model = $image_defaults['model'] ?? AIPKit_Providers::get_default_openai_image_model();
     $default_image_count = $base_config['image_count'] ?? '1';
     $default_image_size = $base_config['image_size'] ?? 'large';
     $default_image_alignment = $base_config['image_alignment'] ?? 'none';
@@ -729,10 +725,6 @@ function reset_starter_templates_logic(\WPAICG\ContentWriter\AIPKit_Content_Writ
 
 // --- sanitize-config.php ---
 // phpcs:disable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- This file only uses local helper/template variables and does not define public globals.
-
-// Load all the new method logic files
-$methods_path = __DIR__ . '/';
-// No direct dependencies needed for this file's logic
 
 if (!class_exists(AIPKit_Content_Writer_Image_Provider_Options::class)) {
     $image_provider_options_path = WPAICG_PLUGIN_DIR . 'classes/content-writer/class-aipkit-content-writer-image-provider-options.php';

@@ -15,6 +15,7 @@ use WPAICG\Includes\AIPKit_Dependency_Loader;
 use WPAICG\Includes\AIPKit_Hook_Manager;
 use WPAICG\Includes\AIPKit_Module_Initializer;
 use WPAICG\Includes\AIPKit_Shared_Assets_Manager;
+use WPAICG\Core\Models\AIPKit_Model_Registry;
 
 
 // --- Core Plugin Includes ---
@@ -38,6 +39,8 @@ class WP_AI_Content_Generator
     public const TOKEN_MANAGER_SCHEMA_VERSION = '4';
     public const PERFORMANCE_SCHEMA_VERSION_OPTION = 'aipkit_performance_schema_version';
     public const PERFORMANCE_SCHEMA_VERSION = '3';
+    public const MODEL_REGISTRY_SCHEMA_VERSION_OPTION = 'aipkit_model_registry_schema_version';
+    public const MODEL_REGISTRY_SCHEMA_VERSION = '1';
     private const INSTALL_INTEGRITY_TRANSIENT = 'aipkit_install_integrity_checked';
 
     public static function get_instance(): WP_AI_Content_Generator
@@ -99,6 +102,7 @@ class WP_AI_Content_Generator
         $saved_version = get_option(self::DB_VERSION_OPTION);
         $saved_token_manager_schema_version = get_option(self::TOKEN_MANAGER_SCHEMA_VERSION_OPTION);
         $saved_performance_schema_version = get_option(self::PERFORMANCE_SCHEMA_VERSION_OPTION);
+        $saved_model_registry_schema_version = get_option(self::MODEL_REGISTRY_SCHEMA_VERSION_OPTION);
 
         $version_needs_update = version_compare((string) $saved_version, $current_version, '<');
         $token_manager_schema_needs_update = version_compare(
@@ -111,16 +115,21 @@ class WP_AI_Content_Generator
             self::PERFORMANCE_SCHEMA_VERSION,
             '<'
         );
+        $model_registry_schema_needs_update = version_compare(
+            (string) $saved_model_registry_schema_version,
+            self::MODEL_REGISTRY_SCHEMA_VERSION,
+            '<'
+        );
 
         $tables_are_missing = false;
         $performance_schema_missing = false;
 
-        if ($version_needs_update || $token_manager_schema_needs_update || $performance_schema_needs_update || $this->should_run_install_integrity_check()) {
+        if ($version_needs_update || $token_manager_schema_needs_update || $performance_schema_needs_update || $model_registry_schema_needs_update || $this->should_run_install_integrity_check()) {
             $tables_are_missing = $this->are_plugin_tables_missing();
             $performance_schema_missing = self::is_performance_schema_missing();
         }
 
-        if (!$version_needs_update && !$tables_are_missing && !$performance_schema_missing && !$token_manager_schema_needs_update && !$performance_schema_needs_update) {
+        if (!$version_needs_update && !$tables_are_missing && !$performance_schema_missing && !$token_manager_schema_needs_update && !$performance_schema_needs_update && !$model_registry_schema_needs_update) {
             set_transient(self::INSTALL_INTEGRITY_TRANSIENT, '1', DAY_IN_SECONDS);
             return;
         }
@@ -134,6 +143,12 @@ class WP_AI_Content_Generator
         $tables_are_missing = $this->are_plugin_tables_missing();
         $performance_schema_missing = self::is_performance_schema_missing();
         $this->cleanup_legacy_chatbot_pricing_overrides();
+
+        $model_registry_migrated = true;
+        if ($model_registry_schema_needs_update) {
+            $model_registry_migrated = class_exists(AIPKit_Model_Registry::class)
+                && AIPKit_Model_Registry::migrate_legacy_options();
+        }
 
         // Ensure Role Manager Permissions are Updated/Initialized
         if (class_exists('\\WPAICG\\AIPKit_Role_Manager')) {
@@ -167,7 +182,10 @@ class WP_AI_Content_Generator
         if (!$performance_schema_missing) {
             update_option(self::PERFORMANCE_SCHEMA_VERSION_OPTION, self::PERFORMANCE_SCHEMA_VERSION, 'no');
         }
-        if (!$tables_are_missing && !$performance_schema_missing) {
+        if ($model_registry_migrated) {
+            update_option(self::MODEL_REGISTRY_SCHEMA_VERSION_OPTION, self::MODEL_REGISTRY_SCHEMA_VERSION, 'no');
+        }
+        if (!$tables_are_missing && !$performance_schema_missing && $model_registry_migrated) {
             set_transient(self::INSTALL_INTEGRITY_TRANSIENT, '1', DAY_IN_SECONDS);
         }
     }

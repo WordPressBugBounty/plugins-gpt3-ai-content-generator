@@ -4,6 +4,7 @@ namespace WPAICG\Images;
 
 use WPAICG\Dashboard\Ajax\BaseDashboardAjaxHandler;
 use WPAICG\Chat\Storage\BotSettingsManager;
+use WPAICG\Core\Models\AIPKit_Model_Catalog;
 use WP_Error;
 
 if (!defined('ABSPATH')) {
@@ -324,7 +325,7 @@ class AIPKit_Image_Settings_Ajax_Handler extends BaseDashboardAjaxHandler
                 // Build lookup tables from known provider model lists for accurate detection.
                 $openai_ids = class_exists('\\WPAICG\\AIPKit_Providers')
                     ? \WPAICG\AIPKit_Providers::get_openai_image_model_ids()
-                    : ['gpt-image-2'];
+                    : AIPKit_Model_Catalog::get_seed_ids('OpenAIImage');
                 // Get Google image and video models from synced lists
                 $google_ids = [];
                 if (class_exists('\\WPAICG\\AIPKit_Providers')) {
