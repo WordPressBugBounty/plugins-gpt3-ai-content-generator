@@ -237,10 +237,29 @@ function ajax_sync_google_tts_voices_logic() {
 
     $voices = $strategy->get_voices(['api_key' => $api_key]);
     if (is_wp_error($voices)) {
-         \WPAICG\Core\Models\AIPKit_Model_Registry::mark_sync_error('Google', 'GoogleTTSVoices', $voices, $google_data);
-         $error_data = $voices->get_error_data();
-         $status_code = isset($error_data['status']) ? (int)$error_data['status'] : 500;
-         wp_send_json_error(['message' => $voices->get_error_message()], $status_code);
+        $error_data = $voices->get_error_data();
+        $status_code = isset($error_data['status']) ? (int)$error_data['status'] : 500;
+        $error_message = $voices->get_error_message();
+        $requires_cloud_auth = $status_code === 401 && (
+            stripos($error_message, 'API keys are not supported') !== false
+            || stripos($error_message, 'OAuth2 access token') !== false
+            || stripos($error_message, 'assert a principal') !== false
+        );
+
+        if ($requires_cloud_auth) {
+            $error_message = __('Google Cloud voices were not synced because Text-to-Speech uses separate Google Cloud authentication. This does not invalidate your Google AI key or affect chat and image models.', 'gpt3-ai-content-generator');
+        }
+
+        $sync_error = $requires_cloud_auth
+            ? new \WP_Error('google_tts_cloud_auth_required', $error_message, ['status' => $status_code])
+            : $voices;
+        \WPAICG\Core\Models\AIPKit_Model_Registry::mark_sync_error('Google', 'GoogleTTSVoices', $sync_error, $google_data);
+
+        wp_send_json_error([
+            'message' => $error_message,
+            'code' => sanitize_key((string) $sync_error->get_error_code()),
+            'optional' => true,
+        ], $status_code);
         return;
     }
 
