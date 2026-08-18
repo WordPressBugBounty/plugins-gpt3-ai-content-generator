@@ -175,6 +175,15 @@ class AIPKit_PostEnhancer_Bulk_Process_Single_Field extends AIPKit_Post_Enhancer
         $vector_store_provider = $item_config['vector_store_provider'] ?? null;
         $vector_store_top_k = isset($item_config['vector_store_top_k']) ? absint($item_config['vector_store_top_k']) : 3;
         $openai_vector_store_ids = $item_config['openai_vector_store_ids'] ?? [];
+        $google_file_search_store_names = isset($item_config['google_file_search_store_names']) && is_array($item_config['google_file_search_store_names'])
+            ? array_values(array_unique(array_filter(array_map(
+                static function ($store_name): string {
+                    $store_name = sanitize_text_field((string) $store_name);
+                    return strpos($store_name, 'fileSearchStores/') === 0 ? $store_name : '';
+                },
+                $item_config['google_file_search_store_names']
+            ))))
+            : [];
         $pinecone_index_name = $item_config['pinecone_index_name'] ?? null;
         $qdrant_collection_name = $item_config['qdrant_collection_name'] ?? null;
         $vector_embedding_provider = $item_config['vector_embedding_provider'] ?? null;
@@ -186,6 +195,28 @@ class AIPKit_PostEnhancer_Bulk_Process_Single_Field extends AIPKit_Post_Enhancer
                 'type'             => 'file_search',
                 'vector_store_ids' => $openai_vector_store_ids,
                 'max_num_results'  => $vector_store_top_k,
+            ];
+        }
+        if ($vector_store_enabled && $vector_store_provider === 'google') {
+            if ($provider !== 'Google') {
+                $this->send_error_response(new WP_Error(
+                    'google_file_search_provider_mismatch',
+                    __('Google File Search requires Google as the AI provider.', 'gpt3-ai-content-generator'),
+                    ['status' => 400]
+                ));
+                return;
+            }
+            if (empty($google_file_search_store_names)) {
+                $this->send_error_response(new WP_Error(
+                    'google_file_search_store_required',
+                    __('Select at least one Google store.', 'gpt3-ai-content-generator'),
+                    ['status' => 400]
+                ));
+                return;
+            }
+            $ai_params['google_file_search_tool_config'] = [
+                'file_search_store_names' => $google_file_search_store_names,
+                'top_k' => $vector_store_top_k,
             ];
         }
 

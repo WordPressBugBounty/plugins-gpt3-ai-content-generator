@@ -1,7 +1,5 @@
 <?php
 
-// MODIFIED FILE - Pass STT model ID from options to strategy.
-
 namespace WPAICG\STT; // Use new STT namespace
 
 use WP_Error;
@@ -46,33 +44,41 @@ class AIPKit_STT_Manager
      * @param string $audio_data Base64 encoded audio data OR raw binary data.
      * @param string $audio_format The format of the audio (e.g., 'wav', 'mp3').
      * @param array $options Optional parameters including 'provider', 'bot_id'.
-     *                       May also contain 'stt_openai_model_id', 'stt_azure_model_id'.
+     *                       May also contain a provider-specific STT model ID.
      * @return string|WP_Error Transcribed text string or WP_Error on failure.
      */
     public function speech_to_text(string $audio_data, string $audio_format, array $options = [])
     {
-        // 1. Determine Provider (from options or bot setting or global setting)
-        $stt_provider = null;
+        $requested_provider = isset($options['provider'])
+            ? sanitize_text_field((string) $options['provider'])
+            : '';
+        $stt_provider = '';
         $bot_settings = [];
         if (!empty($options['bot_id'])) {
             $bot_settings = $this->bot_storage->get_chatbot_settings(absint($options['bot_id']));
-            $stt_provider = $bot_settings['stt_provider'] ?? null;
-            // --- Pass provider-specific model IDs to options ---
-            if (($stt_provider === 'OpenAI' || $options['provider'] === 'OpenAI') && isset($bot_settings['stt_openai_model_id'])) {
-                $options['stt_model'] = $bot_settings['stt_openai_model_id'];
-            }
-            if (($stt_provider === 'Azure' || $options['provider'] === 'Azure') && isset($bot_settings['stt_azure_model_id'])) {
-                $options['stt_model'] = $bot_settings['stt_azure_model_id']; // Pass Azure model/deployment ID
-            }
-            // --- END ---
+            $stt_provider = isset($bot_settings['stt_provider'])
+                ? sanitize_text_field((string) $bot_settings['stt_provider'])
+                : '';
         }
-        // If not set in bot settings, fall back to option or global default
-        $provider = $stt_provider ?: ($options['provider'] ?? AIPKit_Providers::get_current_provider());
+        $provider = $stt_provider !== ''
+            ? $stt_provider
+            : ($requested_provider !== '' ? $requested_provider : AIPKit_Providers::get_current_provider());
 
-        // Validate we have a provider recognized by STT factory
-        $valid_stt_providers = ['OpenAI', 'Azure']; // Add Azure
-        if (!in_array($provider, $valid_stt_providers)) {
-            $provider = 'OpenAI'; // Fallback to OpenAI if invalid provider selected for STT
+        $valid_stt_providers = ['OpenAI', 'Google', 'Azure'];
+        if (!in_array($provider, $valid_stt_providers, true)) {
+            $provider = 'OpenAI';
+        }
+
+        if (!empty($bot_settings)) {
+            $model_key_by_provider = [
+                'OpenAI' => 'stt_openai_model_id',
+                'Google' => 'stt_google_model_id',
+                'Azure' => 'stt_azure_model_id',
+            ];
+            $model_key = $model_key_by_provider[$provider] ?? '';
+            if ($model_key !== '' && isset($bot_settings[$model_key])) {
+                $options['stt_model'] = (string) $bot_settings[$model_key];
+            }
         }
 
         // 2. Get Provider Strategy
@@ -85,17 +91,15 @@ class AIPKit_STT_Manager
         $provider_data = AIPKit_Providers::get_provider_data($provider);
         $api_params = [
             'api_key' => $provider_data['api_key'] ?? null,
-            'base_url' => $provider_data['base_url'] ?? null, // Pass base URL
-            // Add other provider-specific params like region, endpoint if needed
+            'base_url' => $provider_data['base_url'] ?? null,
+            'api_version' => $provider_data['api_version'] ?? null,
             'azure_endpoint' => $provider_data['endpoint'] ?? null,
-             // Pass model ID from options (set earlier based on bot settings)
-             'stt_model' => $options['stt_model'] ?? null
+            'stt_model' => $options['stt_model'] ?? null,
         ];
         if (empty($api_params['api_key'])) {
             /* translators: %s is the STT provider name */
             return new WP_Error('missing_stt_api_key', sprintf(__('API Key for STT provider %s is missing.', 'gpt3-ai-content-generator'), $provider));
         }
-        // Azure specific check
         if ($provider === 'Azure' && empty($api_params['azure_endpoint'])) {
             return new WP_Error('missing_stt_endpoint', __('Azure Endpoint/Region URL is required for STT.', 'gpt3-ai-content-generator'));
         }
@@ -108,11 +112,7 @@ class AIPKit_STT_Manager
             return new WP_Error('unsupported_stt_format', sprintf(__('Audio format "%1$s" is not supported by %2$s STT.', 'gpt3-ai-content-generator'), $audio_format, $provider));
         }
 
-        // 5. Call strategy's transcribe method, passing $options which now includes the model ID if applicable
-        // The strategy implementation will use the relevant keys from $api_params and $options
-        $result = $strategy->transcribe_audio($audio_data, $audio_format, $api_params, $options);
-
-        return $result;
+        return $strategy->transcribe_audio($audio_data, $audio_format, $api_params, $options);
     }
 
     /**
@@ -221,8 +221,14 @@ class AIPKit_STT_Manager
                 'audio/webm' => 'webm',
                 'audio/wav' => 'wav',
                 'audio/x-wav' => 'wav',
+                'audio/vnd.wave' => 'wav',
                 'audio/mpeg' => 'mp3',
                 'audio/mp3' => 'mp3',
+                'audio/aiff' => 'aiff',
+                'audio/x-aiff' => 'aiff',
+                'audio/aac' => 'aac',
+                'audio/flac' => 'flac',
+                'audio/x-flac' => 'flac',
                 'audio/ogg' => 'ogg',
                 'audio/ogg; codecs=opus' => 'ogg',
                 'audio/mp4' => 'mp4',
@@ -236,7 +242,7 @@ class AIPKit_STT_Manager
             } else {
                 // Fallback: attempt extension parse
                 $ext = strtolower(pathinfo($original_name, PATHINFO_EXTENSION));
-                if (in_array($ext, ['webm', 'wav', 'mp3', 'ogg', 'mp4', 'm4a'], true)) {
+                if (in_array($ext, ['webm', 'wav', 'mp3', 'aiff', 'aac', 'flac', 'ogg', 'mp4', 'm4a'], true)) {
                     $audio_format = $ext;
                 } else {
                     wp_send_json_error(['message' => __('Unsupported audio MIME type.', 'gpt3-ai-content-generator')], 400);
@@ -276,7 +282,9 @@ class AIPKit_STT_Manager
 
         if (is_wp_error($transcription_result)) {
             $error_data = $transcription_result->get_error_data();
-            $status_code = isset($error_data['status']) ? (int)$error_data['status'] : 500;
+            $status_code = is_array($error_data)
+                ? (int) ($error_data['status'] ?? $error_data['status_code'] ?? 500)
+                : 500;
             wp_send_json_error(['message' => $transcription_result->get_error_message()], $status_code);
         } else {
             wp_send_json_success(['transcription' => $transcription_result]);

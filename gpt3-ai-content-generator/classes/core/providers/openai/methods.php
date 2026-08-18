@@ -63,6 +63,7 @@ function build_sse_payload_logic(
  * @return string|\WP_Error
  */
 function build_logic_for_url_builder(string $operation, array $params) {
+    // phpcs:ignore PluginCheck.CodeAnalysis.AIProvider.DirectIntegration -- Provider-specific API transport.
     $base_url = !empty($params['base_url']) ? rtrim($params['base_url'], '/') : 'https://api.openai.com';
     $api_version = !empty($params['api_version']) ? $params['api_version'] : 'v1';
 
@@ -1122,6 +1123,7 @@ function generate_embeddings_logic(
 ) {
     // URL Builder requires base_url and api_version to be passed from $api_params
     $url_builder_params = [
+        // phpcs:ignore PluginCheck.CodeAnalysis.AIProvider.DirectIntegration -- Provider-specific API transport.
         'base_url' => $api_params['base_url'] ?? 'https://api.openai.com',
         'api_version' => $api_params['api_version'] ?? 'v1',
     ];
@@ -1193,6 +1195,7 @@ function get_api_headers_logic(OpenAIProviderStrategy $strategyInstance, string 
 function get_models_logic(OpenAIProviderStrategy $strategyInstance, array $api_params) {
     // URL Builder requires base_url and api_version to be passed from $api_params
     $url_builder_params = [
+        // phpcs:ignore PluginCheck.CodeAnalysis.AIProvider.DirectIntegration -- Provider-specific API transport.
         'base_url' => $api_params['base_url'] ?? 'https://api.openai.com',
         'api_version' => $api_params['api_version'] ?? 'v1',
     ];
@@ -1432,6 +1435,7 @@ function moderate_text_logic(OpenAIProviderStrategy $strategyInstance, string $t
 {
     // URL Builder requires base_url and api_version to be passed from $api_params
     $url_builder_params = [
+        // phpcs:ignore PluginCheck.CodeAnalysis.AIProvider.DirectIntegration -- Provider-specific API transport.
         'base_url' => $api_params['base_url'] ?? 'https://api.openai.com',
         'api_version' => $api_params['api_version'] ?? 'v1',
     ];

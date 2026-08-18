@@ -10,7 +10,6 @@ use WP_Error;
 // Ensure dependencies for logic file are loaded if not by main loader
 use WPAICG\AIPKit_Providers;
 use WPAICG\AIPKIT_AI_Settings;
-use WPAICG\Core\Providers\Google\GoogleSettingsHandler;
 use WPAICG\Core\AIPKit_AI_Caller;
 use WPAICG\Vector\AIPKit_Vector_Store_Manager;
 

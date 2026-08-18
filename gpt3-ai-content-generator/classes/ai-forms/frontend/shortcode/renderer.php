@@ -55,6 +55,7 @@ function render_form_html_logic(
         id="<?php echo esc_attr($unique_form_html_id); ?>" 
         data-form-id="<?php echo esc_attr($form_data['id']); ?>" 
         data-nonce="<?php echo esc_attr($ajax_nonce); ?>"
+        data-ai-provider="<?php echo esc_attr($form_data['ai_provider'] ?? 'OpenAI'); ?>"
         data-show-provider="<?php echo $show_provider ? 'true' : 'false'; ?>"
         data-show-model="<?php echo $show_model ? 'true' : 'false'; ?>"
         data-show-save-button="<?php echo $show_save_button ? 'true' : 'false'; ?>"

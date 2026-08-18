@@ -78,6 +78,7 @@ if ($is_pro && !function_exists('\WPAICG\Lib\ContentWriter\AIPKit_Google_Sheets_
 
 // --- Load Vector Store Data for UI ---
 $openai_vector_stores = [];
+$google_file_search_stores = [];
 $pinecone_indexes = [];
 $qdrant_collections = [];
 $chroma_collections = [];
@@ -87,6 +88,9 @@ if (class_exists(AIPKit_Providers::class)) {
     $vector_store_localization = AIPKit_Providers::get_vector_store_localization_payload('content_writer_ui');
     $openai_vector_stores = isset($vector_store_localization['openai_vector_stores']) && is_array($vector_store_localization['openai_vector_stores'])
         ? $vector_store_localization['openai_vector_stores']
+        : [];
+    $google_file_search_stores = isset($vector_store_localization['google_file_search_stores']) && is_array($vector_store_localization['google_file_search_stores'])
+        ? $vector_store_localization['google_file_search_stores']
         : [];
     $pinecone_indexes = isset($vector_store_localization['pinecone_indexes']) && is_array($vector_store_localization['pinecone_indexes'])
         ? $vector_store_localization['pinecone_indexes']

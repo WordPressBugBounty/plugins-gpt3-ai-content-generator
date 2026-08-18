@@ -50,6 +50,39 @@ final class AIPKit_Model_Catalog
         ['id' => 'whisper-1', 'name' => 'Whisper-1'],
     ];
 
+    private const GOOGLE_TTS_VOICES = [
+        ['id' => 'Kore', 'name' => 'Kore', 'style' => 'Firm'],
+        ['id' => 'Zephyr', 'name' => 'Zephyr', 'style' => 'Bright'],
+        ['id' => 'Puck', 'name' => 'Puck', 'style' => 'Upbeat'],
+        ['id' => 'Charon', 'name' => 'Charon', 'style' => 'Informative'],
+        ['id' => 'Fenrir', 'name' => 'Fenrir', 'style' => 'Excitable'],
+        ['id' => 'Leda', 'name' => 'Leda', 'style' => 'Youthful'],
+        ['id' => 'Orus', 'name' => 'Orus', 'style' => 'Firm'],
+        ['id' => 'Aoede', 'name' => 'Aoede', 'style' => 'Breezy'],
+        ['id' => 'Callirrhoe', 'name' => 'Callirrhoe', 'style' => 'Easy-going'],
+        ['id' => 'Autonoe', 'name' => 'Autonoe', 'style' => 'Bright'],
+        ['id' => 'Enceladus', 'name' => 'Enceladus', 'style' => 'Breathy'],
+        ['id' => 'Iapetus', 'name' => 'Iapetus', 'style' => 'Clear'],
+        ['id' => 'Umbriel', 'name' => 'Umbriel', 'style' => 'Easy-going'],
+        ['id' => 'Algieba', 'name' => 'Algieba', 'style' => 'Smooth'],
+        ['id' => 'Despina', 'name' => 'Despina', 'style' => 'Smooth'],
+        ['id' => 'Erinome', 'name' => 'Erinome', 'style' => 'Clear'],
+        ['id' => 'Algenib', 'name' => 'Algenib', 'style' => 'Gravelly'],
+        ['id' => 'Rasalgethi', 'name' => 'Rasalgethi', 'style' => 'Informative'],
+        ['id' => 'Laomedeia', 'name' => 'Laomedeia', 'style' => 'Upbeat'],
+        ['id' => 'Achernar', 'name' => 'Achernar', 'style' => 'Soft'],
+        ['id' => 'Alnilam', 'name' => 'Alnilam', 'style' => 'Firm'],
+        ['id' => 'Schedar', 'name' => 'Schedar', 'style' => 'Even'],
+        ['id' => 'Gacrux', 'name' => 'Gacrux', 'style' => 'Mature'],
+        ['id' => 'Pulcherrima', 'name' => 'Pulcherrima', 'style' => 'Forward'],
+        ['id' => 'Achird', 'name' => 'Achird', 'style' => 'Friendly'],
+        ['id' => 'Zubenelgenubi', 'name' => 'Zubenelgenubi', 'style' => 'Casual'],
+        ['id' => 'Vindemiatrix', 'name' => 'Vindemiatrix', 'style' => 'Gentle'],
+        ['id' => 'Sadachbia', 'name' => 'Sadachbia', 'style' => 'Lively'],
+        ['id' => 'Sadaltager', 'name' => 'Sadaltager', 'style' => 'Knowledgeable'],
+        ['id' => 'Sulafat', 'name' => 'Sulafat', 'style' => 'Warm'],
+    ];
+
     /**
      * @return array<string, array<string, mixed>>
      */
@@ -180,6 +213,15 @@ final class AIPKit_Model_Catalog
                 [
                     ['id' => 'gemini-3.7-flash', 'name' => 'Gemini 3.7 Flash'],
                     ['id' => 'gemini-3.5-flash-lite', 'name' => 'Gemini 3.5 Flash-Lite'],
+                ],
+                [
+                    'deprecated_ids' => [
+                        'gemini-pro',
+                        'gemini-1.5-pro-latest',
+                        'gemini-1.5-flash-latest',
+                        'gemini-2.0-flash',
+                        'gemini-2.0-flash-lite',
+                    ],
                 ]
             ),
             'GoogleImage' => self::model_definition(
@@ -190,7 +232,9 @@ final class AIPKit_Model_Catalog
                 'gemini-3.1-flash-image',
                 [
                     ['id' => 'gemini-3.1-flash-image', 'name' => 'Gemini 3.1 Flash Image (Nano Banana 2)'],
+                    ['id' => 'gemini-3.1-flash-lite-image', 'name' => 'Gemini 3.1 Flash Lite Image (Nano Banana 2 Lite)'],
                     ['id' => 'gemini-3-pro-image', 'name' => 'Gemini 3 Pro Image (Nano Banana Pro)'],
+                    ['id' => 'gemini-2.5-flash-image', 'name' => 'Gemini 2.5 Flash Image (Nano Banana)'],
                 ]
             ),
             'GoogleVideo' => self::model_definition(
@@ -212,11 +256,29 @@ final class AIPKit_Model_Catalog
                     ['id' => 'gemini-embedding-001', 'name' => 'Gemini Embedding 001 (3072)', 'dimensions' => 3072],
                 ]
             ),
+            'GoogleFileSearchStores' => self::resource_definition(
+                'Google',
+                'knowledge_target',
+                'aipkit_google_file_search_store_list',
+                []
+            ),
+            'GoogleTTS' => self::model_definition(
+                'Google',
+                'audio',
+                'tts',
+                'aipkit_google_tts_model_list',
+                'gemini-3.1-flash-tts-preview',
+                [
+                    ['id' => 'gemini-3.1-flash-tts-preview', 'name' => 'Gemini 3.1 Flash TTS Preview'],
+                    ['id' => 'gemini-2.5-flash-preview-tts', 'name' => 'Gemini 2.5 Flash Preview TTS'],
+                    ['id' => 'gemini-2.5-pro-preview-tts', 'name' => 'Gemini 2.5 Pro Preview TTS'],
+                ]
+            ),
             'GoogleTTSVoices' => self::resource_definition(
                 'Google',
                 'voice',
-                'aipkit_google_tts_voice_list',
-                []
+                '',
+                self::GOOGLE_TTS_VOICES
             ),
             'Azure' => self::model_definition(
                 'Azure',
@@ -444,6 +506,8 @@ final class AIPKit_Model_Catalog
             'google_embedding' => 'GoogleEmbedding',
             'google_image' => 'GoogleImage',
             'google_video' => 'GoogleVideo',
+            'google_file_search_stores' => 'GoogleFileSearchStores',
+            'google-file-search-stores' => 'GoogleFileSearchStores',
             'azure_embedding' => 'AzureEmbedding',
             'azure_image' => 'AzureImage',
             'ollama_embedding' => 'OllamaEmbedding',
@@ -722,13 +786,12 @@ final class AIPKit_Model_Catalog
             case 'Google':
                 return self::classify_google_text_family($model_id);
             case 'GoogleImage':
-                if (strpos($model_id, 'imagen') !== false) {
-                    return self::family('imagen', 'Imagen', 20);
-                }
                 if (strpos($model_id, 'gemini') !== false || strpos($model_id, 'nano-banana') !== false) {
                     return self::family('gemini-image', __('Gemini Image', 'gpt3-ai-content-generator'), 10);
                 }
                 return self::other_family();
+            case 'GoogleTTS':
+                return self::family('gemini-tts', __('Gemini TTS', 'gpt3-ai-content-generator'), 10);
             case 'GoogleVideo':
                 return strpos($model_id, 'veo') !== false
                     ? self::family('veo', 'Veo', 10)

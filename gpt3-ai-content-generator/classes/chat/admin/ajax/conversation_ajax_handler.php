@@ -330,10 +330,9 @@ class ConversationAjaxHandler extends BaseAjaxHandler {
         $tts_provider = $bot_settings['tts_provider'] ?? 'Google';
         $tts_voice_id = $bot_settings['tts_voice_id'] ?? '';
 
-        $format = 'mp3';
-        $mime_type = 'audio/mpeg';
+        $format = $tts_provider === 'Google' ? 'wav' : 'mp3';
+        $mime_type = $tts_provider === 'Google' ? 'audio/wav' : 'audio/mpeg';
         if ($tts_provider === 'ElevenLabs') { $format = 'mp3_44100_128'; }
-        elseif ($tts_provider === 'OpenAI') { $format = 'mp3'; $mime_type = 'audio/mpeg';} // Default for OpenAI
 
         $tts_options = [
             'provider' => $tts_provider,
@@ -345,6 +344,9 @@ class ConversationAjaxHandler extends BaseAjaxHandler {
         }
         if ($tts_provider === 'OpenAI' && !empty($bot_settings['tts_openai_model_id'])) {
             $tts_options['openai_model_id'] = $bot_settings['tts_openai_model_id'];
+        }
+        if ($tts_provider === 'Google' && !empty($bot_settings['tts_google_model_id'])) {
+            $tts_options['google_model_id'] = $bot_settings['tts_google_model_id'];
         }
 
         $result = $this->speech_manager->text_to_speech($text, $tts_options);

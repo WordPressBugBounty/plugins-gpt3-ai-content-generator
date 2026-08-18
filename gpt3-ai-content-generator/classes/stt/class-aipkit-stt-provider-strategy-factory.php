@@ -21,7 +21,7 @@ class AIPKit_STT_Provider_Strategy_Factory {
     /**
      * Get the strategy instance for a given STT provider.
      *
-     * @param string $provider Provider name ('OpenAI', 'Azure').
+     * @param string $provider Provider name ('OpenAI', 'Google', 'Azure').
      * @return AIPKit_STT_Provider_Strategy_Interface|WP_Error The strategy instance or WP_Error if unsupported.
      */
     public static function get_strategy(string $provider) {
@@ -47,6 +47,7 @@ class AIPKit_STT_Provider_Strategy_Factory {
         $strategy_path_base = __DIR__ . '/';
         $strategies_to_load = [
             'OpenAI'     => 'class-aipkit-stt-openai-provider-strategy.php',
+            'Google'     => 'class-aipkit-stt-google-provider-strategy.php',
             'Azure'      => 'class-aipkit-stt-azure-provider-strategy.php', // Added Azure strategy file
         ];
 
@@ -71,6 +72,7 @@ class AIPKit_STT_Provider_Strategy_Factory {
         $class_name = null;
         switch ($provider) {
             case 'OpenAI':     $class_name = AIPKit_STT_OpenAI_Provider_Strategy::class; break;
+            case 'Google':     $class_name = AIPKit_STT_Google_Provider_Strategy::class; break;
             case 'Azure':      $class_name = AIPKit_STT_Azure_Provider_Strategy::class; break; // Added Azure class name
             default:
                 /* translators: %s: The provider name. */

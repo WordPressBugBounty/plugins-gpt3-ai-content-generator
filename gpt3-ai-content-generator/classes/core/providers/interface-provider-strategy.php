@@ -40,9 +40,9 @@ interface ProviderStrategyInterface {
      * @param array  $history Conversation history.
      * @param array  $ai_params AI parameters (temperature, max_tokens, etc.).
      * @param string $model The target model/deployment ID.
-     * @return array The formatted request body data.
+     * @return array|WP_Error The formatted request body data or a validation error.
      */
-    public function format_chat_payload(string $user_message, string $instructions, array $history, array $ai_params, string $model): array;
+    public function format_chat_payload(string $user_message, string $instructions, array $history, array $ai_params, string $model);
 
     /**
      * Parse the response from a standard chat request.
@@ -77,9 +77,9 @@ interface ProviderStrategyInterface {
      * @param string|array|null $system_instruction Formatted system instruction.
      * @param array $ai_params AI parameters.
      * @param string $model Target model/deployment.
-     * @return array The formatted request body data for SSE.
+     * @return array|WP_Error The formatted request body data or a validation error.
      */
-    public function build_sse_payload(array $messages, $system_instruction, array $ai_params, string $model): array;
+    public function build_sse_payload(array $messages, $system_instruction, array $ai_params, string $model);
 
     /**
      * Parse a chunk of data received from an SSE stream.
@@ -103,6 +103,14 @@ interface ProviderStrategyInterface {
      * @return array Additional options (e.g., method, user-agent, timeout).
      */
     public function get_request_options(string $operation): array;
+
+    /**
+     * Build shared HTTP error metadata, including Retry-After when present.
+     *
+     * @param mixed $response WordPress HTTP API response.
+     * @return array<string, int>
+     */
+    public function build_http_error_data_with_retry_after($response, int $status_code): array;
 
     /**
      * Format headers array into the ['Header: Value', ...] format needed by cURL.

@@ -118,6 +118,9 @@ function get_form_data_logic(\WPAICG\AIForms\Storage\AIPKit_AI_Form_Storage $sto
     $openai_vs_ids_json = get_post_meta($form_id, '_aipkit_ai_form_openai_vector_store_ids', true) ?: '[]';
     $openai_vs_ids_array = json_decode($openai_vs_ids_json, true);
     $data['openai_vector_store_ids'] = is_array($openai_vs_ids_array) ? $openai_vs_ids_array : [];
+    $google_store_names_json = get_post_meta($form_id, '_aipkit_ai_form_google_file_search_store_names', true) ?: '[]';
+    $google_store_names = json_decode($google_store_names_json, true);
+    $data['google_file_search_store_names'] = is_array($google_store_names) ? $google_store_names : [];
 
     $data['pinecone_index_name'] = get_post_meta($form_id, '_aipkit_ai_form_pinecone_index_name', true) ?: '';
     $data['qdrant_collection_name'] = get_post_meta($form_id, '_aipkit_ai_form_qdrant_collection_name', true) ?: '';
@@ -178,10 +181,6 @@ function get_form_data_logic(\WPAICG\AIForms\Storage\AIPKit_AI_Form_Storage $sto
     $data['openrouter_web_search_max_results'] = max(1, min($openrouter_max_results, 10));
     $data['openrouter_web_search_search_prompt'] = get_post_meta($form_id, '_aipkit_ai_form_openrouter_web_search_search_prompt', true) ?: '';
     
-    // Google Search Grounding sub-settings
-    $data['google_grounding_mode'] = get_post_meta($form_id, '_aipkit_ai_form_google_grounding_mode', true) ?: 'DEFAULT_MODE';
-    $data['google_grounding_dynamic_threshold'] = get_post_meta($form_id, '_aipkit_ai_form_google_grounding_dynamic_threshold', true) ?: 0.30;
-
     // --- Add Labels ---
     $labels_json = get_post_meta($form_id, '_aipkit_ai_form_labels', true);
     $saved_labels = json_decode($labels_json, true);
@@ -337,6 +336,18 @@ function save_form_settings_logic(\WPAICG\AIForms\Storage\AIPKit_AI_Form_Storage
         $sanitized_ids = is_array($settings['openai_vector_store_ids']) ? array_map('sanitize_text_field', $settings['openai_vector_store_ids']) : [];
         update_post_meta($form_id, '_aipkit_ai_form_openai_vector_store_ids', wp_json_encode(array_values(array_unique($sanitized_ids))));
     }
+    if (isset($settings['google_file_search_store_names'])) {
+        $store_names = is_array($settings['google_file_search_store_names'])
+            ? array_filter(array_map(
+                static function ($store_name): string {
+                    $store_name = sanitize_text_field((string) $store_name);
+                    return strpos($store_name, 'fileSearchStores/') === 0 ? $store_name : '';
+                },
+                $settings['google_file_search_store_names']
+            ))
+            : [];
+        update_post_meta($form_id, '_aipkit_ai_form_google_file_search_store_names', wp_json_encode(array_values(array_unique($store_names))));
+    }
     if (isset($settings['pinecone_index_name'])) {
         update_post_meta($form_id, '_aipkit_ai_form_pinecone_index_name', sanitize_text_field($settings['pinecone_index_name']));
     }
@@ -451,15 +462,6 @@ function save_form_settings_logic(\WPAICG\AIForms\Storage\AIPKit_AI_Form_Storage
         update_post_meta($form_id, '_aipkit_ai_form_openrouter_web_search_search_prompt', AIPKit_Prompt_Sanitizer::sanitize($settings['openrouter_web_search_search_prompt']));
     }
     
-    // --- Save Google Search Grounding Sub-Settings ---
-    if (isset($settings['google_grounding_mode'])) {
-        update_post_meta($form_id, '_aipkit_ai_form_google_grounding_mode', sanitize_text_field($settings['google_grounding_mode']));
-    }
-    if (isset($settings['google_grounding_dynamic_threshold'])) {
-        update_post_meta($form_id, '_aipkit_ai_form_google_grounding_dynamic_threshold', floatval($settings['google_grounding_dynamic_threshold']));
-    }
-
-
     // --- Save Labels ---
     if (isset($settings['labels']) && is_array($settings['labels'])) {
         $sanitized_labels = [];

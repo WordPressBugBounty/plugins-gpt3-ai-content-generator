@@ -14,6 +14,7 @@ if (!defined('ABSPATH')) {
 }
 
 require_once __DIR__ . '/content-indexing/openai-post-index-processor.php';
+require_once __DIR__ . '/content-indexing/google-post-index-processor.php';
 require_once __DIR__ . '/content-indexing/pinecone-post-index-processor.php';
 require_once __DIR__ . '/content-indexing/qdrant-post-index-processor.php';
 require_once __DIR__ . '/content-indexing/chroma-post-index-processor.php';
@@ -42,6 +43,8 @@ function process_queue_item_logic(array $item): array
         switch ($provider) {
             case 'openai':
                 return ContentIndexing\process_openai_indexing_logic($item, $item_config);
+            case 'google':
+                return ContentIndexing\process_google_indexing_logic($item, $item_config);
             case 'pinecone':
                 return ContentIndexing\process_pinecone_indexing_logic($item, $item_config);
             case 'qdrant':

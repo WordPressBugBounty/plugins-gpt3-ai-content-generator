@@ -287,49 +287,15 @@ $render_ai_form_web_search_location_fields = static function ($provider_key, $lo
 
     <div class="aipkit_ai_form_google_search_grounding_settings" style="display: none;">
         <div class="aipkit_ai_form_web_search_settings_row">
-            <div class="aipkit_ai_form_web_search_settings_row_main">
-                <div class="aipkit_ai_form_web_search_settings_copy">
-                    <label class="aipkit_ai_form_web_search_settings_label" for="aipkit_ai_form_google_grounding_mode">
-                        <?php esc_html_e('Grounding mode', 'gpt3-ai-content-generator'); ?>
-                    </label>
-                    <span class="aipkit_ai_form_web_search_settings_helper">
-                        <?php esc_html_e('How Google grounding runs.', 'gpt3-ai-content-generator'); ?>
-                    </span>
-                </div>
-                <select id="aipkit_ai_form_google_grounding_mode" name="google_grounding_mode" class="aipkit_form-input aipkit_ai_form_web_search_settings_control aipkit_ai_form_google_grounding_mode_select">
-                    <option value="DEFAULT_MODE" selected><?php esc_html_e('Default', 'gpt3-ai-content-generator'); ?></option>
-                    <option value="MODE_DYNAMIC"><?php esc_html_e('Dynamic retrieval', 'gpt3-ai-content-generator'); ?></option>
-                </select>
-            </div>
-        </div>
-        <div class="aipkit_ai_form_google_grounding_dynamic_threshold_container" style="display: none;">
-            <div class="aipkit_ai_form_web_search_settings_row">
-                <div class="aipkit_ai_form_web_search_settings_row_main">
-                    <div class="aipkit_ai_form_web_search_settings_copy">
-                        <label class="aipkit_ai_form_web_search_settings_label" for="aipkit_ai_form_google_grounding_dynamic_threshold">
-                            <?php esc_html_e('Dynamic threshold', 'gpt3-ai-content-generator'); ?>
-                        </label>
-                        <span class="aipkit_ai_form_web_search_settings_helper">
-                            <?php esc_html_e('Minimum retrieval confidence.', 'gpt3-ai-content-generator'); ?>
-                        </span>
-                    </div>
-                    <input type="number" id="aipkit_ai_form_google_grounding_dynamic_threshold" name="google_grounding_dynamic_threshold" class="aipkit_form-input aipkit_ai_form_web_search_settings_control" min="0" max="1" step="0.01" value="0.30" inputmode="decimal">
-                </div>
-            </div>
-        </div>
-        <div class="aipkit_ai_form_web_search_settings_row">
-            <div class="aipkit_ai_form_web_search_settings_row_main">
+            <div class="aipkit_ai_form_web_search_settings_row_main aipkit_ai_form_web_search_settings_row_main--stacked">
                 <div class="aipkit_ai_form_web_search_settings_copy">
                     <span class="aipkit_ai_form_web_search_settings_label">
-                        <?php esc_html_e('Models', 'gpt3-ai-content-generator'); ?>
+                        <?php esc_html_e('No additional options', 'gpt3-ai-content-generator'); ?>
                     </span>
                     <span class="aipkit_ai_form_web_search_settings_helper">
-                        <?php esc_html_e('Supported Gemini models.', 'gpt3-ai-content-generator'); ?>
+                        <?php esc_html_e('Gemini decides when to search. Search sources are shown automatically.', 'gpt3-ai-content-generator'); ?>
                     </span>
                 </div>
-                <span class="aipkit_ai_form_web_search_settings_static">
-                    <?php esc_html_e('2.5 Pro, 2.5 Flash, 2.0 Flash, 1.5 Pro, 1.5 Flash', 'gpt3-ai-content-generator'); ?>
-                </span>
             </div>
         </div>
     </div>

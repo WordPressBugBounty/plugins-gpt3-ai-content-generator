@@ -5,6 +5,7 @@ namespace WPAICG;
 
 use WPAICG\Core\Models\AIPKit_Model_Registry;
 use WPAICG\Core\Models\AIPKit_Model_Catalog;
+use WPAICG\Core\Providers\Google\Interactions\GoogleModelCapabilityClassifier;
 use WPAICG\Vector\AIPKit_Vector_Store_Registry;
 
 if (!defined('ABSPATH')) {
@@ -19,18 +20,21 @@ class AIPKit_Providers
     private static $provider_defaults = [
         'OpenAI' => [
             'api_key' => '', 'model' => '', 'embedding_model' => '',
+            // phpcs:ignore PluginCheck.CodeAnalysis.AIProvider.DirectIntegration -- Configurable provider endpoint.
             'base_url' => 'https://api.openai.com', 'api_version' => 'v1',
             'store_conversation' => '0',
             'expiration_policy' => 7, // NEW: Default expiration policy in days
         ],
         'OpenRouter' => [
             'api_key' => '', 'model' => '',
+            // phpcs:ignore PluginCheck.CodeAnalysis.AIProvider.DirectIntegration -- Configurable provider endpoint.
             'base_url' => 'https://openrouter.ai/api', 'api_version' => 'v1',
         ],
         'Google' => [
             'api_key' => '', 'model' => '', 'embedding_model' => '',
+            // phpcs:ignore PluginCheck.CodeAnalysis.AIProvider.DirectIntegration -- Configurable provider endpoint.
             'base_url' => 'https://generativelanguage.googleapis.com', 'api_version' => 'v1beta',
-            'safety_settings' => []
+            'store_conversation' => '0',
         ],
         'Azure' => [
             'api_key' => '', 'model' => '', 'endpoint' => '', 'embeddings' => '',
@@ -39,14 +43,17 @@ class AIPKit_Providers
         ],
         'Claude' => [
             'api_key' => '', 'model' => '',
+            // phpcs:ignore PluginCheck.CodeAnalysis.AIProvider.DirectIntegration -- Configurable provider endpoint.
             'base_url' => 'https://api.anthropic.com', 'api_version' => '2023-06-01',
         ],
         'DeepSeek' => [
             'api_key' => '', 'model' => '',
+            // phpcs:ignore PluginCheck.CodeAnalysis.AIProvider.DirectIntegration -- Configurable provider endpoint.
             'base_url' => 'https://api.deepseek.com', 'api_version' => 'v1',
         ],
         'xAI' => [
             'api_key' => '', 'model' => '',
+            // phpcs:ignore PluginCheck.CodeAnalysis.AIProvider.DirectIntegration -- Configurable provider endpoint.
             'base_url' => 'https://api.x.ai', 'api_version' => 'v1',
         ],
         'Ollama' => [
@@ -82,6 +89,24 @@ class AIPKit_Providers
     ];
 
     private static $provider_capabilities = [
+        'Google' => [
+            'text_generation' => true,
+            'streaming' => true,
+            'image_input' => true,
+            'web_search' => true,
+            'embeddings' => true,
+            'vector_stores' => false,
+            'hosted_knowledge' => true,
+            'file_search' => true,
+            'image_generation' => true,
+            'image_editing' => true,
+            'video_generation' => true,
+            'tts' => true,
+            'stt' => true,
+            'realtime' => false,
+            'legacy_completions' => false,
+            'chat_completions' => false,
+        ],
         'xAI' => [
             'text_generation' => true,
             'streaming' => true,
@@ -129,6 +154,9 @@ class AIPKit_Providers
         }
         if ($provider_lower === 'claude_files') {
             return __('Anthropic Files', 'gpt3-ai-content-generator');
+        }
+        if ($provider_lower === 'google_file_search') {
+            return __('Google', 'gpt3-ai-content-generator');
         }
 
         return self::normalize_provider_label($provider);
@@ -658,9 +686,15 @@ class AIPKit_Providers
         $pinecone_indexes = self::get_pinecone_indexes();
         $qdrant_collections = self::get_qdrant_collections();
         $chroma_collections = self::get_chroma_collections();
+        $google_file_search_stores = self::get_google_file_search_stores();
 
         if (class_exists(AIPKit_Vector_Store_Registry::class)) {
             $openai_vector_stores = AIPKit_Vector_Store_Registry::get_registered_stores_by_provider('OpenAI');
+
+            $registry_google_file_search_stores = AIPKit_Vector_Store_Registry::get_registered_stores_by_provider('Google');
+            if (is_array($registry_google_file_search_stores) && !empty($registry_google_file_search_stores)) {
+                $google_file_search_stores = $registry_google_file_search_stores;
+            }
 
             $registry_pinecone_indexes = AIPKit_Vector_Store_Registry::get_registered_stores_by_provider('Pinecone');
             if (is_array($registry_pinecone_indexes) && !empty($registry_pinecone_indexes)) {
@@ -684,15 +718,18 @@ class AIPKit_Providers
                 'pinecone' => $pinecone_indexes,
                 'qdrant' => $qdrant_collections,
                 'chroma' => $chroma_collections,
+                'google_file_search' => $google_file_search_stores,
             ],
             'openaiVectorStores' => $openai_vector_stores,
             'pineconeIndexes' => $pinecone_indexes,
             'qdrantCollections' => $qdrant_collections,
             'chromaCollections' => $chroma_collections,
+            'googleFileSearchStores' => $google_file_search_stores,
             'openai_vector_stores' => $openai_vector_stores,
             'pinecone_indexes' => $pinecone_indexes,
             'qdrant_collections' => $qdrant_collections,
             'chroma_collections' => $chroma_collections,
+            'google_file_search_stores' => $google_file_search_stores,
         ];
 
         $filtered_payload = apply_filters('aipkit_vector_store_localization_payload', $payload, $context);
@@ -1000,6 +1037,9 @@ class AIPKit_Providers
             && AIPKit_Model_Catalog::is_deprecated_id('DeepSeek', (string) $provider_data['model'])
         ) {
             $provider_data['model'] = $defaults['model'] ?? self::get_default_model_id('DeepSeek');
+        }
+        if ($provider === 'Google' && isset($provider_data['model'])) {
+            $provider_data['model'] = self::normalize_google_text_model((string) $provider_data['model']);
         }
 
         return $provider_data;
@@ -1333,6 +1373,87 @@ class AIPKit_Providers
     {
         return self::get_model_list('Google');
     }
+    public static function normalize_google_text_model(?string $model): string
+    {
+        $normalized_model = is_string($model) ? trim($model) : '';
+        if (strpos($normalized_model, 'models/') === 0) {
+            $normalized_model = (string) substr($normalized_model, 7);
+        }
+
+        $default_model = self::get_default_model_id('Google');
+        if ($normalized_model === '') {
+            return $default_model;
+        }
+
+        $normalized_lower = strtolower($normalized_model);
+        if (
+            AIPKit_Model_Catalog::is_deprecated_id('Google', $normalized_lower)
+            || preg_match('/^gemini-(?:1(?:\.|-|$)|2\.0(?:-|$)|pro(?:-|$))/', $normalized_lower)
+        ) {
+            return $default_model;
+        }
+
+        $classification = GoogleModelCapabilityClassifier::classify($normalized_model);
+        $capabilities = isset($classification['capabilities']) && is_array($classification['capabilities'])
+            ? $classification['capabilities']
+            : [];
+        if (!empty($classification['supports_interactions']) && in_array('text_generation', $capabilities, true)) {
+            return $normalized_model;
+        }
+
+        // Preserve unknown IDs for custom Gemini-compatible endpoints, but do
+        // not route a known image, audio, embedding, video, or agent model as chat.
+        return ($classification['family'] ?? 'unknown') === 'unknown'
+            ? $normalized_model
+            : $default_model;
+    }
+    public static function get_google_stt_models(): array
+    {
+        $models = [];
+        foreach (self::get_google_models() as $model) {
+            if (!GoogleModelCapabilityClassifier::supports_audio_input($model)) {
+                continue;
+            }
+            $row = is_array($model) ? $model : ['id' => (string) $model, 'name' => (string) $model];
+            $model_id = trim((string) ($row['id'] ?? ''));
+            if (strpos($model_id, 'models/') === 0) {
+                $model_id = (string) substr($model_id, 7);
+            }
+            if ($model_id === '') {
+                continue;
+            }
+            $row['id'] = $model_id;
+            $row['name'] = isset($row['name']) && trim((string) $row['name']) !== ''
+                ? (string) $row['name']
+                : $model_id;
+            $models[$model_id] = $row;
+        }
+        return array_values($models);
+    }
+    public static function normalize_google_stt_model(?string $model): string
+    {
+        $normalized_model = is_string($model) ? trim($model) : '';
+        if (strpos($normalized_model, 'models/') === 0) {
+            $normalized_model = (string) substr($normalized_model, 7);
+        }
+
+        foreach (self::get_google_stt_models() as $model_row) {
+            $model_id = is_array($model_row)
+                ? trim((string) ($model_row['id'] ?? ''))
+                : trim((string) $model_row);
+            if (strpos($model_id, 'models/') === 0) {
+                $model_id = (string) substr($model_id, 7);
+            }
+            if ($model_id !== '' && $model_id === $normalized_model) {
+                return $model_id;
+            }
+        }
+
+        $default_model = self::get_default_model_id('Google');
+        return GoogleModelCapabilityClassifier::supports_audio_input($default_model)
+            ? $default_model
+            : 'gemini-3.7-flash';
+    }
     public static function get_google_embedding_models(): array
     {
         return self::get_model_list('GoogleEmbedding');
@@ -1344,6 +1465,23 @@ class AIPKit_Providers
     public static function get_google_image_models(): array
     {
         return self::get_model_list('GoogleImage');
+    }
+    public static function get_google_image_model_ids(): array
+    {
+        return wp_list_pluck(self::get_google_image_models(), 'id');
+    }
+    public static function is_supported_google_image_model(string $model): bool
+    {
+        return in_array(trim($model), self::get_google_image_model_ids(), true);
+    }
+    public static function normalize_google_image_model(?string $model): string
+    {
+        $normalized_model = is_string($model) ? trim($model) : '';
+        if ($normalized_model !== '' && self::is_supported_google_image_model($normalized_model)) {
+            return $normalized_model;
+        }
+
+        return self::get_default_google_image_model();
     }
     public static function get_default_google_image_model(): string
     {
@@ -1561,6 +1699,32 @@ class AIPKit_Providers
     {
         return self::get_model_list('GoogleTTSVoices');
     }
+    public static function get_google_tts_models(): array
+    {
+        return self::get_model_list('GoogleTTS');
+    }
+    public static function normalize_google_tts_model(?string $model): string
+    {
+        $normalized_model = is_string($model) ? trim($model) : '';
+        $valid_ids = wp_list_pluck(self::get_google_tts_models(), 'id');
+        if ($normalized_model !== '' && in_array($normalized_model, $valid_ids, true)) {
+            return $normalized_model;
+        }
+
+        return self::get_default_model_id('GoogleTTS');
+    }
+    public static function normalize_google_tts_voice(?string $voice): string
+    {
+        $normalized_voice = is_string($voice) ? trim($voice) : '';
+        foreach (self::get_google_tts_voices() as $voice_row) {
+            $voice_id = is_array($voice_row) ? (string) ($voice_row['id'] ?? '') : (string) $voice_row;
+            if ($voice_id !== '' && strcasecmp($normalized_voice, $voice_id) === 0) {
+                return $voice_id;
+            }
+        }
+
+        return self::get_default_model_id('GoogleTTSVoices');
+    }
     public static function get_ollama_embedding_models(): array
     {
         return self::get_model_list('OllamaEmbedding');
@@ -1584,6 +1748,10 @@ class AIPKit_Providers
     public static function get_chroma_collections(): array
     {
         return self::get_model_list('ChromaCollections');
+    }
+    public static function get_google_file_search_stores(): array
+    {
+        return self::get_model_list('GoogleFileSearchStores');
     }
     public static function get_replicate_models(): array
     {

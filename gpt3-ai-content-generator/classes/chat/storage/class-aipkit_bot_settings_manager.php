@@ -85,6 +85,7 @@ class BotSettingsManager
     public const DEFAULT_ENABLE_FILE_UPLOAD = '0';
     public const DEFAULT_ENABLE_IMAGE_UPLOAD = '0';
     public const DEFAULT_OPENAI_CONVERSATION_STATE_ENABLED = '0';
+    public const DEFAULT_GOOGLE_CONVERSATION_STATE_ENABLED = '0';
     // --- Typing Indicator Defaults ---
     public const DEFAULT_CUSTOM_TYPING_TEXT = '';
     // --- Vector Store Constants ---
@@ -121,8 +122,6 @@ class BotSettingsManager
     public const DEFAULT_SEARCHING_WEB_TEXT = '';
     public const DEFAULT_RETRIEVING_CONTEXT_TEXT = '';
     public const DEFAULT_GOOGLE_SEARCH_GROUNDING_ENABLED = '0'; // Master switch for bot
-    public const DEFAULT_GOOGLE_GROUNDING_MODE = 'DEFAULT_MODE'; // Default: use Search as Tool for Gemini 2.0+, Retrieval for 1.5 Flash
-    public const DEFAULT_GOOGLE_GROUNDING_DYNAMIC_THRESHOLD = 0.3;
     public const DEFAULT_ENABLE_REALTIME_VOICE = '0';
     public const DEFAULT_DIRECT_VOICE_MODE = '0';
     public const DEFAULT_TURN_DETECTION = 'server_vad';
@@ -149,6 +148,89 @@ class BotSettingsManager
     public static function get_default_model_id(string $catalog_key): string
     {
         return AIPKit_Model_Catalog::get_default_id($catalog_key);
+    }
+
+    /**
+     * Whether a knowledge provider can run with the selected chatbot provider.
+     *
+     * Google File Search and Anthropic Files are native generation tools. The
+     * remaining knowledge providers are retrieved independently and can supply
+     * context to any chatbot provider.
+     */
+    public static function is_vector_store_provider_compatible(
+        string $chatbot_provider,
+        string $vector_store_provider
+    ): bool {
+        $chatbot_provider = strtolower(trim($chatbot_provider));
+        $vector_store_provider = strtolower(trim($vector_store_provider));
+
+        if ($vector_store_provider === 'google') {
+            return $chatbot_provider === 'google';
+        }
+
+        if ($vector_store_provider === 'claude_files') {
+            return $chatbot_provider === 'claude';
+        }
+
+        return true;
+    }
+
+    /**
+     * Returns the chatbot provider required by a native knowledge provider.
+     */
+    public static function get_required_chatbot_provider_for_vector_store(
+        string $vector_store_provider
+    ): string {
+        $vector_store_provider = strtolower(trim($vector_store_provider));
+
+        if ($vector_store_provider === 'google') {
+            return 'Google';
+        }
+
+        if ($vector_store_provider === 'claude_files') {
+            return 'Claude';
+        }
+
+        return '';
+    }
+
+    /**
+     * Resolves stored and effective native Knowledge state without changing
+     * the selected provider or its stores.
+     *
+     * @return array{
+     *     requested: bool,
+     *     compatible: bool,
+     *     effective: bool,
+     *     required_provider: string,
+     *     google_search_conflict: bool
+     * }
+     */
+    public static function get_knowledge_capability_state(
+        string $chatbot_provider,
+        string $vector_store_provider,
+        string $enable_vector_store,
+        string $google_search_enabled = '0'
+    ): array {
+        $vector_store_provider = sanitize_key($vector_store_provider);
+        $requested = $enable_vector_store === '1';
+        $compatible = self::is_vector_store_provider_compatible(
+            $chatbot_provider,
+            $vector_store_provider
+        );
+        $effective = $requested && $compatible;
+
+        return [
+            'requested' => $requested,
+            'compatible' => $compatible,
+            'effective' => $effective,
+            'required_provider' => self::get_required_chatbot_provider_for_vector_store(
+                $vector_store_provider
+            ),
+            'google_search_conflict' => $effective
+                && $vector_store_provider === 'google'
+                && $google_search_enabled === '1',
+        ];
     }
 
 
@@ -240,8 +322,62 @@ class BotSettingsManager
      */
     public static function get_default_conversation_starters_json(): string
     {
-        $json = wp_json_encode(self::get_default_conversation_starters(), JSON_UNESCAPED_UNICODE);
+        return self::encode_conversation_starters(self::get_default_conversation_starters());
+    }
+
+    /**
+     * Normalize conversation starters submitted by the textarea or an API client.
+     *
+     * @param mixed $raw_starters Newline-delimited text or an array of starter strings.
+     * @return string[]
+     */
+    public static function normalize_conversation_starters($raw_starters): array
+    {
+        if (is_array($raw_starters)) {
+            $candidates = $raw_starters;
+        } elseif (is_scalar($raw_starters)) {
+            $candidates = preg_split('/\R/u', (string) $raw_starters);
+            if (!is_array($candidates)) {
+                $candidates = [];
+            }
+        } else {
+            $candidates = [];
+        }
+
+        $starters = [];
+        foreach ($candidates as $candidate) {
+            if (!is_scalar($candidate)) {
+                continue;
+            }
+            $candidate = trim((string) $candidate);
+            if ($candidate !== '') {
+                $starters[] = $candidate;
+            }
+        }
+
+        return array_slice($starters, 0, 6);
+    }
+
+    /**
+     * Encode normalized conversation starters as JSON.
+     *
+     * @param string[] $starters Normalized conversation starter strings.
+     */
+    public static function encode_conversation_starters(array $starters): string
+    {
+        $json = wp_json_encode(array_values($starters), JSON_UNESCAPED_UNICODE);
         return is_string($json) ? $json : '[]';
+    }
+
+    /**
+     * Encode conversation starters for update_post_meta(). WordPress unslashes
+     * metadata values before storage, so JSON must be slashed at this boundary.
+     *
+     * @param string[] $starters Normalized conversation starter strings.
+     */
+    public static function get_conversation_starters_meta_value(array $starters): string
+    {
+        return wp_slash(self::encode_conversation_starters($starters));
     }
 
     /**

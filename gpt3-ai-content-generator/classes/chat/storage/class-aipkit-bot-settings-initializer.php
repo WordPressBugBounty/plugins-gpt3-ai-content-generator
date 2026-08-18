@@ -113,9 +113,16 @@ class AIPKit_Bot_Settings_Initializer
         update_post_meta($post_id, '_aipkit_max_messages', BotSettingsManager::DEFAULT_MAX_MESSAGES);
         update_post_meta($post_id, '_aipkit_reasoning_effort', BotSettingsManager::DEFAULT_REASONING_EFFORT);
         update_post_meta($post_id, '_aipkit_enable_conversation_starters', BotSettingsManager::DEFAULT_ENABLE_CONVERSATION_STARTERS);
-        update_post_meta($post_id, '_aipkit_conversation_starters', BotSettingsManager::get_default_conversation_starters_json());
+        update_post_meta(
+            $post_id,
+            '_aipkit_conversation_starters',
+            BotSettingsManager::get_conversation_starters_meta_value(
+                BotSettingsManager::get_default_conversation_starters()
+            )
+        );
         update_post_meta($post_id, '_aipkit_content_aware_enabled', BotSettingsManager::DEFAULT_CONTENT_AWARE_ENABLED);
         update_post_meta($post_id, '_aipkit_openai_conversation_state_enabled', BotSettingsManager::DEFAULT_OPENAI_CONVERSATION_STATE_ENABLED);
+        update_post_meta($post_id, '_aipkit_google_conversation_state_enabled', BotSettingsManager::DEFAULT_GOOGLE_CONVERSATION_STATE_ENABLED);
         $default_guest_limit_value = (BotSettingsManager::DEFAULT_TOKEN_GUEST_LIMIT === null) ? '' : (string)BotSettingsManager::DEFAULT_TOKEN_GUEST_LIMIT;
         $default_user_limit_value = (BotSettingsManager::DEFAULT_TOKEN_USER_LIMIT === null) ? '' : (string)BotSettingsManager::DEFAULT_TOKEN_USER_LIMIT;
         update_post_meta($post_id, '_aipkit_token_guest_limit', $default_guest_limit_value);
@@ -133,7 +140,8 @@ class AIPKit_Bot_Settings_Initializer
         update_post_meta($post_id, '_aipkit_token_limit_secondary_action_url', $default_token_limit_actions['secondary_url']);
         update_post_meta($post_id, '_aipkit_tts_enabled', BotSettingsManager::DEFAULT_TTS_ENABLED);
         update_post_meta($post_id, '_aipkit_tts_provider', BotSettingsManager::DEFAULT_TTS_PROVIDER);
-        update_post_meta($post_id, '_aipkit_tts_google_voice_id', '');
+        update_post_meta($post_id, '_aipkit_tts_google_voice_id', AIPKit_Providers::normalize_google_tts_voice(''));
+        update_post_meta($post_id, '_aipkit_tts_google_model_id', AIPKit_Providers::normalize_google_tts_model(''));
         update_post_meta($post_id, '_aipkit_tts_openai_voice_id', BotSettingsManager::get_default_model_id('OpenAIVoices'));
         update_post_meta($post_id, '_aipkit_tts_openai_model_id', BotSettingsManager::get_default_model_id('OpenAITTS'));
         update_post_meta($post_id, '_aipkit_tts_elevenlabs_voice_id', '');
@@ -142,6 +150,7 @@ class AIPKit_Bot_Settings_Initializer
         update_post_meta($post_id, '_aipkit_enable_voice_input', BotSettingsManager::DEFAULT_ENABLE_VOICE_INPUT);
         update_post_meta($post_id, '_aipkit_stt_provider', BotSettingsManager::DEFAULT_STT_PROVIDER);
         update_post_meta($post_id, '_aipkit_stt_openai_model_id', BotSettingsManager::get_default_model_id('OpenAISTT'));
+        update_post_meta($post_id, '_aipkit_stt_google_model_id', AIPKit_Providers::normalize_google_stt_model(''));
         update_post_meta($post_id, '_aipkit_stt_azure_model_id', BotSettingsManager::DEFAULT_STT_AZURE_MODEL_ID);
         update_post_meta($post_id, '_aipkit_image_triggers', BotSettingsManager::DEFAULT_IMAGE_TRIGGERS);
         update_post_meta($post_id, '_aipkit_chat_image_model_id', BotSettingsManager::get_default_model_id('OpenAIImage'));
@@ -151,6 +160,7 @@ class AIPKit_Bot_Settings_Initializer
         update_post_meta($post_id, '_aipkit_enable_vector_store', BotSettingsManager::DEFAULT_ENABLE_VECTOR_STORE);
         update_post_meta($post_id, '_aipkit_vector_store_provider', BotSettingsManager::DEFAULT_VECTOR_STORE_PROVIDER);
         update_post_meta($post_id, '_aipkit_openai_vector_store_ids', '[]');
+        update_post_meta($post_id, '_aipkit_google_file_search_store_names', '[]');
         delete_post_meta($post_id, '_aipkit_openai_vector_store_id');
         update_post_meta($post_id, '_aipkit_pinecone_index_name', BotSettingsManager::DEFAULT_PINECONE_INDEX_NAME);
         update_post_meta($post_id, '_aipkit_qdrant_collection_name', BotSettingsManager::DEFAULT_QDRANT_COLLECTION_NAME);
@@ -188,8 +198,6 @@ class AIPKit_Bot_Settings_Initializer
         update_post_meta($post_id, '_aipkit_sources_label', BotSettingsManager::DEFAULT_SOURCES_LABEL);
         update_post_meta($post_id, '_aipkit_searching_web_text', BotSettingsManager::DEFAULT_SEARCHING_WEB_TEXT);
         update_post_meta($post_id, '_aipkit_google_search_grounding_enabled', BotSettingsManager::DEFAULT_GOOGLE_SEARCH_GROUNDING_ENABLED);
-        update_post_meta($post_id, '_aipkit_google_grounding_mode', BotSettingsManager::DEFAULT_GOOGLE_GROUNDING_MODE);
-        update_post_meta($post_id, '_aipkit_google_grounding_dynamic_threshold', (string)BotSettingsManager::DEFAULT_GOOGLE_GROUNDING_DYNAMIC_THRESHOLD);
 
         update_post_meta($post_id, '_aipkit_enable_realtime_voice', BotSettingsManager::DEFAULT_ENABLE_REALTIME_VOICE);
         update_post_meta($post_id, '_aipkit_direct_voice_mode', BotSettingsManager::DEFAULT_DIRECT_VOICE_MODE);

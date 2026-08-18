@@ -351,11 +351,6 @@ $aipkit_image_display_settings_provider_fields = [
             $aipkit_image_display_settings_option('2k', '2K'),
             $aipkit_image_display_settings_option('4k', '4K'),
         ]), ['name' => 'google_image_size', 'attrs' => $aipkit_image_display_settings_provider_option('image_size'), 'row_attrs' => ['data-aipkit-google-image-size-row' => true, 'hidden' => true]]),
-        $aipkit_image_display_settings_select('google_person_generation', __('People', 'gpt3-ai-content-generator'), __('Imagen person generation policy.', 'gpt3-ai-content-generator'), array_merge($aipkit_image_display_settings_default_option, [
-            $aipkit_image_display_settings_option('dont_allow', __('Do not allow', 'gpt3-ai-content-generator')),
-            $aipkit_image_display_settings_option('allow_adult', __('Adults only', 'gpt3-ai-content-generator')),
-            $aipkit_image_display_settings_option('allow_all', __('Adults and children', 'gpt3-ai-content-generator')),
-        ]), ['name' => 'google_person_generation', 'attrs' => $aipkit_image_display_settings_provider_option('person_generation'), 'row_attrs' => ['data-aipkit-google-person-generation-row' => true, 'hidden' => true]]),
     ],
     'openrouter' => [
         $aipkit_image_display_settings_select('openrouter_aspect_ratio', __('Aspect ratio', 'gpt3-ai-content-generator'), __('Model-dependent image_config shape.', 'gpt3-ai-content-generator'), array_merge($aipkit_image_display_settings_default_option, [

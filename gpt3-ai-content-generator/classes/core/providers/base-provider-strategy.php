@@ -132,7 +132,7 @@ abstract class BaseProviderStrategy implements ProviderStrategyInterface
      */
     abstract public function build_api_url(string $operation, array $params);
     abstract public function get_api_headers(string $api_key, string $operation): array;
-    abstract public function format_chat_payload(string $user_message, string $instructions, array $history, array $ai_params, string $model): array;
+    abstract public function format_chat_payload(string $user_message, string $instructions, array $history, array $ai_params, string $model);
     /**
      * @return mixed[]|\WP_Error
      */
@@ -142,7 +142,7 @@ abstract class BaseProviderStrategy implements ProviderStrategyInterface
      * @return mixed[]|\WP_Error
      */
     abstract public function get_models(array $api_params);
-    abstract public function build_sse_payload(array $messages, $system_instruction, array $ai_params, string $model): array;
+    abstract public function build_sse_payload(array $messages, $system_instruction, array $ai_params, string $model);
     abstract public function parse_sse_chunk(string $sse_chunk, string &$current_buffer): array;
     /**
      * @return mixed[]|\WP_Error

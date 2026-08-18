@@ -4,16 +4,17 @@ if (!defined('ABSPATH')) {
 }
 
 // phpcs:disable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- This file only uses local helper/template variables and does not define public globals.
-$stt_model_count = (isset($openai_stt_models) && is_array($openai_stt_models)) ? count($openai_stt_models) : 0;
-$hide_stt_controls = $stt_model_count <= 1;
+$hide_stt_controls = false;
 $stt_provider_options = [
     'OpenAI' => __('OpenAI', 'gpt3-ai-content-generator'),
+    'Google' => __('Google', 'gpt3-ai-content-generator'),
 ];
 $hide_stt_provider_field = count($stt_provider_options) <= 1;
 $selected_stt_provider_for_ui = array_key_exists((string) $stt_provider, $stt_provider_options)
     ? (string) $stt_provider
     : 'OpenAI';
 $default_stt_model = \WPAICG\Chat\Storage\BotSettingsManager::get_default_model_id('OpenAISTT');
+$default_google_stt_model = \WPAICG\AIPKit_Providers::normalize_google_stt_model('');
 ?>
 <div class="aipkit_popover_options_list">
     <div class="aipkit_popover_option_group aipkit_audio_feature_group aipkit_audio_feature_group--stt">
@@ -98,6 +99,38 @@ $default_stt_model = \WPAICG\Chat\Storage\BotSettingsManager::get_default_model_
                             ?>
                         </select>
                     </div>
+                    <div class="aipkit_audio_settings_field aipkit_audio_settings_field--model aipkit_stt_model_field" data-stt-provider="Google" style="display: <?php echo $selected_stt_provider_for_ui === 'Google' ? 'flex' : 'none'; ?>;">
+                        <label
+                            class="aipkit_popover_option_label"
+                            for="aipkit_bot_<?php echo esc_attr($bot_id); ?>_stt_google_model_id_sheet"
+                        >
+                            <?php esc_html_e('Model', 'gpt3-ai-content-generator'); ?>
+                        </label>
+                        <select
+                            id="aipkit_bot_<?php echo esc_attr($bot_id); ?>_stt_google_model_id_sheet"
+                            name="stt_google_model_id"
+                            class="aipkit_popover_option_select aipkit_popover_option_select--compact"
+                        >
+                            <?php
+                            $found_current_google_stt = false;
+                            if (!empty($google_stt_models)) {
+                                foreach ($google_stt_models as $model) {
+                                    $model_id_val = isset($model['id']) ? (string) $model['id'] : '';
+                                    $model_name_val = isset($model['name']) ? (string) $model['name'] : $model_id_val;
+                                    if ($model_id_val === $stt_google_model_id) {
+                                        $found_current_google_stt = true;
+                                    }
+                                    echo '<option value="' . esc_attr($model_id_val) . '" ' . selected($stt_google_model_id, $model_id_val, false) . '>' . esc_html($model_name_val) . '</option>';
+                                }
+                            }
+                            if (!$found_current_google_stt && !empty($stt_google_model_id)) {
+                                echo '<option value="' . esc_attr($stt_google_model_id) . '" selected>' . esc_html($stt_google_model_id) . '</option>';
+                            } elseif (empty($google_stt_models) && empty($stt_google_model_id)) {
+                                echo '<option value="' . esc_attr($default_google_stt_model) . '" selected>' . esc_html($default_google_stt_model) . ' (Default)</option>';
+                            }
+                            ?>
+                        </select>
+                    </div>
                 </div>
             </div>
         </div>
@@ -161,7 +194,7 @@ $default_stt_model = \WPAICG\Chat\Storage\BotSettingsManager::get_default_model_
                                 <option value="0" <?php selected($tts_auto_play, '0'); ?>><?php esc_html_e('No', 'gpt3-ai-content-generator'); ?></option>
                             </select>
                         </div>
-                        <div class="aipkit_audio_settings_field aipkit_audio_settings_field--wide aipkit_tts_field aipkit_tts_google_voice_row" data-provider="Google" style="display: <?php echo ($tts_enabled === '1' && $tts_provider === 'Google') ? 'flex' : 'none'; ?>;">
+                        <div class="aipkit_audio_settings_field aipkit_tts_field aipkit_tts_google_voice_row" data-provider="Google" style="display: <?php echo ($tts_enabled === '1' && $tts_provider === 'Google') ? 'flex' : 'none'; ?>;">
                             <label
                                 class="aipkit_popover_option_label"
                                 for="aipkit_bot_<?php echo esc_attr($bot_id); ?>_tts_google_voice_id_sheet"
@@ -173,41 +206,38 @@ $default_stt_model = \WPAICG\Chat\Storage\BotSettingsManager::get_default_model_
                                 name="tts_google_voice_id"
                                 class="aipkit_popover_option_select aipkit_popover_option_select--compact"
                             >
-                                <option value=""><?php esc_html_e('-- Select Voice --', 'gpt3-ai-content-generator'); ?></option>
                                 <?php
                                 if (!empty($google_tts_voices) && is_array($google_tts_voices)) {
-                                    $voices_by_lang = [];
                                     foreach ($google_tts_voices as $voice) {
-                                        if (!isset($voice['id'], $voice['name'], $voice['languageCodes'][0])) {
+                                        if (!isset($voice['id'], $voice['name'])) {
                                             continue;
                                         }
-                                        $lang_code = $voice['languageCodes'][0];
-                                        if (!isset($voices_by_lang[$lang_code])) {
-                                            $voices_by_lang[$lang_code] = [];
+                                        $voice_label = $voice['name'];
+                                        if (!empty($voice['style'])) {
+                                            $voice_label .= ' — ' . $voice['style'];
                                         }
-                                        $voices_by_lang[$lang_code][] = $voice;
+                                        echo '<option value="' . esc_attr($voice['id']) . '" ' . selected($tts_google_voice_id, $voice['id'], false) . '>' . esc_html($voice_label) . '</option>';
                                     }
-                                    ksort($voices_by_lang);
-                                    foreach ($voices_by_lang as $lang_code => $voices) {
-                                        $lang_name = $lang_code;
-                                        if (class_exists('IntlDisplayNames')) {
-                                            try {
-                                                $lang_name = \IntlDisplayNames::forLanguageTag($lang_code, 'en');
-                                            } catch (\Exception $e) {
-                                                $lang_name = $lang_code;
-                                            }
-                                        }
-                                        echo '<optgroup label="' . esc_attr("{$lang_name} ({$lang_code})") . '">';
-                                        usort($voices, fn($a, $b) => strcmp($a['name'], $b['name']));
-                                        foreach ($voices as $voice) {
-                                            echo '<option value="' . esc_attr($voice['id']) . '" ' . selected($tts_google_voice_id, $voice['id'], false) . '>' . esc_html($voice['name']) . '</option>';
-                                        }
-                                        echo '</optgroup>';
-                                    }
-                                } elseif (!empty($tts_google_voice_id)) {
-                                    echo '<option value="' . esc_attr($tts_google_voice_id) . '" selected>' . esc_html($tts_google_voice_id) . ' (Saved)</option>';
                                 }
                                 ?>
+                            </select>
+                        </div>
+                        <div class="aipkit_audio_settings_field aipkit_tts_field aipkit_tts_google_model_row" data-provider="Google" style="display: <?php echo ($tts_enabled === '1' && $tts_provider === 'Google') ? 'flex' : 'none'; ?>;">
+                            <label
+                                class="aipkit_popover_option_label"
+                                for="aipkit_bot_<?php echo esc_attr($bot_id); ?>_tts_google_model_id_sheet"
+                            >
+                                <?php esc_html_e('Model', 'gpt3-ai-content-generator'); ?>
+                            </label>
+                            <select
+                                id="aipkit_bot_<?php echo esc_attr($bot_id); ?>_tts_google_model_id_sheet"
+                                name="tts_google_model_id"
+                                class="aipkit_popover_option_select aipkit_popover_option_select--compact"
+                                data-aipkit-universal-model-provider="Google"
+                            >
+                                <?php foreach ($google_tts_models as $model): ?>
+                                    <option value="<?php echo esc_attr($model['id']); ?>" <?php selected($tts_google_model_id, $model['id']); ?>><?php echo esc_html($model['name']); ?></option>
+                                <?php endforeach; ?>
                             </select>
                         </div>
                         <div class="aipkit_audio_settings_field aipkit_tts_field aipkit_tts_openai_voice_row" data-provider="OpenAI" style="display: <?php echo ($tts_enabled === '1' && $tts_provider === 'OpenAI') ? 'flex' : 'none'; ?>;">

@@ -10,7 +10,7 @@ if (!defined('ABSPATH')) {
 
 // phpcs:disable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- This file only uses local helper/template variables and does not define public globals.
 // Variables passed from parent (index.php -> form-editor.php -> this):
-// $openai_vector_stores, $pinecone_indexes, $qdrant_collections, $chroma_collections
+// $openai_vector_stores, $google_file_search_stores, $pinecone_indexes, $qdrant_collections, $chroma_collections
 $vector_embedding_provider = '';
 $vector_embedding_model = '';
 $embedding_provider_options = \WPAICG\AIPKit_Providers::get_embedding_provider_map('ai_forms_editor_ui');
@@ -62,6 +62,7 @@ if ($vector_embedding_provider === '' || !isset($embedding_provider_options[$vec
                     <option value="pinecone">Pinecone</option>
                     <option value="qdrant">Qdrant</option>
                     <option value="chroma">Chroma</option>
+                    <option value="google"><?php esc_html_e('Google', 'gpt3-ai-content-generator'); ?></option>
                 </select>
             </div>
         </div>
@@ -140,6 +141,58 @@ if ($vector_embedding_provider === '' || !isset($embedding_provider_options[$vec
                         echo '<option value="" disabled>' . esc_html__('-- No Vector Stores Found --', 'gpt3-ai-content-generator') . '</option>';
                     }
                     ?>
+                </select>
+            </div>
+        </div>
+
+        <div class="aipkit_ai_form_knowledge_base_settings_row aipkit_vector_store_google_field" style="display:none;">
+            <div class="aipkit_ai_form_knowledge_base_settings_row_main">
+                <div class="aipkit_ai_form_knowledge_base_settings_copy">
+                    <label class="aipkit_ai_form_knowledge_base_settings_label" for="aipkit_ai_form_google_file_search_store_names">
+                        <?php esc_html_e('Stores', 'gpt3-ai-content-generator'); ?>
+                    </label>
+                    <span class="aipkit_ai_form_knowledge_base_settings_helper">
+                        <?php esc_html_e('Requires Google as the form provider.', 'gpt3-ai-content-generator'); ?>
+                    </span>
+                </div>
+                <div
+                    class="aipkit_popover_multiselect"
+                    data-aipkit-vector-stores-dropdown
+                    data-aipkit-dropdown-width="trigger"
+                    data-aipkit-dropdown-align="start"
+                    data-placeholder="<?php echo esc_attr__('Select stores', 'gpt3-ai-content-generator'); ?>"
+                    data-selected-label="<?php echo esc_attr__('selected', 'gpt3-ai-content-generator'); ?>"
+                >
+                    <button type="button" class="aipkit_popover_multiselect_btn" aria-expanded="false" aria-controls="aipkit_ai_form_google_file_search_store_panel">
+                        <span class="aipkit_popover_multiselect_label"><?php esc_html_e('Select stores', 'gpt3-ai-content-generator'); ?></span>
+                    </button>
+                    <div id="aipkit_ai_form_google_file_search_store_panel" class="aipkit_popover_multiselect_panel" role="menu" hidden>
+                        <div class="aipkit_popover_multiselect_options"></div>
+                    </div>
+                </div>
+                <select
+                    id="aipkit_ai_form_google_file_search_store_names"
+                    name="google_file_search_store_names[]"
+                    class="aipkit_popover_multiselect_select"
+                    multiple
+                    size="3"
+                    hidden
+                    aria-hidden="true"
+                    tabindex="-1"
+                >
+                    <?php foreach ($google_file_search_stores as $store): ?>
+                        <?php
+                        $google_store_name = (string) ($store['resource_name'] ?? $store['id'] ?? '');
+                        $google_store_label = (string) ($store['display_name'] ?? $store['name'] ?? $google_store_name);
+                        if ($google_store_name === '') {
+                            continue;
+                        }
+                        ?>
+                        <option value="<?php echo esc_attr($google_store_name); ?>"><?php echo esc_html($google_store_label); ?></option>
+                    <?php endforeach; ?>
+                    <?php if (empty($google_file_search_stores)): ?>
+                        <option value="" disabled><?php esc_html_e('-- No Stores Found --', 'gpt3-ai-content-generator'); ?></option>
+                    <?php endif; ?>
                 </select>
             </div>
         </div>

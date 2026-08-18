@@ -203,7 +203,15 @@ $aipkit_provider_configs = [
         'key_link' => __('Get your Google AI API key', 'gpt3-ai-content-generator'),
         'fields' => array_merge(
             [$aipkit_build_model_field('Google', 'google')],
-            $aipkit_endpoint_fields('Google', 'google')
+            $aipkit_endpoint_fields('Google', 'google'),
+            [[
+                'id' => 'store_conversation',
+                'type' => 'toggle',
+                'name' => 'google_store_conversation',
+                'label' => __('Store conversation', 'gpt3-ai-content-generator'),
+                'description' => __('Save interaction history on Google servers.', 'gpt3-ai-content-generator'),
+                'value' => (string) ($google_data['store_conversation'] ?? '0'),
+            ]]
         ),
     ],
     'OpenRouter' => [
@@ -215,6 +223,7 @@ $aipkit_provider_configs = [
         'credential_name' => 'openrouter_api_key',
         'credential_type' => 'password',
         'credential_placeholder' => __('Paste your OpenRouter API key', 'gpt3-ai-content-generator'),
+        // phpcs:ignore PluginCheck.CodeAnalysis.AIProvider.DirectIntegration -- Credential link, not API transport.
         'key_url' => 'https://openrouter.ai/settings/keys',
         'key_link' => __('Get your OpenRouter API key', 'gpt3-ai-content-generator'),
         'fields' => array_merge(
@@ -331,32 +340,6 @@ $aipkit_provider_configs = [
         ),
     ],
 ];
-
-$aipkit_safety_categories = [
-    'HARM_CATEGORY_HARASSMENT' => __('Harassment', 'gpt3-ai-content-generator'),
-    'HARM_CATEGORY_HATE_SPEECH' => __('Hate speech', 'gpt3-ai-content-generator'),
-    'HARM_CATEGORY_SEXUALLY_EXPLICIT' => __('Sexually explicit', 'gpt3-ai-content-generator'),
-    'HARM_CATEGORY_DANGEROUS_CONTENT' => __('Dangerous content', 'gpt3-ai-content-generator'),
-    'HARM_CATEGORY_CIVIC_INTEGRITY' => __('Civic integrity', 'gpt3-ai-content-generator'),
-];
-$aipkit_safety_options = [
-    'BLOCK_NONE' => __('Block none', 'gpt3-ai-content-generator'),
-    'BLOCK_LOW_AND_ABOVE' => __('Block few', 'gpt3-ai-content-generator'),
-    'BLOCK_MEDIUM_AND_ABOVE' => __('Block some', 'gpt3-ai-content-generator'),
-    'BLOCK_ONLY_HIGH' => __('Block most', 'gpt3-ai-content-generator'),
-];
-foreach ($aipkit_safety_categories as $aipkit_category_key => $aipkit_category_label) {
-    $aipkit_short_category = strtolower(str_replace('HARM_CATEGORY_', '', $aipkit_category_key));
-    $aipkit_provider_configs['Google']['fields'][] = [
-        'id' => 'safety_' . $aipkit_short_category,
-        'type' => 'select',
-        'name' => 'safety_' . $aipkit_short_category,
-        'label' => $aipkit_category_label,
-        'description' => __('Safety threshold.', 'gpt3-ai-content-generator'),
-        'value' => (string) ($category_thresholds[$aipkit_category_key] ?? 'BLOCK_NONE'),
-        'options' => $aipkit_safety_options,
-    ];
-}
 
 $aipkit_render_model_options = static function (string $provider, string $current_model): void {
     $payload = [
@@ -727,7 +710,6 @@ $aipkit_get_advanced_fields = static function (array $config) use ($aipkit_commo
         'generation' => __('Generation', 'gpt3-ai-content-generator'),
         'endpoint' => __('Endpoint', 'gpt3-ai-content-generator'),
         'retention' => __('Retention and privacy', 'gpt3-ai-content-generator'),
-        'safety' => __('Safety', 'gpt3-ai-content-generator'),
         'general' => __('Settings', 'gpt3-ai-content-generator'),
     ];
     $aipkit_grouped_fields = [];
@@ -744,8 +726,6 @@ $aipkit_get_advanced_fields = static function (array $config) use ($aipkit_commo
             in_array($aipkit_config_field_id, ['expiration_policy', 'store_conversation', 'moderation', 'moderation_message'], true)
         ) {
             $aipkit_section_key = 'retention';
-        } elseif (strpos($aipkit_config_field_id, 'safety_') === 0) {
-            $aipkit_section_key = 'safety';
         } else {
             $aipkit_section_key = 'general';
         }

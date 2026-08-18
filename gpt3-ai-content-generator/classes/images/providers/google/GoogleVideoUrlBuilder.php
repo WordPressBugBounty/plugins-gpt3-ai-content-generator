@@ -22,6 +22,7 @@ class GoogleVideoUrlBuilder {
      * @return string|WP_Error The full URL or WP_Error.
      */
     public static function build(string $model_id, array $api_params, string $operation = 'generate') {
+        // phpcs:ignore PluginCheck.CodeAnalysis.AIProvider.DirectIntegration -- Provider-specific API transport.
         $base_url = !empty($api_params['base_url']) ? rtrim($api_params['base_url'], '/') : 'https://generativelanguage.googleapis.com';
         $api_version = !empty($api_params['api_version']) ? $api_params['api_version'] : 'v1beta';
         $api_key = !empty($api_params['api_key']) ? $api_params['api_key'] : '';

@@ -129,6 +129,20 @@ class AIPKit_Payload_Sanitizer {
      * @return void
      */
     private static function sanitize_known_base64_recursive(array &$node): void {
+        $content_type = isset($node['type']) && is_string($node['type'])
+            ? strtolower($node['type'])
+            : '';
+        if (
+            in_array($content_type, ['audio', 'document', 'image', 'video'], true)
+            && isset($node['data'])
+            && is_string($node['data'])
+        ) {
+            $mime = isset($node['mime_type']) && is_string($node['mime_type']) && $node['mime_type'] !== ''
+                ? $node['mime_type']
+                : 'unknown/unknown';
+            $node['data'] = self::redact_encoded_value($node['data'], 'data', $mime);
+        }
+
         foreach ($node as $key => &$value) {
             if (is_array($value)) {
                 if ((string)$key === 'images') {

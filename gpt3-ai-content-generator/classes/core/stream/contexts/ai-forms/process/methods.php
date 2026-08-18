@@ -9,7 +9,6 @@ use WPAICG\Core\AIPKit_OpenAI_Reasoning;
 use WPAICG\Core\AIPKit_Payload_Sanitizer;
 use WPAICG\AIPKit_Providers;
 use WPAICG\AIPKIT_AI_Settings;
-use WPAICG\Core\Providers\Google\GoogleSettingsHandler;
 use WPAICG\Utils\AIPKit_Prompt_Sanitizer;
 
 if (!defined('ABSPATH')) {
@@ -606,12 +605,9 @@ function prepare_stream_data_logic(
     }
 
 
-    if ($provider === 'Google' && class_exists(GoogleSettingsHandler::class)) {
-        $ai_params_for_payload['safety_settings'] = GoogleSettingsHandler::get_safety_settings();
-    }
     $ai_params_for_payload['model_id_for_grounding'] = $model;
 
-    // Vector Store Tool Config (OpenAI)
+    // Provider-native hosted knowledge tools.
     $is_vector_enabled = ($form_config['enable_vector_store'] ?? '0') === '1';
     $is_openai_vector_provider = ($form_config['vector_store_provider'] ?? '') === 'openai';
     $has_vector_store_ids = !empty($form_config['openai_vector_store_ids']) && is_array($form_config['openai_vector_store_ids']);
@@ -631,6 +627,18 @@ function prepare_stream_data_logic(
             'ranking_options'  => [
                 'score_threshold' => $openai_score_threshold
             ]
+        ];
+    } elseif (
+        $provider === 'Google'
+        && $is_vector_enabled
+        && ($form_config['vector_store_provider'] ?? '') === 'google'
+        && !empty($form_config['google_file_search_store_names'])
+        && is_array($form_config['google_file_search_store_names'])
+    ) {
+        $vector_top_k = isset($form_config['vector_store_top_k']) ? absint($form_config['vector_store_top_k']) : 3;
+        $ai_params_for_payload['google_file_search_tool_config'] = [
+            'file_search_store_names' => array_values(array_unique(array_filter(array_map('sanitize_text_field', $form_config['google_file_search_store_names'])))),
+            'top_k' => max(1, min($vector_top_k, 20)),
         ];
     }
 

@@ -31,6 +31,7 @@ class AIPKit_Image_OpenRouter_Provider_Strategy extends AIPKit_Image_Base_Provid
      */
     private function build_api_url(array $api_params)
     {
+        // phpcs:ignore PluginCheck.CodeAnalysis.AIProvider.DirectIntegration -- Provider-specific API transport.
         $base_url = isset($api_params['base_url']) ? esc_url_raw((string) $api_params['base_url']) : 'https://openrouter.ai/api';
         $api_version = isset($api_params['api_version']) ? sanitize_text_field((string) $api_params['api_version']) : 'v1';
 

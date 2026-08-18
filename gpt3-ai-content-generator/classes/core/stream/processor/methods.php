@@ -3,7 +3,7 @@
 namespace WPAICG\Core\Stream\Processor;
 
 use WPAICG\Core\Providers\ProviderStrategyFactory;
-use WPAICG\Core\Providers\Google\GoogleSettingsHandler;
+use WPAICG\AIPKit_Providers;
 use WPAICG\Core\AIPKit_Payload_Sanitizer;
 use WPAICG\Chat\Storage\LogStorage;
 use WPAICG\Core\AIPKit_Event_Webhooks;
@@ -46,6 +46,10 @@ function start_stream_logic(
     $formatter = $processorInstance->get_formatter();
     $log_storage_for_triggers = $processorInstance->get_log_storage(); // Get LogStorage
 
+    if ($provider === 'Google') {
+        $model = AIPKit_Providers::normalize_google_text_model($model);
+    }
+
     $trigger_storage_class = '\WPAICG\Lib\Chat\Triggers\AIPKit_Trigger_Storage';
     $trigger_manager_class = '\WPAICG\Lib\Chat\Triggers\AIPKit_Trigger_Manager';
     $triggers_enabled = false;
@@ -83,7 +87,9 @@ function start_stream_logic(
             ($base_log_data['bot_message_id'] ?? null),
             $base_log_data,
             ($base_log_data['module'] ?? 'chat'),
-            ($provider === 'OpenAI' && !empty($ai_params['previous_response_id']))
+            ($provider === 'OpenAI' && !empty($ai_params['previous_response_id'])),
+            ($provider === 'Google' && !empty($ai_params['use_google_conversation_state'])),
+            ($provider === 'Google' && !empty($ai_params['google_previous_interaction_id']))
         );
 
         if (empty($processorInstance->get_current_bot_message_id())) {
@@ -122,8 +128,9 @@ function start_stream_logic(
         }
 
         $final_ai_params = array_merge($ai_params, $api_params);
-        if ($provider === 'Google' && !isset($final_ai_params['safety_settings']) && class_exists(GoogleSettingsHandler::class)) {
-            $final_ai_params['safety_settings'] = GoogleSettingsHandler::get_safety_settings();
+        if ($provider === 'Google' && !isset($final_ai_params['store_conversation'])) {
+            $google_provider_data = AIPKit_Providers::get_provider_data('Google');
+            $final_ai_params['store_conversation'] = $google_provider_data['store_conversation'] ?? '0';
         }
 
         $curl_post_data = $strategy->build_sse_payload(
@@ -132,6 +139,9 @@ function start_stream_logic(
             $final_ai_params,
             $model
         );
+        if (is_wp_error($curl_post_data)) {
+            throw new \Exception($curl_post_data->get_error_message()); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped
+        }
 
         $sanitized_curl_post_data_for_log = AIPKit_Payload_Sanitizer::sanitize_for_logging($curl_post_data);
         $processorInstance->set_request_payload_log([
@@ -151,7 +161,7 @@ function start_stream_logic(
         }
         $sanitized_curl_headers = [];
         foreach ($curl_headers as $header_line) {
-            if (preg_match('/^(authorization|api[-_]?key|x-api-key)\s*:/i', (string)$header_line)) {
+            if (preg_match('/^(authorization|api[-_]?key|x-api-key|x-goog-api-key)\s*:/i', (string)$header_line)) {
                 $sanitized_curl_headers[] = preg_replace('/:\s*.*/', ': [redacted]', (string)$header_line);
                 continue;
             }
@@ -373,6 +383,16 @@ function curl_stream_callback_logic(\WPAICG\Core\Stream\Processor\SSEStreamProce
         $processorInstance->set_current_openai_response_id($parsed['openai_response_id']);
         $formatter->send_sse_event('openai_response_id', ['id' => $parsed['openai_response_id']]);
     }
+    if (
+        isset($parsed['interaction_id'])
+        && is_string($parsed['interaction_id'])
+        && $parsed['interaction_id'] !== ''
+        && $processorInstance->get_current_provider() === 'Google'
+        && $processorInstance->get_google_conversation_state_enabled_status()
+    ) {
+        $processorInstance->set_current_google_interaction_id($parsed['interaction_id']);
+        $formatter->send_sse_event('google_interaction_id', ['id' => $parsed['interaction_id']]);
+    }
     if (isset($parsed['grounding_metadata']) && is_array($parsed['grounding_metadata'])) {
         $processorInstance->set_grounding_metadata($parsed['grounding_metadata']);
         $formatter->send_sse_event('grounding_metadata', $parsed['grounding_metadata']);
@@ -380,6 +400,9 @@ function curl_stream_callback_logic(\WPAICG\Core\Stream\Processor\SSEStreamProce
     if (isset($parsed['citations']) && is_array($parsed['citations']) && !empty($parsed['citations'])) {
         $processorInstance->append_citations($parsed['citations']);
         $formatter->send_sse_event('citations', $parsed['citations']);
+    }
+    if (isset($parsed['status_event']) && is_array($parsed['status_event'])) {
+        $formatter->send_sse_event('status', $parsed['status_event']);
     }
     if (isset($parsed['status']) && is_array($parsed['status'])) {
         $formatter->send_sse_event('status', $parsed['status']);
@@ -667,7 +690,8 @@ function log_bot_response_logic(\WPAICG\Core\Stream\Processor\SSEStreamProcessor
     $current_conversation_uuid = $processorInstance->get_current_conversation_uuid();
     $current_openai_response_id = $processorInstance->get_current_openai_response_id();
     $used_previous_openai_response_id = $processorInstance->get_used_previous_openai_response_id_status();
-    $grounding_metadata = $processorInstance->get_grounding_metadata();
+    $current_google_interaction_id = $processorInstance->get_current_google_interaction_id();
+    $used_previous_google_interaction_id = $processorInstance->get_used_previous_google_interaction_id_status();
     $citations = $processorInstance->get_citations();
     $token_manager = $processorInstance->get_token_manager();
     $vector_search_scores = $processorInstance->get_vector_search_scores();
@@ -697,11 +721,17 @@ function log_bot_response_logic(\WPAICG\Core\Stream\Processor\SSEStreamProcessor
                 $log_bot_data['used_previous_response_id'] = true;
             }
         }
-        if ($current_provider === 'Google' && $grounding_metadata !== null) {
-            $log_bot_data['grounding_metadata'] = $grounding_metadata;
+        if ($current_provider === 'Google') {
+            if ($current_google_interaction_id) {
+                $log_bot_data['google_interaction_id'] = $current_google_interaction_id;
+            }
+            if ($used_previous_google_interaction_id) {
+                $log_bot_data['used_previous_google_interaction_id'] = true;
+            }
         }
-        if (!empty($citations)) {
-            $log_bot_data['citations'] = $citations;
+        $persistable_citations = filter_persistable_citations_logic($citations ?? [], $current_provider);
+        if (!empty($persistable_citations)) {
+            $log_bot_data['citations'] = $persistable_citations;
         }
         if (!empty($vector_search_scores)) {
             $log_bot_data['vector_search_scores'] = $vector_search_scores;
@@ -855,7 +885,8 @@ function log_bot_error_logic(\WPAICG\Core\Stream\Processor\SSEStreamProcessor $p
     $current_conversation_uuid = $processorInstance->get_current_conversation_uuid();
     $current_openai_response_id = $processorInstance->get_current_openai_response_id();
     $used_previous_openai_response_id = $processorInstance->get_used_previous_openai_response_id_status();
-    $grounding_metadata = $processorInstance->get_grounding_metadata();
+    $current_google_interaction_id = $processorInstance->get_current_google_interaction_id();
+    $used_previous_google_interaction_id = $processorInstance->get_used_previous_google_interaction_id_status();
     $citations = $processorInstance->get_citations();
 
     if (!$log_storage) { 
@@ -874,16 +905,41 @@ function log_bot_error_logic(\WPAICG\Core\Stream\Processor\SSEStreamProcessor $p
             'request_payload' => $request_payload_log,
          ]);
          
-         if ($current_provider === 'OpenAI') {
+        if ($current_provider === 'OpenAI') {
             if ($current_openai_response_id) $log_error_data['openai_response_id'] = $current_openai_response_id;
             if ($used_previous_openai_response_id) $log_error_data['used_previous_response_id'] = true;
         }
-        if ($current_provider === 'Google' && $grounding_metadata !== null) {
-            $log_error_data['grounding_metadata'] = $grounding_metadata;
+        if ($current_provider === 'Google') {
+            if ($current_google_interaction_id) $log_error_data['google_interaction_id'] = $current_google_interaction_id;
+            if ($used_previous_google_interaction_id) $log_error_data['used_previous_google_interaction_id'] = true;
         }
-        if (!empty($citations)) {
-            $log_error_data['citations'] = $citations;
+        $persistable_citations = filter_persistable_citations_logic($citations ?? [], $current_provider);
+        if (!empty($persistable_citations)) {
+            $log_error_data['citations'] = $persistable_citations;
         }
          $log_storage->log_message($log_error_data);
     }
+}
+
+/**
+ * Do not persist Google Search links or Search Suggestions. Google's search
+ * attribution is rendered only for the live response. File Search citations
+ * remain eligible for conversation history because they refer to user-owned
+ * knowledge-base content rather than Google Search results.
+ *
+ * @param array<int, mixed> $citations Parsed provider citations.
+ * @return array<int, mixed>
+ */
+function filter_persistable_citations_logic(array $citations, string $provider): array
+{
+    if ($provider !== 'Google') {
+        return $citations;
+    }
+
+    return array_values(array_filter(
+        $citations,
+        static function ($citation): bool {
+            return is_array($citation) && ($citation['type'] ?? '') !== 'url_citation';
+        }
+    ));
 }

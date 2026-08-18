@@ -103,7 +103,7 @@ function build_content_writer_config_logic(array $settings, string $task_frequen
             'generate_featured_image', 'featured_image_prompt',
             'pexels_orientation', 'pexels_size', 'pexels_color',
             'pixabay_orientation', 'pixabay_image_type', 'pixabay_category',
-            'enable_vector_store', 'vector_store_provider', 'openai_vector_store_ids',
+            'enable_vector_store', 'vector_store_provider', 'openai_vector_store_ids', 'google_file_search_store_names',
             'pinecone_index_name', 'qdrant_collection_name', 'chroma_collection_name', 'vector_embedding_provider',
             'vector_embedding_model', 'vector_store_top_k',
             'vector_store_confidence_threshold',
@@ -179,7 +179,7 @@ function build_content_writer_config_logic(array $settings, string $task_frequen
                 } elseif ($key === 'content_length') {
                     $value = sanitize_key($settings[$key]);
                     $content_writer_config[$key] = in_array($value, ['short', 'medium', 'long'], true) ? $value : 'medium';
-                } elseif ($key === 'openai_vector_store_ids' && is_array($settings[$key])) {
+                } elseif (in_array($key, ['openai_vector_store_ids', 'google_file_search_store_names'], true) && is_array($settings[$key])) {
                     $content_writer_config[$key] = array_map('sanitize_text_field', $settings[$key]);
                 } elseif ($key === 'reasoning_effort') {
                     $reasoning_effort = AIPKit_OpenAI_Reasoning::sanitize_effort($settings[$key] ?? '');
@@ -254,6 +254,13 @@ function validate_task_requirements_logic(array $config)
 
     if (empty($config['ai_provider']) || empty($config['ai_model'])) {
         return new WP_Error('missing_ai_config_cw', __('AI Provider and Model are required for content writing task.', 'gpt3-ai-content-generator'), ['status' => 400]);
+    }
+    if (
+        ($config['enable_vector_store'] ?? '0') === '1'
+        && ($config['vector_store_provider'] ?? '') === 'google'
+        && ($config['ai_provider'] ?? '') !== 'Google'
+    ) {
+        return new WP_Error('google_file_search_provider_mismatch', __('Google File Search requires Google as the AI provider.', 'gpt3-ai-content-generator'), ['status' => 400]);
     }
     if (($config['prompt_mode'] ?? 'standard') === 'custom' && empty($config['custom_content_prompt'])) {
         return new WP_Error('missing_custom_content_prompt', __('Custom Content Prompt cannot be empty when in Custom Prompt mode.', 'gpt3-ai-content-generator'), ['status' => 400]);

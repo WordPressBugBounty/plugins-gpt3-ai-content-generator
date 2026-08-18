@@ -258,12 +258,12 @@ class AIPKit_Vector_Post_Processor_List_Screen
             return (string) $vector_store_name;
         }
 
-        // For OpenAI, try to get the name from the registry
-        if ($provider === 'OpenAI' && !empty($vector_store_id)) {
+        // Hosted providers keep opaque remote IDs; resolve a readable registry name.
+        if (in_array($provider, ['OpenAI', 'Google'], true) && !empty($vector_store_id)) {
             $registry = get_option('aipkit_vector_stores_registry', []);
             
-            if (isset($registry['OpenAI']) && is_array($registry['OpenAI'])) {
-                foreach ($registry['OpenAI'] as $store) {
+            if (isset($registry[$provider]) && is_array($registry[$provider])) {
+                foreach ($registry[$provider] as $store) {
                     if (isset($store['id']) && $store['id'] === $vector_store_id) {
                         if (!empty($store['name'])) {
                             return (string) $store['name'];

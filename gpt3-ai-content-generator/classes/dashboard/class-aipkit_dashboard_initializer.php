@@ -11,7 +11,6 @@ use WPAICG\Chat\Admin\Ajax\UserCreditsAjaxHandler;
 use WPAICG\Dashboard\Ajax\BaseDashboardAjaxHandler;
 use WPAICG\Dashboard\Ajax\SettingsAjaxHandler;
 use WPAICG\Dashboard\Ajax\ModelsAjaxHandler;
-use WPAICG\Core\Providers\Google\GoogleSettingsHandler;
 
 if (!defined('ABSPATH')) {
     exit; // Exit if accessed directly
@@ -60,8 +59,6 @@ class Initializer
             require_once $user_credits_handler_path;
         }
 
-        // GoogleSettingsHandler (and its AJAX logic file) is loaded by ProviderDependenciesLoader.
-
         $this->role_manager = new AIPKit_Role_Manager();
 
         $this->register_hooks();
@@ -83,12 +80,6 @@ class Initializer
         if (class_exists('\\WPAICG\\AIPKit_Role_Manager') && method_exists('\\WPAICG\\AIPKit_Role_Manager', 'init')) {
             \WPAICG\AIPKit_Role_Manager::init();
         }
-        if (class_exists(\WPAICG\Core\Providers\Google\GoogleSettingsHandler::class) && method_exists(\WPAICG\Core\Providers\Google\GoogleSettingsHandler::class, 'ajax_sync_google_tts_voices')) {
-            if (!has_action('wp_ajax_aipkit_sync_google_tts_voices', ['\WPAICG\Core\Providers\Google\GoogleSettingsHandler', 'ajax_sync_google_tts_voices'])) {
-                add_action('wp_ajax_aipkit_sync_google_tts_voices', ['\WPAICG\Core\Providers\Google\GoogleSettingsHandler', 'ajax_sync_google_tts_voices']);
-            }
-        }
-
         if (class_exists('\\WPAICG\\Chat\\Admin\\Ajax\\UserCreditsAjaxHandler')) {
             $user_credits_handler = new UserCreditsAjaxHandler();
             if (!has_action('wp_ajax_aipkit_get_user_credits_data', [$user_credits_handler, 'ajax_get_user_credits_data'])) {

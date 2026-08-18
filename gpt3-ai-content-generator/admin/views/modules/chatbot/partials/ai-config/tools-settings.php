@@ -15,10 +15,7 @@ $rt_disabled_by_plan = isset($rt_disabled_by_plan)
 $realtime_voice_toggle_value = (!$rt_disabled_by_plan && ($enable_realtime_voice ?? '0') === '1')
     ? '1'
     : '0';
-$stt_model_count_for_tools = (isset($openai_stt_models) && is_array($openai_stt_models))
-    ? count($openai_stt_models)
-    : 0;
-$stt_controls_hidden_for_tools = $stt_model_count_for_tools <= 1;
+$stt_controls_hidden_for_tools = false;
 $xai_web_search_enabled_val = isset($xai_web_search_enabled_val) && in_array($xai_web_search_enabled_val, ['0', '1'], true)
     ? $xai_web_search_enabled_val
     : '0';
@@ -183,7 +180,7 @@ $render_tool_enable_control = static function (string $tool_key, array $tool_opt
         </div>
     </div>
 
-    <div class="aipkit_tools_feature_row aipkit_popover_option_row aipkit_image_analysis_popover_row<?php echo !empty($tools_master_options['image_analysis']['enabled']) ? ' aipkit_tools_feature_row--is-enabled' : ''; ?>" data-aipkit-tool-key="image_analysis" style="<?php echo (($current_provider_for_this_bot === 'OpenAI' || $current_provider_for_this_bot === 'Claude' || $current_provider_for_this_bot === 'OpenRouter' || $current_provider_for_this_bot === 'xAI')) ? '' : 'display:none;'; ?>">
+    <div class="aipkit_tools_feature_row aipkit_popover_option_row aipkit_image_analysis_popover_row<?php echo !empty($tools_master_options['image_analysis']['enabled']) ? ' aipkit_tools_feature_row--is-enabled' : ''; ?>" data-aipkit-tool-key="image_analysis" style="<?php echo in_array($current_provider_for_this_bot, ['OpenAI', 'Google', 'Claude', 'OpenRouter', 'xAI'], true) ? '' : 'display:none;'; ?>">
         <div class="aipkit_tools_feature_left">
             <?php $render_tool_enable_control('image_analysis', $tools_master_options['image_analysis'], 'aipkit_bot_' . $bot_id . '_image_analysis_tool_toggle'); ?>
         </div>

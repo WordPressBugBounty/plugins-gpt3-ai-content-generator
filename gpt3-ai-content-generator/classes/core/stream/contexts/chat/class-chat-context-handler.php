@@ -15,7 +15,6 @@ use WPAICG\Core\AIPKit_Content_Moderator;
 use WPAICG\AIPKit_Providers;
 use WPAICG\AIPKIT_AI_Settings;
 use WPAICG\Core\AIPKit_Instruction_Manager;
-use WPAICG\Core\Providers\Google\GoogleSettingsHandler;
 use WPAICG\Core\Providers\OpenAI\OpenAIStatefulConversationHelper;
 use WPAICG\Chat\Storage\BotSettingsManager;
 
@@ -67,7 +66,6 @@ class SSEChatStreamContextHandler
             AIPKit_Providers::class => WPAICG_PLUGIN_DIR . 'classes/dashboard/class-aipkit_providers.php',
             AIPKIT_AI_Settings::class => WPAICG_PLUGIN_DIR . 'classes/dashboard/class-aipkit_ai_settings.php',
             AIPKit_Instruction_Manager::class => WPAICG_PLUGIN_DIR . 'classes/core/class-aipkit-instruction-manager.php',
-            GoogleSettingsHandler::class => WPAICG_PLUGIN_DIR . 'classes/core/providers/google/bootstrap-provider-strategy.php',
             OpenAIStatefulConversationHelper::class => WPAICG_PLUGIN_DIR . 'classes/core/providers/openai/bootstrap-provider-strategy.php',
             BotSettingsManager::class => WPAICG_PLUGIN_DIR . 'classes/chat/storage/class-aipkit_bot_settings_manager.php',
         ];

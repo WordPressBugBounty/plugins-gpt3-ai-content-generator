@@ -12,7 +12,7 @@ if (!defined('ABSPATH')) {
  * Prepare vector context for a standard AI call.
  * - Optionally builds vector context text (Pinecone/Qdrant; OpenAI returns empty string) and prefixes system instruction.
  * - Collects vector_search_scores for logging and returns them both in ai_params (for payload parity) and instruction_context (for top-level log surfacing).
- * - Configures OpenAI file_search tool when vector provider is OpenAI and IDs present.
+ * - Configures provider-native file search for OpenAI and Google.
  *
  * @param object|null $ai_caller              The AI caller instance.
  * @param object|null $vector_store_manager   The vector store manager instance.
@@ -103,6 +103,15 @@ function prepare_vector_standard_call(
                 'ranking_options' => [
                     'score_threshold' => $openai_score_threshold,
                 ],
+            ];
+        }
+    } elseif ($provider === 'Google' && $vector_provider === 'google') {
+        $google_store_names = $form_data['google_file_search_store_names'] ?? [];
+        if (!empty($google_store_names) && is_array($google_store_names)) {
+            $vector_top_k = isset($form_data['vector_store_top_k']) ? absint($form_data['vector_store_top_k']) : 3;
+            $ai_params['google_file_search_tool_config'] = [
+                'file_search_store_names' => array_values(array_unique(array_filter(array_map('sanitize_text_field', $google_store_names)))),
+                'top_k' => max(1, min($vector_top_k, 20)),
             ];
         }
     }

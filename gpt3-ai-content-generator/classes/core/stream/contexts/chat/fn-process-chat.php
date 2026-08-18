@@ -5,6 +5,7 @@
 
 namespace WPAICG\Core\Stream\Contexts\Chat;
 
+use WPAICG\Chat\Core\AIPKit_Chat_File_Upload_Provider_Resolver;
 use WP_Error;
 
 require_once __DIR__ . '/process/methods.php';
@@ -17,7 +18,7 @@ if (!defined('ABSPATH')) {
 * Main orchestrator function for processing a chat stream request.
 *
 * @param \WPAICG\Core\Stream\Contexts\Chat\SSEChatStreamContextHandler $handlerInstance The instance of the context handler.
-* @param array $cached_data Contains 'user_message', 'image_inputs', and potentially 'client_user_message_id', active vector file context IDs, and 'active_claude_file_id'.
+* @param array $cached_data Contains message data and optional provider file context.
 * @param array $get_params Original $_GET parameters.
 * @return array|WP_Error Prepared data for SSEStreamProcessor or WP_Error.
 */
@@ -50,6 +51,51 @@ function process_chat_logic(
     $bot_settings = $bot_storage->get_chatbot_settings($params['bot_id']);
     if (empty($bot_settings)) {
         return new WP_Error('settings_load_failure_moderation', __('Could not load chatbot configuration.', 'gpt3-ai-content-generator'), ['status' => 500]);
+    }
+
+    $active_google_document = null;
+    if (!empty($params['active_google_file_context_token'])) {
+        if (
+            !class_exists('\WPAICG\aipkit_dashboard')
+            || !\WPAICG\aipkit_dashboard::is_pro_plan()
+        ) {
+            return new WP_Error(
+                'google_chat_file_pro_required',
+                __('Google document upload requires a Pro plan.', 'gpt3-ai-content-generator'),
+                ['status' => 403]
+            );
+        }
+        if (
+            !class_exists(AIPKit_Chat_File_Upload_Provider_Resolver::class)
+            || AIPKit_Chat_File_Upload_Provider_Resolver::resolve($bot_settings) !== 'google'
+            || ($bot_settings['enable_file_upload'] ?? '0') !== '1'
+        ) {
+            return new WP_Error(
+                'google_chat_file_mode_mismatch',
+                __('This chatbot is no longer configured for Google document upload.', 'gpt3-ai-content-generator'),
+                ['status' => 400]
+            );
+        }
+        if (!class_exists('\WPAICG\Core\Providers\Google\Files\GoogleFilesContextToken')) {
+            return new WP_Error(
+                'google_chat_file_context_missing',
+                __('Google file context validation is unavailable.', 'gpt3-ai-content-generator'),
+                ['status' => 500]
+            );
+        }
+        $verified_google_file = \WPAICG\Core\Providers\Google\Files\GoogleFilesContextToken::verify(
+            (string) $params['active_google_file_context_token'],
+            [
+                'user_id' => $params['user_id'],
+                'session_id' => $params['session_id'],
+                'bot_id' => $params['bot_id'],
+                'conversation_uuid' => $params['conversation_uuid'],
+            ]
+        );
+        if (is_wp_error($verified_google_file)) {
+            return $verified_google_file;
+        }
+        $active_google_document = \WPAICG\Core\Providers\Google\Files\GoogleFilesContextToken::document_input($verified_google_file);
     }
 
     $is_resume_after_form_submission = false;
@@ -254,6 +300,7 @@ function process_chat_logic(
         $params['post_id'],
         $params['image_inputs'],
         $params['frontend_previous_openai_response_id'],
+        $params['frontend_previous_google_interaction_id'],
         $params['frontend_openai_web_search_active'],
         $params['frontend_google_search_grounding_active'],
         $params['active_openai_vs_id'],
@@ -263,7 +310,8 @@ function process_chat_logic(
         $params['active_qdrant_file_upload_context_id'],
         $params['active_chroma_collection_name'],
         $params['active_chroma_file_upload_context_id'],
-        $params['active_claude_file_id']
+        $params['active_claude_file_id'],
+        $active_google_document
     );
     if (is_wp_error($request_data_for_ai)) {
         return $request_data_for_ai;

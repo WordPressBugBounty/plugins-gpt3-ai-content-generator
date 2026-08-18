@@ -8,6 +8,7 @@ use WPAICG\AIPKit_Role_Manager;
 use WPAICG\Core\AIPKit_Models_API;
 use WPAICG\Core\Models\AIPKit_Model_Catalog;
 use WPAICG\Core\Models\AIPKit_Model_Registry;
+use WPAICG\Core\Providers\Google\FileSearch\GoogleFileSearchClient;
 use WPAICG\Core\Providers\ProviderStrategyFactory;
 use WPAICG\Speech\AIPKit_TTS_Provider_Strategy_Factory;
 use WPAICG\Images\AIPKit_Image_Provider_Strategy_Factory;
@@ -196,7 +197,7 @@ class ModelsAjaxHandler extends BaseDashboardAjaxHandler
 
         // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce is checked in check_module_access_permissions().
         $provider = isset($_POST['provider']) ? sanitize_text_field(wp_unslash($_POST['provider'])) : '';
-        $default_valid_providers = ['OpenAI', 'OpenRouter', 'Google', 'Azure', 'Claude', 'DeepSeek', 'xAI', 'xAIImage', 'ElevenLabs', 'ElevenLabsModels', 'OpenAIVectorStores', 'PineconeIndexes', 'QdrantCollections', 'ChromaCollections', 'Replicate'];
+        $default_valid_providers = ['OpenAI', 'OpenRouter', 'Google', 'GoogleFileSearchStores', 'Azure', 'Claude', 'DeepSeek', 'xAI', 'xAIImage', 'ElevenLabs', 'ElevenLabsModels', 'OpenAIVectorStores', 'PineconeIndexes', 'QdrantCollections', 'ChromaCollections', 'Replicate'];
         $valid_providers = apply_filters('aipkit_sync_provider_allowlist', $default_valid_providers);
         if (!is_array($valid_providers) || empty($valid_providers)) {
             $valid_providers = $default_valid_providers;
@@ -217,6 +218,8 @@ class ModelsAjaxHandler extends BaseDashboardAjaxHandler
             $provider_data_key = 'ElevenLabs';
         } elseif ($provider === 'OpenAIVectorStores') {
             $provider_data_key = 'OpenAI';
+        } elseif ($provider === 'GoogleFileSearchStores') {
+            $provider_data_key = 'Google';
         } elseif ($provider === 'xAIImage') {
             $provider_data_key = 'xAI';
         } elseif ($provider === 'PineconeIndexes') {
@@ -243,7 +246,7 @@ class ModelsAjaxHandler extends BaseDashboardAjaxHandler
         ];
 
 
-        if (empty($api_params['api_key']) && in_array($provider, ['OpenAI', 'OpenRouter', 'Azure', 'Claude', 'DeepSeek', 'xAI', 'xAIImage', 'ElevenLabs', 'ElevenLabsModels', 'PineconeIndexes', 'QdrantCollections', 'Replicate'], true)) {
+        if (empty($api_params['api_key']) && in_array($provider, ['OpenAI', 'OpenRouter', 'GoogleFileSearchStores', 'Azure', 'Claude', 'DeepSeek', 'xAI', 'xAIImage', 'ElevenLabs', 'ElevenLabsModels', 'PineconeIndexes', 'QdrantCollections', 'Replicate'], true)) {
             /* translators: %s: The provider name that was attempted to be used for model sync. */
             wp_send_json_error(['message' => sprintf(__('%s API key is required.', 'gpt3-ai-content-generator'), $provider_data_key)]);
             return;
@@ -277,6 +280,10 @@ class ModelsAjaxHandler extends BaseDashboardAjaxHandler
                 }
                 // Full sync pass for Dashboard autosync (no paging needed here)
                 $result = $this->vector_store_manager->list_all_indexes('OpenAI', $api_params, 100, 'desc', null, null);
+                break;
+            case 'GoogleFileSearchStores':
+                $api_params['api_version'] = 'v1beta';
+                $result = (new GoogleFileSearchClient())->list_all_stores($api_params);
                 break;
             case 'PineconeIndexes':
                 if (!$this->vector_store_manager) {
@@ -346,6 +353,7 @@ class ModelsAjaxHandler extends BaseDashboardAjaxHandler
             'ElevenLabsModels' => 'ElevenLabsModels',
             'xAIImage' => 'xAIImage',
             'OpenAIVectorStores' => 'OpenAIVectorStores',
+            'GoogleFileSearchStores' => 'GoogleFileSearchStores',
             'PineconeIndexes' => 'PineconeIndexes',
             'QdrantCollections' => 'QdrantCollections',
             'ChromaCollections' => 'ChromaCollections',
@@ -384,6 +392,14 @@ class ModelsAjaxHandler extends BaseDashboardAjaxHandler
             $extra_response_payload['stores'] = $active_stores;
         }
 
+        if ($provider === 'GoogleFileSearchStores') {
+            $stores_payload = is_array($result) ? $result : [];
+            $vector_registry_updates['Google'] = $stores_payload;
+            $value_to_save = $stores_payload;
+            $response_models = $stores_payload;
+            $extra_response_payload['stores'] = $stores_payload;
+        }
+
         if ($primary_catalog_key !== '') {
             if ($provider !== 'OpenAIVectorStores') {
                 $value_to_save = $result;
@@ -401,8 +417,18 @@ class ModelsAjaxHandler extends BaseDashboardAjaxHandler
                 }
             } elseif ($provider === 'Google') {
                 $google_catalogs = AIPKit_Model_Registry::partition_google_models($result);
+                foreach (['GoogleImage', 'GoogleTTS'] as $curated_catalog_key) {
+                    $google_catalogs[$curated_catalog_key] = AIPKit_Providers::merge_model_rows(
+                        AIPKit_Model_Catalog::get_seed_rows($curated_catalog_key),
+                        $google_catalogs[$curated_catalog_key]
+                    );
+                }
                 $value_to_save = $google_catalogs['Google'];
                 $response_models = $value_to_save; // Set response to just the chat models
+                $extra_response_payload['image_models'] = $google_catalogs['GoogleImage'];
+                $extra_response_payload['tts_models'] = $google_catalogs['GoogleTTS'];
+                $extra_response_payload['embedding_models'] = $google_catalogs['GoogleEmbedding'];
+                $extra_response_payload['video_models'] = $google_catalogs['GoogleVideo'];
                 foreach ($google_catalogs as $catalog_key => $catalog_rows) {
                     if ($catalog_key !== 'Google') {
                         $catalog_updates[$catalog_key] = $catalog_rows;

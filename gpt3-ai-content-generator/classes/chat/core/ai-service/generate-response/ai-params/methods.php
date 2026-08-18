@@ -92,6 +92,37 @@ function apply_openai_vector_tool_config_logic(&$final_ai_params, $bot_settings,
     }
 }
 
+/**
+ * Applies Google File Search tool configuration to AI parameters.
+ *
+ * @param array<string, mixed> $final_ai_params
+ * @param array<string, mixed> $bot_settings
+ */
+function apply_google_file_search_tool_config_logic(array &$final_ai_params, array $bot_settings): void
+{
+    if (
+        ($bot_settings['enable_vector_store'] ?? '0') !== '1'
+        || ($bot_settings['vector_store_provider'] ?? '') !== 'google'
+    ) {
+        return;
+    }
+
+    $store_names = isset($bot_settings['google_file_search_store_names'])
+        && is_array($bot_settings['google_file_search_store_names'])
+        ? $bot_settings['google_file_search_store_names']
+        : [];
+    $store_names = array_values(array_unique(array_filter(array_map('sanitize_text_field', $store_names))));
+    if (empty($store_names)) {
+        return;
+    }
+
+    $top_k = absint($bot_settings['vector_store_top_k'] ?? 3);
+    $final_ai_params['google_file_search_tool_config'] = [
+        'file_search_store_names' => $store_names,
+        'top_k' => max(1, min($top_k, 20)),
+    ];
+}
+
 // --- apply-openai-web-search.php ---
 /**
  * Applies OpenAI Web Search tool configuration to AI parameters.
@@ -313,23 +344,16 @@ function apply_google_search_grounding_logic(
     array $bot_settings,
     bool $frontend_google_search_grounding_active
 ): void {
-    // Ensure BotSettingsManager constants are available
-    if (!class_exists(BotSettingsManager::class)) {
-        $bsm_path = WPAICG_PLUGIN_DIR . 'classes/chat/storage/class-aipkit_bot_settings_manager.php';
-        if (file_exists($bsm_path)) {
-            require_once $bsm_path;
-        } else {
-            return;
-        }
-    }
-
     $bot_allows_google_grounding = (isset($bot_settings['google_search_grounding_enabled']) && $bot_settings['google_search_grounding_enabled'] === '1');
 
-    if ($bot_allows_google_grounding) {
-        $final_ai_params['google_grounding_mode'] = $bot_settings['google_grounding_mode'] ?? BotSettingsManager::DEFAULT_GOOGLE_GROUNDING_MODE;
-        if ($final_ai_params['google_grounding_mode'] === 'MODE_DYNAMIC') {
-            $final_ai_params['google_grounding_dynamic_threshold'] = isset($bot_settings['google_grounding_dynamic_threshold']) ? floatval($bot_settings['google_grounding_dynamic_threshold']) : BotSettingsManager::DEFAULT_GOOGLE_GROUNDING_DYNAMIC_THRESHOLD;
-        }
+    $knowledge_state = BotSettingsManager::get_knowledge_capability_state(
+        (string) ($bot_settings['provider'] ?? 'Google'),
+        (string) ($bot_settings['vector_store_provider'] ?? ''),
+        (string) ($bot_settings['enable_vector_store'] ?? '0'),
+        $bot_allows_google_grounding ? '1' : '0'
+    );
+
+    if ($bot_allows_google_grounding && !$knowledge_state['google_search_conflict']) {
         $final_ai_params['frontend_google_search_grounding_active'] = $frontend_google_search_grounding_active;
     }
 }

@@ -484,6 +484,18 @@ function get_contextual_settings_logic(int $bot_id, callable $get_meta_fn): arra
     }
 
     $settings['chat_image_model_id'] = $get_meta_fn('_aipkit_chat_image_model_id', BotSettingsManager::get_default_model_id('OpenAIImage'));
+    $saved_image_model = strtolower((string) $settings['chat_image_model_id']);
+    if (
+        class_exists(AIPKit_Providers::class)
+        && (
+            strpos($saved_image_model, 'imagen-') === 0
+            || (strpos($saved_image_model, 'gemini-') === 0 && strpos($saved_image_model, 'image') !== false)
+        )
+    ) {
+        $settings['chat_image_model_id'] = AIPKit_Providers::normalize_google_image_model(
+            (string) $settings['chat_image_model_id']
+        );
+    }
     $settings['enable_image_generation'] = in_array($get_meta_fn('_aipkit_enable_image_generation', BotSettingsManager::DEFAULT_ENABLE_IMAGE_GENERATION), ['0','1'], true)
         ? $get_meta_fn('_aipkit_enable_image_generation', BotSettingsManager::DEFAULT_ENABLE_IMAGE_GENERATION)
         : BotSettingsManager::DEFAULT_ENABLE_IMAGE_GENERATION;
@@ -535,7 +547,7 @@ function get_contextual_settings_logic(int $bot_id, callable $get_meta_fn): arra
         }
     }
 
-    if (!in_array($settings['chat_image_model_id'], $valid_image_models)) {
+    if (!in_array($settings['chat_image_model_id'], $valid_image_models, true)) {
         $settings['chat_image_model_id'] = BotSettingsManager::get_default_model_id('OpenAIImage');
     }
 
@@ -566,7 +578,7 @@ function get_vector_store_config_logic(int $bot_id, callable $get_meta_fn): arra
         : BotSettingsManager::DEFAULT_ENABLE_VECTOR_STORE;
 
     $settings['vector_store_provider'] = $get_meta_fn('_aipkit_vector_store_provider', BotSettingsManager::DEFAULT_VECTOR_STORE_PROVIDER);
-    if (!in_array($settings['vector_store_provider'], ['openai', 'pinecone', 'qdrant', 'chroma', 'claude_files'], true)) {
+    if (!in_array($settings['vector_store_provider'], ['openai', 'pinecone', 'qdrant', 'chroma', 'claude_files', 'google'], true)) {
         $settings['vector_store_provider'] = BotSettingsManager::DEFAULT_VECTOR_STORE_PROVIDER;
     }
     $chat_provider = sanitize_text_field((string) $get_meta_fn('_aipkit_provider', 'OpenAI'));
@@ -580,6 +592,12 @@ function get_vector_store_config_logic(int $bot_id, callable $get_meta_fn): arra
         $openai_vs_ids_array = [];
     }
     $settings['openai_vector_store_ids'] = $openai_vs_ids_array;
+
+    $google_store_names_json = $get_meta_fn('_aipkit_google_file_search_store_names', '[]');
+    $google_store_names = json_decode($google_store_names_json, true);
+    $settings['google_file_search_store_names'] = is_array($google_store_names)
+        ? array_values(array_filter(array_map('sanitize_text_field', $google_store_names)))
+        : [];
 
     // Delete old singular OpenAI store ID meta if it exists
     if (get_post_meta($bot_id, '_aipkit_openai_vector_store_id', true) !== false) {
@@ -651,7 +669,12 @@ function get_tts_config_logic(int $bot_id, callable $get_meta_fn): array
         $settings['tts_provider'] = BotSettingsManager::DEFAULT_TTS_PROVIDER;
     }
 
-    $settings['tts_google_voice_id'] = $get_meta_fn('_aipkit_tts_google_voice_id', '');
+    $settings['tts_google_voice_id'] = AIPKit_Providers::normalize_google_tts_voice(
+        $get_meta_fn('_aipkit_tts_google_voice_id', '')
+    );
+    $settings['tts_google_model_id'] = AIPKit_Providers::normalize_google_tts_model(
+        $get_meta_fn('_aipkit_tts_google_model_id', '')
+    );
     $settings['tts_openai_voice_id'] = $get_meta_fn('_aipkit_tts_openai_voice_id', BotSettingsManager::get_default_model_id('OpenAIVoices'));
     $settings['tts_openai_model_id'] = $get_meta_fn('_aipkit_tts_openai_model_id', BotSettingsManager::get_default_model_id('OpenAITTS'));
     $settings['tts_elevenlabs_voice_id'] = $get_meta_fn('_aipkit_tts_elevenlabs_voice_id', '');
@@ -698,12 +721,15 @@ function get_stt_config_logic(int $bot_id, callable $get_meta_fn): array
         : BotSettingsManager::DEFAULT_ENABLE_VOICE_INPUT;
 
     $settings['stt_provider'] = $get_meta_fn('_aipkit_stt_provider', BotSettingsManager::DEFAULT_STT_PROVIDER);
-    if (!in_array($settings['stt_provider'], ['OpenAI', 'Azure'])) { // Add other valid providers as needed
+    if (!in_array($settings['stt_provider'], ['OpenAI', 'Google', 'Azure'], true)) {
         $settings['stt_provider'] = BotSettingsManager::DEFAULT_STT_PROVIDER;
     }
 
     $settings['stt_openai_model_id'] = AIPKit_Model_Catalog::sanitize_openai_file_transcription_model(
         (string) $get_meta_fn('_aipkit_stt_openai_model_id', BotSettingsManager::get_default_model_id('OpenAISTT'))
+    );
+    $settings['stt_google_model_id'] = \WPAICG\AIPKit_Providers::normalize_google_stt_model(
+        (string) $get_meta_fn('_aipkit_stt_google_model_id', '')
     );
     $settings['stt_azure_model_id'] = $get_meta_fn('_aipkit_stt_azure_model_id', BotSettingsManager::DEFAULT_STT_AZURE_MODEL_ID);
 
@@ -1028,18 +1054,12 @@ function get_google_specific_config_logic(int $bot_id, callable $get_meta_fn): a
     ) ? $get_meta_fn('_aipkit_google_search_grounding_enabled', BotSettingsManager::DEFAULT_GOOGLE_SEARCH_GROUNDING_ENABLED)
       : BotSettingsManager::DEFAULT_GOOGLE_SEARCH_GROUNDING_ENABLED;
 
-    $settings['google_grounding_mode'] = $get_meta_fn('_aipkit_google_grounding_mode', BotSettingsManager::DEFAULT_GOOGLE_GROUNDING_MODE);
-    if (!in_array($settings['google_grounding_mode'], ['DEFAULT_MODE', 'MODE_DYNAMIC'])) {
-        $settings['google_grounding_mode'] = BotSettingsManager::DEFAULT_GOOGLE_GROUNDING_MODE;
-    }
-
-    $raw_threshold = $get_meta_fn('_aipkit_google_grounding_dynamic_threshold');
-    if ($raw_threshold === '' || !is_numeric($raw_threshold)) {
-        $settings['google_grounding_dynamic_threshold'] = BotSettingsManager::DEFAULT_GOOGLE_GROUNDING_DYNAMIC_THRESHOLD;
-    } else {
-        $settings['google_grounding_dynamic_threshold'] = floatval($raw_threshold);
-    }
-    $settings['google_grounding_dynamic_threshold'] = max(0.0, min($settings['google_grounding_dynamic_threshold'], 1.0));
+    $settings['google_conversation_state_enabled'] = in_array(
+        $get_meta_fn('_aipkit_google_conversation_state_enabled', BotSettingsManager::DEFAULT_GOOGLE_CONVERSATION_STATE_ENABLED),
+        ['0', '1'],
+        true
+    ) ? $get_meta_fn('_aipkit_google_conversation_state_enabled', BotSettingsManager::DEFAULT_GOOGLE_CONVERSATION_STATE_ENABLED)
+      : BotSettingsManager::DEFAULT_GOOGLE_CONVERSATION_STATE_ENABLED;
 
     return $settings;
 }

@@ -4,6 +4,7 @@ if (!defined('ABSPATH')) {
 }
 ?>
 <input type="hidden" id="aipkit_vector_store_nonce_openai" value="<?php echo esc_attr(wp_create_nonce('aipkit_vector_store_nonce_openai')); ?>">
+<input type="hidden" id="aipkit_google_file_search_nonce" value="<?php echo esc_attr(wp_create_nonce('aipkit_google_file_search_nonce')); ?>">
 <input type="hidden" id="aipkit_vector_store_pinecone_nonce_management" value="<?php echo esc_attr(wp_create_nonce('aipkit_vector_store_pinecone_nonce')); ?>">
 <input type="hidden" id="aipkit_vector_store_qdrant_nonce_management" value="<?php echo esc_attr(wp_create_nonce('aipkit_vector_store_qdrant_nonce')); ?>">
 <input type="hidden" id="aipkit_vector_store_chroma_nonce_management" value="<?php echo esc_attr(wp_create_nonce('aipkit_vector_store_chroma_nonce')); ?>">

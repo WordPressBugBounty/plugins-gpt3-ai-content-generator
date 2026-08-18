@@ -21,6 +21,7 @@ class AIPKit_Vector_OpenAI_Strategy extends AIPKit_Vector_Base_Provider_Strategy
 
     // Properties are now protected to be accessible by the namespaced functions via $this
     protected $api_key;
+    // phpcs:ignore PluginCheck.CodeAnalysis.AIProvider.DirectIntegration -- Provider-specific API transport.
     protected $base_url = 'https://api.openai.com';
     protected $api_version = 'v1';
     protected static $static_mime_type_map; // Renamed to avoid potential conflicts

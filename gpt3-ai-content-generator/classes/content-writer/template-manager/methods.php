@@ -126,6 +126,7 @@ function get_cw_base_template_config(int $user_id): array
         'enable_vector_store' => '0',
         'vector_store_provider' => 'openai',
         'openai_vector_store_ids' => [],
+        'google_file_search_store_names' => [],
         'pinecone_index_name' => '',
         'qdrant_collection_name' => '',
         'chroma_collection_name' => '',
@@ -409,35 +410,6 @@ function get_cw_first_image_model_id(array $models): string
 }
 
 /**
- * Attempts to resolve the Imagen 4 Ultra (Preview) model ID from Google image models.
- *
- * @param array $models
- * @return string
- */
-function get_cw_google_ultra_image_model_id(array $models): string
-{
-    $fallback_match = '';
-
-    foreach ($models as $model) {
-        if (!is_array($model)) {
-            continue;
-        }
-        $model_id = isset($model['id']) ? (string) $model['id'] : '';
-        $model_name = isset($model['name']) ? (string) $model['name'] : '';
-        $combined = strtolower($model_id . ' ' . $model_name);
-        if (strpos($combined, 'imagen') !== false && strpos($combined, 'ultra') !== false) {
-            $fallback_match = $model_id ?: $fallback_match;
-        }
-    }
-
-    if (!empty($fallback_match)) {
-        return $fallback_match;
-    }
-
-    return get_cw_first_image_model_id($models) ?: AIPKit_Providers::get_default_google_image_model();
-}
-
-/**
  * Resolves default image provider + model based on the main dashboard provider.
  *
  * @param string $main_provider
@@ -457,11 +429,9 @@ function get_cw_starter_template_image_defaults(string $main_provider): array
     $provider_key = strtolower($main_provider);
 
     if ($provider_key === 'google') {
-        $google_models = AIPKit_Providers::get_google_image_models();
-        $model_id = get_cw_google_ultra_image_model_id($google_models);
         return [
             'provider' => 'google',
-            'model' => $model_id,
+            'model' => AIPKit_Providers::normalize_google_image_model(''),
         ];
     }
 
@@ -827,6 +797,20 @@ function sanitize_config_logic(\WPAICG\ContentWriter\AIPKit_Content_Writer_Templ
             } elseif ($key === 'reasoning_effort') {
                 $effort = AIPKit_OpenAI_Reasoning::sanitize_effort($config[$key] ?? '');
                 $sanitized[$key] = $effort !== '' ? $effort : 'none';
+            } elseif ($key === 'google_file_search_store_names') {
+                $sanitized[$key] = is_array($config[$key])
+                    ? array_values(array_unique(array_filter(array_map(
+                        static function ($store_name): string {
+                            $store_name = sanitize_text_field((string) $store_name);
+                            return strpos($store_name, 'fileSearchStores/') === 0 ? $store_name : '';
+                        },
+                        $config[$key]
+                    ))))
+                    : [];
+            } elseif ($key === 'openai_vector_store_ids') {
+                $sanitized[$key] = is_array($config[$key])
+                    ? array_values(array_unique(array_filter(array_map('sanitize_text_field', $config[$key]))))
+                    : [];
             } elseif ($key === 'seo_score_profile') {
                 $sanitized[$key] = 'auto';
             } elseif (in_array($key, ['post_type', 'post_status', 'ai_provider', 'prompt_mode', 'cw_generation_mode', 'image_provider', 'image_placement', 'image_alignment', 'image_size', 'vector_store_provider', 'vector_embedding_provider', 'pexels_orientation', 'pexels_size', 'pexels_color', 'pixabay_orientation', 'pixabay_image_type', 'pixabay_category'], true)) {

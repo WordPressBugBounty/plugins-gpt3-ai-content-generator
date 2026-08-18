@@ -1,7 +1,5 @@
 <?php
 
-// MODIFIED FILE
-
 namespace WPAICG\Speech;
 
 use WPAICG\Speech\AIPKit_TTS_Provider_Strategy_Factory;
@@ -17,7 +15,7 @@ if (!defined('ABSPATH')) {
 /**
  * AIPKit_Speech_Manager
  * Main class for handling Text-to-Speech (TTS) functionality.
- * UPDATED: Passes openai_model_id to OpenAI strategy.
+ * Routes cleaned text and provider-specific options to the selected TTS strategy.
  */
 class AIPKit_Speech_Manager
 {
@@ -44,13 +42,12 @@ class AIPKit_Speech_Manager
     /**
      * Converts text to speech using the specified provider.
      * Cleans the text before sending it to the TTS API.
-     * ADDED: Retrieves openai_model_id from bot settings and passes it to the options.
-     *
      * @param string $text The text to convert.
      * @param array $options Optional parameters (provider, voice, speed, format etc.).
      *                       Must contain 'provider' and 'voice'.
      *                       For ElevenLabs, can also contain 'elevenlabs_model_id'.
      *                       For OpenAI, can also contain 'openai_model_id'.
+     *                       For Google, can also contain 'google_model_id'.
      * @return string|WP_Error Base64 encoded audio data string or WP_Error on failure.
      */
     public function text_to_speech(string $text, array $options = [])
@@ -65,6 +62,9 @@ class AIPKit_Speech_Manager
         // Get OpenAI model ID if provider is OpenAI
         $openai_model_id = ($provider === 'OpenAI' && isset($options['openai_model_id']))
                                 ? $options['openai_model_id']
+                                : null;
+        $google_model_id = ($provider === 'Google' && isset($options['google_model_id']))
+                                ? $options['google_model_id']
                                 : null;
 
         if (empty($provider) || empty($voice_id)) {
@@ -118,7 +118,7 @@ class AIPKit_Speech_Manager
         // 5. Prepare synthesis options (pass voice, potentially speed, format etc.)
         $synthesis_options = [
             'voice' => $voice_id,
-            'format' => $options['format'] ?? 'mp3', // Default to mp3
+            'format' => $options['format'] ?? ($provider === 'Google' ? 'wav' : 'mp3'),
         ];
         // Add ElevenLabs model ID to synthesis options if available
         if ($provider === 'ElevenLabs' && !empty($elevenlabs_model_id)) {
@@ -127,6 +127,9 @@ class AIPKit_Speech_Manager
         // Add OpenAI model ID to synthesis options if available
         if ($provider === 'OpenAI' && !empty($openai_model_id)) {
             $synthesis_options['model_id'] = $openai_model_id; // Pass the OpenAI TTS model ID
+        }
+        if ($provider === 'Google' && !empty($google_model_id)) {
+            $synthesis_options['model_id'] = $google_model_id;
         }
         // Add OpenAI speed if available
         if ($provider === 'OpenAI' && isset($options['speed'])) {

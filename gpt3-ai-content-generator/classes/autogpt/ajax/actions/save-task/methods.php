@@ -238,6 +238,9 @@ function build_task_config_indexing_logic(array $post_data)
         ? array_values(array_filter(array_map('absint', $post_data['specific_post_ids'])))
         : [];
     $task_config['target_store_provider'] = isset($post_data['target_store_provider']) ? sanitize_key($post_data['target_store_provider']) : 'openai';
+    if (!in_array($task_config['target_store_provider'], ['openai', 'google', 'pinecone', 'qdrant', 'chroma'], true)) {
+        return new WP_Error('unsupported_target_store_provider', __('Unsupported knowledge base provider.', 'gpt3-ai-content-generator'), ['status' => 400]);
+    }
     $task_config['target_store_id'] = isset($post_data['target_store_id']) ? sanitize_text_field($post_data['target_store_id']) : '';
     $task_config['indexing_frequency'] = isset($post_data['task_frequency']) ? sanitize_key($post_data['task_frequency']) : 'daily';
     $task_config['index_existing_now_flag'] = isset($post_data['index_existing_now_flag']) ? '1' : '0';
@@ -250,6 +253,12 @@ function build_task_config_indexing_logic(array $post_data)
     }
     if (empty($task_config['target_store_id'])) {
         return new WP_Error('missing_target_store', __('Target vector store/index is required for content indexing.', 'gpt3-ai-content-generator'), ['status' => 400]);
+    }
+    if (
+        $task_config['target_store_provider'] === 'google'
+        && strpos($task_config['target_store_id'], 'fileSearchStores/') !== 0
+    ) {
+        return new WP_Error('invalid_google_file_search_store', __('Select a valid Google store.', 'gpt3-ai-content-generator'), ['status' => 400]);
     }
     if ($task_config['index_existing_now_flag'] !== '1' && $task_config['only_new_updated_flag'] !== '1') {
         return new WP_Error('missing_indexing_behavior', __('Choose whether to index existing content, keep future content in sync, or both.', 'gpt3-ai-content-generator'), ['status' => 400]);
@@ -317,7 +326,7 @@ function build_task_config_writing_logic(array $post_data)
             'generate_featured_image', 'featured_image_prompt',
             'pexels_orientation', 'pexels_size', 'pexels_color',
             'pixabay_orientation', 'pixabay_image_type', 'pixabay_category',
-            'enable_vector_store', 'vector_store_provider', 'openai_vector_store_ids',
+            'enable_vector_store', 'vector_store_provider', 'openai_vector_store_ids', 'google_file_search_store_names',
             'pinecone_index_name', 'qdrant_collection_name', 'chroma_collection_name', 'vector_embedding_provider',
             'vector_embedding_model', 'vector_store_top_k', 'vector_store_confidence_threshold',
             'rss_include_keywords', 'rss_exclude_keywords',
@@ -386,7 +395,7 @@ function build_task_config_writing_logic(array $post_data)
                         : '[]';
                 } elseif ($key === 'ai_temperature') {
                     $content_writer_config[$key] = (string)floatval($post_data[$key]);
-                } elseif ($key === 'openai_vector_store_ids' && is_array($post_data[$key])) {
+                } elseif (in_array($key, ['openai_vector_store_ids', 'google_file_search_store_names'], true) && is_array($post_data[$key])) {
                     $content_writer_config[$key] = array_map('sanitize_text_field', $post_data[$key]);
                 } elseif ($key === 'reasoning_effort') {
                     $reasoning_effort = AIPKit_OpenAI_Reasoning::sanitize_effort($post_data[$key] ?? '');
@@ -442,6 +451,8 @@ function build_task_config_writing_logic(array $post_data)
             $image_model = sanitize_text_field((string) $content_writer_config['image_model']);
             if ($content_writer_config['image_provider'] === 'openai' && class_exists(AIPKit_Providers::class)) {
                 $image_model = AIPKit_Providers::normalize_openai_image_model($image_model);
+            } elseif ($content_writer_config['image_provider'] === 'google' && class_exists(AIPKit_Providers::class)) {
+                $image_model = AIPKit_Providers::normalize_google_image_model($image_model);
             } elseif ($content_writer_config['image_provider'] === 'xai' && class_exists(AIPKit_Providers::class)) {
                 $image_model = AIPKit_Providers::normalize_xai_image_model($image_model);
             } elseif (in_array($content_writer_config['image_provider'], ['pexels', 'pixabay'], true)) {
@@ -469,6 +480,8 @@ function build_task_config_writing_logic(array $post_data)
             $has_vector_source = false;
             if ($vector_provider === 'openai') {
                 $has_vector_source = !empty($content_writer_config['openai_vector_store_ids']);
+            } elseif ($vector_provider === 'google') {
+                $has_vector_source = !empty($content_writer_config['google_file_search_store_names']);
             } elseif ($vector_provider === 'pinecone') {
                 $has_vector_source = !empty($content_writer_config['pinecone_index_name']);
             } elseif ($vector_provider === 'qdrant') {
@@ -478,6 +491,9 @@ function build_task_config_writing_logic(array $post_data)
             }
             if (!$has_vector_source) {
                 return new WP_Error('missing_vector_source', __('Please select a knowledge source before enabling context.', 'gpt3-ai-content-generator'), ['status' => 400]);
+            }
+            if ($vector_provider === 'google' && ($content_writer_config['ai_provider'] ?? '') !== 'Google') {
+                return new WP_Error('google_file_search_provider_mismatch', __('Google File Search requires Google as the AI provider.', 'gpt3-ai-content-generator'), ['status' => 400]);
             }
         }
     }
@@ -637,6 +653,16 @@ function build_task_config_enhancement_logic(array $post_data)
 
         if ($task_config['vector_store_provider'] === 'openai') {
             $task_config['openai_vector_store_ids'] = isset($post_data['openai_vector_store_ids']) && is_array($post_data['openai_vector_store_ids']) ? array_map('sanitize_text_field', $post_data['openai_vector_store_ids']) : [];
+        } elseif ($task_config['vector_store_provider'] === 'google') {
+            $task_config['google_file_search_store_names'] = isset($post_data['google_file_search_store_names']) && is_array($post_data['google_file_search_store_names'])
+                ? array_values(array_unique(array_filter(array_map(
+                    static function ($store_name): string {
+                        $store_name = sanitize_text_field((string) $store_name);
+                        return strpos($store_name, 'fileSearchStores/') === 0 ? $store_name : '';
+                    },
+                    $post_data['google_file_search_store_names']
+                ))))
+                : [];
         } elseif ($task_config['vector_store_provider'] === 'pinecone') {
             $task_config['pinecone_index_name'] = isset($post_data['pinecone_index_name']) ? sanitize_text_field($post_data['pinecone_index_name']) : '';
         } elseif ($task_config['vector_store_provider'] === 'qdrant') {
@@ -657,6 +683,8 @@ function build_task_config_enhancement_logic(array $post_data)
         $has_vector_source = false;
         if ($task_config['vector_store_provider'] === 'openai') {
             $has_vector_source = !empty($task_config['openai_vector_store_ids']);
+        } elseif ($task_config['vector_store_provider'] === 'google') {
+            $has_vector_source = !empty($task_config['google_file_search_store_names']);
         } elseif ($task_config['vector_store_provider'] === 'pinecone') {
             $has_vector_source = !empty($task_config['pinecone_index_name']);
         } elseif ($task_config['vector_store_provider'] === 'qdrant') {
@@ -666,6 +694,9 @@ function build_task_config_enhancement_logic(array $post_data)
         }
         if (!$has_vector_source) {
             return new WP_Error('missing_vector_source_enhance', __('Please select a knowledge source before enabling context.', 'gpt3-ai-content-generator'), ['status' => 400]);
+        }
+        if ($task_config['vector_store_provider'] === 'google' && ($task_config['ai_provider'] ?? '') !== 'Google') {
+            return new WP_Error('google_file_search_provider_mismatch', __('Google File Search requires Google as the AI provider.', 'gpt3-ai-content-generator'), ['status' => 400]);
         }
     }
     // --- END: NEW ---

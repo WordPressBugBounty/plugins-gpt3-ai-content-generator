@@ -512,12 +512,11 @@ $show_sources_val = ( in_array( $show_sources_val, ['0', '1'], true ) ? $show_so
 $sources_label_val = ( isset( $active_bot_settings['sources_label'] ) ? sanitize_text_field( (string) $active_bot_settings['sources_label'] ) : BotSettingsManager::DEFAULT_SOURCES_LABEL );
 $searching_web_text_val = ( isset( $active_bot_settings['searching_web_text'] ) ? sanitize_text_field( (string) $active_bot_settings['searching_web_text'] ) : BotSettingsManager::DEFAULT_SEARCHING_WEB_TEXT );
 $google_search_grounding_enabled_val = $active_bot_settings['google_search_grounding_enabled'] ?? BotSettingsManager::DEFAULT_GOOGLE_SEARCH_GROUNDING_ENABLED;
-$google_grounding_mode_val = $active_bot_settings['google_grounding_mode'] ?? BotSettingsManager::DEFAULT_GOOGLE_GROUNDING_MODE;
-$google_grounding_dynamic_threshold_val = ( isset( $active_bot_settings['google_grounding_dynamic_threshold'] ) ? floatval( $active_bot_settings['google_grounding_dynamic_threshold'] ) : BotSettingsManager::DEFAULT_GOOGLE_GROUNDING_DYNAMIC_THRESHOLD );
-$google_grounding_dynamic_threshold_val = max( 0.0, min( $google_grounding_dynamic_threshold_val, 1.0 ) );
 // Conversations settings values (used in model settings sheet).
 $openai_conversation_state_enabled_val = $active_bot_settings['openai_conversation_state_enabled'] ?? BotSettingsManager::DEFAULT_OPENAI_CONVERSATION_STATE_ENABLED;
 $openai_conversation_state_enabled_val = ( in_array( $openai_conversation_state_enabled_val, ['0', '1'], true ) ? $openai_conversation_state_enabled_val : BotSettingsManager::DEFAULT_OPENAI_CONVERSATION_STATE_ENABLED );
+$google_conversation_state_enabled_val = $active_bot_settings['google_conversation_state_enabled'] ?? BotSettingsManager::DEFAULT_GOOGLE_CONVERSATION_STATE_ENABLED;
+$google_conversation_state_enabled_val = ( in_array( $google_conversation_state_enabled_val, ['0', '1'], true ) ? $google_conversation_state_enabled_val : BotSettingsManager::DEFAULT_GOOGLE_CONVERSATION_STATE_ENABLED );
 $saved_max_messages = ( isset( $active_bot_settings['max_messages'] ) ? absint( $active_bot_settings['max_messages'] ) : BotSettingsManager::DEFAULT_MAX_MESSAGES );
 $saved_max_messages = max( 1, min( $saved_max_messages, 1024 ) );
 $enable_image_upload = $active_bot_settings['enable_image_upload'] ?? BotSettingsManager::DEFAULT_ENABLE_IMAGE_UPLOAD;
@@ -534,10 +533,15 @@ $allowed_vector_store_providers = [
     'pinecone',
     'qdrant',
     'chroma',
-    'claude_files'
+    'claude_files',
+    'google'
 ];
 if ( !in_array( $vector_store_provider, $allowed_vector_store_providers, true ) ) {
     $vector_store_provider = BotSettingsManager::DEFAULT_VECTOR_STORE_PROVIDER;
+}
+$google_file_search_store_names_saved = [];
+if ( !empty( $active_bot_settings['google_file_search_store_names'] ) ) {
+    $google_file_search_store_names_saved = ( is_array( $active_bot_settings['google_file_search_store_names'] ) ? $active_bot_settings['google_file_search_store_names'] : (( json_decode( (string) $active_bot_settings['google_file_search_store_names'], true ) ?: [] )) );
 }
 $openai_vector_store_ids_saved = [];
 if ( isset( $active_bot_settings['openai_vector_store_ids'] ) ) {
@@ -580,6 +584,7 @@ $vector_store_top_k = max( 1, min( $vector_store_top_k, 20 ) );
 $vector_store_confidence_threshold = $active_bot_settings['vector_store_confidence_threshold'] ?? BotSettingsManager::DEFAULT_VECTOR_STORE_CONFIDENCE_THRESHOLD;
 $vector_store_confidence_threshold = max( 0, min( absint( $vector_store_confidence_threshold ), 100 ) );
 $openai_vector_stores = [];
+$google_file_search_stores = [];
 $pinecone_indexes = [];
 $qdrant_collections = [];
 $chroma_collections = [];
@@ -594,6 +599,7 @@ $claude_provider_data = [];
 $xai_provider_data = [];
 if ( class_exists( AIPKit_Vector_Store_Registry::class ) ) {
     $openai_vector_stores = AIPKit_Vector_Store_Registry::get_registered_stores_by_provider( 'OpenAI' );
+    $google_file_search_stores = AIPKit_Vector_Store_Registry::get_registered_stores_by_provider( 'Google' );
 }
 if ( class_exists( AIPKit_Providers::class ) ) {
     $pinecone_indexes = AIPKit_Providers::get_pinecone_indexes();
@@ -655,12 +661,14 @@ if ( !in_array( $reasoning_effort_val, $allowed_reasoning_effort, true ) ) {
 $enable_voice_input = $active_bot_settings['enable_voice_input'] ?? BotSettingsManager::DEFAULT_ENABLE_VOICE_INPUT;
 $enable_voice_input = ( in_array( $enable_voice_input, ['0', '1'], true ) ? $enable_voice_input : BotSettingsManager::DEFAULT_ENABLE_VOICE_INPUT );
 $stt_provider = $active_bot_settings['stt_provider'] ?? BotSettingsManager::DEFAULT_STT_PROVIDER;
-$allowed_stt_providers = ['OpenAI', 'Azure'];
+$allowed_stt_providers = ['OpenAI', 'Google', 'Azure'];
 if ( !in_array( $stt_provider, $allowed_stt_providers, true ) ) {
     $stt_provider = BotSettingsManager::DEFAULT_STT_PROVIDER;
 }
 $stt_openai_model_id = $active_bot_settings['stt_openai_model_id'] ?? BotSettingsManager::get_default_model_id( 'OpenAISTT' );
 $openai_stt_models = AIPKit_Providers::get_openai_stt_models();
+$stt_google_model_id = $active_bot_settings['stt_google_model_id'] ?? AIPKit_Providers::normalize_google_stt_model( '' );
+$google_stt_models = AIPKit_Providers::get_google_stt_models();
 $tts_enabled = $active_bot_settings['tts_enabled'] ?? BotSettingsManager::DEFAULT_TTS_ENABLED;
 $tts_enabled = ( in_array( $tts_enabled, ['0', '1'], true ) ? $tts_enabled : BotSettingsManager::DEFAULT_TTS_ENABLED );
 $tts_provider = $active_bot_settings['tts_provider'] ?? BotSettingsManager::DEFAULT_TTS_PROVIDER;
@@ -668,7 +676,8 @@ $tts_providers = ['Google', 'OpenAI', 'ElevenLabs'];
 if ( !in_array( $tts_provider, $tts_providers, true ) ) {
     $tts_provider = BotSettingsManager::DEFAULT_TTS_PROVIDER;
 }
-$tts_google_voice_id = $active_bot_settings['tts_google_voice_id'] ?? '';
+$tts_google_voice_id = AIPKit_Providers::normalize_google_tts_voice( $active_bot_settings['tts_google_voice_id'] ?? '' );
+$tts_google_model_id = AIPKit_Providers::normalize_google_tts_model( $active_bot_settings['tts_google_model_id'] ?? '' );
 $tts_openai_voice_id = $active_bot_settings['tts_openai_voice_id'] ?? BotSettingsManager::get_default_model_id( 'OpenAIVoices' );
 $tts_openai_model_id = $active_bot_settings['tts_openai_model_id'] ?? BotSettingsManager::get_default_model_id( 'OpenAITTS' );
 $tts_elevenlabs_voice_id = $active_bot_settings['tts_elevenlabs_voice_id'] ?? '';
@@ -676,6 +685,7 @@ $tts_elevenlabs_model_id = $active_bot_settings['tts_elevenlabs_model_id'] ?? Bo
 $tts_auto_play = $active_bot_settings['tts_auto_play'] ?? BotSettingsManager::DEFAULT_TTS_AUTO_PLAY;
 $tts_auto_play = ( in_array( $tts_auto_play, ['0', '1'], true ) ? $tts_auto_play : BotSettingsManager::DEFAULT_TTS_AUTO_PLAY );
 $google_tts_voices = AIPKit_Providers::get_google_tts_voices();
+$google_tts_models = AIPKit_Providers::get_google_tts_models();
 $elevenlabs_tts_voices = AIPKit_Providers::get_elevenlabs_voices();
 $elevenlabs_tts_models = AIPKit_Providers::get_elevenlabs_models();
 $openai_tts_models = AIPKit_Providers::get_openai_tts_models();
@@ -2490,10 +2500,6 @@ $inline_bot_switch_payload_json = wp_json_encode( $inline_bot_switch_payload, JS
 echo ( $inline_bot_switch_payload_json !== false ? $inline_bot_switch_payload_json : '{}' );
 ?></script>
 
-<div id="aipkit_google_tts_voices_json_main" class="aipkit_hidden" data-voices="<?php 
-$google_voices_main = AIPKit_Providers::get_google_tts_voices();
-echo esc_attr( wp_json_encode( ( $google_voices_main ?: [] ) ) );
-?>"></div>
 <?php 
 $elevenlabs_voices_cached = AIPKit_Providers::get_elevenlabs_voices();
 $elevenlabs_models_cached = AIPKit_Providers::get_elevenlabs_models();

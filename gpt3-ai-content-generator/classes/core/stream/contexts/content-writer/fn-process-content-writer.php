@@ -6,7 +6,6 @@ namespace WPAICG\Core\Stream\Contexts\ContentWriter;
 use WPAICG\AIPKit_Providers;
 use WPAICG\AIPKIT_AI_Settings;
 use WPAICG\Chat\Storage\LogStorage;
-use WPAICG\Core\Providers\Google\GoogleSettingsHandler;
 use WP_Error;
 
 if (!defined('ABSPATH')) {
@@ -114,9 +113,6 @@ function process_content_writer_logic(
     $ai_params_for_payload['temperature'] = $ai_params_for_payload['temperature'] ?? 1.0;
     unset($ai_params_for_payload['top_p']);
 
-    if ($provider === 'Google' && class_exists(GoogleSettingsHandler::class)) {
-        $ai_params_for_payload['safety_settings'] = GoogleSettingsHandler::get_safety_settings();
-    }
     $ai_params_for_payload['model_id_for_grounding'] = $model;
 
     // --- Vector Context / Tool Injection ---
@@ -160,24 +156,34 @@ function process_content_writer_logic(
             }
         }
 
-        // Additionally, for OpenAI provider with OpenAI vector store, configure the file_search tool
-        if ($provider === 'OpenAI' && $vector_provider === 'openai') {
-            $openai_vs_ids = $cached_data['openai_vector_store_ids'] ?? [];
-            if (!empty($openai_vs_ids) && is_array($openai_vs_ids)) {
-                $vector_top_k = isset($cached_data['vector_store_top_k']) ? absint($cached_data['vector_store_top_k']) : 3;
-                $vector_top_k = max(1, min($vector_top_k, 20));
-                $confidence_threshold_percent = (int)($cached_data['vector_store_confidence_threshold'] ?? 20);
-                $openai_score_threshold = round($confidence_threshold_percent / 100, 4);
+    }
+    // Hosted provider tools do not require the local vector manager.
+    $vector_provider = $cached_data['vector_store_provider'] ?? 'openai';
+    if ($is_vector_enabled && $provider === 'OpenAI' && $vector_provider === 'openai') {
+        $openai_vs_ids = $cached_data['openai_vector_store_ids'] ?? [];
+        if (!empty($openai_vs_ids) && is_array($openai_vs_ids)) {
+            $vector_top_k = isset($cached_data['vector_store_top_k']) ? absint($cached_data['vector_store_top_k']) : 3;
+            $vector_top_k = max(1, min($vector_top_k, 20));
+            $confidence_threshold_percent = (int)($cached_data['vector_store_confidence_threshold'] ?? 20);
+            $openai_score_threshold = round($confidence_threshold_percent / 100, 4);
 
-                $ai_params_for_payload['vector_store_tool_config'] = [
-                    'type'             => 'file_search',
-                    'vector_store_ids' => $openai_vs_ids,
-                    'max_num_results'  => $vector_top_k,
-                    'ranking_options'  => [
-                        'score_threshold' => $openai_score_threshold
-                    ],
-                ];
-            }
+            $ai_params_for_payload['vector_store_tool_config'] = [
+                'type'             => 'file_search',
+                'vector_store_ids' => $openai_vs_ids,
+                'max_num_results'  => $vector_top_k,
+                'ranking_options'  => [
+                    'score_threshold' => $openai_score_threshold
+                ],
+            ];
+        }
+    } elseif ($is_vector_enabled && $provider === 'Google' && $vector_provider === 'google') {
+        $store_names = $cached_data['google_file_search_store_names'] ?? [];
+        if (!empty($store_names) && is_array($store_names)) {
+            $vector_top_k = isset($cached_data['vector_store_top_k']) ? absint($cached_data['vector_store_top_k']) : 3;
+            $ai_params_for_payload['google_file_search_tool_config'] = [
+                'file_search_store_names' => array_values(array_unique(array_filter(array_map('sanitize_text_field', $store_names)))),
+                'top_k' => max(1, min($vector_top_k, 20)),
+            ];
         }
     }
     // --- END ---

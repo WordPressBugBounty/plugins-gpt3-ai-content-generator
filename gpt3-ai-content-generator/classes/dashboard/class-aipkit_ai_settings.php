@@ -3,7 +3,6 @@
 
 namespace WPAICG;
 
-use WPAICG\Core\Providers\Google\GoogleSettingsHandler;
 use WP_Error;
 
 if (!defined('ABSPATH')) {
@@ -37,16 +36,6 @@ if (!class_exists('\\WPAICG\\AIPKIT_AI_Settings')) {
          * AJAX hooks are now registered in DashboardInitializer.
          */
         public static function init() {
-            // Ensure Google Settings Handler is loaded
-            $google_settings_handler_path = WPAICG_PLUGIN_DIR . 'classes/core/providers/google/bootstrap-provider-strategy.php';
-            if (!class_exists(GoogleSettingsHandler::class) && file_exists($google_settings_handler_path)) {
-                 require_once $google_settings_handler_path;
-            }
-
-            // Initialize Google safety settings via the handler if available
-            if (class_exists(GoogleSettingsHandler::class) && method_exists(GoogleSettingsHandler::class, 'check_and_init_safety_settings')) {
-                GoogleSettingsHandler::check_and_init_safety_settings();
-            }
             // Initialize core settings
             self::check_and_init_ai_parameters();
             self::check_and_init_api_keys();

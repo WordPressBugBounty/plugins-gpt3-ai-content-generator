@@ -84,11 +84,6 @@ class AIPKit_Content_Writer_Image_Provider_Options
                 'default' => '',
                 'allowed' => ['', '512', '1k', '2k', '4k'],
             ],
-            'person_generation' => [
-                'aliases' => ['google_person_generation'],
-                'default' => '',
-                'allowed' => ['', 'dont_allow', 'allow_adult', 'allow_all'],
-            ],
         ],
         'openrouter' => [
             'aspect_ratio' => [

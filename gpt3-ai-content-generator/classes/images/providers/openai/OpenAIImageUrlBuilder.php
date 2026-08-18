@@ -24,6 +24,7 @@ class OpenAIImageUrlBuilder {
      * @return string|WP_Error The full URL or WP_Error.
      */
     public static function build(string $operation = 'images/generations', array $params = []) {
+        // phpcs:ignore PluginCheck.CodeAnalysis.AIProvider.DirectIntegration -- Provider-specific API transport.
         $base_url = !empty($params['base_url']) ? rtrim($params['base_url'], '/') : 'https://api.openai.com';
         $api_version = !empty($params['api_version']) ? $params['api_version'] : 'v1';
 

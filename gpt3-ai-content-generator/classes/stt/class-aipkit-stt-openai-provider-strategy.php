@@ -57,6 +57,7 @@ class AIPKit_STT_OpenAI_Provider_Strategy extends AIPKit_STT_Base_Provider_Strat
 
         // Build URL using the builder
         $url_builder_params = [
+            // phpcs:ignore PluginCheck.CodeAnalysis.AIProvider.DirectIntegration -- Provider-specific API transport.
             'base_url' => $api_params['base_url'] ?? 'https://api.openai.com',
             'api_version' => $api_params['api_version'] ?? 'v1',
         ];

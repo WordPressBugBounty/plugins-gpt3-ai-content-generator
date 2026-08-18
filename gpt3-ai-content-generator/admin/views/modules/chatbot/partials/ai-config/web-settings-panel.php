@@ -29,7 +29,7 @@ $supports_web_toggle_default = in_array($current_provider_for_this_bot, ['OpenAI
                 </div>
             </div>
 
-            <div class="aipkit_popover_option_row aipkit_web_settings_field aipkit_show_sources_row">
+            <div class="aipkit_popover_option_row aipkit_web_settings_field aipkit_show_sources_row" style="<?php echo $current_provider_for_this_bot === 'Google' ? 'display:none;' : ''; ?>">
                 <div class="aipkit_popover_option_main">
                     <label
                         class="aipkit_popover_option_label"
@@ -470,52 +470,4 @@ $supports_web_toggle_default = in_array($current_provider_for_this_bot, ['OpenAI
         </div>
     </div>
 
-    <div class="aipkit_popover_option_group aipkit_web_modal_section_google" style="<?php echo ($current_provider_for_this_bot === 'Google') ? '' : 'display:none;'; ?>">
-        <div class="aipkit_google_search_grounding_conditional_settings aipkit_web_provider_settings" style="<?php echo ($current_provider_for_this_bot === 'Google' && $google_search_grounding_enabled_val === '1') ? '' : 'display:none;'; ?>">
-            <div class="aipkit_web_settings_grid aipkit_web_settings_grid--two">
-                <div class="aipkit_popover_option_row aipkit_web_settings_field">
-                    <div class="aipkit_popover_option_main">
-                        <label
-                            class="aipkit_popover_option_label"
-                            for="aipkit_bot_<?php echo esc_attr($bot_id); ?>_google_grounding_mode_modal"
-                        >
-                            <?php esc_html_e('Search mode', 'gpt3-ai-content-generator'); ?>
-                        </label>
-                        <select
-                            id="aipkit_bot_<?php echo esc_attr($bot_id); ?>_google_grounding_mode_modal"
-                            name="google_grounding_mode"
-                            class="aipkit_popover_option_select aipkit_google_grounding_mode_select"
-                        >
-                            <option value="DEFAULT_MODE" <?php selected($google_grounding_mode_val, 'DEFAULT_MODE'); ?>><?php esc_html_e('Automatic', 'gpt3-ai-content-generator'); ?></option>
-                            <option value="MODE_DYNAMIC" <?php selected($google_grounding_mode_val, 'MODE_DYNAMIC'); ?>><?php esc_html_e('Dynamic', 'gpt3-ai-content-generator'); ?></option>
-                        </select>
-                    </div>
-                </div>
-
-                <div class="aipkit_popover_option_row aipkit_web_settings_field aipkit_google_grounding_dynamic_threshold_container" style="<?php echo ($current_provider_for_this_bot === 'Google' && $google_search_grounding_enabled_val === '1' && $google_grounding_mode_val === 'MODE_DYNAMIC') ? '' : 'display:none;'; ?>">
-                    <div class="aipkit_popover_option_main">
-                        <label
-                            class="aipkit_popover_option_label"
-                            for="aipkit_bot_<?php echo esc_attr($bot_id); ?>_google_grounding_dynamic_threshold_modal"
-                        >
-                            <?php esc_html_e('Search threshold', 'gpt3-ai-content-generator'); ?>
-                        </label>
-                        <div class="aipkit_popover_param_slider">
-                            <input
-                                type="range"
-                                id="aipkit_bot_<?php echo esc_attr($bot_id); ?>_google_grounding_dynamic_threshold_modal"
-                                name="google_grounding_dynamic_threshold"
-                                class="aipkit_form-input aipkit_range_slider aipkit_popover_slider"
-                                min="0.0"
-                                max="1.0"
-                                step="0.01"
-                                value="<?php echo esc_attr($google_grounding_dynamic_threshold_val); ?>"
-                            />
-                            <span id="aipkit_bot_<?php echo esc_attr($bot_id); ?>_google_grounding_dynamic_threshold_modal_value" class="aipkit_popover_param_value"><?php echo esc_html(number_format($google_grounding_dynamic_threshold_val, 2)); ?></span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
 </div>

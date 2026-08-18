@@ -39,8 +39,8 @@ if (!defined('ABSPATH')) {
             <div class="aipkit_training_source_empty" data-aipkit-training-source-empty>
                 <span class="dashicons dashicons-database" aria-hidden="true"></span>
                 <div>
-                    <strong><?php esc_html_e('No sources yet', 'gpt3-ai-content-generator'); ?></strong>
-                    <span><?php esc_html_e('Add website content, a Q&A, text, or files.', 'gpt3-ai-content-generator'); ?></span>
+                    <strong data-aipkit-training-source-empty-title><?php esc_html_e('No sources yet', 'gpt3-ai-content-generator'); ?></strong>
+                    <span data-aipkit-training-source-empty-description><?php esc_html_e('Add website content, a Q&A, text, or files.', 'gpt3-ai-content-generator'); ?></span>
                 </div>
             </div>
             <div class="aipkit_training_managed_sources" data-aipkit-training-managed-sources hidden></div>

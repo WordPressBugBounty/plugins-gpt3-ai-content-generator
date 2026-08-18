@@ -82,6 +82,7 @@ function get_tts_settings_logic(array $settings): array {
             'tts_provider' => 'Google',
             'tts_voice_id' => '',
             'tts_auto_play' => false,
+            'tts_google_model_id' => AIPKit_Model_Catalog::get_default_id('GoogleTTS'),
             'tts_openai_model_id' => AIPKit_Model_Catalog::get_default_id('OpenAITTS'),
             'tts_elevenlabs_model_id' => AIPKit_Model_Catalog::get_default_id('ElevenLabsModels'),
         ];
@@ -89,6 +90,7 @@ function get_tts_settings_logic(array $settings): array {
     $tts_provider = $settings['tts_provider'] ?? BotSettingsManager::DEFAULT_TTS_PROVIDER;
     $tts_voice_id = $settings['tts_voice_id'] ?? ''; // This should be the combined one after bot settings are fetched
     $tts_auto_play = ($settings['tts_auto_play'] ?? BotSettingsManager::DEFAULT_TTS_AUTO_PLAY) === '1';
+    $tts_google_model_id = $settings['tts_google_model_id'] ?? BotSettingsManager::get_default_model_id('GoogleTTS');
     $tts_openai_model_id = $settings['tts_openai_model_id'] ?? BotSettingsManager::get_default_model_id('OpenAITTS');
     $tts_elevenlabs_model_id = $settings['tts_elevenlabs_model_id'] ?? BotSettingsManager::get_default_model_id('ElevenLabsModels');
 
@@ -96,45 +98,9 @@ function get_tts_settings_logic(array $settings): array {
         'tts_provider' => $tts_provider,
         'tts_voice_id' => $tts_voice_id,
         'tts_auto_play' => $tts_auto_play,
+        'tts_google_model_id' => $tts_google_model_id,
         'tts_openai_model_id' => $tts_openai_model_id,
         'tts_elevenlabs_model_id' => $tts_elevenlabs_model_id,
-    ];
-}
-
-// --- get-grounding-flags.php ---
-/**
- * Prepares Google Search Grounding related flags and settings.
- *
- * @param array $settings Bot settings.
- * @param array $feature_flags Determined feature flags.
- * @return array An array containing allowGoogleSearchGrounding, googleGroundingMode, and googleGroundingDynamicThreshold.
- */
-function get_google_grounding_settings_logic(array $settings, array $feature_flags): array {
-    if (!class_exists(BotSettingsManager::class)) {
-        return [
-            'allowGoogleSearchGrounding' => false,
-            'googleGroundingMode' => 'DEFAULT_MODE',
-            'googleGroundingDynamicThreshold' => 0.3,
-        ];
-    }
-
-    $allow_google_search_grounding = $feature_flags['allowGoogleSearchGrounding'] ?? false;
-    $google_grounding_mode = BotSettingsManager::DEFAULT_GOOGLE_GROUNDING_MODE;
-    $google_grounding_dynamic_threshold = BotSettingsManager::DEFAULT_GOOGLE_GROUNDING_DYNAMIC_THRESHOLD;
-
-    if ($allow_google_search_grounding) {
-        $google_grounding_mode = $settings['google_grounding_mode'] ?? BotSettingsManager::DEFAULT_GOOGLE_GROUNDING_MODE;
-        if ($google_grounding_mode === 'MODE_DYNAMIC') {
-            $google_grounding_dynamic_threshold = isset($settings['google_grounding_dynamic_threshold'])
-                                                 ? floatval($settings['google_grounding_dynamic_threshold'])
-                                                 : BotSettingsManager::DEFAULT_GOOGLE_GROUNDING_DYNAMIC_THRESHOLD;
-        }
-    }
-
-    return [
-        'allowGoogleSearchGrounding' => $allow_google_search_grounding,
-        'googleGroundingMode' => $google_grounding_mode,
-        'googleGroundingDynamicThreshold' => $google_grounding_dynamic_threshold,
     ];
 }
 
@@ -282,7 +248,6 @@ function build_config_array_logic(int $bot_id, \WP_Post $bot_post, array $settin
     $starters_array = get_conversation_starters_logic($settings, $feature_flags['starters_ui_enabled']);
     $consent_texts = get_consent_settings_logic($settings);
     $tts_settings = get_tts_settings_logic($settings);
-    $google_grounding_settings = get_google_grounding_settings_logic($settings, $feature_flags);
 
     $nonce = wp_create_nonce('aipkit_frontend_chat_nonce');
 
@@ -303,6 +268,7 @@ function build_config_array_logic(int $bot_id, \WP_Post $bot_post, array $settin
     }
 
     $enable_openai_conv_state = ($settings['openai_conversation_state_enabled'] ?? (class_exists(BotSettingsManager::class) ? BotSettingsManager::DEFAULT_OPENAI_CONVERSATION_STATE_ENABLED : '0')) === '1';
+    $enable_google_conv_state = ($settings['google_conversation_state_enabled'] ?? (class_exists(BotSettingsManager::class) ? BotSettingsManager::DEFAULT_GOOGLE_CONVERSATION_STATE_ENABLED : '0')) === '1';
     $allow_openai_web_search_tool = $feature_flags['allowWebSearchTool'] ?? false;
 
     $text_labels = get_text_labels_logic($settings, $consent_texts);
@@ -452,6 +418,7 @@ function build_config_array_logic(int $bot_id, \WP_Post $bot_post, array $settin
         'ttsAutoPlay' => $tts_settings['tts_auto_play'],
         'ttsProvider' => $tts_settings['tts_provider'],
         'ttsVoiceId' => $tts_settings['tts_voice_id'],
+        'ttsGoogleModelId' => $tts_settings['tts_google_model_id'],
         'ttsOpenAIModelId' => $tts_settings['tts_openai_model_id'],
         'ttsElevenLabsModelId' => $tts_settings['tts_elevenlabs_model_id'],
         'enableVoiceInputUI' => $feature_flags['enable_voice_input_ui'] ?? false,
@@ -464,15 +431,16 @@ function build_config_array_logic(int $bot_id, \WP_Post $bot_post, array $settin
         'imageUploadEnabledUI' => $feature_flags['image_upload_ui_enabled'] ?? false,
         'inputActionButtonEnabled' => $feature_flags['input_action_button_enabled'] ?? false,
         'provider' => $settings['provider'] ?? 'OpenAI', // This is the Main AI provider for the bot
-        // This line ensures vectorStoreProvider (e.g., 'openai', 'pinecone', 'qdrant', 'chroma', 'claude_files') is passed to JS.
+        'fileUploadProvider' => $feature_flags['file_upload_provider'] ?? '',
+        // Knowledge remains independently available to the public chat configuration.
         'vectorStoreProvider' => $settings['vector_store_provider'] ?? (class_exists(BotSettingsManager::class) ? BotSettingsManager::DEFAULT_VECTOR_STORE_PROVIDER : 'openai'),
         'enableOpenAIConversationState' => $enable_openai_conv_state,
+        'enableGoogleConversationState' => $enable_google_conv_state,
         'allowWebSearchTool' => $allow_openai_web_search_tool,
         'webToggleDefaultOn' => ($settings['web_toggle_default_on'] ?? (class_exists(BotSettingsManager::class) ? BotSettingsManager::DEFAULT_WEB_TOGGLE_DEFAULT_ON : '0')) === '1',
-        'showSources' => ($settings['show_sources'] ?? (class_exists(BotSettingsManager::class) ? BotSettingsManager::DEFAULT_SHOW_SOURCES : '1')) === '1',
-        'allowGoogleSearchGrounding' => $google_grounding_settings['allowGoogleSearchGrounding'],
-        'googleGroundingMode' => $google_grounding_settings['googleGroundingMode'],
-        'googleGroundingDynamicThreshold' => $google_grounding_settings['googleGroundingDynamicThreshold'],
+        'showSources' => ($settings['provider'] ?? 'OpenAI') === 'Google'
+            || ($settings['show_sources'] ?? (class_exists(BotSettingsManager::class) ? BotSettingsManager::DEFAULT_SHOW_SOURCES : '1')) === '1',
+        'allowGoogleSearchGrounding' => $feature_flags['allowGoogleSearchGrounding'] ?? false,
         'customThemeSettings' => $custom_theme_settings_for_js,
         'text' => $text_labels,
         'customTypingText' => (function() use ($settings, $text_labels) {

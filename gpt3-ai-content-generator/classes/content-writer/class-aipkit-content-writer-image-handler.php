@@ -581,70 +581,35 @@ class AIPKit_Content_Writer_Image_Handler
             unset($generation_options['image_size']);
         }
 
-        $person_generation = sanitize_key((string) ($google_options['person_generation'] ?? ''));
-        if ($this->is_google_imagen_model($model) && in_array($person_generation, ['dont_allow', 'allow_adult', 'allow_all'], true)) {
-            $generation_options['person_generation'] = $person_generation;
-        } else {
-            unset($generation_options['person_generation']);
-        }
-
         return $generation_options;
-    }
-
-    private function is_google_imagen_model(string $model): bool
-    {
-        return strpos(strtolower($model), 'imagen') !== false;
-    }
-
-    private function is_google_gemini_response_format_model(string $model): bool
-    {
-        $model = strtolower($model);
-
-        return strpos($model, 'gemini-2.5-flash-image') !== false
-            || (
-                strpos($model, 'gemini-3') !== false
-                && (
-                    strpos($model, 'flash-image') !== false
-                    || strpos($model, 'pro-image') !== false
-                )
-            );
     }
 
     private function is_google_aspect_ratio_supported(string $model, string $aspect_ratio): bool
     {
         $model = strtolower($model);
-        $imagen_ratios = ['1:1', '3:4', '4:3', '9:16', '16:9'];
         $gemini_ratios = ['1:1', '2:3', '3:2', '3:4', '4:3', '4:5', '5:4', '9:16', '16:9', '21:9'];
         $gemini_31_ratios = array_merge($gemini_ratios, ['1:4', '4:1', '1:8', '8:1']);
-
-        if ($this->is_google_imagen_model($model)) {
-            return in_array($aspect_ratio, $imagen_ratios, true);
-        }
 
         if (strpos($model, 'gemini-3.1-flash-image') !== false) {
             return in_array($aspect_ratio, $gemini_31_ratios, true);
         }
 
-        if ($this->is_google_gemini_response_format_model($model)) {
-            return in_array($aspect_ratio, $gemini_ratios, true);
-        }
-
-        return false;
+        return AIPKit_Providers::is_supported_google_image_model($model)
+            && in_array($aspect_ratio, $gemini_ratios, true);
     }
 
     private function is_google_image_size_supported(string $model, string $image_size): bool
     {
         $model = strtolower($model);
-        $imagen_sizes = ['1k', '2k'];
         $gemini_31_sizes = ['512', '1k', '2k', '4k'];
         $gemini_3_pro_sizes = ['1k', '2k', '4k'];
 
-        if ($this->is_google_imagen_model($model)) {
-            return in_array($image_size, $imagen_sizes, true);
-        }
-
         if (strpos($model, 'gemini-3.1-flash-image') !== false) {
             return in_array($image_size, $gemini_31_sizes, true);
+        }
+
+        if (strpos($model, 'gemini-3.1-flash-lite-image') !== false) {
+            return $image_size === '1k';
         }
 
         if (strpos($model, 'gemini-3-pro-image') !== false) {
@@ -1068,6 +1033,9 @@ class AIPKit_Content_Writer_Image_Handler
         if ($image_provider === 'xai') {
             $resolved_image_model = AIPKit_Providers::normalize_xai_image_model($resolved_image_model);
         }
+        if ($image_provider === 'google') {
+            $resolved_image_model = AIPKit_Providers::normalize_google_image_model($resolved_image_model);
+        }
 
         if ($image_provider === 'openrouter' && in_array($resolved_image_model, ['', 'openrouter/auto', 'auto'], true)) {
             $openrouter_image_models = class_exists(AIPKit_Providers::class) ? AIPKit_Providers::get_openrouter_image_models() : [];
@@ -1189,24 +1157,9 @@ class AIPKit_Content_Writer_Image_Handler
             if ($image_provider === 'openai' && AIPKit_Providers::is_openai_gpt_image_model($image_model)) {
                 $models_with_n_equals_1[] = $image_model;
             }
-            if (
-                $image_provider === 'google'
-                && strpos($image_model, 'gemini') !== false
-                && (
-                    strpos($image_model, 'image-generation') !== false
-                    || strpos($image_model, 'flash-image') !== false
-                    || strpos($image_model, 'pro-image') !== false
-                )
-            ) {
-                $models_with_n_equals_1[] = $image_model; // handle all Gemini image-generation variants
-            }
-            if ($image_provider === 'google' && strpos($image_model, 'imagen') !== false && strpos($image_model, 'ultra') !== false) {
-                $models_with_n_equals_1[] = $image_model;
-            }
-
             // OpenRouter routes often return a single image even when n > 1 is requested.
             // Force one-by-one requests so requested image_count is consistently honored.
-            $force_single_image_requests = in_array($image_provider, ['replicate', 'openrouter'], true);
+            $force_single_image_requests = in_array($image_provider, ['google', 'replicate', 'openrouter'], true);
 
             if ($force_single_image_requests || in_array($image_model, $models_with_n_equals_1, true)) {
                 for ($i = 0; $i < $image_count; $i++) {
@@ -1228,11 +1181,7 @@ class AIPKit_Content_Writer_Image_Handler
                     }
                 }
             } else { // Models that support n > 1
-                $max_n = 10;
-                if (($settings['image_provider'] ?? 'openai') === 'google' && strpos($image_model, 'imagen') !== false) {
-                    $max_n = strpos($image_model, 'ultra') !== false ? 1 : 4;
-                }
-                $generation_options['n'] = min($image_count, $max_n);
+                $generation_options['n'] = min($image_count, 10);
                 $meta_list = [];
                 for ($i = 1; $i <= $generation_options['n']; $i++) {
                     $meta_list[] = $this->build_attachment_meta(

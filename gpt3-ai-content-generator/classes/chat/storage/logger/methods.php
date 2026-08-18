@@ -129,12 +129,14 @@ function build_message_object_logic(array $log_data, string $message_id, int $cu
     if (isset($log_data['openai_response_id']) && !empty($log_data['openai_response_id'])) {
         $new_message['openai_response_id'] = sanitize_text_field($log_data['openai_response_id']);
     }
+    if (isset($log_data['google_interaction_id']) && !empty($log_data['google_interaction_id'])) {
+        $new_message['google_interaction_id'] = sanitize_text_field($log_data['google_interaction_id']);
+    }
+    if (!empty($log_data['used_previous_google_interaction_id'])) {
+        $new_message['used_previous_google_interaction_id'] = true;
+    }
     if (isset($log_data['used_previous_response_id']) && $log_data['used_previous_response_id'] === true) {
         $new_message['used_previous_response_id'] = true;
-    }
-    // Store Google Grounding Metadata
-    if (isset($log_data['grounding_metadata']) && is_array($log_data['grounding_metadata'])) {
-        $new_message['grounding_metadata'] = $log_data['grounding_metadata'];
     }
     if (isset($log_data['citations']) && is_array($log_data['citations']) && !empty($log_data['citations'])) {
         $new_message['citations'] = sanitize_chat_log_payload_if_array($log_data['citations']);

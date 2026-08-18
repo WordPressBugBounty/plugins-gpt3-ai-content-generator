@@ -7,6 +7,7 @@
  * - $embedding_provider_options (array)
  * - $default_embedding_provider_key (string)
  * - $openai_vector_stores (array)
+ * - $google_file_search_stores (array)
  * - $pinecone_indexes (array)
  * - $qdrant_collections (array)
  * - $chroma_collections (array)
@@ -49,6 +50,8 @@ $aipkit_autogpt_context_source_row_id = $aipkit_autogpt_context_base . '_kb_sour
 $aipkit_autogpt_context_source_label_id = $aipkit_autogpt_context_base . '_kb_source_label';
 $aipkit_autogpt_context_openai_panel_id = $aipkit_autogpt_context_base . '_openai_vector_store_panel';
 $aipkit_autogpt_context_openai_select_id = $aipkit_autogpt_context_base . '_openai_vector_store_ids';
+$aipkit_autogpt_context_google_panel_id = $aipkit_autogpt_context_base . '_google_file_search_store_panel';
+$aipkit_autogpt_context_google_select_id = $aipkit_autogpt_context_base . '_google_file_search_store_names';
 $aipkit_autogpt_context_pinecone_select_id = $aipkit_autogpt_context_base . '_pinecone_index_name';
 $aipkit_autogpt_context_qdrant_select_id = $aipkit_autogpt_context_base . '_qdrant_collection_name';
 $aipkit_autogpt_context_chroma_select_id = $aipkit_autogpt_context_base . '_chroma_collection_name';
@@ -91,6 +94,7 @@ $aipkit_autogpt_context_autosave_class = $aipkit_autogpt_context_use_autosave ? 
                 <option value="pinecone"><?php esc_html_e('Pinecone', 'gpt3-ai-content-generator'); ?></option>
                 <option value="qdrant"><?php esc_html_e('Qdrant', 'gpt3-ai-content-generator'); ?></option>
                 <option value="chroma"><?php esc_html_e('Chroma', 'gpt3-ai-content-generator'); ?></option>
+                <option value="google"><?php esc_html_e('Google', 'gpt3-ai-content-generator'); ?></option>
             </select>
         </div>
     </div>
@@ -152,6 +156,46 @@ $aipkit_autogpt_context_autosave_class = $aipkit_autogpt_context_use_autosave ? 
                                 <option value="" disabled>
                                     <?php esc_html_e('No stores found', 'gpt3-ai-content-generator'); ?>
                                 </option>
+                            <?php endif; ?>
+                        </select>
+                    </div>
+
+                    <div class="<?php echo esc_attr('aipkit_task_' . $aipkit_autogpt_context_scope . '_vector_google_field'); ?>" hidden>
+                        <div
+                            class="aipkit_popover_multiselect aipkit_vector_multiselect"
+                            data-aipkit-vector-stores-dropdown
+                            data-placeholder="<?php echo esc_attr__('Select stores', 'gpt3-ai-content-generator'); ?>"
+                            data-selected-label="<?php echo esc_attr__('selected', 'gpt3-ai-content-generator'); ?>"
+                        >
+                            <button type="button" class="aipkit_popover_multiselect_btn aipkit_vector_multiselect_btn" aria-expanded="false" aria-controls="<?php echo esc_attr($aipkit_autogpt_context_google_panel_id); ?>">
+                                <span class="aipkit_popover_multiselect_label"><?php esc_html_e('Select stores', 'gpt3-ai-content-generator'); ?></span>
+                            </button>
+                            <div id="<?php echo esc_attr($aipkit_autogpt_context_google_panel_id); ?>" class="aipkit_popover_multiselect_panel" role="menu" hidden>
+                                <div class="aipkit_popover_multiselect_options"></div>
+                            </div>
+                        </div>
+                        <select
+                            id="<?php echo esc_attr($aipkit_autogpt_context_google_select_id); ?>"
+                            name="<?php echo esc_attr($aipkit_autogpt_context_name_prefix . 'google_file_search_store_names[]'); ?>"
+                            class="<?php echo esc_attr('aipkit_popover_multiselect_select' . $aipkit_autogpt_context_autosave_class); ?>"
+                            multiple
+                            size="3"
+                            hidden
+                            aria-hidden="true"
+                            tabindex="-1"
+                        >
+                            <?php foreach ($google_file_search_stores as $store) : ?>
+                                <?php
+                                $aipkit_google_store_name = (string) ($store['resource_name'] ?? $store['id'] ?? '');
+                                $aipkit_google_store_label = (string) ($store['display_name'] ?? $store['name'] ?? $aipkit_google_store_name);
+                                if ($aipkit_google_store_name === '') {
+                                    continue;
+                                }
+                                ?>
+                                <option value="<?php echo esc_attr($aipkit_google_store_name); ?>"><?php echo esc_html($aipkit_google_store_label); ?></option>
+                            <?php endforeach; ?>
+                            <?php if (empty($google_file_search_stores)) : ?>
+                                <option value="" disabled><?php esc_html_e('No stores found', 'gpt3-ai-content-generator'); ?></option>
                             <?php endif; ?>
                         </select>
                     </div>

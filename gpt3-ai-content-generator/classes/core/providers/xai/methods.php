@@ -18,6 +18,7 @@ if (!defined('ABSPATH')) {
  * @return string|\WP_Error
  */
 function build_api_url_logic(XAIProviderStrategy $strategyInstance, string $operation, array $params) {
+    // phpcs:ignore PluginCheck.CodeAnalysis.AIProvider.DirectIntegration -- Provider-specific API transport.
     $base_url = !empty($params['base_url']) ? rtrim((string) $params['base_url'], '/') : 'https://api.x.ai';
     $api_version = !empty($params['api_version']) ? trim((string) $params['api_version'], '/') : 'v1';
 

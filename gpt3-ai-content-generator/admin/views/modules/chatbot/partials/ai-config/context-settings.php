@@ -45,7 +45,7 @@ $knowledge_config_panel_id = 'aipkit_bot_' . $bot_id . '_knowledge_config_panel'
                         </span>
                         <span class="aipkit_context_use_trained_text">
                             <span class="aipkit_context_use_trained_title"><?php esc_html_e('Use vector search', 'gpt3-ai-content-generator'); ?></span>
-                            <span class="aipkit_context_use_trained_hint"><?php esc_html_e('Use OpenAI, Pinecone, Qdrant, or Chroma.', 'gpt3-ai-content-generator'); ?></span>
+                            <span class="aipkit_context_use_trained_hint"><?php esc_html_e('Connect a hosted or external knowledge base.', 'gpt3-ai-content-generator'); ?></span>
                         </span>
                     </label>
                     <button
@@ -119,6 +119,7 @@ $knowledge_config_panel_id = 'aipkit_bot_' . $bot_id . '_knowledge_config_panel'
                     <option value="pinecone" <?php selected($vector_store_provider, 'pinecone'); ?>>Pinecone</option>
                     <option value="qdrant" <?php selected($vector_store_provider, 'qdrant'); ?>>Qdrant</option>
                     <option value="chroma" <?php selected($vector_store_provider, 'chroma'); ?>>Chroma</option>
+                    <option value="google" <?php selected($vector_store_provider, 'google'); ?>><?php esc_html_e('Google', 'gpt3-ai-content-generator'); ?></option>
                     <option value="claude_files" <?php selected($vector_store_provider, 'claude_files'); ?>><?php esc_html_e('Anthropic Files', 'gpt3-ai-content-generator'); ?></option>
                 </select>
             </div>
@@ -204,12 +205,77 @@ $knowledge_config_panel_id = 'aipkit_bot_' . $bot_id . '_knowledge_config_panel'
                                     __('Store %d', 'gpt3-ai-content-generator'),
                                     $manual_index
                                 );
-                            echo '<option value="' . esc_attr($saved_id) . '" disabled="disabled">' . esc_html($manual_label) . '</option>';
+                            echo '<option value="' . esc_attr($saved_id) . '" selected disabled="disabled" data-aipkit-preserved-selection="1">' . esc_html($manual_label) . '</option>';
                             $manual_index++;
                         }
                     }
                     if (empty($openai_vector_stores) && empty($openai_vector_store_ids_saved)) {
                         echo '<option value="" disabled>' . esc_html__('-- No Vector Stores Found --', 'gpt3-ai-content-generator') . '</option>';
+                    }
+                    ?>
+                </select>
+            </div>
+        </div>
+
+        <div class="aipkit_popover_option_row aipkit_vector_store_google_field" style="<?php echo ($enable_vector_store === '1' && $vector_store_provider === 'google') ? '' : 'display:none;'; ?>">
+            <div class="aipkit_popover_option_main">
+                <label
+                    class="aipkit_popover_option_label"
+                    for="aipkit_bot_<?php echo esc_attr($bot_id); ?>_google_file_search_store_names_modal"
+                >
+                    <?php esc_html_e('Stores', 'gpt3-ai-content-generator'); ?>
+                </label>
+                <div
+                    class="aipkit_popover_multiselect"
+                    data-aipkit-google-file-search-stores-dropdown
+                    data-placeholder="<?php echo esc_attr__('Select stores', 'gpt3-ai-content-generator'); ?>"
+                    data-selected-label="<?php echo esc_attr__('selected', 'gpt3-ai-content-generator'); ?>"
+                >
+                    <button
+                        type="button"
+                        class="aipkit_popover_multiselect_btn"
+                        aria-expanded="false"
+                        aria-controls="aipkit_bot_<?php echo esc_attr($bot_id); ?>_google_file_search_store_panel"
+                    >
+                        <span class="aipkit_popover_multiselect_label"><?php esc_html_e('Select stores', 'gpt3-ai-content-generator'); ?></span>
+                    </button>
+                    <div
+                        id="aipkit_bot_<?php echo esc_attr($bot_id); ?>_google_file_search_store_panel"
+                        class="aipkit_popover_multiselect_panel"
+                        role="menu"
+                        hidden
+                    >
+                        <div class="aipkit_popover_multiselect_options"></div>
+                    </div>
+                </div>
+                <select
+                    id="aipkit_bot_<?php echo esc_attr($bot_id); ?>_google_file_search_store_names_modal"
+                    name="google_file_search_store_names[]"
+                    class="aipkit_popover_multiselect_select"
+                    multiple
+                    size="3"
+                    hidden
+                    aria-hidden="true"
+                    tabindex="-1"
+                >
+                    <?php
+                    $known_google_store_names = [];
+                    foreach ($google_file_search_stores as $store) {
+                        $store_resource_name = (string) ($store['resource_name'] ?? $store['id'] ?? '');
+                        if ($store_resource_name === '') {
+                            continue;
+                        }
+                        $known_google_store_names[] = $store_resource_name;
+                        $store_label = (string) ($store['display_name'] ?? $store['name'] ?? $store_resource_name);
+                        echo '<option value="' . esc_attr($store_resource_name) . '"' . selected(in_array($store_resource_name, $google_file_search_store_names_saved, true), true, false) . '>' . esc_html($store_label) . '</option>';
+                    }
+                    foreach ($google_file_search_store_names_saved as $saved_store_name) {
+                        if ($saved_store_name !== '' && !in_array($saved_store_name, $known_google_store_names, true)) {
+                            echo '<option value="' . esc_attr($saved_store_name) . '" selected disabled data-aipkit-preserved-selection="1">' . esc_html($saved_store_name . ' ' . __('(missing)', 'gpt3-ai-content-generator')) . '</option>';
+                        }
+                    }
+                    if (empty($google_file_search_stores) && empty($google_file_search_store_names_saved)) {
+                        echo '<option value="" disabled>' . esc_html__('-- No Stores Found --', 'gpt3-ai-content-generator') . '</option>';
                     }
                     ?>
                 </select>
@@ -259,6 +325,7 @@ $knowledge_config_panel_id = 'aipkit_bot_' . $bot_id . '_knowledge_config_panel'
                             'value' => $pinecone_index_name,
                             'label' => $manual_label,
                             'disabled' => true,
+                            'preserved' => true,
                         ];
                     }
                 }
@@ -300,8 +367,9 @@ $knowledge_config_panel_id = 'aipkit_bot_' . $bot_id . '_knowledge_config_panel'
                                     $option_value = isset($option_row['value']) ? (string) $option_row['value'] : '';
                                     $option_label = isset($option_row['label']) ? (string) $option_row['label'] : '';
                                     $option_disabled = !empty($option_row['disabled']);
+                                    $option_preserved = !empty($option_row['preserved']);
                                     $option_checked = (
-                                        !$option_disabled &&
+                                        (!$option_disabled || $option_preserved) &&
                                         $option_value !== '' &&
                                         (string) $pinecone_index_name === $option_value
                                     );
@@ -336,8 +404,9 @@ $knowledge_config_panel_id = 'aipkit_bot_' . $bot_id . '_knowledge_config_panel'
                             $option_value = isset($option_row['value']) ? (string) $option_row['value'] : '';
                             $option_label = isset($option_row['label']) ? (string) $option_row['label'] : '';
                             $option_disabled = !empty($option_row['disabled']);
+                            $option_preserved = !empty($option_row['preserved']);
                             $option_selected = (
-                                !$option_disabled &&
+                                (!$option_disabled || $option_preserved) &&
                                 $option_value !== '' &&
                                 (string) $pinecone_index_name === $option_value
                             );
@@ -346,6 +415,7 @@ $knowledge_config_panel_id = 'aipkit_bot_' . $bot_id . '_knowledge_config_panel'
                                 value="<?php echo esc_attr($option_value); ?>"
                                 <?php selected($option_selected, true); ?>
                                 <?php disabled($option_disabled); ?>
+                                <?php if ($option_preserved) : ?> data-aipkit-preserved-selection="1"<?php endif; ?>
                             >
                                 <?php echo esc_html($option_label); ?>
                             </option>
@@ -409,7 +479,7 @@ $knowledge_config_panel_id = 'aipkit_bot_' . $bot_id . '_knowledge_config_panel'
                     }
                     foreach ($qdrant_collection_names as $saved_name) {
                         if (!in_array($saved_name, array_map(function ($c) { return is_array($c) ? ($c['name'] ?? '') : (string) $c; }, $qdrant_collections), true)) {
-                            echo '<option value="' . esc_attr($saved_name) . '" disabled="disabled">' . esc_html($saved_name . ' ' . __('(missing)', 'gpt3-ai-content-generator')) . '</option>';
+                            echo '<option value="' . esc_attr($saved_name) . '" selected disabled="disabled" data-aipkit-preserved-selection="1">' . esc_html($saved_name . ' ' . __('(missing)', 'gpt3-ai-content-generator')) . '</option>';
                         }
                     }
                     if (empty($qdrant_collections) && empty($qdrant_collection_names)) {
@@ -479,7 +549,7 @@ $knowledge_config_panel_id = 'aipkit_bot_' . $bot_id . '_knowledge_config_panel'
                     $known_chroma_collection_names = array_map(function ($collection) { return is_array($collection) ? ($collection['name'] ?? ($collection['collection_name'] ?? ($collection['id'] ?? ''))) : (string) $collection; }, $chroma_collections);
                     foreach ($chroma_collection_names as $saved_name) {
                         if (!in_array($saved_name, $known_chroma_collection_names, true)) {
-                            echo '<option value="' . esc_attr($saved_name) . '" disabled="disabled">' . esc_html($saved_name . ' ' . __('(missing)', 'gpt3-ai-content-generator')) . '</option>';
+                            echo '<option value="' . esc_attr($saved_name) . '" selected disabled="disabled" data-aipkit-preserved-selection="1">' . esc_html($saved_name . ' ' . __('(missing)', 'gpt3-ai-content-generator')) . '</option>';
                         }
                     }
                     if (empty($chroma_collections) && empty($chroma_collection_names)) {
@@ -492,7 +562,7 @@ $knowledge_config_panel_id = 'aipkit_bot_' . $bot_id . '_knowledge_config_panel'
             </div>
         </div>
 
-        <div class="aipkit_vector_store_advanced_field aipkit_context_config_section aipkit_context_config_section--retrieval" style="<?php echo ($enable_vector_store === '1' && in_array($vector_store_provider, ['openai', 'pinecone', 'qdrant', 'chroma'], true)) ? '' : 'display:none;'; ?>">
+        <div class="aipkit_vector_store_advanced_field aipkit_context_config_section aipkit_context_config_section--retrieval" style="<?php echo ($enable_vector_store === '1' && in_array($vector_store_provider, ['openai', 'google', 'pinecone', 'qdrant', 'chroma'], true)) ? '' : 'display:none;'; ?>">
             <div class="aipkit_popover_option_main aipkit_vector_store_advanced_main">
                 <div class="aipkit_vector_store_advanced_panel">
                     <div class="aipkit_popover_option_row aipkit_vector_store_top_k_field">

@@ -18,6 +18,7 @@ $aipkit_vector_store_localization = [
     'pinecone_indexes' => [],
     'qdrant_collections' => [],
     'chroma_collections' => [],
+    'google_file_search_stores' => [],
 ];
 if (class_exists(AIPKit_Providers::class)) {
     $aipkit_vector_store_localization = AIPKit_Providers::get_vector_store_localization_payload('ai_forms_editor_ui');
@@ -33,6 +34,9 @@ $qdrant_collections = isset($aipkit_vector_store_localization['qdrant_collection
     : [];
 $chroma_collections = isset($aipkit_vector_store_localization['chroma_collections']) && is_array($aipkit_vector_store_localization['chroma_collections'])
     ? $aipkit_vector_store_localization['chroma_collections']
+    : [];
+$google_file_search_stores = isset($aipkit_vector_store_localization['google_file_search_stores']) && is_array($aipkit_vector_store_localization['google_file_search_stores'])
+    ? $aipkit_vector_store_localization['google_file_search_stores']
     : [];
 
 $aipkit_ai_form_template_icons_url = WPAICG_PLUGIN_URL . 'admin/images/ai-forms/';

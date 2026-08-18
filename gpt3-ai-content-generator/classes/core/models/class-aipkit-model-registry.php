@@ -53,6 +53,11 @@ final class AIPKit_Model_Registry
             'include_bootstrap' => true,
             'include_persisted' => true,
         ]);
+        if ($catalog_key === 'GoogleTTSVoices') {
+            // Gemini voices are a documented static catalog. Ignore obsolete
+            // Cloud TTS voice snapshots left by older plugin versions.
+            $args['include_persisted'] = false;
+        }
         $cache_key = $catalog_key . ':' . (!empty($args['include_bootstrap']) ? '1' : '0') . ':' . (!empty($args['include_persisted']) ? '1' : '0');
         if (isset(self::$catalog_cache[$cache_key])) {
             return self::$catalog_cache[$cache_key];
@@ -79,6 +84,21 @@ final class AIPKit_Model_Registry
             $records = self::merge_records(
                 $records,
                 self::get_reclassified_primary_records($catalog_key)
+            );
+        }
+        if (
+            !empty($args['include_bootstrap'])
+            && in_array($catalog_key, ['GoogleImage', 'GoogleTTS'], true)
+        ) {
+            $records = self::merge_records(
+                $records,
+                self::normalize_rows(
+                    $catalog_key,
+                    AIPKit_Model_Catalog::get_seed_rows($catalog_key),
+                    'bootstrap',
+                    'unverified',
+                    false
+                )
             );
         }
 
@@ -1114,7 +1134,7 @@ final class AIPKit_Model_Registry
             return self::classify_openai_catalog_key($row) === $catalog_key;
         }
 
-        if (in_array($catalog_key, ['Google', 'GoogleImage', 'GoogleVideo', 'GoogleEmbedding'], true)) {
+        if (in_array($catalog_key, ['Google', 'GoogleImage', 'GoogleVideo', 'GoogleEmbedding', 'GoogleTTS'], true)) {
             return self::classify_google_catalog_key($row) === $catalog_key;
         }
 
@@ -1185,6 +1205,9 @@ final class AIPKit_Model_Registry
         if ($is_embedding) {
             return 'GoogleEmbedding';
         }
+        if (strpos($model_id, 'imagen-') === 0) {
+            return '';
+        }
         if (in_array('predictlongrunning', $methods, true) || strpos($model_id, 'veo') !== false) {
             return 'GoogleVideo';
         }
@@ -1199,7 +1222,11 @@ final class AIPKit_Model_Registry
             return 'GoogleImage';
         }
 
-        foreach (['native-audio', '-tts', '-live-', 'live-preview', 'live-translate', 'lyria', 'robotics', 'computer-use', 'gemini-omni', 'aqa'] as $unsupported_fragment) {
+        if (strpos($model_id, '-tts') !== false) {
+            return 'GoogleTTS';
+        }
+
+        foreach (['native-audio', '-live-', 'live-preview', 'live-translate', 'lyria', 'robotics', 'computer-use', 'gemini-omni', 'aqa'] as $unsupported_fragment) {
             if (strpos($model_id, $unsupported_fragment) !== false) {
                 return '';
             }
@@ -1261,6 +1288,7 @@ final class AIPKit_Model_Registry
             'GoogleImage' => [],
             'GoogleVideo' => [],
             'GoogleEmbedding' => [],
+            'GoogleTTS' => [],
         ];
 
         foreach (self::flatten_rows($rows) as $entry) {
@@ -1321,15 +1349,20 @@ final class AIPKit_Model_Registry
         }
 
         $vector_store_registry = get_option('aipkit_vector_stores_registry', []);
-        if (
-            is_array($vector_store_registry)
-            && isset($vector_store_registry['OpenAI'])
-            && is_array($vector_store_registry['OpenAI'])
-        ) {
-            if (!isset($catalogs_by_provider['OpenAI'])) {
-                $catalogs_by_provider['OpenAI'] = [];
+        $target_catalogs = [
+            'OpenAI' => 'OpenAIVectorStores',
+            'Google' => 'GoogleFileSearchStores',
+        ];
+        if (is_array($vector_store_registry)) {
+            foreach ($target_catalogs as $target_provider => $target_catalog) {
+                if (!isset($vector_store_registry[$target_provider]) || !is_array($vector_store_registry[$target_provider])) {
+                    continue;
+                }
+                if (!isset($catalogs_by_provider[$target_provider])) {
+                    $catalogs_by_provider[$target_provider] = [];
+                }
+                $catalogs_by_provider[$target_provider][$target_catalog] = $vector_store_registry[$target_provider];
             }
-            $catalogs_by_provider['OpenAI']['OpenAIVectorStores'] = $vector_store_registry['OpenAI'];
         }
 
         foreach ($sync_timestamps as $sync_scope => $synced_at) {
@@ -1687,7 +1720,7 @@ final class AIPKit_Model_Registry
         $primary_catalog = '';
         if (in_array($catalog_key, ['OpenAIImage', 'OpenAIEmbedding', 'OpenAITTS', 'OpenAISTT', 'OpenAIRealtime'], true)) {
             $primary_catalog = 'OpenAI';
-        } elseif (in_array($catalog_key, ['GoogleImage', 'GoogleVideo', 'GoogleEmbedding'], true)) {
+        } elseif (in_array($catalog_key, ['GoogleImage', 'GoogleVideo', 'GoogleEmbedding', 'GoogleTTS'], true)) {
             $primary_catalog = 'Google';
         }
         if ($primary_catalog === '') {
@@ -1786,8 +1819,8 @@ final class AIPKit_Model_Registry
             update_option($option_name, $legacy_rows, 'no');
         }
 
-        if (($definition['resource_type'] ?? '') === 'vector_target') {
-            self::mirror_vector_store_registry(
+        if (in_array(($definition['resource_type'] ?? ''), ['vector_target', 'knowledge_target'], true)) {
+            self::mirror_knowledge_store_registry(
                 sanitize_text_field((string) ($definition['provider'] ?? '')),
                 $legacy_rows
             );
@@ -1800,7 +1833,7 @@ final class AIPKit_Model_Registry
      *
      * @param array<mixed> $rows
      */
-    private static function mirror_vector_store_registry(string $provider, array $rows): void
+    private static function mirror_knowledge_store_registry(string $provider, array $rows): void
     {
         if ($provider === '') {
             return;
@@ -1970,6 +2003,12 @@ final class AIPKit_Model_Registry
      */
     private static function filter_deprecated_records(string $catalog_key, array $records): array
     {
+        if ($catalog_key === 'GoogleImage') {
+            $records = array_values(array_filter($records, static function (array $record): bool {
+                $model_id = strtolower((string) ($record['canonical_id'] ?? $record['id'] ?? ''));
+                return strpos($model_id, 'imagen-') !== 0;
+            }));
+        }
         if (empty(AIPKit_Model_Catalog::get_deprecated_ids($catalog_key))) {
             return array_values($records);
         }
@@ -2024,6 +2063,8 @@ final class AIPKit_Model_Registry
             $capabilities['image_input'] = in_array('image', $input_modalities, true)
                 || in_array('image_url', $input_modalities, true)
                 || in_array('input_image', $input_modalities, true);
+            $capabilities['audio_input'] = in_array('audio', $input_modalities, true)
+                || in_array('input_audio', $input_modalities, true);
         }
         if (!empty($output_modalities)) {
             $has_image_output = in_array('image', $output_modalities, true)
@@ -2468,6 +2509,8 @@ final class AIPKit_Model_Registry
             'GoogleImage' => 'Google',
             'GoogleVideo' => 'Google',
             'GoogleEmbedding' => 'Google',
+            'GoogleTTS' => 'Google',
+            'GoogleFileSearchStores' => 'GoogleFileSearchStores',
             'AzureImage' => 'Azure',
             'AzureEmbedding' => 'Azure',
             'xAIImage' => 'xAI',

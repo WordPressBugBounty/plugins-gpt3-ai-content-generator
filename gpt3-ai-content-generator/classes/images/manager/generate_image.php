@@ -77,6 +77,14 @@ function generate_image_logic(AIPKit_Image_Manager $managerInstance, string $pro
             isset($final_options['model']) ? (string) $final_options['model'] : null
         );
     }
+    if (
+        $provider_normalized === 'Google'
+        && strpos(strtolower((string) ($final_options['model'] ?? '')), 'veo') === false
+    ) {
+        $final_options['model'] = AIPKit_Providers::normalize_google_image_model(
+            isset($final_options['model']) ? (string) $final_options['model'] : null
+        );
+    }
     if (empty($final_options['size'])) {
         $final_options['size'] = '1024x1024';
     }

@@ -21,6 +21,7 @@ if (!defined('ABSPATH')) {
             class="aipkit_form-input aipkit_ci_target_select aipkit_autosave_trigger"
         >
             <option value="openai" selected>OpenAI</option>
+            <option value="google"><?php esc_html_e('Google', 'gpt3-ai-content-generator'); ?></option>
             <option value="pinecone">Pinecone</option>
             <option value="qdrant">Qdrant</option>
             <option value="chroma">Chroma</option>

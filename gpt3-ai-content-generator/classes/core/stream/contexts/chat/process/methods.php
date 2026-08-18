@@ -17,9 +17,9 @@ use WPAICG\Vector\AIPKit_Vector_Store_Manager;
 use WPAICG\Core\AIPKit_Instruction_Manager;
 use WPAICG\AIPKit_Providers;
 use WPAICG\AIPKIT_AI_Settings;
-use WPAICG\Core\Providers\Google\GoogleSettingsHandler;
 use WPAICG\Core\Providers\OpenAI\OpenAIStatefulConversationHelper;
 use WPAICG\Utils\AIPKit_Prompt_Sanitizer;
+use WPAICG\Chat\Core\AIPKit_Chat_File_Upload_Provider_Resolver;
 use WPAICG\Chat\Storage\BotSettingsManager;
 
 if (!defined('ABSPATH')) {
@@ -46,6 +46,7 @@ function extract_request_params_logic(array $cached_data, array $get_params): ar
         'image_inputs'       => $cached_data['image_inputs'] ?? null,
         'client_ip'          => isset($_SERVER['REMOTE_ADDR']) ? sanitize_text_field(wp_unslash($_SERVER['REMOTE_ADDR'])) : null,
         'frontend_previous_openai_response_id' => isset($get_params['previous_openai_response_id']) ? sanitize_text_field($get_params['previous_openai_response_id']) : null,
+        'frontend_previous_google_interaction_id' => isset($get_params['previous_google_interaction_id']) ? sanitize_text_field($get_params['previous_google_interaction_id']) : null,
         'frontend_openai_web_search_active' => (isset($get_params['frontend_web_search_active']) && $get_params['frontend_web_search_active'] === 'true'),
         'frontend_google_search_grounding_active' => (isset($get_params['frontend_google_search_grounding_active']) && $get_params['frontend_google_search_grounding_active'] === 'true'),
         'client_user_message_id' => $cached_data['client_user_message_id'] ?? null,
@@ -62,6 +63,11 @@ function extract_request_params_logic(array $cached_data, array $get_params): ar
         'active_claude_file_id' => isset($cached_data['active_claude_file_id'])
             ? sanitize_text_field((string) $cached_data['active_claude_file_id'])
             : (isset($get_params['active_claude_file_id']) ? sanitize_text_field(wp_unslash($get_params['active_claude_file_id'])) : null),
+        // Keep this signed token out of the EventSource URL; it is accepted only
+        // from the nonce-protected message cache request.
+        'active_google_file_context_token' => isset($cached_data['active_google_file_context_token'])
+            ? sanitize_text_field((string) $cached_data['active_google_file_context_token'])
+            : null,
     ];
 }
 
@@ -650,6 +656,7 @@ function process_user_message_trigger_logic(array $context)
  * @param int $post_id Current post ID.
  * @param array|null $image_inputs Processed image inputs.
  * @param string|null $frontend_previous_openai_response_id Previous OpenAI response ID.
+ * @param string|null $frontend_previous_google_interaction_id Previous Google interaction ID.
  * @param bool $frontend_openai_web_search_active Flag for OpenAI web search.
  * @param bool $frontend_google_search_grounding_active Flag for Google Search Grounding.
  * @param string|null $frontend_active_openai_vs_id Active OpenAI Vector Store ID.
@@ -660,6 +667,7 @@ function process_user_message_trigger_logic(array $context)
  * @param string|null $frontend_active_chroma_collection_name Active Chroma collection name.
  * @param string|null $frontend_active_chroma_file_upload_context_id Active Chroma file context ID.
  * @param string|null $frontend_active_claude_file_id Active Claude file ID.
+ * @param array<string, mixed>|null $frontend_active_google_document Verified Google document input.
  * @return array|WP_Error Prepared data array or WP_Error.
  */
 function build_ai_request_data_for_stream_logic(
@@ -674,6 +682,7 @@ function build_ai_request_data_for_stream_logic(
     int $post_id,
     ?array $image_inputs,
     ?string $frontend_previous_openai_response_id,
+    ?string $frontend_previous_google_interaction_id,
     bool $frontend_openai_web_search_active,
     bool $frontend_google_search_grounding_active,
     ?string $frontend_active_openai_vs_id,
@@ -683,7 +692,8 @@ function build_ai_request_data_for_stream_logic(
     ?string $frontend_active_qdrant_file_upload_context_id,
     ?string $frontend_active_chroma_collection_name,
     ?string $frontend_active_chroma_file_upload_context_id,
-    ?string $frontend_active_claude_file_id
+    ?string $frontend_active_claude_file_id,
+    ?array $frontend_active_google_document
 ) {
 
     // Ensure dependencies for sub-logics are loaded
@@ -692,9 +702,6 @@ function build_ai_request_data_for_stream_logic(
     }
     if (!class_exists(AIPKit_Providers::class) || !class_exists(AIPKIT_AI_Settings::class)) {
         return new WP_Error('dependency_missing_global_settings', 'Global settings components (Providers/AI_Settings) are missing.');
-    }
-    if ($main_provider_for_ai === 'Google' && !class_exists(GoogleSettingsHandler::class)) {
-        return new WP_Error('dependency_missing_google_handler', 'Google Settings Handler component is missing.');
     }
     if ($main_provider_for_ai === 'OpenAI' && !class_exists(OpenAIStatefulConversationHelper::class)) {
         return new WP_Error('dependency_missing_openai_helper', 'OpenAI Stateful Helper component is missing.');
@@ -777,9 +784,6 @@ function build_ai_request_data_for_stream_logic(
     // Make a mutable copy of history for potential modification by stateful helper
     $history_for_stateful_check = $final_history_for_ai;
 
-    if ($main_provider_for_ai === 'Google' && class_exists(GoogleSettingsHandler::class)) {
-        $ai_params_for_payload['safety_settings'] = GoogleSettingsHandler::get_safety_settings();
-    }
     if ($main_provider_for_ai === 'OpenAI' && class_exists(OpenAIStatefulConversationHelper::class)) {
         $stateful_result = OpenAIStatefulConversationHelper::prepare_parameters_and_history(
             $ai_params_for_payload, // Passed by value, modified array returned
@@ -792,14 +796,23 @@ function build_ai_request_data_for_stream_logic(
     }
 
     if ($main_provider_for_ai === 'OpenAI') {
-        $vector_store_ids_to_use = $bot_settings['openai_vector_store_ids'] ?? [];
-        if ($frontend_active_openai_vs_id && !in_array($frontend_active_openai_vs_id, $vector_store_ids_to_use, true)) {
-            $vector_store_ids_to_use[] = $frontend_active_openai_vs_id;
+        $knowledge_uses_openai = ($bot_settings['enable_vector_store'] ?? '0') === '1'
+            && ($bot_settings['vector_store_provider'] ?? '') === 'openai';
+        $vector_store_ids_to_use = $knowledge_uses_openai
+            ? ($bot_settings['openai_vector_store_ids'] ?? [])
+            : [];
+        $temporary_openai_vs_id = ($bot_settings['enable_file_upload'] ?? '0') === '1'
+            && class_exists(AIPKit_Chat_File_Upload_Provider_Resolver::class)
+            && AIPKit_Chat_File_Upload_Provider_Resolver::resolve($bot_settings) === 'openai'
+            ? sanitize_text_field((string) $frontend_active_openai_vs_id)
+            : '';
+        if ($temporary_openai_vs_id !== '' && !in_array($temporary_openai_vs_id, $vector_store_ids_to_use, true)) {
+            $vector_store_ids_to_use[] = $temporary_openai_vs_id;
         }
         $vector_store_ids_to_use = array_unique(array_filter($vector_store_ids_to_use));
         $vector_top_k_openai = absint($bot_settings['vector_store_top_k'] ?? 3);
         $vector_top_k_openai = max(1, min($vector_top_k_openai, 20));
-        if (($bot_settings['enable_vector_store'] ?? '0') === '1' && ($bot_settings['vector_store_provider'] ?? '') === 'openai' && !empty($vector_store_ids_to_use)) {
+        if (!empty($vector_store_ids_to_use)) {
             // Get confidence threshold and convert to OpenAI score threshold
             $confidence_threshold_percent = (int)($bot_settings['vector_store_confidence_threshold'] ?? 20);
             $openai_score_threshold = round($confidence_threshold_percent / 100, 4); // Round to avoid precision issues
@@ -898,10 +911,11 @@ function build_ai_request_data_for_stream_logic(
             $ai_params_for_payload['web_search_tool_config'] = $web_search_config;
             $ai_params_for_payload['frontend_web_search_active'] = $frontend_openai_web_search_active;
         }
-        $vector_store_provider = sanitize_key((string) ($bot_settings['vector_store_provider'] ?? ''));
         $claude_file_id = sanitize_text_field((string) $frontend_active_claude_file_id);
         if (
-            $vector_store_provider === 'claude_files' &&
+            ($bot_settings['enable_file_upload'] ?? '0') === '1' &&
+            class_exists(AIPKit_Chat_File_Upload_Provider_Resolver::class) &&
+            AIPKit_Chat_File_Upload_Provider_Resolver::resolve($bot_settings) === 'claude_files' &&
             $claude_file_id !== '' &&
             preg_match('/^file_[a-zA-Z0-9_-]+$/', $claude_file_id)
         ) {
@@ -939,14 +953,36 @@ function build_ai_request_data_for_stream_logic(
             $ai_params_for_payload['frontend_web_search_active'] = $frontend_openai_web_search_active;
         }
     } elseif ($main_provider_for_ai === 'Google') {
-        if (($bot_settings['google_search_grounding_enabled'] ?? '0') === '1') {
-            $ai_params_for_payload['google_grounding_mode'] = $bot_settings['google_grounding_mode'] ?? BotSettingsManager::DEFAULT_GOOGLE_GROUNDING_MODE;
-            if ($ai_params_for_payload['google_grounding_mode'] === 'MODE_DYNAMIC') {
-                $ai_params_for_payload['google_grounding_dynamic_threshold'] = isset($bot_settings['google_grounding_dynamic_threshold']) ? floatval($bot_settings['google_grounding_dynamic_threshold']) : BotSettingsManager::DEFAULT_GOOGLE_GROUNDING_DYNAMIC_THRESHOLD;
+        if (!empty($frontend_active_google_document)) {
+            $ai_params_for_payload['google_document_input'] = $frontend_active_google_document;
+        }
+        $google_store_names = isset($bot_settings['google_file_search_store_names'])
+            && is_array($bot_settings['google_file_search_store_names'])
+            ? $bot_settings['google_file_search_store_names']
+            : [];
+        $google_store_names = array_values(array_unique(array_filter(array_map('sanitize_text_field', $google_store_names))));
+        if (
+            ($bot_settings['enable_vector_store'] ?? '0') === '1'
+            && ($bot_settings['vector_store_provider'] ?? '') === 'google'
+            && !empty($google_store_names)
+        ) {
+            $google_top_k = absint($bot_settings['vector_store_top_k'] ?? 3);
+            $ai_params_for_payload['google_file_search_tool_config'] = [
+                'file_search_store_names' => $google_store_names,
+                'top_k' => max(1, min($google_top_k, 20)),
+            ];
+        }
+        $use_google_conversation_state = ($bot_settings['google_conversation_state_enabled'] ?? '0') === '1';
+        $ai_params_for_payload['use_google_conversation_state'] = $use_google_conversation_state;
+        if ($use_google_conversation_state) {
+            $ai_params_for_payload['store_conversation'] = '1';
+            if (!empty($frontend_previous_google_interaction_id)) {
+                $ai_params_for_payload['google_previous_interaction_id'] = $frontend_previous_google_interaction_id;
             }
+        }
+        if (($bot_settings['google_search_grounding_enabled'] ?? '0') === '1') {
             $ai_params_for_payload['frontend_google_search_grounding_active'] = $frontend_google_search_grounding_active;
         }
-        $ai_params_for_payload['model_id_for_grounding'] = $model_id_for_ai;
     } elseif ($main_provider_for_ai === 'Ollama') {
         $reasoning_effort = AIPKit_OpenAI_Reasoning::sanitize_effort($bot_settings['reasoning_effort'] ?? '');
         if ($reasoning_effort !== '' && $reasoning_effort !== 'none') {

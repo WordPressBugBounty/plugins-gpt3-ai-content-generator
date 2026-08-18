@@ -400,7 +400,12 @@ $render_ai_form_connected_apps_cards = static function (array $connected_apps_pa
                         <h2 class="aipkit-modal-shell-title" id="aipkit_ai_form_web_search_settings_modal_title">
                             <?php esc_html_e('Web search settings', 'gpt3-ai-content-generator'); ?>
                         </h2>
-                        <p class="aipkit-modal-shell-copy" id="aipkit_ai_form_web_search_settings_modal_description">
+                        <p
+                            class="aipkit-modal-shell-copy"
+                            id="aipkit_ai_form_web_search_settings_modal_description"
+                            data-editable-copy="<?php esc_attr_e('Configure provider-specific search options for this form.', 'gpt3-ai-content-generator'); ?>"
+                            data-readonly-copy="<?php esc_attr_e('Review how web search works for this provider.', 'gpt3-ai-content-generator'); ?>"
+                        >
                             <?php esc_html_e('Configure provider-specific search options for this form.', 'gpt3-ai-content-generator'); ?>
                         </p>
                     </div>
@@ -419,7 +424,13 @@ $render_ai_form_connected_apps_cards = static function (array $connected_apps_pa
                 </div>
                 <div class="aipkit-modal-footer aipkit_ai_form_modal_footer">
                     <div class="aipkit_ai_form_modal_footer_actions">
-                        <button type="button" id="aipkit_ai_form_web_search_settings_cancel_btn" class="aipkit_btn aipkit_btn-secondary aipkit_ai_form_web_search_settings_cancel">
+                        <button
+                            type="button"
+                            id="aipkit_ai_form_web_search_settings_cancel_btn"
+                            class="aipkit_btn aipkit_btn-secondary aipkit_ai_form_web_search_settings_cancel"
+                            data-cancel-label="<?php esc_attr_e('Cancel', 'gpt3-ai-content-generator'); ?>"
+                            data-close-label="<?php esc_attr_e('Close', 'gpt3-ai-content-generator'); ?>"
+                        >
                             <?php esc_html_e('Cancel', 'gpt3-ai-content-generator'); ?>
                         </button>
                         <button type="button" id="aipkit_ai_form_web_search_settings_save_btn" class="aipkit_btn aipkit_btn-primary">

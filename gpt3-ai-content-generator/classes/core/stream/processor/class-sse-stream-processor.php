@@ -42,6 +42,9 @@ class SSEStreamProcessor {
     public $request_payload_log    = null;
     public $current_openai_response_id = null;
     public $used_previous_openai_response_id = false;
+    public $current_google_interaction_id = null;
+    public $used_previous_google_interaction_id = false;
+    public $google_conversation_state_enabled = false;
     public $grounding_metadata = null;
     public $citations = null;
     public $current_stream_context = 'chat';
@@ -92,6 +95,10 @@ class SSEStreamProcessor {
     public function get_current_openai_response_id(): ?string { return $this->current_openai_response_id; }
     public function set_current_openai_response_id(?string $id): void { $this->current_openai_response_id = $id; }
     public function get_used_previous_openai_response_id_status(): bool { return $this->used_previous_openai_response_id; }
+    public function get_current_google_interaction_id(): ?string { return $this->current_google_interaction_id; }
+    public function set_current_google_interaction_id(?string $id): void { $this->current_google_interaction_id = $id; }
+    public function get_used_previous_google_interaction_id_status(): bool { return $this->used_previous_google_interaction_id; }
+    public function get_google_conversation_state_enabled_status(): bool { return $this->google_conversation_state_enabled; }
     public function get_grounding_metadata(): ?array { return $this->grounding_metadata; }
     public function set_grounding_metadata(?array $metadata): void { $this->grounding_metadata = $metadata; }
     public function get_citations(): ?array { return $this->citations; }
@@ -130,14 +137,18 @@ class SSEStreamProcessor {
         $this->vector_search_scores = $scores; 
     }
 
-    public function initialize_stream_state(string $provider, string $model, string $conversation_uuid, ?string $bot_message_id, array $base_log_data, string $stream_context, bool $used_previous_openai_id): void {
+    public function initialize_stream_state(string $provider, string $model, string $conversation_uuid, ?string $bot_message_id, array $base_log_data, string $stream_context, bool $used_previous_openai_id, bool $google_state_enabled, bool $used_previous_google_id): void {
         $this->current_provider = $provider; $this->current_model = $model;
         $this->current_conversation_uuid = $conversation_uuid; $this->current_bot_message_id = $bot_message_id;
         $this->incomplete_sse_buffer = ''; $this->curl_callback_invoked = false; $this->curl_chunk_counter = 0;
         $this->data_sent_to_frontend = false; $this->full_bot_response = ''; $this->final_usage_data = null;
         $this->log_base_data = $base_log_data; $this->current_stream_context = $stream_context;
         $this->error_occurred = false; $this->request_payload_log = null; $this->current_openai_response_id = null;
-        $this->used_previous_openai_response_id = $used_previous_openai_id; $this->grounding_metadata = null; $this->citations = null;
+        $this->used_previous_openai_response_id = $used_previous_openai_id;
+        $this->current_google_interaction_id = null;
+        $this->google_conversation_state_enabled = $google_state_enabled;
+        $this->used_previous_google_interaction_id = $used_previous_google_id;
+        $this->grounding_metadata = null; $this->citations = null;
         // NOTE: vector_search_scores should NOT be reset here as they are set before streaming starts
     }
     // --- End Getters and Setters ---

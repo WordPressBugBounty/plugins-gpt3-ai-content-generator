@@ -23,6 +23,7 @@ use WPAICG\Vector\AIPKit_Vector_Post_Processor_Ajax_Handler;
 use WPAICG\Dashboard\Ajax\AIPKit_OpenAI_Vector_Stores_Ajax_Handler;
 use WPAICG\Dashboard\Ajax\AIPKit_OpenAI_Vector_Store_Files_Ajax_Handler;
 use WPAICG\Dashboard\Ajax\AIPKit_OpenAI_WP_Content_Indexing_Ajax_Handler;
+use WPAICG\Dashboard\Ajax\AIPKit_Google_File_Search_Ajax_Handler;
 use WPAICG\Dashboard\Ajax\AIPKit_Vector_Store_Pinecone_Ajax_Handler;
 use WPAICG\Dashboard\Ajax\AIPKit_Vector_Store_Qdrant_Ajax_Handler;
 use WPAICG\Dashboard\Ajax\AIPKit_Vector_Store_Chroma_Ajax_Handler;
@@ -91,6 +92,7 @@ class AIPKit_Hook_Manager
         $openai_vs_stores_ajax_handler = null;
         $openai_vs_files_ajax_handler = null;
         $openai_wp_content_indexing_ajax_handler = null;
+        $google_file_search_ajax_handler = null;
         $pinecone_vector_store_ajax_handler = null;
         $qdrant_vector_store_ajax_handler = null;
         $chroma_vector_store_ajax_handler = null;
@@ -119,6 +121,7 @@ class AIPKit_Hook_Manager
             $openai_vs_stores_ajax_handler = class_exists(AIPKit_OpenAI_Vector_Stores_Ajax_Handler::class) ? new AIPKit_OpenAI_Vector_Stores_Ajax_Handler() : null;
             $openai_vs_files_ajax_handler = class_exists(AIPKit_OpenAI_Vector_Store_Files_Ajax_Handler::class) ? new AIPKit_OpenAI_Vector_Store_Files_Ajax_Handler() : null;
             $openai_wp_content_indexing_ajax_handler = class_exists(AIPKit_OpenAI_WP_Content_Indexing_Ajax_Handler::class) ? new AIPKit_OpenAI_WP_Content_Indexing_Ajax_Handler() : null;
+            $google_file_search_ajax_handler = class_exists(AIPKit_Google_File_Search_Ajax_Handler::class) ? new AIPKit_Google_File_Search_Ajax_Handler() : null;
             $pinecone_vector_store_ajax_handler = class_exists(AIPKit_Vector_Store_Pinecone_Ajax_Handler::class) ? new AIPKit_Vector_Store_Pinecone_Ajax_Handler() : null;
             $qdrant_vector_store_ajax_handler = class_exists(AIPKit_Vector_Store_Qdrant_Ajax_Handler::class) ? new AIPKit_Vector_Store_Qdrant_Ajax_Handler() : null;
             $chroma_vector_store_ajax_handler = class_exists(AIPKit_Vector_Store_Chroma_Ajax_Handler::class) ? new AIPKit_Vector_Store_Chroma_Ajax_Handler() : null;
@@ -181,7 +184,7 @@ class AIPKit_Hook_Manager
         if ($admin_like_request && class_exists(Ajax_Hooks_Registrar::class) &&
             $image_settings_ajax_handler && $vector_post_processor_ajax_handler &&
             $openai_vs_stores_ajax_handler && $openai_vs_files_ajax_handler &&
-            $openai_wp_content_indexing_ajax_handler && $pinecone_vector_store_ajax_handler &&
+            $openai_wp_content_indexing_ajax_handler && $google_file_search_ajax_handler && $pinecone_vector_store_ajax_handler &&
             $qdrant_vector_store_ajax_handler && $chroma_vector_store_ajax_handler && $core_ajax_handler &&
             $automated_task_manager && $content_writer_init_stream_action &&
             $content_writer_standard_gen_action && $content_writer_generate_title_action &&
@@ -197,6 +200,7 @@ class AIPKit_Hook_Manager
                 $openai_vs_stores_ajax_handler,
                 $openai_vs_files_ajax_handler,
                 $openai_wp_content_indexing_ajax_handler,
+                $google_file_search_ajax_handler,
                 $pinecone_vector_store_ajax_handler,
                 $qdrant_vector_store_ajax_handler,
                 $chroma_vector_store_ajax_handler,

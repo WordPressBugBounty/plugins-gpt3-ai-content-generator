@@ -10,7 +10,7 @@ if (!defined('ABSPATH')) {
  * AIPKit_Vector_Store_Registry
  *
  * Manages a WordPress option to store a list/cache of vector stores
- * from different providers (OpenAI, Pinecone, Qdrant).
+ * from raw vector providers and hosted knowledge providers.
  */
 class AIPKit_Vector_Store_Registry {
 
@@ -31,6 +31,10 @@ class AIPKit_Vector_Store_Registry {
         'Chroma' => [
             'option' => 'aipkit_chroma_collection_list',
             'model_key' => 'ChromaCollections',
+        ],
+        'Google' => [
+            'option' => 'aipkit_google_file_search_store_list',
+            'model_key' => 'GoogleFileSearchStores',
         ],
     ];
 
@@ -195,6 +199,9 @@ class AIPKit_Vector_Store_Registry {
             'pinecone' => 'Pinecone',
             'qdrant' => 'Qdrant',
             'chroma' => 'Chroma',
+            'google' => 'Google',
+            'google_file_search' => 'Google',
+            'google file search' => 'Google',
         ];
 
         return $map[$provider] ?? '';
@@ -256,6 +263,30 @@ class AIPKit_Vector_Store_Registry {
                 : '';
             if ($name === '' && $collection_name !== '') {
                 $name = $collection_name;
+            }
+        }
+
+        if ($provider === 'Google') {
+            $resource_name = isset($store_data['resource_name']) && is_scalar($store_data['resource_name'])
+                ? trim((string) $store_data['resource_name'])
+                : '';
+            if ($resource_name === '' && isset($store_data['name']) && is_scalar($store_data['name'])) {
+                $raw_name = trim((string) $store_data['name']);
+                if (strpos($raw_name, 'fileSearchStores/') === 0) {
+                    $resource_name = $raw_name;
+                }
+            }
+            $display_name = isset($store_data['display_name']) && is_scalar($store_data['display_name'])
+                ? trim((string) $store_data['display_name'])
+                : '';
+            if ($display_name === '' && isset($store_data['displayName']) && is_scalar($store_data['displayName'])) {
+                $display_name = trim((string) $store_data['displayName']);
+            }
+            if ($resource_name !== '') {
+                $id = $resource_name;
+                $name = $display_name !== '' ? $display_name : $resource_name;
+                $store_data['resource_name'] = $resource_name;
+                $store_data['display_name'] = $display_name;
             }
         }
 
@@ -362,6 +393,7 @@ class AIPKit_Vector_Store_Registry {
             $store['name'] ?? '',
             $store['chroma_id'] ?? '',
             $store['collection_name'] ?? '',
+            $store['resource_name'] ?? '',
         ];
 
         foreach ($candidates as $candidate) {

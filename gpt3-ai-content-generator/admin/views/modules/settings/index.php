@@ -7,7 +7,6 @@ use WPAICG\AIPKIT_AI_Settings;
 use WPAICG\AIPKit_Providers;
 use WPAICG\aipkit_dashboard;
 use WPAICG\AIPKit_Role_Manager;
-use WPAICG\Core\Providers\Google\GoogleSettingsHandler;
 use WPAICG\Images\AIPKit_Image_Settings_Ajax_Handler;
 
 if (!defined('ABSPATH')) {
@@ -15,14 +14,6 @@ if (!defined('ABSPATH')) {
 }
 
 // phpcs:disable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- This file only uses local helper/template variables and does not define public globals.
-
-// Ensure GoogleSettingsHandler is loaded before use
-$google_settings_handler_path = WPAICG_PLUGIN_DIR . 'classes/core/providers/google/bootstrap-provider-strategy.php';
-if (!class_exists(GoogleSettingsHandler::class) && file_exists($google_settings_handler_path)) {
-    require_once $google_settings_handler_path;
-} elseif (!class_exists(GoogleSettingsHandler::class)) {
-    echo '<div class="notice notice-error"><p>Error: Google Settings component failed to load. Safety settings cannot be displayed.</p></div>';
-}
 
 // --- Variable Definitions ---
 $aipkit_options = get_option('aipkit_options', array());
@@ -41,16 +32,6 @@ $public_api_enabled = (string) ($all_api_keys['public_api_enabled'] ?? '0') === 
 $is_pro = class_exists('\WPAICG\aipkit_dashboard') && aipkit_dashboard::is_pro_plan();
 $module_settings = aipkit_dashboard::get_module_settings();
 $can_manage_modules = AIPKit_Role_Manager::user_can_manage_settings();
-
-$safety_settings = class_exists(GoogleSettingsHandler::class) ? GoogleSettingsHandler::get_safety_settings() : [];
-$category_thresholds = array();
-if (is_array($safety_settings)) {
-    foreach ($safety_settings as $setting) {
-        if (isset($setting['category'], $setting['threshold'])) {
-            $category_thresholds[$setting['category']] = $setting['threshold'];
-        }
-    }
-}
 
 $openai_data     = AIPKit_Providers::get_provider_data('OpenAI');
 $openrouter_data = AIPKit_Providers::get_provider_data('OpenRouter');
@@ -340,8 +321,3 @@ $chroma_defaults     = AIPKit_Providers::get_provider_defaults('Chroma');
         </div>
     </section>
 </div>
-
-<div id="aipkit_google_tts_voices_json_main" style="display:none;" data-voices="<?php
-    $google_voices_main = AIPKit_Providers::get_google_tts_voices();
-echo esc_attr(wp_json_encode($google_voices_main ?: []));
-?>"></div>

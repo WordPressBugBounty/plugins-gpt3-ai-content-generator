@@ -441,6 +441,7 @@ function ajax_check_video_status_logic(AIPKit_Image_Manager $managerInstance): v
 
     // Prepare API params with defaults
     $api_params = array_merge($api_params, [
+        // phpcs:ignore PluginCheck.CodeAnalysis.AIProvider.DirectIntegration -- Provider-specific API transport.
         'base_url' => $api_params['base_url'] ?? 'https://generativelanguage.googleapis.com',
         'api_version' => $api_params['api_version'] ?? 'v1beta'
     ]);

@@ -24,6 +24,7 @@ class AIPKit_Image_XAI_Provider_Strategy extends AIPKit_Image_Base_Provider_Stra
      */
     private function build_api_url(string $operation, array $api_params)
     {
+        // phpcs:ignore PluginCheck.CodeAnalysis.AIProvider.DirectIntegration -- Provider-specific API transport.
         $base_url = !empty($api_params['base_url']) ? rtrim((string) $api_params['base_url'], '/') : 'https://api.x.ai';
         $api_version = !empty($api_params['api_version']) ? trim((string) $api_params['api_version'], '/') : 'v1';
 

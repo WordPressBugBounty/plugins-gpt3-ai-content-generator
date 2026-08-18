@@ -317,6 +317,10 @@ function prepare_final_ai_params_logic(
             $frontend_openai_web_search_active
         );
     } elseif ($main_provider === 'Google') {
+        AiParams\apply_google_file_search_tool_config_logic(
+            $final_ai_params,
+            $bot_settings
+        );
         AiParams\apply_google_search_grounding_logic(
             $final_ai_params,
             $bot_settings,

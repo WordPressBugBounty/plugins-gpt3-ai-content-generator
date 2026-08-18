@@ -398,17 +398,6 @@ class ChatbotAjaxHandler extends BaseAjaxHandler {
         if ( is_wp_error( $result ) ) {
             $this->send_wp_error( $result );
         } else {
-            // --- START: Check and update global OpenAI store_conversation setting ---
-            if ( isset( $settings['provider'] ) && $settings['provider'] === 'OpenAI' && isset( $settings['openai_conversation_state_enabled'] ) && $settings['openai_conversation_state_enabled'] === '1' ) {
-                if ( class_exists( \WPAICG\AIPKit_Providers::class ) ) {
-                    $openai_global_settings = AIPKit_Providers::get_provider_data( 'OpenAI' );
-                    if ( ($openai_global_settings['store_conversation'] ?? '0') !== '1' ) {
-                        $openai_global_settings['store_conversation'] = '1';
-                        AIPKit_Providers::save_provider_data( 'OpenAI', $openai_global_settings );
-                    }
-                }
-            }
-            // --- END: Check and update global OpenAI store_conversation setting ---
             $this->send_saved_bot_state_success( $botId, __( 'Chatbot settings saved successfully.', 'gpt3-ai-content-generator' ) );
         }
     }
@@ -502,7 +491,7 @@ class ChatbotAjaxHandler extends BaseAjaxHandler {
         update_post_meta( $new_bot_id, '_aipkit_site_wide_enabled', '0' );
         update_post_meta( $new_bot_id, '_aipkit_popup_delay', BotSettingsManager::DEFAULT_POPUP_DELAY );
         update_post_meta( $new_bot_id, '_aipkit_enable_conversation_starters', BotSettingsManager::DEFAULT_ENABLE_CONVERSATION_STARTERS );
-        update_post_meta( $new_bot_id, '_aipkit_conversation_starters', BotSettingsManager::get_default_conversation_starters_json() );
+        update_post_meta( $new_bot_id, '_aipkit_conversation_starters', BotSettingsManager::get_conversation_starters_meta_value( BotSettingsManager::get_default_conversation_starters() ) );
         // Normalize default markers so only one chatbot remains default.
         $default_marker_candidates = get_posts( [
             'post_type'              => AdminSetup::POST_TYPE,
@@ -718,6 +707,15 @@ class ChatbotAjaxHandler extends BaseAjaxHandler {
             ], 400 );
             return;
         }
+        $vector_store_provider = (string) get_post_meta( $bot_id, '_aipkit_vector_store_provider', true );
+        if ( $vector_store_provider === '' ) {
+            $vector_store_provider = BotSettingsManager::DEFAULT_VECTOR_STORE_PROVIDER;
+        }
+        $enable_vector_store = (string) get_post_meta( $bot_id, '_aipkit_enable_vector_store', true );
+        $knowledge_state = BotSettingsManager::get_knowledge_capability_state( $provider, $vector_store_provider, $enable_vector_store );
+        if ( $knowledge_state['requested'] && !$knowledge_state['compatible'] ) {
+            update_post_meta( $bot_id, '_aipkit_enable_vector_store', '0' );
+        }
         update_post_meta( $bot_id, '_aipkit_provider', $provider );
         if ( $model !== '' ) {
             update_post_meta( $bot_id, '_aipkit_model', $model );
@@ -775,12 +773,25 @@ class ChatbotAjaxHandler extends BaseAjaxHandler {
         // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Reason: Nonce verification is handled in check_module_access_permissions method.
         $openai_conversation_state_enabled = ( isset( $_POST['openai_conversation_state_enabled'] ) && wp_unslash( $_POST['openai_conversation_state_enabled'] ) === '1' ? '1' : '0' );
         // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Reason: Nonce verification is handled in check_module_access_permissions method.
+        $google_conversation_state_enabled = ( isset( $_POST['google_conversation_state_enabled'] ) && wp_unslash( $_POST['google_conversation_state_enabled'] ) === '1' ? '1' : '0' );
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Reason: Nonce verification is handled in check_module_access_permissions method.
+        $provider = ( isset( $_POST['provider'] ) ? sanitize_text_field( wp_unslash( $_POST['provider'] ) ) : '' );
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Reason: Nonce verification is handled in check_module_access_permissions method.
         $reasoning_effort = AIPKit_OpenAI_Reasoning::sanitize_effort( ( isset( $_POST['reasoning_effort'] ) ? wp_unslash( $_POST['reasoning_effort'] ) : '' ) );
         if ( $reasoning_effort === '' ) {
             $reasoning_effort = BotSettingsManager::DEFAULT_REASONING_EFFORT;
         }
         update_post_meta( $bot_id, '_aipkit_openai_conversation_state_enabled', $openai_conversation_state_enabled );
+        update_post_meta( $bot_id, '_aipkit_google_conversation_state_enabled', $google_conversation_state_enabled );
         update_post_meta( $bot_id, '_aipkit_reasoning_effort', $reasoning_effort );
+        $state_enabled = $provider === 'OpenAI' && $openai_conversation_state_enabled === '1' || $provider === 'Google' && $google_conversation_state_enabled === '1';
+        if ( $state_enabled && class_exists( AIPKit_Providers::class ) ) {
+            $provider_settings = AIPKit_Providers::get_provider_data( $provider );
+            if ( ($provider_settings['store_conversation'] ?? '0') !== '1' ) {
+                $provider_settings['store_conversation'] = '1';
+                AIPKit_Providers::save_provider_data( $provider, $provider_settings );
+            }
+        }
         $this->send_saved_bot_state_success( $bot_id, __( 'Saved', 'gpt3-ai-content-generator' ) );
     }
 
@@ -953,18 +964,8 @@ class ChatbotAjaxHandler extends BaseAjaxHandler {
         if ( isset( $_POST['conversation_starters'] ) ) {
             // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Reason: Nonce verification is handled in check_module_access_permissions method.
             $starters_raw = wp_unslash( $_POST['conversation_starters'] );
-            $starters_array = [];
-            if ( !empty( $starters_raw ) ) {
-                $lines = explode( "\n", $starters_raw );
-                foreach ( $lines as $line ) {
-                    $trimmed_line = trim( $line );
-                    if ( !empty( $trimmed_line ) ) {
-                        $starters_array[] = $trimmed_line;
-                    }
-                }
-                $starters_array = array_slice( $starters_array, 0, 6 );
-            }
-            update_post_meta( $bot_id, '_aipkit_conversation_starters', wp_json_encode( $starters_array, JSON_UNESCAPED_UNICODE ) );
+            $starters_array = BotSettingsManager::normalize_conversation_starters( $starters_raw );
+            update_post_meta( $bot_id, '_aipkit_conversation_starters', BotSettingsManager::get_conversation_starters_meta_value( $starters_array ) );
         }
         if ( isset( $_POST['custom_theme_settings'] ) && is_array( $_POST['custom_theme_settings'] ) ) {
             // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Reason: Nonce verification is handled in check_module_access_permissions method.
@@ -1096,15 +1097,17 @@ class ChatbotAjaxHandler extends BaseAjaxHandler {
         $xai_web_search_enabled = ( isset( $_POST['xai_web_search_enabled'] ) && wp_unslash( $_POST['xai_web_search_enabled'] ) === '1' ? '1' : '0' );
         // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Reason: Nonce verification is handled in check_module_access_permissions method.
         $google_search_grounding_enabled = ( isset( $_POST['google_search_grounding_enabled'] ) && wp_unslash( $_POST['google_search_grounding_enabled'] ) === '1' ? '1' : '0' );
-        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Reason: Nonce verification is handled in check_module_access_permissions method.
-        $google_grounding_mode = ( isset( $_POST['google_grounding_mode'] ) ? sanitize_text_field( wp_unslash( $_POST['google_grounding_mode'] ) ) : BotSettingsManager::DEFAULT_GOOGLE_GROUNDING_MODE );
-        $allowed_grounding_modes = ['DEFAULT_MODE', 'MODE_DYNAMIC'];
-        if ( !in_array( $google_grounding_mode, $allowed_grounding_modes, true ) ) {
-            $google_grounding_mode = BotSettingsManager::DEFAULT_GOOGLE_GROUNDING_MODE;
+        if ( $google_search_grounding_enabled === '1' ) {
+            $knowledge_state = BotSettingsManager::get_knowledge_capability_state(
+                (string) get_post_meta( $bot_id, '_aipkit_provider', true ),
+                (string) get_post_meta( $bot_id, '_aipkit_vector_store_provider', true ),
+                (string) get_post_meta( $bot_id, '_aipkit_enable_vector_store', true ),
+                $google_search_grounding_enabled
+            );
+            if ( $knowledge_state['google_search_conflict'] ) {
+                update_post_meta( $bot_id, '_aipkit_enable_vector_store', '0' );
+            }
         }
-        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Reason: Nonce verification is handled in check_module_access_permissions method.
-        $google_grounding_dynamic_threshold = ( isset( $_POST['google_grounding_dynamic_threshold'] ) ? floatval( wp_unslash( $_POST['google_grounding_dynamic_threshold'] ) ) : BotSettingsManager::DEFAULT_GOOGLE_GROUNDING_DYNAMIC_THRESHOLD );
-        $google_grounding_dynamic_threshold = max( 0.0, min( $google_grounding_dynamic_threshold, 1.0 ) );
         // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Reason: Nonce verification is handled in check_module_access_permissions method.
         $web_toggle_default_on = ( isset( $_POST['web_toggle_default_on'] ) && wp_unslash( $_POST['web_toggle_default_on'] ) === '1' ? '1' : '0' );
         // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Reason: Nonce verification is handled in check_module_access_permissions method.
@@ -1136,8 +1139,6 @@ class ChatbotAjaxHandler extends BaseAjaxHandler {
         update_post_meta( $bot_id, '_aipkit_openrouter_web_search_search_prompt', $openrouter_web_search_search_prompt );
         update_post_meta( $bot_id, '_aipkit_xai_web_search_enabled', $xai_web_search_enabled );
         update_post_meta( $bot_id, '_aipkit_google_search_grounding_enabled', $google_search_grounding_enabled );
-        update_post_meta( $bot_id, '_aipkit_google_grounding_mode', $google_grounding_mode );
-        update_post_meta( $bot_id, '_aipkit_google_grounding_dynamic_threshold', $google_grounding_dynamic_threshold );
         update_post_meta( $bot_id, '_aipkit_web_toggle_default_on', $web_toggle_default_on );
         update_post_meta( $bot_id, '_aipkit_show_sources', $show_sources );
         update_post_meta( $bot_id, '_aipkit_sources_label', $sources_label );
@@ -1163,15 +1164,29 @@ class ChatbotAjaxHandler extends BaseAjaxHandler {
         $main_provider = (string) get_post_meta( $bot_id, '_aipkit_provider', true );
         $allowed_providers = [
             'openai',
+            'google',
             'pinecone',
             'qdrant',
-            'chroma'
+            'chroma',
+            'claude_files'
         ];
-        if ( strtolower( $main_provider ) === 'claude' ) {
-            $allowed_providers[] = 'claude_files';
-        }
         if ( !in_array( $vector_store_provider, $allowed_providers, true ) ) {
-            $vector_store_provider = BotSettingsManager::DEFAULT_VECTOR_STORE_PROVIDER;
+            wp_send_json_error( [
+                'message' => __( 'Invalid knowledge provider.', 'gpt3-ai-content-generator' ),
+            ], 400 );
+            return;
+        }
+        $knowledge_state = BotSettingsManager::get_knowledge_capability_state(
+            $main_provider,
+            $vector_store_provider,
+            $enable_vector_store,
+            (string) get_post_meta( $bot_id, '_aipkit_google_search_grounding_enabled', true )
+        );
+        if ( $knowledge_state['requested'] && !$knowledge_state['compatible'] ) {
+            $enable_vector_store = '0';
+        }
+        if ( $knowledge_state['google_search_conflict'] ) {
+            update_post_meta( $bot_id, '_aipkit_google_search_grounding_enabled', '0' );
         }
         $openai_vector_store_ids = [];
         // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Reason: Nonce verification is handled in check_module_access_permissions method.
@@ -1188,6 +1203,21 @@ class ChatbotAjaxHandler extends BaseAjaxHandler {
             }
         }
         $openai_vector_store_ids = array_values( array_unique( $openai_vector_store_ids ) );
+        $google_file_search_store_names = [];
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Reason: Nonce verification is handled in check_module_access_permissions method.
+        if ( isset( $_POST['google_file_search_store_names'] ) ) {
+            // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Reason: Nonce verification is handled in check_module_access_permissions method.
+            $raw_store_names = wp_unslash( $_POST['google_file_search_store_names'] );
+            if ( is_array( $raw_store_names ) ) {
+                foreach ( $raw_store_names as $store_name ) {
+                    $store_name = sanitize_text_field( trim( (string) $store_name ) );
+                    if ( strpos( $store_name, 'fileSearchStores/' ) === 0 ) {
+                        $google_file_search_store_names[] = $store_name;
+                    }
+                }
+            }
+        }
+        $google_file_search_store_names = array_values( array_unique( $google_file_search_store_names ) );
         $pinecone_index_name = '';
         if ( $vector_store_provider === 'pinecone' ) {
             // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Reason: Nonce verification is handled in check_module_access_permissions method.
@@ -1269,6 +1299,17 @@ class ChatbotAjaxHandler extends BaseAjaxHandler {
             delete_post_meta( $bot_id, '_aipkit_chroma_collection_names' );
             delete_post_meta( $bot_id, '_aipkit_vector_embedding_provider' );
             delete_post_meta( $bot_id, '_aipkit_vector_embedding_model' );
+            delete_post_meta( $bot_id, '_aipkit_google_file_search_store_names' );
+        } elseif ( $vector_store_provider === 'google' ) {
+            update_post_meta( $bot_id, '_aipkit_google_file_search_store_names', wp_json_encode( $google_file_search_store_names ) );
+            delete_post_meta( $bot_id, '_aipkit_openai_vector_store_ids' );
+            delete_post_meta( $bot_id, '_aipkit_pinecone_index_name' );
+            delete_post_meta( $bot_id, '_aipkit_qdrant_collection_name' );
+            delete_post_meta( $bot_id, '_aipkit_qdrant_collection_names' );
+            delete_post_meta( $bot_id, '_aipkit_chroma_collection_name' );
+            delete_post_meta( $bot_id, '_aipkit_chroma_collection_names' );
+            delete_post_meta( $bot_id, '_aipkit_vector_embedding_provider' );
+            delete_post_meta( $bot_id, '_aipkit_vector_embedding_model' );
         } elseif ( $vector_store_provider === 'pinecone' ) {
             update_post_meta( $bot_id, '_aipkit_pinecone_index_name', $pinecone_index_name );
             update_post_meta( $bot_id, '_aipkit_vector_embedding_provider', $vector_embedding_provider );
@@ -1278,6 +1319,7 @@ class ChatbotAjaxHandler extends BaseAjaxHandler {
             delete_post_meta( $bot_id, '_aipkit_qdrant_collection_names' );
             delete_post_meta( $bot_id, '_aipkit_chroma_collection_name' );
             delete_post_meta( $bot_id, '_aipkit_chroma_collection_names' );
+            delete_post_meta( $bot_id, '_aipkit_google_file_search_store_names' );
         } elseif ( $vector_store_provider === 'qdrant' ) {
             update_post_meta( $bot_id, '_aipkit_qdrant_collection_name', $qdrant_collection_name );
             update_post_meta( $bot_id, '_aipkit_qdrant_collection_names', wp_json_encode( $qdrant_collection_names ) );
@@ -1287,6 +1329,7 @@ class ChatbotAjaxHandler extends BaseAjaxHandler {
             delete_post_meta( $bot_id, '_aipkit_pinecone_index_name' );
             delete_post_meta( $bot_id, '_aipkit_chroma_collection_name' );
             delete_post_meta( $bot_id, '_aipkit_chroma_collection_names' );
+            delete_post_meta( $bot_id, '_aipkit_google_file_search_store_names' );
         } elseif ( $vector_store_provider === 'chroma' ) {
             update_post_meta( $bot_id, '_aipkit_chroma_collection_name', $chroma_collection_name );
             update_post_meta( $bot_id, '_aipkit_chroma_collection_names', wp_json_encode( $chroma_collection_names ) );
@@ -1296,6 +1339,7 @@ class ChatbotAjaxHandler extends BaseAjaxHandler {
             delete_post_meta( $bot_id, '_aipkit_pinecone_index_name' );
             delete_post_meta( $bot_id, '_aipkit_qdrant_collection_name' );
             delete_post_meta( $bot_id, '_aipkit_qdrant_collection_names' );
+            delete_post_meta( $bot_id, '_aipkit_google_file_search_store_names' );
         } else {
             delete_post_meta( $bot_id, '_aipkit_openai_vector_store_ids' );
             delete_post_meta( $bot_id, '_aipkit_pinecone_index_name' );
@@ -1305,6 +1349,7 @@ class ChatbotAjaxHandler extends BaseAjaxHandler {
             delete_post_meta( $bot_id, '_aipkit_chroma_collection_names' );
             delete_post_meta( $bot_id, '_aipkit_vector_embedding_provider' );
             delete_post_meta( $bot_id, '_aipkit_vector_embedding_model' );
+            delete_post_meta( $bot_id, '_aipkit_google_file_search_store_names' );
         }
         update_post_meta( $bot_id, '_aipkit_vector_store_top_k', $vector_store_top_k );
         update_post_meta( $bot_id, '_aipkit_vector_store_confidence_threshold', $vector_store_confidence_threshold );
@@ -1454,6 +1499,10 @@ class ChatbotAjaxHandler extends BaseAjaxHandler {
         if ( $chat_image_model_id === '' ) {
             $chat_image_model_id = BotSettingsManager::get_default_model_id( 'OpenAIImage' );
         }
+        $saved_image_model = strtolower( $chat_image_model_id );
+        if ( strpos( $saved_image_model, 'imagen-' ) === 0 || strpos( $saved_image_model, 'gemini-' ) === 0 && strpos( $saved_image_model, 'image' ) !== false ) {
+            $chat_image_model_id = AIPKit_Providers::normalize_google_image_model( $chat_image_model_id );
+        }
         // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Reason: Nonce verification is handled in check_module_access_permissions method.
         $raw_image_triggers = ( isset( $_POST['image_triggers'] ) ? sanitize_text_field( wp_unslash( $_POST['image_triggers'] ) ) : BotSettingsManager::DEFAULT_IMAGE_TRIGGERS );
         $triggers_array = array_map( 'trim', explode( ',', $raw_image_triggers ) );
@@ -1501,7 +1550,7 @@ class ChatbotAjaxHandler extends BaseAjaxHandler {
         if ( isset( $_POST['stt_provider'] ) ) {
             // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Reason: Nonce verification is handled in check_module_access_permissions method.
             $stt_provider = sanitize_text_field( wp_unslash( $_POST['stt_provider'] ) );
-            $allowed_stt_providers = ['OpenAI', 'Azure'];
+            $allowed_stt_providers = ['OpenAI', 'Google', 'Azure'];
             if ( !in_array( $stt_provider, $allowed_stt_providers, true ) ) {
                 $stt_provider = BotSettingsManager::DEFAULT_STT_PROVIDER;
             }
@@ -1511,6 +1560,11 @@ class ChatbotAjaxHandler extends BaseAjaxHandler {
             // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Reason: Nonce verification is handled in check_module_access_permissions method.
             $stt_openai_model_id = AIPKit_Model_Catalog::sanitize_openai_file_transcription_model( sanitize_text_field( wp_unslash( $_POST['stt_openai_model_id'] ) ) );
             update_post_meta( $bot_id, '_aipkit_stt_openai_model_id', $stt_openai_model_id );
+        }
+        if ( isset( $_POST['stt_google_model_id'] ) ) {
+            // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Reason: Nonce verification is handled in check_module_access_permissions method.
+            $stt_google_model_id = AIPKit_Providers::normalize_google_stt_model( sanitize_text_field( wp_unslash( $_POST['stt_google_model_id'] ) ) );
+            update_post_meta( $bot_id, '_aipkit_stt_google_model_id', $stt_google_model_id );
         }
         if ( isset( $_POST['tts_enabled'] ) ) {
             // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Reason: Nonce verification is handled in check_module_access_permissions method.
@@ -1533,8 +1587,13 @@ class ChatbotAjaxHandler extends BaseAjaxHandler {
         }
         if ( isset( $_POST['tts_google_voice_id'] ) ) {
             // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Reason: Nonce verification is handled in check_module_access_permissions method.
-            $tts_google_voice_id = sanitize_text_field( wp_unslash( $_POST['tts_google_voice_id'] ) );
+            $tts_google_voice_id = AIPKit_Providers::normalize_google_tts_voice( sanitize_text_field( wp_unslash( $_POST['tts_google_voice_id'] ) ) );
             update_post_meta( $bot_id, '_aipkit_tts_google_voice_id', $tts_google_voice_id );
+        }
+        if ( isset( $_POST['tts_google_model_id'] ) ) {
+            // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Reason: Nonce verification is handled in check_module_access_permissions method.
+            $tts_google_model_id = AIPKit_Providers::normalize_google_tts_model( sanitize_text_field( wp_unslash( $_POST['tts_google_model_id'] ) ) );
+            update_post_meta( $bot_id, '_aipkit_tts_google_model_id', $tts_google_model_id );
         }
         if ( isset( $_POST['tts_openai_voice_id'] ) ) {
             // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Reason: Nonce verification is handled in check_module_access_permissions method.
@@ -2054,6 +2113,9 @@ class ChatbotAjaxHandler extends BaseAjaxHandler {
         $has_openai_override = isset( $_POST['openai_vector_store_ids'] );
         $override_openai_ids = ( $has_openai_override ? (array) wp_unslash( $_POST['openai_vector_store_ids'] ) : null );
         // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Reason: Nonce verification is handled in check_module_access_permissions method.
+        $has_google_override = isset( $_POST['google_file_search_store_names'] );
+        $override_google_store_names = ( $has_google_override ? (array) wp_unslash( $_POST['google_file_search_store_names'] ) : null );
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Reason: Nonce verification is handled in check_module_access_permissions method.
         $has_pinecone_override = isset( $_POST['pinecone_index_name'] );
         $override_pinecone_index = ( $has_pinecone_override ? sanitize_text_field( wp_unslash( $_POST['pinecone_index_name'] ) ) : null );
         // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Reason: Nonce verification is handled in check_module_access_permissions method.
@@ -2078,15 +2140,24 @@ class ChatbotAjaxHandler extends BaseAjaxHandler {
             'pinecone',
             'qdrant',
             'chroma',
-            'claude_files'
+            'claude_files',
+            'google'
         ], true ) ) {
             $provider_key = $override_provider;
+        }
+        $chatbot_provider = (string) ($settings['provider'] ?? get_post_meta( $bot_id, '_aipkit_provider', true ));
+        if ( !BotSettingsManager::is_vector_store_provider_compatible( $chatbot_provider, $provider_key ) ) {
+            wp_send_json_success( [
+                'count' => 0,
+            ] );
+            return;
         }
         $provider_map = [
             'openai'   => 'OpenAI',
             'pinecone' => 'Pinecone',
             'qdrant'   => 'Qdrant',
             'chroma'   => 'Chroma',
+            'google'   => 'Google',
         ];
         $provider_name = $provider_map[$provider_key] ?? '';
         if ( $provider_name === '' ) {
@@ -2105,6 +2176,8 @@ class ChatbotAjaxHandler extends BaseAjaxHandler {
             if ( !is_array( $store_ids ) ) {
                 $store_ids = json_decode( (string) $store_ids, true );
             }
+        } elseif ( $provider_key === 'google' ) {
+            $store_ids = ( $has_google_override && is_array( $override_google_store_names ) ? $override_google_store_names : $settings['google_file_search_store_names'] ?? [] );
         } elseif ( $provider_key === 'pinecone' ) {
             if ( $has_pinecone_override ) {
                 $store_ids = ( !empty( $override_pinecone_index ) ? [$override_pinecone_index] : [] );
@@ -2280,6 +2353,9 @@ class ChatbotAjaxHandler extends BaseAjaxHandler {
         $has_openai_override = isset( $_POST['openai_vector_store_ids'] );
         $override_openai_ids = ( $has_openai_override ? (array) wp_unslash( $_POST['openai_vector_store_ids'] ) : null );
         // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Reason: Nonce verification is handled in check_module_access_permissions method.
+        $has_google_override = isset( $_POST['google_file_search_store_names'] );
+        $override_google_store_names = ( $has_google_override ? (array) wp_unslash( $_POST['google_file_search_store_names'] ) : null );
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Reason: Nonce verification is handled in check_module_access_permissions method.
         $has_pinecone_override = isset( $_POST['pinecone_index_name'] );
         $override_pinecone_index = ( $has_pinecone_override ? sanitize_text_field( wp_unslash( $_POST['pinecone_index_name'] ) ) : null );
         // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Reason: Nonce verification is handled in check_module_access_permissions method.
@@ -2306,15 +2382,26 @@ class ChatbotAjaxHandler extends BaseAjaxHandler {
             'pinecone',
             'qdrant',
             'chroma',
-            'claude_files'
+            'claude_files',
+            'google'
         ], true ) ) {
             $provider_key = $override_provider;
+        }
+        $chatbot_provider = (string) ($settings['provider'] ?? get_post_meta( $bot_id, '_aipkit_provider', true ));
+        if ( !BotSettingsManager::is_vector_store_provider_compatible( $chatbot_provider, $provider_key ) ) {
+            return [
+                'enabled'        => false,
+                'provider_key'   => '',
+                'provider_label' => '',
+                'store_ids'      => [],
+            ];
         }
         $provider_map = [
             'openai'   => 'OpenAI',
             'pinecone' => 'Pinecone',
             'qdrant'   => 'Qdrant',
             'chroma'   => 'Chroma',
+            'google'   => 'Google',
         ];
         $provider_label = $provider_map[$provider_key] ?? '';
         if ( $provider_label === '' ) {
@@ -2335,6 +2422,8 @@ class ChatbotAjaxHandler extends BaseAjaxHandler {
             if ( !is_array( $store_ids ) ) {
                 $store_ids = json_decode( (string) $store_ids, true );
             }
+        } elseif ( $provider_key === 'google' ) {
+            $store_ids = ( $has_google_override && is_array( $override_google_store_names ) ? $override_google_store_names : $settings['google_file_search_store_names'] ?? [] );
         } elseif ( $provider_key === 'pinecone' ) {
             if ( $has_pinecone_override ) {
                 $store_ids = ( !empty( $override_pinecone_index ) ? [$override_pinecone_index] : [] );
@@ -2603,6 +2692,9 @@ class ChatbotAjaxHandler extends BaseAjaxHandler {
         $has_openai_override = isset( $_POST['openai_vector_store_ids'] );
         $override_openai_ids = ( $has_openai_override ? (array) wp_unslash( $_POST['openai_vector_store_ids'] ) : null );
         // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Reason: Nonce verification is handled in check_module_access_permissions method.
+        $has_google_override = isset( $_POST['google_file_search_store_names'] );
+        $override_google_store_names = ( $has_google_override ? (array) wp_unslash( $_POST['google_file_search_store_names'] ) : null );
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Reason: Nonce verification is handled in check_module_access_permissions method.
         $has_pinecone_override = isset( $_POST['pinecone_index_name'] );
         $override_pinecone_index = ( $has_pinecone_override ? sanitize_text_field( wp_unslash( $_POST['pinecone_index_name'] ) ) : null );
         // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Reason: Nonce verification is handled in check_module_access_permissions method.
@@ -2611,11 +2703,13 @@ class ChatbotAjaxHandler extends BaseAjaxHandler {
         // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Reason: Nonce verification is handled in check_module_access_permissions method.
         $has_chroma_override = isset( $_POST['chroma_collection_names'] );
         $override_chroma_names = ( $has_chroma_override ? (array) wp_unslash( $_POST['chroma_collection_names'] ) : null );
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Reason: Nonce verification is handled in check_module_access_permissions method.
+        $include_inactive = isset( $_POST['include_inactive'] ) && sanitize_text_field( wp_unslash( $_POST['include_inactive'] ) ) === '1';
         $vector_store_enabled = $settings['enable_vector_store'] ?? BotSettingsManager::DEFAULT_ENABLE_VECTOR_STORE;
         if ( $override_enable_vector_store !== null ) {
             $vector_store_enabled = ( in_array( $override_enable_vector_store, ['0', '1'], true ) ? $override_enable_vector_store : $vector_store_enabled );
         }
-        if ( $vector_store_enabled !== '1' ) {
+        if ( !$include_inactive && $vector_store_enabled !== '1' ) {
             wp_send_json_success( [
                 'logs'       => [],
                 'pagination' => [
@@ -2632,15 +2726,29 @@ class ChatbotAjaxHandler extends BaseAjaxHandler {
             'pinecone',
             'qdrant',
             'chroma',
-            'claude_files'
+            'claude_files',
+            'google'
         ], true ) ) {
             $provider_key = $override_provider;
+        }
+        $chatbot_provider = (string) ($settings['provider'] ?? get_post_meta( $bot_id, '_aipkit_provider', true ));
+        if ( !$include_inactive && !BotSettingsManager::is_vector_store_provider_compatible( $chatbot_provider, $provider_key ) ) {
+            wp_send_json_success( [
+                'logs'       => [],
+                'pagination' => [
+                    'total_logs'   => 0,
+                    'total_pages'  => 0,
+                    'current_page' => 1,
+                ],
+            ] );
+            return;
         }
         $provider_map = [
             'openai'   => 'OpenAI',
             'pinecone' => 'Pinecone',
             'qdrant'   => 'Qdrant',
             'chroma'   => 'Chroma',
+            'google'   => 'Google',
         ];
         $provider_label = $provider_map[$provider_key] ?? '';
         if ( !$provider_label ) {
@@ -2657,6 +2765,8 @@ class ChatbotAjaxHandler extends BaseAjaxHandler {
         $store_ids = [];
         if ( $provider_key === 'openai' ) {
             $store_ids = ( is_array( $override_openai_ids ) ? array_filter( array_map( 'sanitize_text_field', $override_openai_ids ) ) : array_filter( (array) ($settings['openai_vector_store_ids'] ?? []) ) );
+        } elseif ( $provider_key === 'google' ) {
+            $store_ids = ( is_array( $override_google_store_names ) ? array_filter( array_map( 'sanitize_text_field', $override_google_store_names ) ) : array_filter( (array) ($settings['google_file_search_store_names'] ?? []) ) );
         } elseif ( $provider_key === 'pinecone' ) {
             $store_id = ( $override_pinecone_index !== null ? $override_pinecone_index : $settings['pinecone_index_name'] ?? '' );
             if ( $store_id ) {

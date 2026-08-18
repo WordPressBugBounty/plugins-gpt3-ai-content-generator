@@ -92,6 +92,9 @@ function process_initial_request_logic(
                     if (isset($outer_decoded['active_claude_file_id'])) {
                         $cached_data_decoded_for_handler['active_claude_file_id'] = $outer_decoded['active_claude_file_id'];
                     }
+                    if (isset($outer_decoded['active_google_file_context_token'])) {
+                        $cached_data_decoded_for_handler['active_google_file_context_token'] = $outer_decoded['active_google_file_context_token'];
+                    }
                     if (isset($outer_decoded['client_user_message_id'])) {
                         $cached_data_decoded_for_handler['client_user_message_id'] = $outer_decoded['client_user_message_id'];
                     }

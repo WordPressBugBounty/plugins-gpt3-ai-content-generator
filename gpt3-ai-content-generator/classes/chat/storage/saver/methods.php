@@ -49,6 +49,59 @@ function validate_bot_post_logic(int $botId) {
     return $post;
 }
 
+/**
+ * Coordinates native Knowledge with chatbot provider and Google Search while
+ * preserving the selected Knowledge provider and its stores.
+ *
+ * @param array $raw_settings Raw settings submitted by the admin UI.
+ * @param int   $bot_id       Chatbot post ID.
+ * @return array|WP_Error Coordinated raw settings or a validation error.
+ */
+function coordinate_native_knowledge_settings_logic(array $raw_settings, int $bot_id) {
+    $allowed_vector_store_providers = ['openai', 'google', 'pinecone', 'qdrant', 'chroma', 'claude_files'];
+    $stored_chatbot_provider = (string) get_post_meta($bot_id, '_aipkit_provider', true);
+    $stored_vector_store_provider = (string) get_post_meta($bot_id, '_aipkit_vector_store_provider', true);
+    $stored_enable_vector_store = (string) get_post_meta($bot_id, '_aipkit_enable_vector_store', true);
+
+    $chatbot_provider = isset($raw_settings['provider'])
+        ? sanitize_text_field((string) $raw_settings['provider'])
+        : ($stored_chatbot_provider !== '' ? $stored_chatbot_provider : 'OpenAI');
+    $vector_store_provider = isset($raw_settings['vector_store_provider'])
+        ? sanitize_key((string) $raw_settings['vector_store_provider'])
+        : ($stored_vector_store_provider !== ''
+            ? sanitize_key($stored_vector_store_provider)
+            : BotSettingsManager::DEFAULT_VECTOR_STORE_PROVIDER);
+    $enable_vector_store = isset($raw_settings['enable_vector_store'])
+        ? (((string) $raw_settings['enable_vector_store'] === '1') ? '1' : '0')
+        : (($stored_enable_vector_store === '1') ? '1' : '0');
+
+    if (!in_array($vector_store_provider, $allowed_vector_store_providers, true)) {
+        return new WP_Error(
+            'invalid_knowledge_provider',
+            __('Invalid knowledge provider.', 'gpt3-ai-content-generator'),
+            ['status' => 400]
+        );
+    }
+
+    $google_search_enabled = isset($raw_settings['google_search_grounding_enabled'])
+        ? (((string) $raw_settings['google_search_grounding_enabled'] === '1') ? '1' : '0')
+        : ((string) get_post_meta($bot_id, '_aipkit_google_search_grounding_enabled', true) === '1' ? '1' : '0');
+    $knowledge_state = BotSettingsManager::get_knowledge_capability_state(
+        $chatbot_provider,
+        $vector_store_provider,
+        $enable_vector_store,
+        $google_search_enabled
+    );
+    if ($knowledge_state['requested'] && !$knowledge_state['compatible']) {
+        $raw_settings['enable_vector_store'] = '0';
+    }
+    if ($knowledge_state['google_search_conflict']) {
+        $raw_settings['google_search_grounding_enabled'] = '0';
+    }
+
+    return $raw_settings;
+}
+
 // --- sanitize-settings-logic.php ---
 /**
  * Sanitizes the raw bot settings array.
@@ -197,21 +250,13 @@ function sanitize_settings_logic(array $raw_settings, int $bot_id): array
     $reasoning_effort = AIPKit_OpenAI_Reasoning::sanitize_effort($raw_settings['reasoning_effort'] ?? '');
     $sanitized['reasoning_effort'] = $reasoning_effort !== '' ? $reasoning_effort : BotSettingsManager::DEFAULT_REASONING_EFFORT;
     $sanitized['enable_conversation_starters'] = (isset($raw_settings['enable_conversation_starters']) && $raw_settings['enable_conversation_starters'] === '1') ? '1' : '0';
-    $starters_raw = isset($raw_settings['conversation_starters']) ? $raw_settings['conversation_starters'] : ''; // Textarea value
-    $starters_array = [];
-    if (!empty($starters_raw)) {
-        $lines = explode("\n", $starters_raw);
-        foreach ($lines as $line) {
-            $trimmed_line = trim($line);
-            if (!empty($trimmed_line)) {
-                $starters_array[] = $trimmed_line;
-            }
-        }
-        $starters_array = array_slice($starters_array, 0, 6);
-    }
-    $sanitized['conversation_starters'] = wp_json_encode($starters_array, JSON_UNESCAPED_UNICODE);
+    $starters_raw = $raw_settings['conversation_starters'] ?? '';
+    $sanitized['conversation_starters'] = BotSettingsManager::encode_conversation_starters(
+        BotSettingsManager::normalize_conversation_starters($starters_raw)
+    );
     $sanitized['content_aware_enabled'] = (isset($raw_settings['content_aware_enabled']) && $raw_settings['content_aware_enabled'] === '1') ? '1' : '0';
     $sanitized['openai_conversation_state_enabled'] = (isset($raw_settings['openai_conversation_state_enabled']) && $raw_settings['openai_conversation_state_enabled'] === '1') ? '1' : '0';
+    $sanitized['google_conversation_state_enabled'] = (isset($raw_settings['google_conversation_state_enabled']) && $raw_settings['google_conversation_state_enabled'] === '1') ? '1' : '0';
     $sanitized['token_limit_mode'] = isset($raw_settings['token_limit_mode']) && in_array($raw_settings['token_limit_mode'], ['general', 'role_based']) ? $raw_settings['token_limit_mode'] : BotSettingsManager::DEFAULT_TOKEN_LIMIT_MODE;
     $raw_guest_limit = isset($raw_settings['token_guest_limit']) ? trim($raw_settings['token_guest_limit']) : '';
     $sanitized['token_guest_limit'] = ($raw_guest_limit === '0' || (ctype_digit($raw_guest_limit) && $raw_guest_limit > 0)) ? (string)absint($raw_guest_limit) : ''; // Store as string or empty
@@ -285,7 +330,12 @@ function sanitize_settings_logic(array $raw_settings, int $bot_id): array
     if (!in_array($sanitized['tts_provider'], ['Google', 'OpenAI', 'ElevenLabs'])) {
         $sanitized['tts_provider'] = BotSettingsManager::DEFAULT_TTS_PROVIDER;
     }
-    $sanitized['tts_google_voice_id'] = isset($raw_settings['tts_google_voice_id']) ? sanitize_text_field($raw_settings['tts_google_voice_id']) : '';
+    $sanitized['tts_google_voice_id'] = AIPKit_Providers::normalize_google_tts_voice(
+        isset($raw_settings['tts_google_voice_id']) ? (string) $raw_settings['tts_google_voice_id'] : ''
+    );
+    $sanitized['tts_google_model_id'] = AIPKit_Providers::normalize_google_tts_model(
+        isset($raw_settings['tts_google_model_id']) ? (string) $raw_settings['tts_google_model_id'] : ''
+    );
     $sanitized['tts_openai_voice_id'] = isset($raw_settings['tts_openai_voice_id']) ? sanitize_text_field($raw_settings['tts_openai_voice_id']) : BotSettingsManager::get_default_model_id('OpenAIVoices');
     $sanitized['tts_openai_model_id'] = isset($raw_settings['tts_openai_model_id']) ? sanitize_text_field($raw_settings['tts_openai_model_id']) : BotSettingsManager::get_default_model_id('OpenAITTS');
     $sanitized['tts_elevenlabs_voice_id'] = isset($raw_settings['tts_elevenlabs_voice_id']) ? sanitize_text_field($raw_settings['tts_elevenlabs_voice_id']) : '';
@@ -293,7 +343,7 @@ function sanitize_settings_logic(array $raw_settings, int $bot_id): array
     $sanitized['tts_auto_play'] = (isset($raw_settings['tts_auto_play']) && $raw_settings['tts_auto_play'] === '1') ? '1' : '0';
     $sanitized['enable_voice_input'] = (isset($raw_settings['enable_voice_input']) && $raw_settings['enable_voice_input'] === '1') ? '1' : '0';
     $sanitized['stt_provider'] = isset($raw_settings['stt_provider']) ? sanitize_text_field($raw_settings['stt_provider']) : BotSettingsManager::DEFAULT_STT_PROVIDER;
-    if (!in_array($sanitized['stt_provider'], ['OpenAI', 'Azure'])) {
+    if (!in_array($sanitized['stt_provider'], ['OpenAI', 'Google', 'Azure'], true)) {
         $sanitized['stt_provider'] = BotSettingsManager::DEFAULT_STT_PROVIDER;
     }
     $sanitized['stt_openai_model_id'] = AIPKit_Model_Catalog::sanitize_openai_file_transcription_model(
@@ -301,12 +351,24 @@ function sanitize_settings_logic(array $raw_settings, int $bot_id): array
             ? (string) $raw_settings['stt_openai_model_id']
             : BotSettingsManager::get_default_model_id('OpenAISTT')
     );
+    $sanitized['stt_google_model_id'] = AIPKit_Providers::normalize_google_stt_model(
+        isset($raw_settings['stt_google_model_id']) ? (string) $raw_settings['stt_google_model_id'] : ''
+    );
     $sanitized['stt_azure_model_id'] = isset($raw_settings['stt_azure_model_id']) ? sanitize_text_field($raw_settings['stt_azure_model_id']) : BotSettingsManager::DEFAULT_STT_AZURE_MODEL_ID;
     $raw_image_triggers = isset($raw_settings['image_triggers']) ? sanitize_text_field($raw_settings['image_triggers']) : BotSettingsManager::DEFAULT_IMAGE_TRIGGERS;
     $triggers_array = array_map('trim', explode(',', $raw_image_triggers));
     $triggers_array = array_filter($triggers_array, function ($trigger) { return !empty($trigger) && preg_match('/^\/[a-zA-Z0-9_]+$/', $trigger); });
     $sanitized['image_triggers'] = !empty($triggers_array) ? implode(',', $triggers_array) : BotSettingsManager::DEFAULT_IMAGE_TRIGGERS;
     $sanitized['chat_image_model_id'] = isset($raw_settings['chat_image_model_id']) ? sanitize_text_field($raw_settings['chat_image_model_id']) : BotSettingsManager::get_default_model_id('OpenAIImage');
+    $saved_image_model = strtolower((string) $sanitized['chat_image_model_id']);
+    if (
+        strpos($saved_image_model, 'imagen-') === 0
+        || (strpos($saved_image_model, 'gemini-') === 0 && strpos($saved_image_model, 'image') !== false)
+    ) {
+        $sanitized['chat_image_model_id'] = AIPKit_Providers::normalize_google_image_model(
+            (string) $sanitized['chat_image_model_id']
+        );
+    }
     $sanitized['enable_image_generation'] = (isset($raw_settings['enable_image_generation']) && $raw_settings['enable_image_generation'] === '1') ? '1' : '0';
     $sanitized['enable_file_upload'] = (isset($raw_settings['enable_file_upload']) && $raw_settings['enable_file_upload'] === '1') ? '1' : '0';
     $sanitized['enable_image_upload'] = (isset($raw_settings['enable_image_upload']) && $raw_settings['enable_image_upload'] === '1') ? '1' : '0';
@@ -314,10 +376,7 @@ function sanitize_settings_logic(array $raw_settings, int $bot_id): array
     $vector_store_provider_input = isset($raw_settings['vector_store_provider'])
         ? sanitize_key((string) $raw_settings['vector_store_provider'])
         : '';
-    $allowed_vector_store_providers = ['openai', 'pinecone', 'qdrant', 'chroma'];
-    if (strtolower((string) ($sanitized['provider'] ?? '')) === 'claude') {
-        $allowed_vector_store_providers[] = 'claude_files';
-    }
+    $allowed_vector_store_providers = ['openai', 'google', 'pinecone', 'qdrant', 'chroma', 'claude_files'];
     $sanitized['vector_store_provider'] = in_array($vector_store_provider_input, $allowed_vector_store_providers, true)
         ? $vector_store_provider_input
         : BotSettingsManager::DEFAULT_VECTOR_STORE_PROVIDER;
@@ -330,6 +389,18 @@ function sanitize_settings_logic(array $raw_settings, int $bot_id): array
         }
     }
     $sanitized['openai_vector_store_ids'] = wp_json_encode(array_values(array_unique($openai_vs_ids_to_save)));
+    $google_store_names_raw = isset($raw_settings['google_file_search_store_names'])
+        && is_array($raw_settings['google_file_search_store_names'])
+        ? $raw_settings['google_file_search_store_names']
+        : [];
+    $google_store_names = [];
+    foreach ($google_store_names_raw as $store_name) {
+        $store_name = sanitize_text_field(trim((string) $store_name));
+        if (strpos($store_name, 'fileSearchStores/') === 0) {
+            $google_store_names[] = $store_name;
+        }
+    }
+    $sanitized['google_file_search_store_names'] = wp_json_encode(array_values(array_unique($google_store_names)));
     $sanitized['pinecone_index_name'] = ($sanitized['vector_store_provider'] === 'pinecone' && isset($raw_settings['pinecone_index_name'])) ? sanitize_text_field($raw_settings['pinecone_index_name']) : '';
     // Qdrant: accept multiple collections; also maintain legacy single for compatibility
     $qdrant_names_raw = [];
@@ -466,9 +537,6 @@ function sanitize_settings_logic(array $raw_settings, int $bot_id): array
         : BotSettingsManager::DEFAULT_OPENROUTER_WEB_SEARCH_SEARCH_PROMPT;
     $sanitized['xai_web_search_enabled'] = (isset($raw_settings['xai_web_search_enabled']) && $raw_settings['xai_web_search_enabled'] === '1') ? '1' : '0';
     $sanitized['google_search_grounding_enabled'] = (isset($raw_settings['google_search_grounding_enabled']) && $raw_settings['google_search_grounding_enabled'] === '1') ? '1' : '0';
-    $sanitized['google_grounding_mode'] = isset($raw_settings['google_grounding_mode']) && in_array($raw_settings['google_grounding_mode'], ['DEFAULT_MODE', 'MODE_DYNAMIC']) ? $raw_settings['google_grounding_mode'] : BotSettingsManager::DEFAULT_GOOGLE_GROUNDING_MODE;
-    $raw_google_threshold = isset($raw_settings['google_grounding_dynamic_threshold']) ? floatval($raw_settings['google_grounding_dynamic_threshold']) : BotSettingsManager::DEFAULT_GOOGLE_GROUNDING_DYNAMIC_THRESHOLD;
-    $sanitized['google_grounding_dynamic_threshold'] = max(0.0, min($raw_google_threshold, 1.0));
     $sanitized['web_toggle_default_on'] = (isset($raw_settings['web_toggle_default_on']) && $raw_settings['web_toggle_default_on'] === '1') ? '1' : '0';
     $sanitized['show_sources'] = isset($raw_settings['show_sources'])
         ? (($raw_settings['show_sources'] === '1') ? '1' : '0')
@@ -661,9 +729,14 @@ function save_meta_fields_logic(int $botId, array $sanitized_settings)
     update_post_meta($botId, '_aipkit_max_messages', $sanitized_settings['max_messages']);
     update_post_meta($botId, '_aipkit_reasoning_effort', $sanitized_settings['reasoning_effort']);
     update_post_meta($botId, '_aipkit_enable_conversation_starters', $sanitized_settings['enable_conversation_starters']);
-    update_post_meta($botId, '_aipkit_conversation_starters', $sanitized_settings['conversation_starters']); // Already JSON
+    update_post_meta(
+        $botId,
+        '_aipkit_conversation_starters',
+        wp_slash($sanitized_settings['conversation_starters'])
+    );
     update_post_meta($botId, '_aipkit_content_aware_enabled', $sanitized_settings['content_aware_enabled']);
     update_post_meta($botId, '_aipkit_openai_conversation_state_enabled', $sanitized_settings['openai_conversation_state_enabled']);
+    update_post_meta($botId, '_aipkit_google_conversation_state_enabled', $sanitized_settings['google_conversation_state_enabled']);
     update_post_meta($botId, '_aipkit_token_limit_mode', $sanitized_settings['token_limit_mode']);
     delete_post_meta($botId, '_aipkit_token_pricing_mode');
     if ($sanitized_settings['token_guest_limit'] === '') {
@@ -719,6 +792,7 @@ function save_meta_fields_logic(int $botId, array $sanitized_settings)
     update_post_meta($botId, '_aipkit_tts_enabled', $sanitized_settings['tts_enabled']);
     update_post_meta($botId, '_aipkit_tts_provider', $sanitized_settings['tts_provider']);
     update_post_meta($botId, '_aipkit_tts_google_voice_id', $sanitized_settings['tts_google_voice_id']);
+    update_post_meta($botId, '_aipkit_tts_google_model_id', $sanitized_settings['tts_google_model_id']);
     update_post_meta($botId, '_aipkit_tts_openai_voice_id', $sanitized_settings['tts_openai_voice_id']);
     update_post_meta($botId, '_aipkit_tts_openai_model_id', $sanitized_settings['tts_openai_model_id']);
     update_post_meta($botId, '_aipkit_tts_elevenlabs_voice_id', $sanitized_settings['tts_elevenlabs_voice_id']);
@@ -727,6 +801,7 @@ function save_meta_fields_logic(int $botId, array $sanitized_settings)
     update_post_meta($botId, '_aipkit_enable_voice_input', $sanitized_settings['enable_voice_input']);
     update_post_meta($botId, '_aipkit_stt_provider', $sanitized_settings['stt_provider']);
     update_post_meta($botId, '_aipkit_stt_openai_model_id', $sanitized_settings['stt_openai_model_id']);
+    update_post_meta($botId, '_aipkit_stt_google_model_id', $sanitized_settings['stt_google_model_id']);
     update_post_meta($botId, '_aipkit_stt_azure_model_id', $sanitized_settings['stt_azure_model_id']);
     update_post_meta($botId, '_aipkit_image_triggers', $sanitized_settings['image_triggers']);
     update_post_meta($botId, '_aipkit_chat_image_model_id', $sanitized_settings['chat_image_model_id']);
@@ -744,6 +819,17 @@ function save_meta_fields_logic(int $botId, array $sanitized_settings)
         delete_post_meta($botId, '_aipkit_chroma_collection_names');
         delete_post_meta($botId, '_aipkit_vector_embedding_provider');
         delete_post_meta($botId, '_aipkit_vector_embedding_model');
+        delete_post_meta($botId, '_aipkit_google_file_search_store_names');
+    } elseif ($sanitized_settings['vector_store_provider'] === 'google') {
+        update_post_meta($botId, '_aipkit_google_file_search_store_names', $sanitized_settings['google_file_search_store_names']);
+        delete_post_meta($botId, '_aipkit_openai_vector_store_ids');
+        delete_post_meta($botId, '_aipkit_pinecone_index_name');
+        delete_post_meta($botId, '_aipkit_qdrant_collection_name');
+        delete_post_meta($botId, '_aipkit_qdrant_collection_names');
+        delete_post_meta($botId, '_aipkit_chroma_collection_name');
+        delete_post_meta($botId, '_aipkit_chroma_collection_names');
+        delete_post_meta($botId, '_aipkit_vector_embedding_provider');
+        delete_post_meta($botId, '_aipkit_vector_embedding_model');
     } elseif ($sanitized_settings['vector_store_provider'] === 'pinecone') {
         update_post_meta($botId, '_aipkit_pinecone_index_name', $sanitized_settings['pinecone_index_name']);
         update_post_meta($botId, '_aipkit_vector_embedding_provider', $sanitized_settings['vector_embedding_provider']);
@@ -753,6 +839,7 @@ function save_meta_fields_logic(int $botId, array $sanitized_settings)
         delete_post_meta($botId, '_aipkit_qdrant_collection_names');
         delete_post_meta($botId, '_aipkit_chroma_collection_name');
         delete_post_meta($botId, '_aipkit_chroma_collection_names');
+        delete_post_meta($botId, '_aipkit_google_file_search_store_names');
     } elseif ($sanitized_settings['vector_store_provider'] === 'qdrant') {
         update_post_meta($botId, '_aipkit_qdrant_collection_name', $sanitized_settings['qdrant_collection_name']);
         update_post_meta($botId, '_aipkit_qdrant_collection_names', $sanitized_settings['qdrant_collection_names']);
@@ -762,6 +849,7 @@ function save_meta_fields_logic(int $botId, array $sanitized_settings)
         delete_post_meta($botId, '_aipkit_pinecone_index_name');
         delete_post_meta($botId, '_aipkit_chroma_collection_name');
         delete_post_meta($botId, '_aipkit_chroma_collection_names');
+        delete_post_meta($botId, '_aipkit_google_file_search_store_names');
     } elseif ($sanitized_settings['vector_store_provider'] === 'chroma') {
         update_post_meta($botId, '_aipkit_chroma_collection_name', $sanitized_settings['chroma_collection_name']);
         update_post_meta($botId, '_aipkit_chroma_collection_names', $sanitized_settings['chroma_collection_names']);
@@ -771,6 +859,7 @@ function save_meta_fields_logic(int $botId, array $sanitized_settings)
         delete_post_meta($botId, '_aipkit_pinecone_index_name');
         delete_post_meta($botId, '_aipkit_qdrant_collection_name');
         delete_post_meta($botId, '_aipkit_qdrant_collection_names');
+        delete_post_meta($botId, '_aipkit_google_file_search_store_names');
     } else {
         delete_post_meta($botId, '_aipkit_openai_vector_store_ids');
         delete_post_meta($botId, '_aipkit_pinecone_index_name');
@@ -780,6 +869,7 @@ function save_meta_fields_logic(int $botId, array $sanitized_settings)
         delete_post_meta($botId, '_aipkit_chroma_collection_names');
         delete_post_meta($botId, '_aipkit_vector_embedding_provider');
         delete_post_meta($botId, '_aipkit_vector_embedding_model');
+        delete_post_meta($botId, '_aipkit_google_file_search_store_names');
     }
     update_post_meta($botId, '_aipkit_vector_store_top_k', $sanitized_settings['vector_store_top_k']);
     update_post_meta($botId, '_aipkit_vector_store_confidence_threshold', $sanitized_settings['vector_store_confidence_threshold']); // NEW
@@ -855,17 +945,6 @@ function save_meta_fields_logic(int $botId, array $sanitized_settings)
     }
     update_post_meta($botId, '_aipkit_xai_web_search_enabled', $sanitized_settings['xai_web_search_enabled']);
     update_post_meta($botId, '_aipkit_google_search_grounding_enabled', $sanitized_settings['google_search_grounding_enabled']);
-    if ($sanitized_settings['google_search_grounding_enabled'] === '1') {
-        update_post_meta($botId, '_aipkit_google_grounding_mode', $sanitized_settings['google_grounding_mode']);
-        if ($sanitized_settings['google_grounding_mode'] === 'MODE_DYNAMIC') {
-            update_post_meta($botId, '_aipkit_google_grounding_dynamic_threshold', (string)$sanitized_settings['google_grounding_dynamic_threshold']);
-        } else {
-            delete_post_meta($botId, '_aipkit_google_grounding_dynamic_threshold');
-        }
-    } else {
-        delete_post_meta($botId, '_aipkit_google_grounding_mode');
-        delete_post_meta($botId, '_aipkit_google_grounding_dynamic_threshold');
-    }
     update_post_meta($botId, '_aipkit_web_toggle_default_on', $sanitized_settings['web_toggle_default_on']);
     update_post_meta($botId, '_aipkit_show_sources', $sanitized_settings['show_sources']);
     update_post_meta($botId, '_aipkit_sources_label', $sanitized_settings['sources_label']);
@@ -955,16 +1034,20 @@ function save_meta_fields_logic(int $botId, array $sanitized_settings)
  * @param array $sanitized_settings The array of sanitized settings for the bot.
  * @return void
  */
-function handle_openai_specific_settings_logic(int $botId, array $sanitized_settings): void
+function handle_provider_conversation_state_settings_logic(array $sanitized_settings): void
 {
-    if (isset($sanitized_settings['provider']) && $sanitized_settings['provider'] === 'OpenAI' &&
-        isset($sanitized_settings['openai_conversation_state_enabled']) && $sanitized_settings['openai_conversation_state_enabled'] === '1') {
-        if (class_exists(\WPAICG\AIPKit_Providers::class)) {
-            $openai_global_settings = AIPKit_Providers::get_provider_data('OpenAI');
-            if (($openai_global_settings['store_conversation'] ?? '0') !== '1') {
-                $openai_global_settings['store_conversation'] = '1';
-                AIPKit_Providers::save_provider_data('OpenAI', $openai_global_settings);
-            }
+    $provider = $sanitized_settings['provider'] ?? '';
+    $state_setting = $provider === 'OpenAI'
+        ? 'openai_conversation_state_enabled'
+        : ($provider === 'Google' ? 'google_conversation_state_enabled' : '');
+    if ($state_setting === '' || ($sanitized_settings[$state_setting] ?? '0') !== '1') {
+        return;
+    }
+    if (class_exists(\WPAICG\AIPKit_Providers::class)) {
+        $provider_settings = AIPKit_Providers::get_provider_data($provider);
+        if (($provider_settings['store_conversation'] ?? '0') !== '1') {
+            $provider_settings['store_conversation'] = '1';
+            AIPKit_Providers::save_provider_data($provider, $provider_settings);
         }
     }
 }
@@ -989,6 +1072,15 @@ function save_bot_settings_logic(int $botId, array $raw_settings, SiteWideBotMan
         return $validation_result;
     }
 
+    $coordinated_settings = coordinate_native_knowledge_settings_logic(
+        $raw_settings,
+        $botId
+    );
+    if (is_wp_error($coordinated_settings)) {
+        return $coordinated_settings;
+    }
+    $raw_settings = $coordinated_settings;
+
     // 2. Sanitize Settings
     $sanitized_settings = sanitize_settings_logic($raw_settings, $botId);
 
@@ -1006,8 +1098,8 @@ function save_bot_settings_logic(int $botId, array $raw_settings, SiteWideBotMan
         return $meta_save_result; // Propagate WP_Error if JSON validation failed for triggers
     }
 
-    // 5. Handle OpenAI Specific Settings (like forcing global store_conversation)
-    handle_openai_specific_settings_logic($botId, $sanitized_settings);
+    // 5. Session memory requires provider-side storage for both OpenAI and Google.
+    handle_provider_conversation_state_settings_logic($sanitized_settings);
 
     if ($should_clear_site_wide_cache) {
         $site_wide_manager->clear_site_wide_cache();

@@ -99,6 +99,29 @@ function validate_and_normalize_input_logic(AIPKit_Content_Writer_Base_Ajax_Acti
     $validated_params['url_content_context'] = $url_content_context;
     $validated_params['source_url'] = $source_url;
 
+    $vector_provider = sanitize_key((string) ($settings['vector_store_provider'] ?? 'openai'));
+    if (!in_array($vector_provider, ['openai', 'google', 'pinecone', 'qdrant', 'chroma'], true)) {
+        $vector_provider = 'openai';
+    }
+    if (($settings['enable_vector_store'] ?? '0') === '1' && $vector_provider === 'google' && $provider !== 'Google') {
+        return new WP_Error(
+            'google_file_search_provider_mismatch',
+            __('Google File Search requires Google as the AI provider.', 'gpt3-ai-content-generator'),
+            ['status' => 400]
+        );
+    }
+    $validated_params['vector_store_provider'] = $vector_provider;
+    $google_store_names = isset($settings['google_file_search_store_names']) && is_array($settings['google_file_search_store_names'])
+        ? $settings['google_file_search_store_names']
+        : [];
+    $validated_params['google_file_search_store_names'] = array_values(array_unique(array_filter(array_map(
+        static function ($store_name): string {
+            $store_name = sanitize_text_field((string) $store_name);
+            return strpos($store_name, 'fileSearchStores/') === 0 ? $store_name : '';
+        },
+        $google_store_names
+    ))));
+
     return $validated_params;
 }
 

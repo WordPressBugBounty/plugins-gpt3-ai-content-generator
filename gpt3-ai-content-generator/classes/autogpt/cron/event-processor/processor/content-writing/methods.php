@@ -265,6 +265,16 @@ function generate_post_logic(array $prompts, array $cw_config, AIPKit_AI_Caller 
             'vector_store_ids' => $cw_config['openai_vector_store_ids'],
             'max_num_results'  => max(1, min($vector_top_k, 20)),
         ];
+    } elseif ($provider === 'Google' &&
+        ($cw_config['enable_vector_store'] ?? '0') === '1' &&
+        ($cw_config['vector_store_provider'] ?? '') === 'google' &&
+        !empty($cw_config['google_file_search_store_names']) && is_array($cw_config['google_file_search_store_names'])) {
+
+        $vector_top_k = absint($cw_config['vector_store_top_k'] ?? 3);
+        $content_ai_params['google_file_search_tool_config'] = [
+            'file_search_store_names' => array_values(array_unique(array_filter(array_map('sanitize_text_field', $cw_config['google_file_search_store_names'])))),
+            'top_k' => max(1, min($vector_top_k, 20)),
+        ];
     }
 
     $content_result = $ai_caller->make_standard_call(
@@ -1129,8 +1139,8 @@ function normalize_content_writing_image_config_logic(array $item_config): array
         $model = AIPKit_Providers::normalize_openai_image_model($model);
     } elseif ($provider === 'xai' && class_exists(AIPKit_Providers::class)) {
         $model = AIPKit_Providers::normalize_xai_image_model($model);
-    } elseif ($provider === 'google' && $model === '' && class_exists(AIPKit_Providers::class)) {
-        $model = AIPKit_Providers::get_default_google_image_model();
+    } elseif ($provider === 'google' && class_exists(AIPKit_Providers::class)) {
+        $model = AIPKit_Providers::normalize_google_image_model($model);
     } elseif ($provider === 'pexels' || $provider === 'pixabay') {
         $model = '';
     }

@@ -16,6 +16,7 @@ use WPAICG\Vector\AIPKit_Vector_Post_Processor_Ajax_Handler;
 use WPAICG\Dashboard\Ajax\AIPKit_OpenAI_Vector_Stores_Ajax_Handler;
 use WPAICG\Dashboard\Ajax\AIPKit_OpenAI_Vector_Store_Files_Ajax_Handler;
 use WPAICG\Dashboard\Ajax\AIPKit_OpenAI_WP_Content_Indexing_Ajax_Handler;
+use WPAICG\Dashboard\Ajax\AIPKit_Google_File_Search_Ajax_Handler;
 use WPAICG\Dashboard\Ajax\AIPKit_Vector_Store_Pinecone_Ajax_Handler;
 use WPAICG\Dashboard\Ajax\AIPKit_Vector_Store_Qdrant_Ajax_Handler;
 use WPAICG\Dashboard\Ajax\AIPKit_Vector_Store_Chroma_Ajax_Handler;
@@ -61,6 +62,7 @@ class Ajax_Hooks_Registrar
         AIPKit_OpenAI_Vector_Stores_Ajax_Handler $openai_vs_stores_ajax_handler,
         AIPKit_OpenAI_Vector_Store_Files_Ajax_Handler $openai_vs_files_ajax_handler,
         AIPKit_OpenAI_WP_Content_Indexing_Ajax_Handler $openai_wp_content_indexing_ajax_handler,
+        AIPKit_Google_File_Search_Ajax_Handler $google_file_search_ajax_handler,
         AIPKit_Vector_Store_Pinecone_Ajax_Handler $pinecone_vector_store_ajax_handler,
         AIPKit_Vector_Store_Qdrant_Ajax_Handler $qdrant_vector_store_ajax_handler,
         AIPKit_Vector_Store_Chroma_Ajax_Handler $chroma_vector_store_ajax_handler,
@@ -163,6 +165,13 @@ class Ajax_Hooks_Registrar
 
         add_action('wp_ajax_aipkit_fetch_wp_content_for_indexing', [$openai_wp_content_indexing_ajax_handler, 'ajax_fetch_wp_content_for_indexing']);
         add_action('wp_ajax_aipkit_index_selected_wp_content', [$openai_wp_content_indexing_ajax_handler, 'ajax_index_selected_wp_content']);
+
+        add_action('wp_ajax_aipkit_list_google_file_search_stores', [$google_file_search_ajax_handler, 'ajax_list_stores']);
+        add_action('wp_ajax_aipkit_create_google_file_search_store', [$google_file_search_ajax_handler, 'ajax_create_store']);
+        add_action('wp_ajax_aipkit_delete_google_file_search_store', [$google_file_search_ajax_handler, 'ajax_delete_store']);
+        add_action('wp_ajax_aipkit_add_text_to_google_file_search', [$google_file_search_ajax_handler, 'ajax_add_text']);
+        add_action('wp_ajax_aipkit_index_wp_content_google_file_search', [$google_file_search_ajax_handler, 'ajax_index_wp_content']);
+        add_action('wp_ajax_aipkit_get_google_file_search_job_status', [$google_file_search_ajax_handler, 'ajax_get_job_status']);
 
         add_action('wp_ajax_aipkit_list_indexes_pinecone', [$pinecone_vector_store_ajax_handler, 'ajax_list_indexes_pinecone']);
         add_action('wp_ajax_aipkit_create_index_pinecone', [$pinecone_vector_store_ajax_handler, 'ajax_create_index_pinecone']);

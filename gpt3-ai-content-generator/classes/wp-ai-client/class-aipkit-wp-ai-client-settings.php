@@ -26,7 +26,7 @@ class AIPKit_WP_AI_Client_Settings
         'google' => [
             'aipkit_provider' => 'Google',
             'name' => 'Google',
-            'description' => 'Text and image generation with Gemini and Imagen through AI Puffer.',
+            'description' => 'Text and image generation with Gemini through AI Puffer.',
             'credentials_url' => 'https://aistudio.google.com/api-keys',
             'supports_images' => true,
         ],
@@ -41,6 +41,7 @@ class AIPKit_WP_AI_Client_Settings
             'aipkit_provider' => 'OpenRouter',
             'name' => 'OpenRouter',
             'description' => 'Text and image generation through OpenRouter in AI Puffer.',
+            // phpcs:ignore PluginCheck.CodeAnalysis.AIProvider.DirectIntegration -- Credential link, not API transport.
             'credentials_url' => 'https://openrouter.ai/keys',
             'supports_images' => true,
         ],

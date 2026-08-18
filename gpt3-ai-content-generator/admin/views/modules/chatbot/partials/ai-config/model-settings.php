@@ -91,6 +91,7 @@ $saved_max_messages = max(1, min($saved_max_messages, 1024));
         </div>
         <div
             class="aipkit_behavior_compact_cell aipkit_stateful_convo_group"
+            data-provider="OpenAI"
             style="<?php echo ($current_provider_for_this_bot === 'OpenAI') ? '' : 'display:none;'; ?>"
         >
             <label
@@ -109,6 +110,30 @@ $saved_max_messages = max(1, min($saved_max_messages, 1024));
                     <?php esc_html_e('Yes', 'gpt3-ai-content-generator'); ?>
                 </option>
                 <option value="0" <?php selected($openai_conversation_state_enabled_val, '0'); ?>>
+                    <?php esc_html_e('No', 'gpt3-ai-content-generator'); ?>
+                </option>
+            </select>
+        </div>
+        <div
+            class="aipkit_behavior_compact_cell aipkit_stateful_convo_group"
+            data-provider="Google"
+            style="<?php echo ($current_provider_for_this_bot === 'Google') ? '' : 'display:none;'; ?>"
+        >
+            <label
+                class="aipkit_popover_option_label"
+                for="aipkit_bot_<?php echo esc_attr($bot_id); ?>_google_conversation_state_enabled_select"
+            >
+                <?php esc_html_e('Session memory', 'gpt3-ai-content-generator'); ?>
+            </label>
+            <select
+                id="aipkit_bot_<?php echo esc_attr($bot_id); ?>_google_conversation_state_enabled_select"
+                name="google_conversation_state_enabled"
+                class="aipkit_form-input aipkit_popover_option_select aipkit_google_conversation_state_enable_toggle aipkit_stateful_convo_checkbox"
+            >
+                <option value="1" <?php selected($google_conversation_state_enabled_val, '1'); ?>>
+                    <?php esc_html_e('Yes', 'gpt3-ai-content-generator'); ?>
+                </option>
+                <option value="0" <?php selected($google_conversation_state_enabled_val, '0'); ?>>
                     <?php esc_html_e('No', 'gpt3-ai-content-generator'); ?>
                 </option>
             </select>

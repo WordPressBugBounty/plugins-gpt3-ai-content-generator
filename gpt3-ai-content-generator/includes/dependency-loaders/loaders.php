@@ -205,6 +205,7 @@ class Chat_Dependencies_Loader
         $paths = [
             'core/ai_service.php',
             'core/class-aipkit_content_aware.php',
+            'core/class-aipkit-chat-file-upload-provider-resolver.php',
             $frontend_ajax_handlers_path . 'class-chat-form-submission-ajax-handler.php',
             'utils/class-aipkit_chat_utils.php',
             'utils/class-aipkit-svg-icons.php',
@@ -319,6 +320,7 @@ class Stt_Dependencies_Loader
             'class-aipkit-stt-manager.php', 'interface-aipkit-stt-provider-strategy.php',
             'class-aipkit-stt-base-provider-strategy.php', 'class-aipkit-stt-provider-strategy-factory.php',
             'class-aipkit-stt-openai-provider-strategy.php',
+            'class-aipkit-stt-google-provider-strategy.php',
             'class-aipkit-stt-azure-provider-strategy.php',
         ];
         foreach ($paths as $file) {
@@ -392,10 +394,6 @@ class Image_Dependencies_Loader
             'providers/openai/OpenAIImageUrlBuilder.php',
             'providers/openai/OpenAIPayloadFormatter.php',
             'providers/openai/OpenAIImageResponseParser.php',
-            'providers/google/GoogleImageUrlBuilder.php',
-            'providers/google/GoogleImagePayloadFormatter.php',
-            'providers/google/GoogleImageResponseParser.php',
-            'providers/google/GoogleImageTokenCounter.php',
             'providers/google/GoogleVideoUrlBuilder.php',
             'providers/google/GoogleVideoPayloadFormatter.php',
             'providers/google/GoogleVideoResponseParser.php',
@@ -424,6 +422,7 @@ class Vector_Store_Dependencies_Loader
             $vector_base_path . 'class-aipkit-vector-text-chunker.php',
             $vector_base_path . 'class-aipkit-vector-embedding-batch-policy.php',
             $vector_base_path . 'class-aipkit-vector-text-ingestion-service.php',
+            $vector_base_path . 'google-file-search/class-google-file-search-ingestion-service.php',
             $vector_base_path . 'class-aipkit-vector-provider-strategy-factory.php',
             $vector_base_path . 'class-aipkit-vector-store-manager.php', // This class now loads its own method files
             $vector_base_path . 'class-aipkit-vector-store-registry.php',
@@ -433,6 +432,9 @@ class Vector_Store_Dependencies_Loader
             if (file_exists($path)) {
                 require_once $path;
             }
+        }
+        if (class_exists(\WPAICG\Vector\GoogleFileSearch\GoogleFileSearchIngestionService::class)) {
+            \WPAICG\Vector\GoogleFileSearch\GoogleFileSearchIngestionService::register_hooks();
         }
 
         // Provider-specific strategy bootstrap files
@@ -473,6 +475,7 @@ class Vector_Store_Ajax_Handlers_Loader
 
         // Load external vector store handler classes from their locations.
         $other_handlers_to_load = [
+            'google/class-aipkit-google-file-search-ajax-handler.php',
             'pinecone/class-aipkit-vector-store-pinecone-ajax-handler.php', // Updated path
             'qdrant/class-aipkit-vector-store-qdrant-ajax-handler.php',   // Updated path
             'chroma/class-aipkit-vector-store-chroma-ajax-handler.php',
@@ -517,7 +520,7 @@ class Vector_Post_Processor_Classes_Loader
         }
 
         // Load provider-specific directories and their components
-        $provider_dirs = ['openai', 'pinecone', 'qdrant', 'chroma'];
+        $provider_dirs = ['openai', 'google', 'pinecone', 'qdrant', 'chroma'];
 
         foreach ($provider_dirs as $provider_dir) {
             $provider_path = $vpp_base_path . $provider_dir . '/';

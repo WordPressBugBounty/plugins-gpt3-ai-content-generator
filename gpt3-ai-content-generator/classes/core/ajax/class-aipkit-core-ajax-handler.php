@@ -5,11 +5,15 @@ namespace WPAICG\Core\Ajax;
 
 use WPAICG\Dashboard\Ajax\BaseDashboardAjaxHandler;
 use WPAICG\Core\AIPKit_AI_Caller; // For AI Caller
+use WPAICG\Core\AIPKit_Payload_Sanitizer;
 use WPAICG\AIPKit_Providers;
 use WPAICG\Vector\AIPKit_Vector_Store_Manager;
 use WPAICG\Vector\AIPKit_Vector_Store_Registry;
 use WPAICG\Vector\PostProcessor\OpenAI\OpenAIPostProcessor;
+use WPAICG\Vector\PostProcessor\Google\GooglePostProcessor;
 use WPAICG\Vector\PostProcessor\Pinecone\PineconePostProcessor;
+use WPAICG\Core\Providers\Google\FileSearch\GoogleFileSearchClient;
+use WPAICG\Vector\GoogleFileSearch\GoogleFileSearchIngestionService;
 use WPAICG\Vector\PostProcessor\Qdrant\QdrantPostProcessor;
 use WPAICG\Vector\PostProcessor\Chroma\ChromaPostProcessor;
 use WPAICG\Chat\Storage\LogStorage;
@@ -33,6 +37,7 @@ class AIPKit_Core_Ajax_Handler extends BaseDashboardAjaxHandler
     private $ai_caller;
     private $vector_store_manager;
     private $openai_post_processor;
+    private $google_post_processor;
     private $pinecone_post_processor;
     private $qdrant_post_processor;
     private $chroma_post_processor;
@@ -47,6 +52,9 @@ class AIPKit_Core_Ajax_Handler extends BaseDashboardAjaxHandler
         }
         if (class_exists(OpenAIPostProcessor::class)) {
             $this->openai_post_processor = new OpenAIPostProcessor();
+        }
+        if (class_exists(GooglePostProcessor::class)) {
+            $this->google_post_processor = new GooglePostProcessor();
         }
         if (class_exists(PineconePostProcessor::class)) {
             $this->pinecone_post_processor = new PineconePostProcessor();
@@ -154,7 +162,7 @@ class AIPKit_Core_Ajax_Handler extends BaseDashboardAjaxHandler
 
         $provider_raw = isset($post_data['provider']) ? sanitize_text_field($post_data['provider']) : '';
         $provider = AIPKit_Providers::normalize_provider_label($provider_raw);
-        $allowed_providers = ['OpenAI', 'Pinecone', 'Qdrant', 'Chroma'];
+        $allowed_providers = ['OpenAI', 'Google', 'Pinecone', 'Qdrant', 'Chroma'];
         if (!in_array($provider, $allowed_providers, true)) {
             $this->send_wp_error(new WP_Error('invalid_provider_delete_vector', __('Invalid or unsupported provider for this action.', 'gpt3-ai-content-generator')));
             return;
@@ -194,6 +202,15 @@ class AIPKit_Core_Ajax_Handler extends BaseDashboardAjaxHandler
             $vector_id = (string) $log_entry['file_id'];
         }
 
+        if ($provider === 'Google' && strtolower((string) ($log_entry['status'] ?? '')) === 'processing') {
+            $this->send_wp_error(new WP_Error(
+                'google_file_search_delete_processing',
+                __('Wait for Google File Search indexing to finish before deleting this source.', 'gpt3-ai-content-generator'),
+                ['status' => 409]
+            ));
+            return;
+        }
+
         $post_chunk_delete_selector = self::build_post_chunk_delete_selector($provider, absint($log_entry['post_id'] ?? 0));
         $can_delete_post_chunks = $post_chunk_delete_selector !== null;
         $is_failed_log_only = $vector_id === '' && strtolower((string) ($log_entry['status'] ?? '')) === 'failed';
@@ -202,7 +219,24 @@ class AIPKit_Core_Ajax_Handler extends BaseDashboardAjaxHandler
             return;
         }
 
-        if ($vector_id !== '' || $can_delete_post_chunks) {
+        if ($provider === 'Google' && $vector_id !== '' && !GoogleFileSearchIngestionService::is_pending_file_id($vector_id)) {
+            $provider_config = AIPKit_Providers::get_provider_data('Google');
+            if (empty($provider_config['api_key'])) {
+                $this->send_wp_error(new WP_Error('missing_google_api_key_delete_document', __('Google API key is missing.', 'gpt3-ai-content-generator')));
+                return;
+            }
+            $provider_config['api_version'] = 'v1beta';
+            $google_client = new GoogleFileSearchClient();
+            $delete_result = $google_client->delete_document($provider_config, $store_id, $vector_id, true);
+            if (is_wp_error($delete_result)) {
+                $error_data = $delete_result->get_error_data();
+                $http_status = is_array($error_data) ? (int) ($error_data['status'] ?? 0) : 0;
+                if ($http_status !== 404) {
+                    $this->send_wp_error($delete_result);
+                    return;
+                }
+            }
+        } elseif ($provider !== 'Google' && ($vector_id !== '' || $can_delete_post_chunks)) {
             // Ensure Vector Store Manager is loaded
             if (!class_exists('\\WPAICG\\Vector\\AIPKit_Vector_Store_Manager')) {
                 $this->send_wp_error(new WP_Error('vsm_missing_delete_vector', __('Vector management component is not available.', 'gpt3-ai-content-generator')));
@@ -287,9 +321,36 @@ class AIPKit_Core_Ajax_Handler extends BaseDashboardAjaxHandler
             return;
         }
 
-        // Validate dependencies
-        if (!$this->vector_store_manager || !$this->openai_post_processor || !$this->pinecone_post_processor || !$this->qdrant_post_processor || !$this->chroma_post_processor) {
+        $post_processor = null;
+        switch ($provider) {
+            case 'OpenAI':
+                $post_processor = $this->openai_post_processor;
+                break;
+            case 'Google':
+                $post_processor = $this->google_post_processor;
+                break;
+            case 'Pinecone':
+                $post_processor = $this->pinecone_post_processor;
+                break;
+            case 'Qdrant':
+                $post_processor = $this->qdrant_post_processor;
+                break;
+            case 'Chroma':
+                $post_processor = $this->chroma_post_processor;
+                break;
+            default:
+                $this->send_wp_error(new WP_Error('invalid_provider_reindex', __('Invalid provider for re-indexing.', 'gpt3-ai-content-generator')));
+                return;
+        }
+        if (!$post_processor || ($provider !== 'Google' && !$this->vector_store_manager)) {
             $this->send_wp_error(new WP_Error('vsm_missing_reindex', __('Vector processing components are not available.', 'gpt3-ai-content-generator')));
+            return;
+        }
+        if (
+            in_array($provider, ['Pinecone', 'Qdrant', 'Chroma'], true)
+            && (empty($embedding_provider) || empty($embedding_model))
+        ) {
+            $this->send_wp_error(new WP_Error('missing_embedding_config_reindex', __('Embedding provider and model are required for re-indexing.', 'gpt3-ai-content-generator')));
             return;
         }
 
@@ -305,10 +366,27 @@ class AIPKit_Core_Ajax_Handler extends BaseDashboardAjaxHandler
              $this->send_wp_error(new WP_Error('missing_api_key_reindex', sprintf(__('API key for %s is missing.', 'gpt3-ai-content-generator'), $provider)));
              return;
         }
-        $delete_selector = self::build_post_chunk_delete_selector($provider, $post_id) ?: [$vector_id];
-        $delete_result = $this->vector_store_manager->delete_vectors($provider, $store_id, $delete_selector, $provider_config);
-        if (is_wp_error($delete_result)) {
-            // Log this but don't fail, as the vector might already be gone from the remote.
+        if ($provider === 'Google') {
+            $provider_config['api_version'] = 'v1beta';
+            $delete_result = (new GoogleFileSearchClient())->delete_document($provider_config, $store_id, $vector_id, true);
+            if (is_wp_error($delete_result)) {
+                $error_data = $delete_result->get_error_data();
+                $http_status = is_array($error_data) ? (int) ($error_data['status'] ?? 0) : 0;
+                if ($http_status !== 404) {
+                    $this->send_wp_error($delete_result);
+                    return;
+                }
+            }
+        } else {
+            if (!$this->vector_store_manager) {
+                $this->send_wp_error(new WP_Error('vsm_missing_reindex', __('Vector processing components are not available.', 'gpt3-ai-content-generator')));
+                return;
+            }
+            $delete_selector = self::build_post_chunk_delete_selector($provider, $post_id) ?: [$vector_id];
+            $delete_result = $this->vector_store_manager->delete_vectors($provider, $store_id, $delete_selector, $provider_config);
+            if (is_wp_error($delete_result)) {
+                // The source may have already been removed remotely; the fresh index below remains authoritative.
+            }
         }
 
         global $wpdb;
@@ -322,25 +400,16 @@ class AIPKit_Core_Ajax_Handler extends BaseDashboardAjaxHandler
             case 'OpenAI':
                 $reindex_result = $this->openai_post_processor->index_single_post_to_store($post_id, $store_id);
                 break;
+            case 'Google':
+                $reindex_result = $this->google_post_processor->index_single_post_to_store($post_id, $store_id);
+                break;
             case 'Pinecone':
-                if (empty($embedding_provider) || empty($embedding_model)) {
-                    $this->send_wp_error(new WP_Error('missing_embedding_config_reindex', __('Embedding provider and model are required for Pinecone re-indexing.', 'gpt3-ai-content-generator')));
-                    return;
-                }
                 $reindex_result = $this->pinecone_post_processor->index_single_post_to_index($post_id, $store_id, $embedding_provider, $embedding_model);
                 break;
             case 'Qdrant':
-                if (empty($embedding_provider) || empty($embedding_model)) {
-                    $this->send_wp_error(new WP_Error('missing_embedding_config_reindex', __('Embedding provider and model are required for Qdrant re-indexing.', 'gpt3-ai-content-generator')));
-                    return;
-                }
                 $reindex_result = $this->qdrant_post_processor->index_single_post_to_collection($post_id, $store_id, $embedding_provider, $embedding_model);
                 break;
             case 'Chroma':
-                if (empty($embedding_provider) || empty($embedding_model)) {
-                    $this->send_wp_error(new WP_Error('missing_embedding_config_reindex', __('Embedding provider and model are required for Chroma re-indexing.', 'gpt3-ai-content-generator')));
-                    return;
-                }
                 $reindex_result = $this->chroma_post_processor->index_single_post_to_collection($post_id, $store_id, $embedding_provider, $embedding_model);
                 break;
             default:
@@ -463,6 +532,7 @@ class AIPKit_Core_Ajax_Handler extends BaseDashboardAjaxHandler
     {
         return [
             'openai' => 'OpenAI',
+            'google' => 'Google',
             'pinecone' => 'Pinecone',
             'qdrant' => 'Qdrant',
             'chroma' => 'Chroma',
@@ -1186,6 +1256,7 @@ class AIPKit_Core_Ajax_Handler extends BaseDashboardAjaxHandler
             }
         }
 
+        $messages = $this->sanitize_stats_message_payloads($messages);
         $messages = $this->hydrate_stats_vector_score_chunks($messages);
         $log_row['messages'] = $messages;
         $log_row['message_count'] = $log_row['message_count'] ?? count($messages);
@@ -1257,6 +1328,30 @@ class AIPKit_Core_Ajax_Handler extends BaseDashboardAjaxHandler
                 : __('IP address unblocked.', 'gpt3-ai-content-generator'),
             'ip_block' => $this->build_stats_ip_block_state($log_row),
         ]);
+    }
+
+    /**
+     * Redacts media bytes and other sensitive payload fields before Usage details reach the browser.
+     *
+     * @param array<int,array<string,mixed>> $messages
+     * @return array<int,array<string,mixed>>
+     */
+    private function sanitize_stats_message_payloads(array $messages): array
+    {
+        foreach ($messages as &$message) {
+            if (!is_array($message)) {
+                continue;
+            }
+
+            foreach (['request_payload', 'response_data'] as $payload_field) {
+                if (array_key_exists($payload_field, $message)) {
+                    $message[$payload_field] = AIPKit_Payload_Sanitizer::sanitize_payload_if_array($message[$payload_field]);
+                }
+            }
+        }
+        unset($message);
+
+        return $messages;
     }
 
     /**

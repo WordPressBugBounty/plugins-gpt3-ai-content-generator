@@ -153,7 +153,19 @@ function do_ajax_save_form_logic(AIPKit_AI_Form_Ajax_Handler $handler_instance):
     // --- Get Vector config fields from POST ---
     $enable_vector_store = isset($post_data['enable_vector_store']) && $post_data['enable_vector_store'] === '1' ? '1' : '0';
     $vector_store_provider = isset($post_data['vector_store_provider']) ? sanitize_key($post_data['vector_store_provider']) : 'openai';
+    if (!in_array($vector_store_provider, ['openai', 'google', 'pinecone', 'qdrant', 'chroma'], true)) {
+        $vector_store_provider = 'openai';
+    }
     $openai_vector_store_ids = isset($post_data['openai_vector_store_ids']) && is_array($post_data['openai_vector_store_ids']) ? array_map('sanitize_text_field', $post_data['openai_vector_store_ids']) : [];
+    $google_file_search_store_names = isset($post_data['google_file_search_store_names']) && is_array($post_data['google_file_search_store_names'])
+        ? array_values(array_unique(array_filter(array_map(
+            static function ($store_name): string {
+                $store_name = sanitize_text_field((string) $store_name);
+                return strpos($store_name, 'fileSearchStores/') === 0 ? $store_name : '';
+            },
+            $post_data['google_file_search_store_names']
+        ))))
+        : [];
     $pinecone_index_name = isset($post_data['pinecone_index_name']) ? sanitize_text_field($post_data['pinecone_index_name']) : '';
     $qdrant_collection_name = isset($post_data['qdrant_collection_name']) ? sanitize_text_field($post_data['qdrant_collection_name']) : '';
     $chroma_collection_name = isset($post_data['chroma_collection_name']) ? sanitize_text_field($post_data['chroma_collection_name']) : '';
@@ -168,6 +180,18 @@ function do_ajax_save_form_logic(AIPKit_AI_Form_Ajax_Handler $handler_instance):
     $openrouter_web_search_enabled = isset($post_data['openrouter_web_search_enabled']) && $post_data['openrouter_web_search_enabled'] === '1' ? '1' : '0';
     $xai_web_search_enabled = isset($post_data['xai_web_search_enabled']) && $post_data['xai_web_search_enabled'] === '1' ? '1' : '0';
     $google_search_grounding_enabled = isset($post_data['google_search_grounding_enabled']) && $post_data['google_search_grounding_enabled'] === '1' ? '1' : '0';
+    if ($vector_store_provider === 'google' && $ai_provider !== 'Google') {
+        wp_send_json_error(['message' => __('Google File Search requires Google as the AI provider.', 'gpt3-ai-content-generator')], 400);
+        return;
+    }
+    if ($vector_store_provider === 'google' && $enable_vector_store === '1' && $google_search_grounding_enabled === '1') {
+        wp_send_json_error(['message' => __('Google File Search and Google Search cannot be enabled together.', 'gpt3-ai-content-generator')], 400);
+        return;
+    }
+    if ($vector_store_provider === 'google' && $enable_vector_store === '1' && empty($google_file_search_store_names)) {
+        wp_send_json_error(['message' => __('Select at least one Google store.', 'gpt3-ai-content-generator')], 400);
+        return;
+    }
     
     // OpenAI Web Search sub-settings
     $openai_web_search_context_size = isset($post_data['openai_web_search_context_size']) ? sanitize_text_field($post_data['openai_web_search_context_size']) : 'medium';
@@ -228,10 +252,6 @@ function do_ajax_save_form_logic(AIPKit_AI_Form_Ajax_Handler $handler_instance):
     $openrouter_web_search_max_results = max(1, min($openrouter_web_search_max_results, 10));
     $openrouter_web_search_search_prompt = isset($post_data['openrouter_web_search_search_prompt']) ? AIPKit_Prompt_Sanitizer::sanitize($post_data['openrouter_web_search_search_prompt']) : '';
     
-    // Google Search Grounding sub-settings
-    $google_grounding_mode = isset($post_data['google_grounding_mode']) ? sanitize_text_field($post_data['google_grounding_mode']) : 'DEFAULT_MODE';
-    $google_grounding_dynamic_threshold = isset($post_data['google_grounding_dynamic_threshold']) ? floatval($post_data['google_grounding_dynamic_threshold']) : 0.30;
-
     $decoded_structure = json_decode($form_structure_json, true);
     if (json_last_error() !== JSON_ERROR_NONE || !is_array($decoded_structure)) {
         $handler_instance->send_wp_error(new WP_Error('invalid_structure_json', __('Invalid form structure data submitted.', 'gpt3-ai-content-generator')), 400);
@@ -278,6 +298,7 @@ function do_ajax_save_form_logic(AIPKit_AI_Form_Ajax_Handler $handler_instance):
         'enable_vector_store' => $enable_vector_store,
         'vector_store_provider' => $vector_store_provider,
         'openai_vector_store_ids' => $openai_vector_store_ids,
+        'google_file_search_store_names' => $google_file_search_store_names,
         'pinecone_index_name' => $pinecone_index_name,
         'qdrant_collection_name' => $qdrant_collection_name,
         'chroma_collection_name' => $chroma_collection_name,
@@ -312,9 +333,6 @@ function do_ajax_save_form_logic(AIPKit_AI_Form_Ajax_Handler $handler_instance):
         'openrouter_web_search_engine' => $openrouter_web_search_engine,
         'openrouter_web_search_max_results' => $openrouter_web_search_max_results,
         'openrouter_web_search_search_prompt' => $openrouter_web_search_search_prompt,
-        // Google Search Grounding sub-settings
-        'google_grounding_mode' => $google_grounding_mode,
-        'google_grounding_dynamic_threshold' => $google_grounding_dynamic_threshold,
         // Save protection flags
         'allow_empty_structure' => $allow_empty_structure,
         // Labels

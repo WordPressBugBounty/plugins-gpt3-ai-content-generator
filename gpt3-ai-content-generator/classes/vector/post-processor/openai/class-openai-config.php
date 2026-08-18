@@ -29,6 +29,7 @@ class OpenAIConfig {
         }
         return [
             'api_key'     => $openai_data['api_key'],
+            // phpcs:ignore PluginCheck.CodeAnalysis.AIProvider.DirectIntegration -- Provider-specific API transport.
             'base_url'    => $openai_data['base_url'] ?? 'https://api.openai.com',
             'api_version' => $openai_data['api_version'] ?? 'v1',
         ];

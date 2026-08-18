@@ -8,7 +8,6 @@ use WPAICG\AIPKIT_AI_Settings;
 use WPAICG\aipkit_dashboard;
 use WPAICG\Core\AIPKit_Event_Webhooks_Settings;
 use WPAICG\Core\Models\AIPKit_Model_Registry;
-use WPAICG\Core\Providers\Google\GoogleSettingsHandler;
 use WPAICG\Core\Moderation\AIPKit_Global_Security_Settings;
 use WPAICG\Images\AIPKit_Image_Settings_Ajax_Handler;
 use WPAICG\Utils\AIPKit_Prompt_Sanitizer;
@@ -42,7 +41,7 @@ class SettingsAjaxHandler extends BaseDashboardAjaxHandler
         'aipkit_google_embedding_model_list',
         'aipkit_google_image_model_list',
         'aipkit_google_video_model_list',
-        'aipkit_google_tts_voice_list',
+        'aipkit_google_tts_model_list',
         'aipkit_azure_deployment_list',
         'aipkit_azure_embedding_model_list',
         'aipkit_azure_image_model_list',
@@ -96,7 +95,6 @@ class SettingsAjaxHandler extends BaseDashboardAjaxHandler
         $this->save_replicate_integration_settings($post_data);
         $this->save_global_ai_parameters($post_data);
         $this->save_public_api_access_settings($post_data);
-        $this->save_google_safety_settings_if_applicable($post_data);
         $this->save_global_security_settings($post_data);
         $enhancer_settings_changed = $this->save_enhancer_settings($post_data);
         $this->save_semantic_search_settings($post_data);
@@ -553,17 +551,6 @@ class SettingsAjaxHandler extends BaseDashboardAjaxHandler
 
         $opts['api_keys'] = $api_keys;
         update_option('aipkit_options', $opts, 'no');
-    }
-
-    /**
-     * Saves Google Safety Settings to 'aipkit_options'.
-     * Delegates to GoogleSettingsHandler which handles its own update_option.
-     */
-    private function save_google_safety_settings_if_applicable(array $post_data): void
-    {
-        if (class_exists(GoogleSettingsHandler::class) && method_exists(GoogleSettingsHandler::class, 'save_safety_settings')) {
-            GoogleSettingsHandler::save_safety_settings($post_data);
-        }
     }
 
     /**
@@ -1161,14 +1148,6 @@ class SettingsAjaxHandler extends BaseDashboardAjaxHandler
             $provider_data = [];
 
             foreach ($defaults as $provider_key => $default_value) {
-                if ($provider_key === 'safety_settings') {
-                    $incoming_safety = isset($incoming_provider_data[$provider_key]) && is_array($incoming_provider_data[$provider_key])
-                        ? $incoming_provider_data[$provider_key]
-                        : $default_value;
-                    $provider_data[$provider_key] = $this->normalize_safety_settings($incoming_safety);
-                    continue;
-                }
-
                 $raw_value = array_key_exists($provider_key, $incoming_provider_data)
                     ? $incoming_provider_data[$provider_key]
                     : $default_value;
@@ -1324,31 +1303,6 @@ class SettingsAjaxHandler extends BaseDashboardAjaxHandler
             }
         }
 
-        return $normalized;
-    }
-
-    /**
-     * Sanitizes Google safety-settings structure.
-     */
-    private function normalize_safety_settings(array $safety_settings): array
-    {
-        $normalized = [];
-        foreach ($safety_settings as $setting) {
-            if (!is_array($setting)) {
-                continue;
-            }
-
-            $category = sanitize_text_field((string) ($setting['category'] ?? ''));
-            $threshold = sanitize_text_field((string) ($setting['threshold'] ?? ''));
-            if ($category === '' || $threshold === '') {
-                continue;
-            }
-
-            $normalized[] = [
-                'category' => $category,
-                'threshold' => $threshold,
-            ];
-        }
         return $normalized;
     }
 

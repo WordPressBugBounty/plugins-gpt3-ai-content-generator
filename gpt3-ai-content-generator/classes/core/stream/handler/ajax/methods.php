@@ -103,6 +103,9 @@ function ajax_cache_sse_message_logic(\WPAICG\Core\Stream\Handler\SSEHandler $ha
     $active_chroma_collection_name = isset($post_data['active_chroma_collection_name']) ? sanitize_text_field((string) $post_data['active_chroma_collection_name']) : null;
     $active_chroma_file_upload_context_id = isset($post_data['active_chroma_file_upload_context_id']) ? sanitize_text_field((string) $post_data['active_chroma_file_upload_context_id']) : null;
     $active_claude_file_id = isset($post_data['active_claude_file_id']) ? sanitize_text_field((string) $post_data['active_claude_file_id']) : null;
+    $active_google_file_context_token = isset($post_data['active_google_file_context_token'])
+        ? sanitize_text_field(wp_unslash((string) $post_data['active_google_file_context_token']))
+        : null;
     $resume_after_form_submission = isset($post_data['resume_after_form_submission']) && (string) $post_data['resume_after_form_submission'] === '1';
     $form_resume_token = isset($post_data['form_resume_token']) ? sanitize_text_field((string) $post_data['form_resume_token']) : '';
     $form_submission_context = [];
@@ -211,6 +214,9 @@ function ajax_cache_sse_message_logic(\WPAICG\Core\Stream\Handler\SSEHandler $ha
     }
     if ($active_claude_file_id) {
         $data_to_cache_structured['active_claude_file_id'] = $active_claude_file_id;
+    }
+    if ($active_google_file_context_token) {
+        $data_to_cache_structured['active_google_file_context_token'] = $active_google_file_context_token;
     }
     
     $data_to_cache = wp_json_encode($data_to_cache_structured);

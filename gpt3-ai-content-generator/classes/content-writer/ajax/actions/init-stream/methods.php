@@ -111,6 +111,7 @@ function build_cache_payload_logic(
     'enable_vector_store'           => $settings['enable_vector_store'] ?? '0',
     'vector_store_provider'         => $settings['vector_store_provider'] ?? 'openai',
     'openai_vector_store_ids'       => $settings['openai_vector_store_ids'] ?? [],
+    'google_file_search_store_names' => $settings['google_file_search_store_names'] ?? [],
     'pinecone_index_name'           => $settings['pinecone_index_name'] ?? '',
     'qdrant_collection_name'        => $settings['qdrant_collection_name'] ?? '',
     'chroma_collection_name'        => $settings['chroma_collection_name'] ?? '',

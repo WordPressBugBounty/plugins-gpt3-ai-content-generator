@@ -7,7 +7,6 @@ use WPAICG\AIPKit_Providers;
 use WPAICG\AIPKIT_AI_Settings;
 use WPAICG\Core\Providers\ProviderStrategyFactory;
 use WPAICG\Core\Providers\ProviderStrategyInterface;
-use WPAICG\Core\Providers\Google\GoogleSettingsHandler;
 use WPAICG\Core\AIPKit_Payload_Sanitizer;
 use WP_Error;
 use WPAICG\Core\AIPKit_Instruction_Manager;
@@ -41,6 +40,10 @@ class AIPKit_AI_Caller
         ?string $base_system_instruction = null,
         array $instruction_context = []
     ) {
+
+        if ($provider === 'Google') {
+            $model = AIPKit_Providers::normalize_google_text_model($model);
+        }
 
         $strategy = ProviderStrategyFactory::get_strategy($provider);
         if (is_wp_error($strategy)) {
@@ -83,15 +86,11 @@ class AIPKit_AI_Caller
             $final_ai_params['image_inputs'] = $ai_params_override['image_inputs'];
         }
 
-        if ($provider === 'Google' && !isset($final_ai_params['safety_settings'])) {
-            if (class_exists(GoogleSettingsHandler::class)) {
-                $final_ai_params['safety_settings'] = GoogleSettingsHandler::get_safety_settings();
-            } else {
-                $final_ai_params['safety_settings'] = [];
-            }
-        } elseif ($provider === 'OpenAI' && !isset($final_ai_params['store_conversation'])) {
+        if ($provider === 'OpenAI' && !isset($final_ai_params['store_conversation'])) {
             $openaiProvData = AIPKit_Providers::get_provider_data('OpenAI');
             $final_ai_params['store_conversation'] = $openaiProvData['store_conversation'] ?? '0';
+        } elseif ($provider === 'Google' && !isset($final_ai_params['store_conversation'])) {
+            $final_ai_params['store_conversation'] = $provData['store_conversation'] ?? '0';
         }
 
         $api_params = [
@@ -118,6 +117,18 @@ class AIPKit_AI_Caller
         }
 
         $request_body_data = $strategy->format_chat_payload('', $instructions_processed, $messages, $final_ai_params, $model);
+        if (is_wp_error($request_body_data)) {
+            $payload_error_data = $request_body_data->get_error_data();
+            $payload_error_data = is_array($payload_error_data) ? $payload_error_data : [];
+            $payload_error_data['provider'] = $provider;
+            $payload_error_data['model'] = $model;
+            $payload_error_data['operation'] = 'format_chat_payload';
+            return new WP_Error(
+                $request_body_data->get_error_code(),
+                $request_body_data->get_error_message(),
+                $payload_error_data
+            );
+        }
         $claude_beta_header_detector = '\WPAICG\Core\Providers\Claude\Methods\claude_payload_requires_files_beta_header';
         $claude_requires_files_beta_header = $provider === 'Claude'
             && is_array($request_body_data)
@@ -169,7 +180,7 @@ class AIPKit_AI_Caller
 
         $sanitized_headers = [];
         foreach ($headers as $header_key => $header_value) {
-            if (preg_match('/authorization|api[-_]?key|x-api-key/i', (string)$header_key)) {
+            if (preg_match('/authorization|api[-_]?key|x-api-key|x-goog-api-key/i', (string)$header_key)) {
                 $sanitized_headers[$header_key] = '[redacted]';
                 continue;
             }
@@ -192,8 +203,19 @@ class AIPKit_AI_Caller
 
         if ($status_code >= 400) {
             $parsed_message = $strategy->parse_error_response($response_body_raw, $status_code);
+            $http_error_data = $strategy->build_http_error_data_with_retry_after($response, $status_code);
+            $http_error_data = array_merge(
+                $http_error_data,
+                [
+                    'status_code' => $status_code,
+                    'response_body_for_debug' => $response_body_raw,
+                    'request_payload' => $request_payload_log,
+                    'provider' => $provider,
+                    'model' => $model,
+                ]
+            );
             /* translators: %1$s: The AI provider name (e.g., OpenAI). %2$d: The HTTP status code. %3$s: The error message from the API. */
-            return new WP_Error('api_error', sprintf(__('%1$s API Error (HTTP %2$d): %3$s', 'gpt3-ai-content-generator'), $provider, $status_code, $parsed_message), ['status_code' => $status_code, 'response_body_for_debug' => $response_body_raw, 'request_payload' => $request_payload_log, 'provider' => $provider, 'model' => $model]);
+            return new WP_Error('api_error', sprintf(__('%1$s API Error (HTTP %2$d): %3$s', 'gpt3-ai-content-generator'), $provider, $status_code, $parsed_message), $http_error_data);
         }
 
         $decoded_response = json_decode($response_body_raw, true);
@@ -219,6 +241,9 @@ class AIPKit_AI_Caller
         ];
         if (isset($parsed_data['openai_response_id'])) {
             $return_data['openai_response_id'] = $parsed_data['openai_response_id'];
+        }
+        if (isset($parsed_data['interaction_id']) && is_string($parsed_data['interaction_id']) && $parsed_data['interaction_id'] !== '') {
+            $return_data['google_interaction_id'] = $parsed_data['interaction_id'];
         }
         if (isset($parsed_data['grounding_metadata'])) {
             $return_data['grounding_metadata'] = $parsed_data['grounding_metadata'];
