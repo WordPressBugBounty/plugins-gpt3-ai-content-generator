@@ -7,6 +7,7 @@ use WPAICG\AIPKit_Providers;
 use WPAICG\AIPKIT_AI_Settings;
 use WPAICG\Core\Providers\ProviderStrategyFactory;
 use WPAICG\Core\Providers\ProviderStrategyInterface;
+use WPAICG\Core\Providers\OpenAI\OpenAIApiMode;
 use WPAICG\Core\AIPKit_Payload_Sanitizer;
 use WP_Error;
 use WPAICG\Core\AIPKit_Instruction_Manager;
@@ -86,9 +87,21 @@ class AIPKit_AI_Caller
             $final_ai_params['image_inputs'] = $ai_params_override['image_inputs'];
         }
 
-        if ($provider === 'OpenAI' && !isset($final_ai_params['store_conversation'])) {
-            $openaiProvData = AIPKit_Providers::get_provider_data('OpenAI');
-            $final_ai_params['store_conversation'] = $openaiProvData['store_conversation'] ?? '0';
+        if ($provider === 'OpenAI') {
+            $openai_api_mode = OpenAIApiMode::normalize($provData['api_mode'] ?? null);
+            $final_ai_params['api_mode'] = $openai_api_mode;
+            if (OpenAIApiMode::is_chat_completions($openai_api_mode)) {
+                $final_ai_params['store_conversation'] = '0';
+                $final_ai_params['use_openai_conversation_state'] = false;
+                unset(
+                    $final_ai_params['previous_response_id'],
+                    $final_ai_params['vector_store_tool_config'],
+                    $final_ai_params['web_search_tool_config'],
+                    $final_ai_params['frontend_web_search_active']
+                );
+            } elseif (!isset($final_ai_params['store_conversation'])) {
+                $final_ai_params['store_conversation'] = $provData['store_conversation'] ?? '0';
+            }
         } elseif ($provider === 'Google' && !isset($final_ai_params['store_conversation'])) {
             $final_ai_params['store_conversation'] = $provData['store_conversation'] ?? '0';
         }
@@ -97,6 +110,7 @@ class AIPKit_AI_Caller
             'api_key'                 => $provData['api_key'] ?? '',
             'base_url'                => $provData['base_url'] ?? '',
             'api_version'             => $provData['api_version'] ?? '',
+            'api_mode'                => ($provider === 'OpenAI') ? ($final_ai_params['api_mode'] ?? OpenAIApiMode::RESPONSES) : '',
             'azure_endpoint'          => ($provider === 'Azure') ? ($provData['endpoint'] ?? '') : '',
             'azure_inference_version' => ($provider === 'Azure') ? ($provData['api_version_inference'] ?? '2025-01-01-preview') : '',
             'azure_authoring_version' => ($provider === 'Azure') ? ($provData['api_version_authoring'] ?? '2023-03-15-preview') : '',

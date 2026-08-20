@@ -3,6 +3,7 @@
 namespace WPAICG\Core\Stream\Processor;
 
 use WPAICG\Core\Providers\ProviderStrategyFactory;
+use WPAICG\Core\Providers\OpenAI\OpenAIApiMode;
 use WPAICG\AIPKit_Providers;
 use WPAICG\Core\AIPKit_Payload_Sanitizer;
 use WPAICG\Chat\Storage\LogStorage;
@@ -48,6 +49,23 @@ function start_stream_logic(
 
     if ($provider === 'Google') {
         $model = AIPKit_Providers::normalize_google_text_model($model);
+    }
+    if ($provider === 'OpenAI') {
+        $openai_provider_data = AIPKit_Providers::get_provider_data('OpenAI');
+        $openai_api_mode = OpenAIApiMode::normalize($openai_provider_data['api_mode'] ?? null);
+        $api_params['api_mode'] = $openai_api_mode;
+        $ai_params['api_mode'] = $openai_api_mode;
+
+        if (OpenAIApiMode::is_chat_completions($openai_api_mode)) {
+            $ai_params['store_conversation'] = '0';
+            $ai_params['use_openai_conversation_state'] = false;
+            unset(
+                $ai_params['previous_response_id'],
+                $ai_params['vector_store_tool_config'],
+                $ai_params['web_search_tool_config'],
+                $ai_params['frontend_web_search_active']
+            );
+        }
     }
 
     $trigger_storage_class = '\WPAICG\Lib\Chat\Triggers\AIPKit_Trigger_Storage';

@@ -83,16 +83,9 @@ class AIPKit_Image_Settings_Ajax_Handler extends BaseDashboardAjaxHandler
         return [
             'generate_label' => __('Generate', 'gpt3-ai-content-generator'),
             'edit_label' => __('Edit Image', 'gpt3-ai-content-generator'),
-            'mode_generate_label' => __('Generate', 'gpt3-ai-content-generator'),
-            'mode_edit_label' => __('Edit', 'gpt3-ai-content-generator'),
-            'generate_placeholder' => __('Describe the image you want to generate...', 'gpt3-ai-content-generator'),
-            'edit_placeholder' => __('Describe how you want to edit the uploaded image...', 'gpt3-ai-content-generator'),
-            'source_image_label' => __('Source image', 'gpt3-ai-content-generator'),
-            'upload_dropzone_title' => __('Drop image here or click to upload', 'gpt3-ai-content-generator'),
-            'upload_dropzone_meta' => __('JPG, PNG, WEBP, GIF up to 10MB', 'gpt3-ai-content-generator'),
-            'upload_hint' => __('Upload an image (JPG, PNG, WEBP, GIF up to 10MB), then describe the edits in the prompt.', 'gpt3-ai-content-generator'),
+            'generate_placeholder' => __('Describe your image…', 'gpt3-ai-content-generator'),
+            'edit_placeholder' => __('Describe the edit…', 'gpt3-ai-content-generator'),
             'history_title' => __('Your Images', 'gpt3-ai-content-generator'),
-            'results_empty' => __('Generated images will appear here.', 'gpt3-ai-content-generator'),
         ];
     }
 
@@ -175,7 +168,15 @@ class AIPKit_Image_Settings_Ajax_Handler extends BaseDashboardAjaxHandler
             $saved['ui_text'] = array_merge($defaults['ui_text'], $saved['ui_text']);
         }
         $saved['ui_text'] = array_intersect_key($saved['ui_text'], $defaults['ui_text']);
-
+        $legacy_placeholder_values = [
+            'generate_placeholder' => 'Describe the image you want to generate...',
+            'edit_placeholder' => 'Describe how you want to edit the uploaded image...',
+        ];
+        foreach ($legacy_placeholder_values as $placeholder_key => $legacy_value) {
+            if ((string) ($saved['ui_text'][$placeholder_key] ?? '') === $legacy_value) {
+                $saved['ui_text'][$placeholder_key] = $defaults['ui_text'][$placeholder_key];
+            }
+        }
         // Handle Replicate settings
         if (!isset($saved['replicate']) || !is_array($saved['replicate'])) {
             $saved['replicate'] = $defaults['replicate'];
@@ -416,16 +417,9 @@ class AIPKit_Image_Settings_Ajax_Handler extends BaseDashboardAjaxHandler
         $ui_text_field_map = [
             'ui_text_generate_label' => 'generate_label',
             'ui_text_edit_label' => 'edit_label',
-            'ui_text_mode_generate_label' => 'mode_generate_label',
-            'ui_text_mode_edit_label' => 'mode_edit_label',
             'ui_text_generate_placeholder' => 'generate_placeholder',
             'ui_text_edit_placeholder' => 'edit_placeholder',
-            'ui_text_source_image_label' => 'source_image_label',
-            'ui_text_upload_dropzone_title' => 'upload_dropzone_title',
-            'ui_text_upload_dropzone_meta' => 'upload_dropzone_meta',
-            'ui_text_upload_hint' => 'upload_hint',
             'ui_text_history_title' => 'history_title',
-            'ui_text_results_empty' => 'results_empty',
         ];
         foreach ($ui_text_field_map as $post_key => $setting_key) {
             if (!isset($post_data[$post_key])) {

@@ -1,129 +1,31 @@
 <?php
 
 /**
- * Partial View: Frontend Image Generator Shortcode UI
+ * Partial View: Frontend Image Generator Shortcode UI.
  */
 
 if (!defined('ABSPATH')) {
-    exit; // Exit if accessed directly
+    exit;
 }
 
-// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- This file only uses local helper/template variables and does not define public globals.
-
-use WPAICG\AIPKit_Providers;
-use WPAICG\Core\Models\AIPKit_Model_Catalog;
-
-// Variables passed from the shortcode class: $nonce,
-// $show_provider, $show_model,
-// $preset_provider, $preset_model, $preset_size, $preset_number,
-// $final_provider, $final_model, $final_size, $final_number,
-// $theme, $show_history, $image_history_html,
-// $allowed_models,
-// $mode, $default_mode, $show_mode_switch,
-// $ui_text
-
-$openai_models_display = [];
-// Build Google models dynamically from synced option
-$google_models_display = [ 'image' => [], 'video' => [] ];
-$openrouter_models_display = [];
-$xai_models_display = [];
-$replicate_models_display = [];
-$azure_models_display = [];
-if (class_exists('\\WPAICG\\AIPKit_Providers')) {
-    $openai_models = AIPKit_Providers::get_openai_image_models();
-    if (!empty($openai_models)) {
-        foreach ($openai_models as $mdl) {
-            $mid = is_array($mdl) ? ($mdl['id'] ?? null) : (is_string($mdl) ? $mdl : null);
-            $mname = is_array($mdl) ? ($mdl['name'] ?? $mid) : $mid;
-            if ($mid) {
-                $openai_models_display[$mid] = $mname;
-            }
-        }
-    }
-    $google_image_models = AIPKit_Providers::get_google_image_models();
-    if (!empty($google_image_models)) {
-        foreach ($google_image_models as $mdl) {
-            $mid = is_array($mdl) ? ($mdl['id'] ?? null) : (is_string($mdl) ? $mdl : null);
-            $mname = is_array($mdl) ? ($mdl['name'] ?? $mid) : $mid;
-            if ($mid) {
-                $google_models_display['image'][$mid] = $mname;
-            }
-        }
-    }
-    $google_video_models = AIPKit_Providers::get_google_video_models();
-    if (!empty($google_video_models)) {
-        foreach ($google_video_models as $mdl) {
-            $mid = is_array($mdl) ? ($mdl['id'] ?? null) : (is_string($mdl) ? $mdl : null);
-            $mname = is_array($mdl) ? ($mdl['name'] ?? $mid) : $mid;
-            if ($mid) {
-                $google_models_display['video'][$mid] = $mname;
-            }
-        }
-    }
-
-    $openrouter_models = AIPKit_Providers::get_openrouter_image_models();
-    if (!empty($openrouter_models)) {
-        foreach ($openrouter_models as $mdl) {
-            $mid = is_array($mdl) ? ($mdl['id'] ?? null) : (is_string($mdl) ? $mdl : null);
-            $mname = is_array($mdl) ? ($mdl['name'] ?? $mid) : $mid;
-            if ($mid) {
-                $openrouter_models_display[$mid] = $mname;
-            }
-        }
-    }
-
-    $xai_models = AIPKit_Providers::get_xai_image_models();
-    if (!empty($xai_models)) {
-        foreach ($xai_models as $mdl) {
-            $mid = is_array($mdl) ? ($mdl['id'] ?? null) : (is_string($mdl) ? $mdl : null);
-            $mname = is_array($mdl) ? ($mdl['name'] ?? $mid) : $mid;
-            if ($mid) {
-                $xai_models_display[$mid] = $mname;
-            }
-        }
-    }
-
-    $replicate_models = AIPKit_Providers::get_replicate_models();
-    if (!empty($replicate_models)) {
-        foreach ($replicate_models as $mdl) {
-            $mid = is_array($mdl) ? ($mdl['id'] ?? null) : (is_string($mdl) ? $mdl : null);
-            $mname = is_array($mdl) ? ($mdl['name'] ?? $mid) : $mid;
-            if ($mid) {
-                $replicate_models_display[$mid] = $mname;
-            }
-        }
-    }
-
-    $azure_models_list = AIPKit_Providers::get_azure_image_models();
-    if (!empty($azure_models_list)) {
-        foreach ($azure_models_list as $mdl) {
-            $mid = is_array($mdl) ? ($mdl['id'] ?? null) : (is_string($mdl) ? $mdl : null);
-            $mname = is_array($mdl) ? ($mdl['name'] ?? $mid) : $mid;
-            if ($mid) {
-                $azure_models_display[$mid] = $mname;
-            }
-        }
-    }
-}
+// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- Template-local variables only.
 
 $theme_class = 'aipkit-theme-' . esc_attr($theme);
+$allowed_font_modes = ['theme', 'system'];
+$resolved_font_mode = isset($font_mode) ? sanitize_key((string) $font_mode) : 'system';
+if (!in_array($resolved_font_mode, $allowed_font_modes, true)) {
+    $resolved_font_mode = 'system';
+}
+$font_class = 'aipkit-font-' . $resolved_font_mode;
 $allowed_modes = ['generate', 'edit', 'both'];
 $shortcode_mode = isset($mode) ? sanitize_key((string) $mode) : 'generate';
 if (!in_array($shortcode_mode, $allowed_modes, true)) {
     $shortcode_mode = 'generate';
 }
 
-$allowed_default_modes = ['generate', 'edit'];
-$shortcode_default_mode = isset($default_mode) ? sanitize_key((string) $default_mode) : 'generate';
-if (!in_array($shortcode_default_mode, $allowed_default_modes, true)) {
-    $shortcode_default_mode = 'generate';
-}
-
-$allow_mode_switch = ($shortcode_mode === 'both' && !empty($show_mode_switch));
-$current_image_mode = $shortcode_mode === 'both' ? $shortcode_default_mode : $shortcode_mode;
-if (!in_array($current_image_mode, $allowed_default_modes, true)) {
-    $current_image_mode = 'generate';
-}
+$edit_available = in_array($shortcode_mode, ['edit', 'both'], true);
+$requested_initial_mode = isset($initial_mode) ? sanitize_key((string) $initial_mode) : 'generate';
+$current_image_mode = $requested_initial_mode === 'edit' && $edit_available ? 'edit' : 'generate';
 
 $ui_text_settings = isset($ui_text) && is_array($ui_text) ? $ui_text : [];
 $get_ui_text = static function (string $key, string $default) use ($ui_text_settings): string {
@@ -137,28 +39,35 @@ $get_ui_text = static function (string $key, string $default) use ($ui_text_sett
 
 $generate_label = $get_ui_text('generate_label', __('Generate', 'gpt3-ai-content-generator'));
 $edit_label = $get_ui_text('edit_label', __('Edit Image', 'gpt3-ai-content-generator'));
-$mode_generate_label = $get_ui_text('mode_generate_label', __('Generate', 'gpt3-ai-content-generator'));
-$mode_edit_label = $get_ui_text('mode_edit_label', __('Edit', 'gpt3-ai-content-generator'));
-$generate_placeholder = $get_ui_text('generate_placeholder', __('Describe the image you want to generate...', 'gpt3-ai-content-generator'));
-$edit_placeholder = $get_ui_text('edit_placeholder', __('Describe how you want to edit the uploaded image...', 'gpt3-ai-content-generator'));
-$source_image_label = $get_ui_text('source_image_label', __('Source image', 'gpt3-ai-content-generator'));
-$upload_dropzone_title = $get_ui_text('upload_dropzone_title', __('Drop image here or click to upload', 'gpt3-ai-content-generator'));
-$upload_dropzone_meta = $get_ui_text('upload_dropzone_meta', __('JPG, PNG, WEBP, GIF up to 10MB', 'gpt3-ai-content-generator'));
-$upload_hint = $get_ui_text('upload_hint', __('Upload an image (JPG, PNG, WEBP, GIF up to 10MB), then describe the edits in the prompt.', 'gpt3-ai-content-generator'));
-$xai_upload_dropzone_meta = __('JPG or PNG up to 10MB', 'gpt3-ai-content-generator');
-$xai_upload_hint = __('xAI image editing supports JPG and PNG source images only.', 'gpt3-ai-content-generator');
+$generate_placeholder = $get_ui_text('generate_placeholder', __('Describe your image…', 'gpt3-ai-content-generator'));
+$edit_placeholder = $get_ui_text('edit_placeholder', __('Describe the edit…', 'gpt3-ai-content-generator'));
 $history_title = $get_ui_text('history_title', __('Your Images', 'gpt3-ai-content-generator'));
 $initial_prompt_placeholder = $current_image_mode === 'edit' ? $edit_placeholder : $generate_placeholder;
 $initial_action_label = $current_image_mode === 'edit' ? $edit_label : $generate_label;
+$show_model_picker = !empty($show_provider) || !empty($show_model);
+$initial_picker_label = !empty($show_model)
+    ? ((string) $final_model !== '' ? (string) $final_model : __('Select model', 'gpt3-ai-content-generator'))
+    : (string) $final_provider;
+$picker_class_names = ['aipkit_image_generator_model_picker'];
+if (empty($show_provider)) {
+    $picker_class_names[] = 'aipkit_image_generator_model_picker--provider-hidden';
+}
+if (empty($show_model)) {
+    $picker_class_names[] = 'aipkit_image_generator_model_picker--model-hidden';
+}
 
 ?>
 <div
-    class="aipkit_shortcode_container aipkit_image_generator_public_wrapper <?php echo esc_attr($theme_class); ?>"
+    class="aipkit_shortcode_container aipkit_image_generator_public_wrapper <?php echo esc_attr($theme_class); ?> <?php echo esc_attr($font_class); ?>"
     id="aipkit_public_image_generator"
     data-allowed-models="<?php echo esc_attr($allowed_models); ?>"
     data-image-mode="<?php echo esc_attr($shortcode_mode); ?>"
-    data-image-default-mode="<?php echo esc_attr($shortcode_default_mode); ?>"
-    data-image-show-mode-switch="<?php echo $allow_mode_switch ? '1' : '0'; ?>"
+    data-initial-image-mode="<?php echo esc_attr($current_image_mode); ?>"
+    data-user-logged-in="<?php echo is_user_logged_in() ? '1' : '0'; ?>"
+    data-show-provider="<?php echo !empty($show_provider) ? '1' : '0'; ?>"
+    data-show-model="<?php echo !empty($show_model) ? '1' : '0'; ?>"
+    data-theme="<?php echo esc_attr($theme); ?>"
+    data-font="<?php echo esc_attr($resolved_font_mode); ?>"
     data-generate-placeholder="<?php echo esc_attr($generate_placeholder); ?>"
     data-edit-placeholder="<?php echo esc_attr($edit_placeholder); ?>"
     data-generate-label="<?php echo esc_attr($generate_label); ?>"
@@ -166,298 +75,251 @@ $initial_action_label = $current_image_mode === 'edit' ? $edit_label : $generate
     data-edit-upload-required="<?php echo esc_attr(__('Please upload an image to edit.', 'gpt3-ai-content-generator')); ?>"
     data-edit-provider-unsupported="<?php echo esc_attr(__('Image editing is currently supported only for Google, OpenAI, OpenRouter, and xAI providers.', 'gpt3-ai-content-generator')); ?>"
     data-edit-model-unsupported="<?php echo esc_attr(__('Selected model does not support image editing.', 'gpt3-ai-content-generator')); ?>"
-    data-edit-upload-meta-default="<?php echo esc_attr($upload_dropzone_meta); ?>"
-    data-edit-upload-hint-default="<?php echo esc_attr($upload_hint); ?>"
-    data-edit-upload-meta-xai="<?php echo esc_attr($xai_upload_dropzone_meta); ?>"
-    data-edit-upload-hint-xai="<?php echo esc_attr($xai_upload_hint); ?>"
 >
+    <?php if ($theme === 'custom' && !empty($custom_css)) : ?>
+        <style class="aipkit_image_generator_custom_theme_css">
+            <?php echo wp_strip_all_tags($custom_css); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Saved CSS is tag-stripped and intentionally emitted as CSS. ?>
+        </style>
+    <?php endif; ?>
+
     <div class="aipkit_shortcode_body">
         <div class="aipkit_image_generator_input_bar">
-            <?php if ($shortcode_mode === 'both') : ?>
-                <div class="aipkit_image_generator_mode_switch" <?php echo $allow_mode_switch ? '' : 'hidden'; ?>>
-                    <button
-                        type="button"
-                        class="aipkit_image_generator_mode_btn <?php echo $current_image_mode === 'generate' ? 'is-active' : ''; ?>"
-                        data-aipkit-image-mode="generate"
-                        aria-pressed="<?php echo $current_image_mode === 'generate' ? 'true' : 'false'; ?>"
-                    >
-                        <?php echo esc_html($mode_generate_label); ?>
-                    </button>
-                    <button
-                        type="button"
-                        class="aipkit_image_generator_mode_btn <?php echo $current_image_mode === 'edit' ? 'is-active' : ''; ?>"
-                        data-aipkit-image-mode="edit"
-                        aria-pressed="<?php echo $current_image_mode === 'edit' ? 'true' : 'false'; ?>"
-                    >
-                        <?php echo esc_html($mode_edit_label); ?>
-                    </button>
-                </div>
-            <?php endif; ?>
-
             <input type="hidden" id="aipkit_public_image_mode" name="image_mode" value="<?php echo esc_attr($current_image_mode); ?>">
+            <input type="hidden" id="aipkit_public_image_provider" name="image_provider" value="<?php echo esc_attr($final_provider); ?>">
+            <input type="hidden" id="aipkit_public_image_model" name="image_model" value="<?php echo esc_attr($final_model); ?>">
 
-            <div class="aipkit_form-group aipkit_image_generator_prompt_area">
-                <textarea
-                    id="aipkit_public_image_prompt"
-                    name="image_prompt"
-                    class="aipkit_form-input aipkit_image_prompt_textarea"
-                    rows="3"
-                    placeholder="<?php echo esc_attr($initial_prompt_placeholder); ?>"
-                ></textarea>
-            </div>
-            <div
-                class="aipkit_form-group aipkit_image_generator_edit_upload_row"
-                id="aipkit_public_image_edit_upload_row"
-                <?php echo $current_image_mode === 'edit' ? '' : 'hidden'; ?>
-            >
-                <label class="aipkit_form-label" for="aipkit_public_image_edit_source_file">
-                    <?php echo esc_html($source_image_label); ?>
-                </label>
-                <div
-                    id="aipkit_public_image_edit_dropzone"
-                    class="aipkit_image_edit_dropzone"
-                    role="button"
-                    tabindex="0"
-                    aria-controls="aipkit_public_image_edit_source_file"
-                    aria-describedby="aipkit_public_image_edit_upload_hint"
-                >
-                    <span class="aipkit_image_edit_dropzone_title">
-                        <?php echo esc_html($upload_dropzone_title); ?>
-                    </span>
-                    <span class="aipkit_image_edit_dropzone_meta">
-                        <?php echo esc_html($upload_dropzone_meta); ?>
-                    </span>
-                </div>
-                <input
-                    type="file"
-                    id="aipkit_public_image_edit_source_file"
-                    name="source_image"
-                    class="aipkit_form-input aipkit_image_edit_source_input"
-                    accept="image/jpeg,image/png,image/webp,image/gif"
-                >
-                <div
-                    id="aipkit_public_image_edit_file_summary"
-                    class="aipkit_image_edit_file_summary"
-                    hidden
-                >
-                    <img
-                        id="aipkit_public_image_edit_file_preview"
-                        class="aipkit_image_edit_file_preview"
-                        alt="<?php esc_attr_e('Selected source image preview', 'gpt3-ai-content-generator'); ?>"
-                        hidden
-                    >
-                    <div class="aipkit_image_edit_file_details">
-                        <span
-                            id="aipkit_public_image_edit_file_name"
-                            class="aipkit_image_edit_file_name"
-                        ></span>
+            <div class="aipkit_image_generator_composer">
+                <?php if ($edit_available) : ?>
+                    <div id="aipkit_public_image_attachment_chip" class="aipkit_image_attachment_chip" hidden>
+                        <img
+                            id="aipkit_public_image_edit_file_preview"
+                            class="aipkit_image_attachment_thumbnail"
+                            alt="<?php esc_attr_e('Selected source image preview', 'gpt3-ai-content-generator'); ?>"
+                            hidden
+                        >
+                        <span id="aipkit_public_image_edit_file_name" class="aipkit_image_attachment_name"></span>
+                        <button
+                            type="button"
+                            id="aipkit_public_image_edit_file_remove"
+                            class="aipkit_image_attachment_remove"
+                            aria-label="<?php esc_attr_e('Remove attached image', 'gpt3-ai-content-generator'); ?>"
+                        >
+                            <svg viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="m6.5 6.5 7 7m0-7-7 7" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>
+                        </button>
                     </div>
+                <?php endif; ?>
+
+                <div class="aipkit_image_composer_pill" data-aipkit-image-composer-pill data-mode="<?php echo esc_attr($current_image_mode); ?>">
+                    <?php if ($edit_available) : ?>
+                        <button
+                            type="button"
+                            id="aipkit_public_image_attach_btn"
+                            class="aipkit_image_composer_attach"
+                            aria-label="<?php esc_attr_e('Attach an image to edit', 'gpt3-ai-content-generator'); ?>"
+                            aria-controls="aipkit_public_image_edit_source_file"
+                        >
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="aipkit_image_composer_attach_icon" aria-hidden="true"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M15 7l-6.5 6.5a1.5 1.5 0 0 0 3 3l6.5 -6.5a3 3 0 0 0 -6 -6l-6.5 6.5a4.5 4.5 0 0 0 9 9l6.5 -6.5" /></svg>
+                        </button>
+                        <input
+                            type="file"
+                            id="aipkit_public_image_edit_source_file"
+                            name="source_image"
+                            class="aipkit_image_edit_source_input"
+                            accept="image/jpeg,image/png,image/webp,image/gif"
+                            tabindex="-1"
+                            aria-hidden="true"
+                        >
+                    <?php endif; ?>
+
+                    <label class="aipkit_image_generator_sr_only" for="aipkit_public_image_prompt">
+                        <?php esc_html_e('Image prompt', 'gpt3-ai-content-generator'); ?>
+                    </label>
+                    <textarea
+                        id="aipkit_public_image_prompt"
+                        name="image_prompt"
+                        class="aipkit_image_prompt_textarea"
+                        rows="1"
+                        placeholder="<?php echo esc_attr($initial_prompt_placeholder); ?>"
+                    ></textarea>
+
+                    <?php if ($show_model_picker) : ?>
+                        <div class="aipkit_image_generator_model_control">
+                            <select
+                                id="aipkit_public_image_model_picker_source"
+                                data-aipkit-unified-model-source
+                                hidden
+                                aria-hidden="true"
+                                tabindex="-1"
+                            ></select>
+                            <?php
+                            $aipkit_unified_model_selector_config = [
+                                'trigger_id' => 'aipkit_public_image_model_picker_trigger',
+                                'source_id' => 'aipkit_public_image_model_picker_source',
+                                'initial_label' => $initial_picker_label,
+                                'class_name' => implode(' ', $picker_class_names),
+                                'capability' => 'image_generation',
+                                'popover_placement' => 'auto',
+                                'trigger_aria_label' => __('Choose image model', 'gpt3-ai-content-generator'),
+                                'show_trigger_logo' => !empty($show_provider),
+                                'context_label' => empty($show_provider)
+                                    ? __('Model', 'gpt3-ai-content-generator')
+                                    : (empty($show_model) ? __('Provider', 'gpt3-ai-content-generator') : ''),
+                                'search_placeholder' => empty($show_model)
+                                    ? __('Search providers...', 'gpt3-ai-content-generator')
+                                    : __('Search image models...', 'gpt3-ai-content-generator'),
+                                'empty_text' => empty($show_model)
+                                    ? __('No providers available', 'gpt3-ai-content-generator')
+                                    : __('No image models available', 'gpt3-ai-content-generator'),
+                                'show_provider_diagnostics' => false,
+                                'show_manage_link' => false,
+                            ];
+                            include WPAICG_PLUGIN_DIR . 'admin/views/modules/shared/unified-model-selector.php';
+                            unset($aipkit_unified_model_selector_config);
+                            ?>
+                            <span
+                                class="aipkit_image_generator_single_model"
+                                data-aipkit-image-single-model
+                                aria-label="<?php esc_attr_e('Selected image model', 'gpt3-ai-content-generator'); ?>"
+                                hidden
+                            >
+                                <?php if (!empty($show_provider)) : ?>
+                                    <span class="aipkit_unified_model_logo" data-aipkit-image-single-model-logo aria-hidden="true"></span>
+                                <?php endif; ?>
+                                <span class="aipkit_image_generator_single_model_name" data-aipkit-image-single-model-name></span>
+                            </span>
+                        </div>
+                    <?php endif; ?>
+
                     <button
                         type="button"
-                        id="aipkit_public_image_edit_file_remove"
-                        class="aipkit_image_edit_file_remove"
+                        id="aipkit_public_generate_image_btn"
+                        class="aipkit_image_generate_btn"
+                        aria-label="<?php echo esc_attr($initial_action_label); ?>"
+                        data-action-label="<?php echo esc_attr($initial_action_label); ?>"
+                        disabled
                     >
-                        <?php esc_html_e('Remove', 'gpt3-ai-content-generator'); ?>
-                    </button>
-                </div>
-                <span class="aipkit_image_generator_edit_upload_hint">
-                    <?php echo esc_html($upload_hint); ?>
-                </span>
-                <span
-                    id="aipkit_public_image_edit_upload_feedback"
-                    class="aipkit_image_edit_upload_feedback"
-                    hidden
-                ></span>
-            </div>
-            <div
-                id="aipkit_public_image_edit_mode_notice"
-                class="aipkit_image_generator_edit_mode_notice"
-                hidden
-            ></div>
-             <div class="aipkit_image_generator_controls_row">
-                <div class="aipkit_image_generator_options">
-                    <?php if ($show_provider) : ?>
-                        <div class="aipkit_form-group aipkit_image_gen_option">
-                            <label class="aipkit_form-label" for="aipkit_public_image_provider"><?php esc_html_e('Provider', 'gpt3-ai-content-generator'); ?></label>
-                            <select id="aipkit_public_image_provider" name="image_provider" class="aipkit_form-input" data-aipkit-provider-notice-target="aipkit_provider_notice_image_generator">
-                                <?php
-                                $all_providers = ['OpenAI', 'Google', 'OpenRouter', 'xAI', 'Azure', 'Replicate'];
-                                $allowed_models_arr = !empty($allowed_models) ? array_map('trim', explode(',', strtolower($allowed_models))) : [];
-                                if (!empty($allowed_models_arr)) {
-                                    $derived = [];
-                                    $openai_lookup = array_flip(array_map('strtolower', array_keys($openai_models_display)));
-                                    $google_lookup = [];
-                                    foreach ($google_models_display as $type => $models_array) {
-                                        foreach ($models_array as $id => $name) {
-                                            $google_lookup[strtolower((string) $id)] = true;
-                                        }
-                                    }
-                                    $openrouter_lookup = array_flip(array_map('strtolower', array_keys($openrouter_models_display)));
-                                    $xai_lookup = array_flip(array_map('strtolower', array_keys($xai_models_display)));
-                                    $azure_lookup = array_flip(array_map('strtolower', array_keys($azure_models_display)));
-                                    $replicate_lookup = array_flip(array_map('strtolower', array_keys($replicate_models_display)));
-                                    foreach ($allowed_models_arr as $mid) {
-                                        if (isset($openai_lookup[$mid])) {
-                                            $derived['OpenAI'] = true;
-                                        } elseif (isset($google_lookup[$mid])) {
-                                            $derived['Google'] = true;
-                                        } elseif (isset($openrouter_lookup[$mid])) {
-                                            $derived['OpenRouter'] = true;
-                                        } elseif (isset($xai_lookup[$mid])) {
-                                            $derived['xAI'] = true;
-                                        } elseif (isset($azure_lookup[$mid])) {
-                                            $derived['Azure'] = true;
-                                        } elseif (isset($replicate_lookup[$mid])) {
-                                            $derived['Replicate'] = true;
-                                        } elseif (strpos($mid, '/') !== false) {
-                                            // Fallback for older settings when full model list isn't synced yet.
-                                            if (strpos($mid, ':') !== false) {
-                                                $derived['Replicate'] = true;
-                                            } else {
-                                                $derived['OpenRouter'] = true;
-                                            }
-                                        }
-                                    }
-                                    $providers_to_show = array_values(array_intersect($all_providers, array_keys($derived)));
-                                    if (empty($providers_to_show)) {
-                                        $providers_to_show = $all_providers; // fallback safety
-                                    }
-                                } else {
-                                    $providers_to_show = $all_providers;
-                                }
-                                foreach ($providers_to_show as $provider_name) : ?>
-                                    <option value="<?php echo esc_attr($provider_name); ?>" <?php selected($final_provider, $provider_name); ?>><?php echo esc_html($provider_name); ?></option>
-                                <?php endforeach; ?>
-                            </select>
-                        </div>
-                    <?php else : ?>
-                        <input type="hidden" name="image_provider" value="<?php echo esc_attr($final_provider); ?>">
-                    <?php endif; ?>
-
-                    <?php if ($show_model) : ?>
-                        <div class="aipkit_form-group aipkit_image_gen_option">
-                            <label class="aipkit_form-label" for="aipkit_public_image_model"><?php esc_html_e('Model', 'gpt3-ai-content-generator'); ?></label>
-                            <select id="aipkit_public_image_model" name="image_model" class="aipkit_form-input">
-                                 <?php // Options populated by JS, but set selected based on final_model?>
-                                 <?php if ($final_provider === 'OpenAI'): ?>
-                                    <?php
-                            // Keep built-in models first using the canonical catalog order.
-                            $sorted_openai_keys_render = AIPKit_Model_Catalog::get_seed_ids('OpenAIImage');
-                                     $final_openai_models_render = [];
-                                     foreach ($sorted_openai_keys_render as $key) {
-                                         if (isset($openai_models_display[$key])) {
-                                             $final_openai_models_render[$key] = $openai_models_display[$key];
-                                         }
-                                     }
-                                     // Add any other OpenAI models not in the sort list (future-proofing)
-                                     foreach ($openai_models_display as $id => $name) {
-                                         if (!isset($final_openai_models_render[$id])) {
-                                             $final_openai_models_render[$id] = $name;
-                                         }
-                                     }
-                                     ?>
-                                    <?php foreach ($final_openai_models_render as $id => $name): ?>
-                                        <option value="<?php echo esc_attr($id); ?>" <?php selected($final_model, $id); ?>>
-                                            <?php echo esc_html($name); ?>
-                                        </option>
-                                    <?php endforeach; ?>
-                                     <?php if ($final_model && !array_key_exists($final_model, $openai_models_display)) : ?>
-                                        <option value="<?php echo esc_attr($final_model); ?>" selected><?php echo esc_html($final_model); ?> (Manual)</option>
-                                     <?php endif; ?>
-                                 <?php elseif ($final_provider === 'Google'): ?>
-                                     <?php foreach ($google_models_display as $type => $models_array): ?>
-                                        <optgroup label="<?php echo esc_attr(ucfirst($type) . ' Models'); ?>">
-                                            <?php foreach ($models_array as $id => $name): ?>
-                                                <option value="<?php echo esc_attr($id); ?>" <?php selected($final_model, $id); ?>>
-                                                    <?php echo esc_html($name); ?>
-                                                </option>
-                                            <?php endforeach; ?>
-                                        </optgroup>
-                                     <?php endforeach; ?>
-                                     <?php 
-                                     // Check if final_model exists in any of the optgroups
-                                     $model_found = false;
-                                     foreach ($google_models_display as $type => $models_array) {
-                                         if (array_key_exists($final_model, $models_array)) {
-                                             $model_found = true;
-                                             break;
-                                         }
-                                     }
-                                     if ($final_model && !$model_found) : ?>
-                                        <option value="<?php echo esc_attr($final_model); ?>" selected><?php echo esc_html($final_model); ?> (Manual)</option>
-                                     <?php endif; ?>
-                                 <?php elseif ($final_provider === 'OpenRouter'): ?>
-                                     <?php foreach ($openrouter_models_display as $id => $name): ?>
-                                        <option value="<?php echo esc_attr($id); ?>" <?php selected($final_model, $id); ?>>
-                                            <?php echo esc_html($name); ?>
-                                        </option>
-                                     <?php endforeach; ?>
-                                     <?php if ($final_model && !array_key_exists($final_model, $openrouter_models_display)) : ?>
-                                        <option value="<?php echo esc_attr($final_model); ?>" selected><?php echo esc_html($final_model); ?> (Manual)</option>
-                                     <?php endif; ?>
-                                 <?php elseif ($final_provider === 'xAI'): ?>
-                                     <?php foreach ($xai_models_display as $id => $name): ?>
-                                        <option value="<?php echo esc_attr($id); ?>" <?php selected($final_model, $id); ?>>
-                                            <?php echo esc_html($name); ?>
-                                        </option>
-                                     <?php endforeach; ?>
-                                     <?php if ($final_model && !array_key_exists($final_model, $xai_models_display)) : ?>
-                                        <option value="<?php echo esc_attr($final_model); ?>" selected><?php echo esc_html($final_model); ?> (Manual)</option>
-                                     <?php endif; ?>
-                                 <?php elseif ($final_provider === 'Azure'): ?>
-                                     <?php 
-                                     // Azure models handling
-                                     $azure_models_display_rows = AIPKit_Providers::get_azure_image_models();
-                                     ?>
-                                     <?php foreach ($azure_models_display_rows as $model): ?>
-                                        <option value="<?php echo esc_attr($model['id']); ?>" <?php selected($final_model, $model['id']); ?>>
-                                            <?php echo esc_html($model['name']); ?>
-                                        </option>
-                                     <?php endforeach; ?>
-                                     <?php 
-                                     // Check if final_model exists in azure models
-                                     $model_found = false;
-                                     foreach ($azure_models_display_rows as $model) {
-                                         if ($model['id'] === $final_model) {
-                                             $model_found = true;
-                                             break;
-                                         }
-                                     }
-                                     if ($final_model && !$model_found) : ?>
-                                        <option value="<?php echo esc_attr($final_model); ?>" selected><?php echo esc_html($final_model); ?> (Manual)</option>
-                                     <?php endif; ?>
-                                 <?php else: ?>
-                                     <option value=""><?php esc_html_e('(Select Provider)', 'gpt3-ai-content-generator'); ?></option>
-                                 <?php endif; ?>
-                            </select>
-                        </div>
-                     <?php else : ?>
-                        <input type="hidden" name="image_model" value="<?php echo esc_attr($final_model); ?>">
-                    <?php endif; ?>
-                </div>
-                <div class="aipkit_image_generator_action_area">
-                    <button id="aipkit_public_generate_image_btn" class="aipkit_btn aipkit_btn-primary aipkit_image_generate_btn">
-                        <span class="dashicons dashicons-images-alt"></span>
-                        <span class="aipkit_btn-text"><?php echo esc_html($initial_action_label); ?></span>
+                        <span class="aipkit_image_generate_btn_icon" aria-hidden="true">
+                            <svg viewBox="0 0 20 20" fill="none"><path d="M10 14.5v-9m0 0L6.5 9M10 5.5 13.5 9" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                        </span>
                         <span class="aipkit_spinner" hidden></span>
                     </button>
                 </div>
-             </div>
+
+                <?php if ($edit_available) : ?>
+                    <span id="aipkit_public_image_edit_upload_feedback" class="aipkit_image_edit_upload_feedback" role="status" aria-live="polite" hidden></span>
+                <?php endif; ?>
+                <div id="aipkit_public_image_edit_mode_notice" class="aipkit_image_generator_edit_mode_notice" role="status" hidden></div>
+            </div>
         </div>
-        <div class="aipkit_image_generator_results" id="aipkit_public_image_results">
-             <p class="aipkit_image_results_placeholder aipkit_image_results_placeholder--centered aipkit_image_results_placeholder--italic"></p>
-        </div>
+
+        <section
+            class="aipkit_image_generator_results"
+            id="aipkit_public_image_results"
+            data-state="empty"
+            aria-label="<?php esc_attr_e('Generation result', 'gpt3-ai-content-generator'); ?>"
+            aria-busy="false"
+        >
+            <div class="aipkit_image_result_shell" data-aipkit-result-shell>
+                <div class="aipkit_image_result_actions aipkit_image_result_actions--overlay" data-aipkit-result-actions-overlay hidden></div>
+            </div>
+            <div class="aipkit_image_result_below">
+                <div class="aipkit_image_result_actions aipkit_image_result_actions--touch" data-aipkit-result-actions-touch hidden></div>
+                <div class="aipkit_image_result_pagination" data-aipkit-result-pagination hidden></div>
+                <div class="aipkit_image_result_caption" data-aipkit-result-caption hidden></div>
+            </div>
+            <div class="aipkit_image_result_feedback" data-aipkit-result-feedback hidden></div>
+            <div class="aipkit_image_generator_sr_only" data-aipkit-result-announcer role="status" aria-live="polite" aria-atomic="true"></div>
+        </section>
         <input type="hidden" id="aipkit_image_generator_public_nonce" value="<?php echo esc_attr($nonce); ?>">
 
-        <?php if (isset($show_history) && $show_history && is_user_logged_in() && !empty(trim($image_history_html))): ?>
-            <div class="aipkit_image_history_section">
-                <h3 class="aipkit_image_history_title"><?php echo esc_html($history_title); ?></h3>
+        <?php if (isset($show_history) && $show_history && is_user_logged_in()) : ?>
+            <section
+                class="aipkit_image_history_section"
+                aria-labelledby="aipkit_image_history_title"
+                data-aipkit-image-history
+                data-filter="all"
+                data-empty-all="<?php esc_attr_e('Your generated media will appear here.', 'gpt3-ai-content-generator'); ?>"
+                data-empty-favorites="<?php esc_attr_e('You have not favorited any media yet.', 'gpt3-ai-content-generator'); ?>"
+            >
+                <div class="aipkit_image_history_heading">
+                    <h3 class="aipkit_image_history_title" id="aipkit_image_history_title"><?php echo esc_html($history_title); ?></h3>
+                    <div class="aipkit_image_history_filters" role="group" aria-label="<?php esc_attr_e('Filter history', 'gpt3-ai-content-generator'); ?>">
+                        <button type="button" class="aipkit_image_history_filter is-active" data-aipkit-history-filter="all" aria-pressed="true">
+                            <?php esc_html_e('All', 'gpt3-ai-content-generator'); ?>
+                        </button>
+                        <button type="button" class="aipkit_image_history_filter" data-aipkit-history-filter="favorites" aria-pressed="false">
+                            <?php esc_html_e('Favorites', 'gpt3-ai-content-generator'); ?>
+                        </button>
+                    </div>
+                </div>
                 <?php
-                // We're keeping the HTML generation in PHP for initial load, JS handles deletion.
-                // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- HTML is generated in the shortcode class.
+                // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- HTML is generated with escaped values in the shortcode class.
                 echo $image_history_html;
-?>
-            </div>
+                ?>
+                <dialog
+                    class="aipkit-image-history-viewer"
+                    data-aipkit-history-viewer
+                    aria-label="<?php esc_attr_e('Generated image viewer', 'gpt3-ai-content-generator'); ?>"
+                >
+                    <div class="aipkit-image-history-viewer-stage">
+                        <img class="aipkit-image-history-viewer-media" data-aipkit-history-viewer-media alt="">
+                        <button
+                            type="button"
+                            class="aipkit-image-history-viewer-close"
+                            data-aipkit-history-viewer-close
+                            aria-label="<?php esc_attr_e('Close image viewer', 'gpt3-ai-content-generator'); ?>"
+                            title="<?php esc_attr_e('Close image viewer', 'gpt3-ai-content-generator'); ?>"
+                        >
+                            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+                        </button>
+                        <div class="aipkit-image-history-viewer-scrim" aria-hidden="true"></div>
+                        <div class="aipkit-image-history-viewer-actions" aria-label="<?php esc_attr_e('Image actions', 'gpt3-ai-content-generator'); ?>">
+                            <button
+                                type="button"
+                                class="aipkit-image-history-viewer-action"
+                                data-aipkit-history-viewer-action="download"
+                                aria-label="<?php esc_attr_e('Download image', 'gpt3-ai-content-generator'); ?>"
+                                title="<?php esc_attr_e('Download image', 'gpt3-ai-content-generator'); ?>"
+                            >
+                                <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 3v12m0 0 4-4m-4 4-4-4M5 20h14" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                            </button>
+                            <button
+                                type="button"
+                                class="aipkit-image-history-viewer-action"
+                                data-aipkit-history-viewer-action="favorite"
+                                aria-label="<?php esc_attr_e('Add to favorites', 'gpt3-ai-content-generator'); ?>"
+                                title="<?php esc_attr_e('Add to favorites', 'gpt3-ai-content-generator'); ?>"
+                                aria-pressed="false"
+                            >
+                                <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 17.75 5.83 21l1.18-6.88L2 9.25l6.91-1L12 2l3.09 6.25 6.91 1-5 4.87L18.17 21 12 17.75Z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/></svg>
+                            </button>
+                            <?php if ($edit_available): ?>
+                                <button
+                                    type="button"
+                                    class="aipkit-image-history-viewer-action"
+                                    data-aipkit-history-viewer-action="edit"
+                                    aria-label="<?php esc_attr_e('Use as edit source', 'gpt3-ai-content-generator'); ?>"
+                                    title="<?php esc_attr_e('Use as edit source', 'gpt3-ai-content-generator'); ?>"
+                                >
+                                    <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="m14.5 5.5 4 4M4 20l4.1-1 10.4-10.4a2.12 2.12 0 0 0-3-3L5.1 16 4 20Z" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                                </button>
+                            <?php endif; ?>
+                            <button
+                                type="button"
+                                class="aipkit-image-history-viewer-action aipkit-image-history-viewer-action--danger"
+                                data-aipkit-history-viewer-action="delete"
+                                data-label="<?php esc_attr_e('Delete image', 'gpt3-ai-content-generator'); ?>"
+                                data-confirm-label="<?php esc_attr_e('Confirm delete image', 'gpt3-ai-content-generator'); ?>"
+                                aria-label="<?php esc_attr_e('Delete image', 'gpt3-ai-content-generator'); ?>"
+                                title="<?php esc_attr_e('Delete image', 'gpt3-ai-content-generator'); ?>"
+                            >
+                                <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4 7h16m-10 4v5m4-5v5M9 7l1-3h4l1 3m3 0-1 13H7L6 7" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                            </button>
+                        </div>
+                    </div>
+                    <p class="aipkit-image-history-viewer-caption" data-aipkit-history-viewer-caption></p>
+                </dialog>
+            </section>
         <?php endif; ?>
     </div>
 </div>

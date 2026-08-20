@@ -22,6 +22,9 @@ if (!defined('ABSPATH')) {
  */
 class AIPKit_Image_Generator_Shortcode
 {
+    public const FAVORITE_META_KEY = '_aipkit_media_favorite';
+    private const HISTORY_PAGE_SIZE = 20;
+
     private static $current_atts = [];
     /**
      * Render the shortcode output.
@@ -34,11 +37,12 @@ class AIPKit_Image_Generator_Shortcode
      *        - model (string - presets the provider model ID)
      *        - size (string '1024x1024' etc. - presets the size)
      *        - number (int 1-4 - presets the number)
-     *        - theme (string 'light', 'dark', 'custom', default 'dark')
+     *        - theme (string 'light', 'dark', 'custom', default 'light')
+     *        - font (string 'theme'|'system', default 'system')
      *        - history (bool|string 'true'/'false', default 'false')
      *        - mode (string 'generate'|'edit'|'both', default 'generate')
-     *        - default_mode (string 'generate'|'edit', default 'generate', used when mode='both')
-     *        - show_mode_switch (bool|string 'true'/'false', default 'true', used when mode='both')
+     *        - default_mode (string 'generate'|'edit', default 'generate'; legacy compatibility for mode='both')
+     *        - show_mode_switch (bool|string 'true'/'false', default 'true'; legacy compatibility for mode='both')
      *
      * @return string HTML output.
      */
@@ -62,6 +66,7 @@ class AIPKit_Image_Generator_Shortcode
         $image_gen_settings = AIPKit_Image_Settings_Ajax_Handler::get_settings();
         $frontend_display_settings = $image_gen_settings['frontend_display'] ?? [];
         $ui_text_settings = $image_gen_settings['ui_text'] ?? [];
+        $custom_css = $image_gen_settings['common']['custom_css'] ?? '';
         $allowed_models_from_settings = $frontend_display_settings['allowed_models'] ?? '';
 
         // Prioritize shortcode attribute over global settings
@@ -76,7 +81,8 @@ class AIPKit_Image_Generator_Shortcode
             'model'         => AIPKit_Providers::get_default_openai_image_model(),
             'size'          => '1024x1024',
             'number'        => 1,
-            'theme'         => 'dark',
+            'theme'         => 'light',
+            'font'          => 'system',
             'history'       => 'false',
             'mode'          => 'generate',
             'default_mode'  => 'generate',
@@ -95,15 +101,15 @@ class AIPKit_Image_Generator_Shortcode
         }
 
         $default_mode = sanitize_key($atts['default_mode'] ?? 'generate');
-        $allowed_default_modes = ['generate', 'edit'];
-        if (!in_array($default_mode, $allowed_default_modes, true)) {
+        if (!in_array($default_mode, ['generate', 'edit'], true)) {
             $default_mode = 'generate';
         }
-
         $show_mode_switch = filter_var($atts['show_mode_switch'], FILTER_VALIDATE_BOOLEAN);
         if ($mode !== 'both') {
             $default_mode = $mode;
-            $show_mode_switch = false;
+        } elseif (!$show_mode_switch) {
+            // Old fixed-mode embeds used mode="both" with the switch hidden.
+            $mode = $default_mode;
         }
 
         $preset_provider_from_att = !empty($atts['provider']) ? strtolower(sanitize_text_field($atts['provider'])) : null;
@@ -113,7 +119,11 @@ class AIPKit_Image_Generator_Shortcode
         $valid_themes = ['light', 'dark', 'custom'];
         $theme = isset($atts['theme']) && in_array(strtolower($atts['theme']), $valid_themes, true)
                  ? strtolower($atts['theme'])
-                 : 'dark';
+                 : 'light';
+        $valid_font_modes = ['theme', 'system'];
+        $font_mode = isset($atts['font']) && in_array(strtolower($atts['font']), $valid_font_modes, true)
+            ? strtolower($atts['font'])
+            : 'system';
 
         // --- 4. Determine Final Values ---
         $final_provider_key = $preset_provider_from_att ?? 'openai';
@@ -162,13 +172,14 @@ class AIPKit_Image_Generator_Shortcode
             'final_size'     => $final_size,
             'final_number'   => $final_number,
             'theme'          => $theme,
+            'font_mode'      => $font_mode,
             'show_history'   => $show_history, // NEW: Pass to view
             'image_history_html' => ($show_history && is_user_logged_in()) ? $this->render_image_history($mode) : '', // NEW: Render history HTML
             'allowed_models' => $final_allowed_models_str,
             'mode'           => $mode,
-            'default_mode'   => $default_mode,
-            'show_mode_switch' => $show_mode_switch,
+            'initial_mode'   => $default_mode,
             'ui_text'        => $ui_text_settings,
+            'custom_css'     => is_string($custom_css) ? $custom_css : '',
         ];
 
         // 7. Include the partial view
@@ -188,27 +199,47 @@ class AIPKit_Image_Generator_Shortcode
         return self::$current_atts;
     }
 
-    public static function build_history_query_args(int $user_id, int $page = 1): array
+    public static function normalize_history_filter(string $filter): string
     {
+        return $filter === 'favorites' ? 'favorites' : 'all';
+    }
+
+    public static function build_history_query_args(int $user_id, int $page = 1, string $filter = 'all'): array
+    {
+        $generated_media_query = [
+            'relation' => 'OR',
+            [
+                'key'     => '_aipkit_generated_image',
+                'value'   => '1',
+                'compare' => '=',
+            ],
+            [
+                'key'     => '_aipkit_generated_video',
+                'value'   => '1',
+                'compare' => '=',
+            ],
+        ];
+        $filter = self::normalize_history_filter($filter);
+        $meta_query = $generated_media_query;
+        if ($filter === 'favorites') {
+            $meta_query = [
+                'relation' => 'AND',
+                $generated_media_query,
+                [
+                    'key'     => self::FAVORITE_META_KEY,
+                    'value'   => '1',
+                    'compare' => '=',
+                ],
+            ];
+        }
+
         $args = [
             'post_type'      => 'attachment',
             'post_status'    => 'inherit',
             'author'         => $user_id,
-            'posts_per_page' => 20,
+            'posts_per_page' => self::HISTORY_PAGE_SIZE,
             // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query -- History must filter plugin-generated media by stored generation flags.
-            'meta_query'     => [
-                'relation' => 'OR',
-                [
-                    'key'     => '_aipkit_generated_image',
-                    'value'   => '1',
-                    'compare' => '=',
-                ],
-                [
-                    'key'     => '_aipkit_generated_video',
-                    'value'   => '1',
-                    'compare' => '=',
-                ]
-            ],
+            'meta_query'     => $meta_query,
             'orderby'        => 'date',
             'order'          => 'DESC',
         ];
@@ -218,6 +249,104 @@ class AIPKit_Image_Generator_Shortcode
         }
 
         return $args;
+    }
+
+    private static function render_history_favorite_button(int $attachment_id): string
+    {
+        if (!is_user_logged_in()) {
+            return '';
+        }
+
+        $is_favorite = get_post_meta($attachment_id, self::FAVORITE_META_KEY, true) === '1';
+        $label = $is_favorite
+            ? __('Remove from favorites', 'gpt3-ai-content-generator')
+            : __('Add to favorites', 'gpt3-ai-content-generator');
+
+        ob_start();
+        ?>
+        <button
+            type="button"
+            class="aipkit-image-history-favorite-btn<?php echo $is_favorite ? ' is-favorite' : ''; ?>"
+            data-attachment-id="<?php echo esc_attr($attachment_id); ?>"
+            aria-label="<?php echo esc_attr($label); ?>"
+            aria-pressed="<?php echo $is_favorite ? 'true' : 'false'; ?>"
+            title="<?php echo esc_attr($label); ?>"
+        >
+            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 17.75 5.83 21l1.18-6.88L2 9.25l6.91-1L12 2l3.09 6.25 6.91 1-5 4.87L18.17 21 12 17.75Z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/></svg>
+        </button>
+        <?php
+        return ob_get_clean();
+    }
+
+    private static function render_history_overflow_menu(
+        int $attachment_id,
+        bool $allow_edit_action,
+        bool $is_video
+    ): string {
+        $menu_id = 'aipkit-image-history-menu-' . $attachment_id;
+        $media_label = $is_video ? __('video', 'gpt3-ai-content-generator') : __('image', 'gpt3-ai-content-generator');
+        /* translators: %s: media type, image or video. */
+        $more_label = sprintf(__('More actions for this %s', 'gpt3-ai-content-generator'), $media_label);
+        /* translators: %s: media type, image or video. */
+        $delete_label = sprintf(__('Delete %s', 'gpt3-ai-content-generator'), $media_label);
+
+        ob_start();
+        ?>
+        <button
+            type="button"
+            class="aipkit-image-history-more-btn"
+            aria-label="<?php echo esc_attr($more_label); ?>"
+            title="<?php echo esc_attr($more_label); ?>"
+            aria-haspopup="menu"
+            aria-expanded="false"
+            aria-controls="<?php echo esc_attr($menu_id); ?>"
+            data-aipkit-history-more
+        >
+            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="5" cy="12" r="1.45" fill="currentColor"/><circle cx="12" cy="12" r="1.45" fill="currentColor"/><circle cx="19" cy="12" r="1.45" fill="currentColor"/></svg>
+        </button>
+        <div
+            class="aipkit-image-history-menu"
+            id="<?php echo esc_attr($menu_id); ?>"
+            role="menu"
+            aria-label="<?php echo esc_attr($more_label); ?>"
+            data-aipkit-history-menu
+            hidden
+        >
+            <button
+                type="button"
+                class="aipkit-image-history-menu-item"
+                role="menuitem"
+                data-aipkit-history-action="download"
+            >
+                <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 3v12m0 0 4-4m-4 4-4-4M5 20h14" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                <span><?php esc_html_e('Download', 'gpt3-ai-content-generator'); ?></span>
+            </button>
+            <?php if ($allow_edit_action && !$is_video): ?>
+                <button
+                    type="button"
+                    class="aipkit-image-history-menu-item"
+                    role="menuitem"
+                    data-aipkit-history-action="edit"
+                >
+                    <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="m14.5 5.5 4 4M4 20l4.1-1 10.4-10.4a2.12 2.12 0 0 0-3-3L5.1 16 4 20Z" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                    <span><?php esc_html_e('Use as edit source', 'gpt3-ai-content-generator'); ?></span>
+                </button>
+            <?php endif; ?>
+            <button
+                type="button"
+                class="aipkit-image-history-menu-item aipkit-image-history-menu-item--danger"
+                role="menuitem"
+                data-aipkit-history-action="delete"
+                data-label="<?php echo esc_attr($delete_label); ?>"
+                data-confirm-label="<?php esc_attr_e('Click again to delete', 'gpt3-ai-content-generator'); ?>"
+                aria-label="<?php echo esc_attr($delete_label); ?>"
+            >
+                <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4 7h16m-10 4v5m4-5v5M9 7l1-3h4l1 3m3 0-1 13H7L6 7" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                <span><?php echo esc_html($delete_label); ?></span>
+            </button>
+        </div>
+        <?php
+        return ob_get_clean();
     }
 
     public static function render_history_item(int $attachment_id, bool $allow_edit_action): string
@@ -233,12 +362,21 @@ class AIPKit_Image_Generator_Shortcode
             $model = get_post_meta($attachment_id, '_aipkit_video_model', true);
             $size = get_post_meta($attachment_id, '_aipkit_video_size', true);
             $duration = get_post_meta($attachment_id, '_aipkit_video_duration', true);
+            $video_url_path = wp_parse_url((string) $full_url, PHP_URL_PATH);
+            $video_file_name = is_string($video_url_path) && $video_url_path !== ''
+                ? sanitize_file_name(wp_basename($video_url_path))
+                : 'video-' . $attachment_id . '.mp4';
             /* translators: %d: duration in seconds */
             $duration_display = $duration ? sprintf(__('Duration: %ds', 'gpt3-ai-content-generator'), intval($duration)) : '';
             ?>
-            <div class="aipkit-image-history-item aipkit-video-history-item">
+            <article
+                class="aipkit-image-history-item aipkit-video-history-item"
+                data-attachment-id="<?php echo esc_attr($attachment_id); ?>"
+                data-media-url="<?php echo esc_url($full_url); ?>"
+                data-media-name="<?php echo esc_attr($video_file_name); ?>"
+            >
                 <div class="aipkit-video-preview">
-                    <video controls preload="metadata" style="width: 100%; max-width: 200px; height: auto;">
+                    <video controls preload="metadata">
                         <source src="<?php echo esc_url($full_url); ?>" type="video/mp4">
                         <?php esc_html_e('Your browser does not support the video tag.', 'gpt3-ai-content-generator'); ?>
                     </video>
@@ -246,9 +384,12 @@ class AIPKit_Image_Generator_Shortcode
                         <span class="aipkit-media-type-badge"><?php esc_html_e('VIDEO', 'gpt3-ai-content-generator'); ?></span>
                     </div>
                 </div>
-                <button type="button" class="aipkit-image-history-delete-btn" data-attachment-id="<?php echo esc_attr($attachment_id); ?>" title="<?php esc_attr_e('Delete Video', 'gpt3-ai-content-generator'); ?>">
-                    <span class="dashicons dashicons-trash"></span>
-                </button>
+                <?php
+                // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Helper emits escaped plugin markup.
+                echo self::render_history_favorite_button($attachment_id);
+                // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Helper emits escaped plugin markup.
+                echo self::render_history_overflow_menu($attachment_id, false, true);
+                ?>
                 <div class="aipkit-image-history-info">
                     <?php if ($prompt): ?>
                         <p class="aipkit-image-history-prompt" title="<?php echo esc_attr($prompt); ?>">
@@ -262,7 +403,7 @@ class AIPKit_Image_Generator_Shortcode
                         ?>
                     </p>
                 </div>
-            </div>
+            </article>
             <?php
         } elseif ($is_image) {
             $thumbnail_url = wp_get_attachment_image_url($attachment_id, 'thumbnail');
@@ -274,35 +415,51 @@ class AIPKit_Image_Generator_Shortcode
             $image_file_name = is_string($image_url_path) && $image_url_path !== ''
                 ? sanitize_file_name(wp_basename($image_url_path))
                 : 'image-' . $attachment_id . '.png';
+            $thumbnail_alt = sprintf(
+                /* translators: %s: image generation prompt. */
+                __('Generated image, prompt: %s', 'gpt3-ai-content-generator'),
+                wp_html_excerpt((string) $prompt, 260, '…')
+            );
+            $expand_label = sprintf(
+                /* translators: %s: image generation prompt. */
+                __('Expand generated image: %s', 'gpt3-ai-content-generator'),
+                wp_html_excerpt((string) $prompt, 120, '…')
+            );
+            $model_label = implode(' / ', array_filter([$provider, $model]));
             ?>
-            <div class="aipkit-image-history-item">
-                <a href="<?php echo esc_url($full_url); ?>" target="_blank" rel="noopener noreferrer">
-                    <?php // phpcs:ignore PluginCheck.CodeAnalysis.ImageFunctions.NonEnqueuedImage -- Reason: The image source is correctly retrieved using a WordPress function. ?>
-                    <img src="<?php echo esc_url($thumbnail_url); ?>" alt="<?php echo esc_attr($prompt ?: 'Image'); ?>">
-                    <div class="aipkit-image-overlay">
-                        <span class="aipkit-media-type-badge"><?php esc_html_e('IMAGE', 'gpt3-ai-content-generator'); ?></span>
-                    </div>
-                </a>
-                <?php if ($allow_edit_action): ?>
+            <article
+                class="aipkit-image-history-item"
+                data-attachment-id="<?php echo esc_attr($attachment_id); ?>"
+                data-media-url="<?php echo esc_url($full_url); ?>"
+                data-media-name="<?php echo esc_attr($image_file_name); ?>"
+                data-prompt="<?php echo esc_attr($prompt); ?>"
+                data-model-label="<?php echo esc_attr($model_label); ?>"
+                data-edit-allowed="<?php echo $allow_edit_action ? '1' : '0'; ?>"
+            >
+                <div class="aipkit-image-history-thumbnail">
                     <button
                         type="button"
-                        class="aipkit-image-history-edit-btn"
-                        data-image-url="<?php echo esc_url($full_url); ?>"
-                        data-image-name="<?php echo esc_attr($image_file_name); ?>"
-                        title="<?php esc_attr_e('Edit Image', 'gpt3-ai-content-generator'); ?>"
-                        aria-label="<?php esc_attr_e('Edit Image', 'gpt3-ai-content-generator'); ?>"
+                        class="aipkit-image-history-view-trigger"
+                        data-aipkit-history-view
+                        aria-label="<?php echo esc_attr($expand_label); ?>"
                     >
-                        <span class="dashicons dashicons-edit"></span>
-                        <span class="aipkit_spinner" hidden></span>
+                    <?php // phpcs:ignore PluginCheck.CodeAnalysis.ImageFunctions.NonEnqueuedImage -- Reason: The image source is correctly retrieved using a WordPress function. ?>
+                        <img src="<?php echo esc_url($thumbnail_url ?: $full_url); ?>" alt="<?php echo esc_attr($thumbnail_alt); ?>" loading="lazy" decoding="async">
+                        <span class="aipkit-image-history-expand-cue" aria-hidden="true">
+                            <svg viewBox="0 0 24 24" fill="none"><path d="M9 4H4v5m11-5h5v5M9 20H4v-5m11 5h5v-5" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                        </span>
                     </button>
-                <?php endif; ?>
-                <button type="button" class="aipkit-image-history-delete-btn" data-attachment-id="<?php echo esc_attr($attachment_id); ?>" title="<?php esc_attr_e('Delete Image', 'gpt3-ai-content-generator'); ?>">
-                    <span class="dashicons dashicons-trash"></span>
-                </button>
+                <?php
+                // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Helper emits escaped plugin markup.
+                echo self::render_history_favorite_button($attachment_id);
+                // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Helper emits escaped plugin markup.
+                echo self::render_history_overflow_menu($attachment_id, $allow_edit_action, false);
+                ?>
+                </div>
                 <div class="aipkit-image-history-info">
                     <?php if ($prompt): ?>
                         <p class="aipkit-image-history-prompt" title="<?php echo esc_attr($prompt); ?>">
-                            <strong><?php esc_html_e('Prompt:', 'gpt3-ai-content-generator'); ?></strong> <?php echo esc_html(wp_trim_words($prompt, 10, '...')); ?>
+                            <strong><?php esc_html_e('Prompt:', 'gpt3-ai-content-generator'); ?></strong> <?php echo esc_html($prompt); ?>
                         </p>
                     <?php endif; ?>
                     <?php if ($model): ?>
@@ -311,7 +468,7 @@ class AIPKit_Image_Generator_Shortcode
                          </p>
                     <?php endif; ?>
                 </div>
-            </div>
+            </article>
             <?php
         }
 
@@ -333,28 +490,30 @@ class AIPKit_Image_Generator_Shortcode
 
         $user_id = get_current_user_id();
         $query = new WP_Query(self::build_history_query_args($user_id));
-
-        if (!$query->have_posts()) {
-            wp_reset_postdata();
-            return '';
-        }
+        $has_items = $query->have_posts();
 
         ob_start();
         ?>
-        <div class="aipkit-image-history-grid">
+        <div class="aipkit-image-history-grid" data-aipkit-history-grid<?php echo $has_items ? '' : ' hidden'; ?>>
             <?php while ($query->have_posts()) : $query->the_post();
                 // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- render_history_item() returns plugin-generated markup with escaped dynamic values.
                 echo self::render_history_item((int) get_the_ID(), $allow_edit_action);
             endwhile; ?>
         </div>
-        <?php if ($query->max_num_pages > 1): ?>
-            <div class="aipkit-image-history-load-more-container">
-                <button type="button" class="aipkit_image_generator_btn aipkit_image_generator_btn_secondary aipkit_image_generator_btn_icon aipkit-image-history-load-more-btn" title="<?php esc_attr_e('Load More', 'gpt3-ai-content-generator'); ?>" data-current-page="1" data-max-pages="<?php echo esc_attr($query->max_num_pages); ?>">
-                    <span class="aipkit_btn-icon-content dashicons dashicons-update-alt"></span>
-                    <span class="aipkit_spinner" style="display: none;"></span>
-                </button>
-            </div>
-        <?php endif; ?>
+        <p class="aipkit-image-history-empty" data-aipkit-history-empty<?php echo $has_items ? ' hidden' : ''; ?>>
+            <?php esc_html_e('Your generated media will appear here.', 'gpt3-ai-content-generator'); ?>
+        </p>
+        <div class="aipkit-image-history-load-more-container" data-aipkit-history-load-more<?php echo $query->max_num_pages > 1 ? '' : ' hidden'; ?>>
+            <button
+                type="button"
+                class="aipkit-image-history-load-more-btn"
+                data-current-page="1"
+                data-max-pages="<?php echo esc_attr(max(1, (int) $query->max_num_pages)); ?>"
+            >
+                <span class="aipkit-image-history-load-more-label"><?php esc_html_e('Load more', 'gpt3-ai-content-generator'); ?></span>
+                <span class="aipkit_spinner" hidden></span>
+            </button>
+        </div>
         <?php
         wp_reset_postdata();
         return ob_get_clean();

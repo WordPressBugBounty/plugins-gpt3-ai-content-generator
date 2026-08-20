@@ -63,6 +63,9 @@ class AIPKit_OpenAI_Moderation_Checker {
         if (empty($api_params['api_key'])) {
             return null;
         }
+        if (AIPKit_Providers::normalize_openai_api_mode($api_params['api_mode'] ?? null) === 'chat_completions') {
+            return null;
+        }
 
         $moderation_result = $strategy->moderate_text($text, $api_params);
         if (is_wp_error($moderation_result) || $moderation_result !== true) {

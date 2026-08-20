@@ -7,13 +7,18 @@
  * - initial_label (string)
  * - source_id (string, optional)
  * - class_name (string, optional)
+ * - context_label (string, optional)
+ * - trigger_aria_label (string, optional)
  * - capability (string, optional)
+ * - popover_placement (string 'auto'|'top', optional; defaults to 'auto')
  * - show_trigger_logo (bool, optional; defaults to true)
+ * - show_provider_diagnostics (bool, optional; defaults to true)
  * - search_placeholder (string, optional)
  * - empty_text (string, optional)
  * - filters (array, optional; each item has value and label)
  * - filter_aria_label (string, optional)
  * - manage_url (string, optional)
+ * - show_manage_link (bool, optional; defaults to true)
  */
 
 if (!defined('ABSPATH')) {
@@ -36,11 +41,23 @@ $aipkit_unified_model_source_id = isset($aipkit_unified_model_selector_config['s
 $aipkit_unified_model_class_name = isset($aipkit_unified_model_selector_config['class_name'])
     ? trim((string) $aipkit_unified_model_selector_config['class_name'])
     : '';
+$aipkit_unified_model_context_label = isset($aipkit_unified_model_selector_config['context_label'])
+    ? (string) $aipkit_unified_model_selector_config['context_label']
+    : '';
+$aipkit_unified_model_trigger_aria_label = isset($aipkit_unified_model_selector_config['trigger_aria_label'])
+    ? (string) $aipkit_unified_model_selector_config['trigger_aria_label']
+    : '';
 $aipkit_unified_model_capability = isset($aipkit_unified_model_selector_config['capability'])
     ? sanitize_key((string) $aipkit_unified_model_selector_config['capability'])
     : '';
+$aipkit_unified_model_popover_placement = isset($aipkit_unified_model_selector_config['popover_placement'])
+    && (string) $aipkit_unified_model_selector_config['popover_placement'] === 'top'
+    ? 'top'
+    : 'auto';
 $aipkit_unified_model_show_trigger_logo = !isset($aipkit_unified_model_selector_config['show_trigger_logo'])
     || (bool) $aipkit_unified_model_selector_config['show_trigger_logo'];
+$aipkit_unified_model_show_provider_diagnostics = !isset($aipkit_unified_model_selector_config['show_provider_diagnostics'])
+    || (bool) $aipkit_unified_model_selector_config['show_provider_diagnostics'];
 $aipkit_unified_model_search_placeholder = isset($aipkit_unified_model_selector_config['search_placeholder'])
     ? (string) $aipkit_unified_model_selector_config['search_placeholder']
     : __('Search models...', 'gpt3-ai-content-generator');
@@ -64,12 +81,17 @@ $aipkit_unified_model_filter_aria_label = isset($aipkit_unified_model_selector_c
 $aipkit_unified_model_manage_url = isset($aipkit_unified_model_selector_config['manage_url'])
     ? (string) $aipkit_unified_model_selector_config['manage_url']
     : admin_url('admin.php?page=wpaicg&aipkit_module=settings&aipkit_settings_page=ai');
+$aipkit_unified_model_show_manage_link = !isset($aipkit_unified_model_selector_config['show_manage_link'])
+    || (bool) $aipkit_unified_model_selector_config['show_manage_link'];
 ?>
 <div
     class="aipkit_unified_model_selector<?php echo $aipkit_unified_model_class_name !== '' ? ' ' . esc_attr($aipkit_unified_model_class_name) : ''; ?>"
     data-aipkit-unified-model-selector
     <?php echo $aipkit_unified_model_source_id !== '' ? 'data-aipkit-unified-model-source-id="' . esc_attr($aipkit_unified_model_source_id) . '"' : ''; ?>
     <?php echo $aipkit_unified_model_capability !== '' ? 'data-aipkit-model-capability="' . esc_attr($aipkit_unified_model_capability) . '"' : ''; ?>
+    data-aipkit-popover-placement="<?php echo esc_attr($aipkit_unified_model_popover_placement); ?>"
+    data-aipkit-provider-diagnostics="<?php echo $aipkit_unified_model_show_provider_diagnostics ? '1' : '0'; ?>"
+    data-aipkit-show-manage-link="<?php echo $aipkit_unified_model_show_manage_link ? '1' : '0'; ?>"
 >
     <button
         type="button"
@@ -78,7 +100,9 @@ $aipkit_unified_model_manage_url = isset($aipkit_unified_model_selector_config['
         aria-expanded="false"
         aria-controls="<?php echo esc_attr($aipkit_unified_model_popover_id); ?>"
         aria-haspopup="dialog"
+        <?php echo $aipkit_unified_model_trigger_aria_label !== '' ? 'aria-label="' . esc_attr($aipkit_unified_model_trigger_aria_label) . '"' : ''; ?>
         data-aipkit-unified-model-trigger
+        <?php echo $aipkit_unified_model_context_label !== '' ? 'data-aipkit-model-context-label="' . esc_attr($aipkit_unified_model_context_label) . '"' : ''; ?>
     >
         <?php if ($aipkit_unified_model_show_trigger_logo) : ?>
             <span class="aipkit_unified_model_logo" data-aipkit-unified-model-logo aria-hidden="true"></span>
@@ -117,22 +141,24 @@ $aipkit_unified_model_manage_url = isset($aipkit_unified_model_selector_config['
                     data-aipkit-unified-model-providers
                 ></div>
                 <div class="aipkit_unified_model_results">
-                    <div
-                        class="aipkit_unified_model_provider_notice"
-                        data-aipkit-unified-model-provider-notice
-                        role="status"
-                        aria-live="polite"
-                        hidden
-                    >
-                        <span class="aipkit_unified_model_provider_notice_icon" aria-hidden="true"></span>
-                        <span class="aipkit_unified_model_provider_notice_text" data-aipkit-unified-model-provider-notice-text></span>
-                        <button
-                            type="button"
-                            class="aipkit_unified_model_provider_notice_action"
-                            data-aipkit-unified-model-provider-action
+                    <?php if ($aipkit_unified_model_show_provider_diagnostics) : ?>
+                        <div
+                            class="aipkit_unified_model_provider_notice"
+                            data-aipkit-unified-model-provider-notice
+                            role="status"
+                            aria-live="polite"
                             hidden
-                        ></button>
-                    </div>
+                        >
+                            <span class="aipkit_unified_model_provider_notice_icon" aria-hidden="true"></span>
+                            <span class="aipkit_unified_model_provider_notice_text" data-aipkit-unified-model-provider-notice-text></span>
+                            <button
+                                type="button"
+                                class="aipkit_unified_model_provider_notice_action"
+                                data-aipkit-unified-model-provider-action
+                                hidden
+                            ></button>
+                        </div>
+                    <?php endif; ?>
                     <?php if ($aipkit_unified_model_filters !== []) : ?>
                         <div
                             class="aipkit_unified_model_filters"
@@ -162,15 +188,17 @@ $aipkit_unified_model_manage_url = isset($aipkit_unified_model_selector_config['
                     <span>↵</span> <?php esc_html_e('select', 'gpt3-ai-content-generator'); ?>
                 </span>
                 <span class="aipkit_unified_model_summary" data-aipkit-unified-model-summary aria-live="polite"></span>
-                <a
-                    class="aipkit_unified_model_manage_link"
-                    href="<?php echo esc_url($aipkit_unified_model_manage_url); ?>"
-                    data-aipkit-open-module="settings"
-                    data-aipkit-settings-page="ai"
-                >
-                    <?php esc_html_e('Manage providers', 'gpt3-ai-content-generator'); ?>
-                    <span aria-hidden="true">↗</span>
-                </a>
+                <?php if ($aipkit_unified_model_show_manage_link) : ?>
+                    <a
+                        class="aipkit_unified_model_manage_link"
+                        href="<?php echo esc_url($aipkit_unified_model_manage_url); ?>"
+                        data-aipkit-open-module="settings"
+                        data-aipkit-settings-page="ai"
+                    >
+                        <?php esc_html_e('Manage providers', 'gpt3-ai-content-generator'); ?>
+                        <span aria-hidden="true">↗</span>
+                    </a>
+                <?php endif; ?>
             </div>
         </div>
     </div>

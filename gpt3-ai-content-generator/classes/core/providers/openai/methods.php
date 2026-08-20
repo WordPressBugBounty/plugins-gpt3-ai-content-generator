@@ -7,6 +7,8 @@ use WP_Error;
 use WPAICG\Core\Providers\OpenAI\OpenAIPayloadFormatter; // Use the new Formatter class
 use WPAICG\Core\AIPKit_OpenAI_Reasoning;
 use WPAICG\Core\Providers\OpenAI\OpenAIResponseParser; // Use the new Parser
+use WPAICG\Core\Providers\OpenAI\OpenAIApiMode;
+use WPAICG\Core\Providers\OpenAI\OpenAIChatCompletionsAdapter;
 use WPAICG\Core\AIPKit_Models_API; // Need this for grouping
 use function WPAICG\Core\Providers\Shared\extract_sse_event_blocks;
 use function WPAICG\Core\Providers\Shared\decode_event_type_sse_event_block;
@@ -26,10 +28,12 @@ if (!defined('ABSPATH')) {
  * @return string|WP_Error The full URL or WP_Error.
  */
 function build_api_url_logic(OpenAIProviderStrategy $strategyInstance, string $operation, array $params) {
-    // The operation for OpenAI's standard chat/stream is 'responses' in the Responses API,
-    // but the general ProviderStrategyInterface might use 'chat' or 'stream'.
-    // We map 'chat' or 'stream' to 'responses' for the OpenAIUrlBuilder.
-    $url_operation_key = ($operation === 'chat' || $operation === 'stream') ? 'responses' : $operation;
+    $url_operation_key = $operation;
+    if ($operation === 'chat' || $operation === 'stream') {
+        $url_operation_key = OpenAIApiMode::is_chat_completions($params['api_mode'] ?? null)
+            ? 'chat_completions'
+            : 'responses';
+    }
     return OpenAIUrlBuilder::build($url_operation_key, $params);
 }
 
@@ -51,6 +55,12 @@ function build_sse_payload_logic(
     array $ai_params,
     string $model
 ): array {
+    if (OpenAIApiMode::is_chat_completions($ai_params['api_mode'] ?? null)) {
+        $adapter = new OpenAIChatCompletionsAdapter();
+        $instructions = is_string($system_instruction) ? $system_instruction : '';
+        return $adapter->format_sse($messages, $instructions, $ai_params, $model);
+    }
+
     $use_openai_conversation_state = $ai_params['use_openai_conversation_state'] ?? false;
     $previous_response_id = $ai_params['previous_response_id'] ?? null;
     // Web search config is already part of $ai_params if set by SSERequestHandler
@@ -72,6 +82,7 @@ function build_logic_for_url_builder(string $operation, array $params) {
 
     $paths = [
         'responses'           => '/responses',
+        'chat_completions'    => '/chat/completions',
         'models'              => '/models',
         'moderation'          => OpenAIUrlBuilder::MODERATION_ENDPOINT,
         'audio/speech'        => OpenAIUrlBuilder::SPEECH_ENDPOINT,
@@ -683,6 +694,11 @@ function format_chat_payload_logic(
     array $ai_params,
     string $model
 ): array {
+    if (OpenAIApiMode::is_chat_completions($ai_params['api_mode'] ?? null)) {
+        $adapter = new OpenAIChatCompletionsAdapter();
+        return $adapter->format_chat($instructions, $history, $user_message, $ai_params, $model);
+    }
+
     $use_openai_conversation_state = $ai_params['use_openai_conversation_state'] ?? false;
     $previous_response_id = $ai_params['previous_response_id'] ?? null;
     // Web search config is already part of $ai_params if set by AIService/SSERequestHandler
@@ -1274,6 +1290,13 @@ function map_sse_event_logic_for_response_parser(array $decoded_event): array {
         ];
     }
 
+    if (
+        $event_type === 'message'
+        && (isset($payload['choices']) || isset($payload['usage']))
+    ) {
+        return map_chat_completions_sse_event_logic_for_response_parser($payload);
+    }
+
     $annotation_citations = extract_openai_citations_from_event_payload_logic_for_response_parser($payload, false);
 
     switch ($event_type) {
@@ -1373,6 +1396,48 @@ function map_sse_event_logic_for_response_parser(array $decoded_event): array {
                 'event' => $event_type,
             ];
     }
+}
+
+/**
+ * Maps a data-only Chat Completions event into the same internal stream shape.
+ *
+ * @param array<string, mixed> $payload
+ * @return array<string, mixed>
+ */
+function map_chat_completions_sse_event_logic_for_response_parser(array $payload): array {
+    $choice = isset($payload['choices'][0]) && is_array($payload['choices'][0])
+        ? $payload['choices'][0]
+        : [];
+    $delta = isset($choice['delta']) && is_array($choice['delta'])
+        ? $choice['delta']
+        : [];
+    $text = isset($delta['content']) && $delta['content'] !== null
+        ? (string) $delta['content']
+        : '';
+    $finish_reason = isset($choice['finish_reason']) && is_string($choice['finish_reason'])
+        ? $choice['finish_reason']
+        : '';
+    $warning_text = $finish_reason === 'content_filter'
+        ? sprintf(' (%s)', __('Warning: Content Filtered', 'gpt3-ai-content-generator'))
+        : '';
+    $usage = null;
+
+    if (isset($payload['usage']) && is_array($payload['usage'])) {
+        $usage = [
+            'input_tokens' => $payload['usage']['prompt_tokens'] ?? 0,
+            'output_tokens' => $payload['usage']['completion_tokens'] ?? 0,
+            'total_tokens' => $payload['usage']['total_tokens'] ?? 0,
+            'provider_raw' => $payload['usage'],
+        ];
+    }
+
+    return [
+        'kind' => 'chat_completion',
+        'event' => 'message',
+        'text' => $text,
+        'usage' => $usage,
+        'warning_text' => $warning_text,
+    ];
 }
 
 /**
@@ -1498,6 +1563,11 @@ function parse_chat_response_logic(
     array $decoded_response,
     array $request_data
 ) {
+    if (isset($decoded_response['choices']) && is_array($decoded_response['choices'])) {
+        $adapter = new OpenAIChatCompletionsAdapter();
+        return $adapter->parse_chat($decoded_response, $request_data);
+    }
+
     $parsed = OpenAIResponseParser::parse_chat($decoded_response);
     // Add OpenAI specific 'id' to the parsed response if available
     if (!is_wp_error($parsed) && isset($decoded_response['id'])) {
@@ -1616,17 +1686,31 @@ function parse_error_response_logic(
  */
 function parse_error_logic_for_response_parser($response_body, int $status_code): string {
     $message = __('An unknown API error occurred.', 'gpt3-ai-content-generator');
+    $decoded = null;
     if (is_string($response_body)) {
         $decoded = json_decode($response_body, true);
-        if (json_last_error() === JSON_ERROR_NONE && is_array($decoded) && isset($decoded['error']['message'])) {
-            $message = $decoded['error']['message'];
-            if (!empty($decoded['error']['code'])) { $message .= ' (Code: ' . $decoded['error']['code'] . ')';}
-        } else {
-             $message = substr($response_body, 0, 200);
+        if (json_last_error() !== JSON_ERROR_NONE || !is_array($decoded)) {
+            return trim(substr($response_body, 0, 200));
         }
-    } elseif (is_array($response_body) && isset($response_body['error']['message'])) {
-         $message = $response_body['error']['message'];
-         if (!empty($response_body['error']['code'])) { $message .= ' (Code: ' . $response_body['error']['code'] . ')';}
+    } elseif (is_array($response_body)) {
+        $decoded = $response_body;
+    }
+
+    if (is_array($decoded)) {
+        $error_code = '';
+        if (!empty($decoded['error']['message'])) {
+            $message = (string) $decoded['error']['message'];
+            $error_code = (string) ($decoded['error']['code'] ?? '');
+        } elseif (!empty($decoded['messages'][0]['message'])) {
+            $message = (string) $decoded['messages'][0]['message'];
+            $error_code = (string) ($decoded['messages'][0]['errorCode'] ?? '');
+        } elseif (!empty($decoded['message'])) {
+            $message = (string) $decoded['message'];
+            $error_code = (string) ($decoded['errorCode'] ?? '');
+        }
+        if ($error_code !== '') {
+            $message .= ' (Code: ' . $error_code . ')';
+        }
     }
     return trim($message);
 }
@@ -1717,6 +1801,16 @@ function prepare_parameters_and_history_logic(
     }
 
     $provDataOpenAI = AIPKit_Providers::get_provider_data('OpenAI');
+    $api_mode = OpenAIApiMode::normalize($provDataOpenAI['api_mode'] ?? null);
+    $ai_params['api_mode'] = $api_mode;
+
+    if (OpenAIApiMode::is_chat_completions($api_mode)) {
+        $ai_params['store_conversation'] = '0';
+        $ai_params['use_openai_conversation_state'] = false;
+        unset($ai_params['previous_response_id']);
+        return ['ai_params' => $ai_params, 'history' => $history];
+    }
+
     $ai_params['store_conversation'] = $provDataOpenAI['store_conversation'] ?? '0';
     $ai_params['use_openai_conversation_state'] = ($bot_settings['openai_conversation_state_enabled'] ?? '0') === '1';
 
@@ -1784,6 +1878,26 @@ function reduce_sse_event_logic_for_response_parser(array $mapped_event, array &
                     $result['delta'] = '';
                 }
                 $result['delta'] .= $text;
+            }
+            return false;
+
+        case 'chat_completion':
+            $text = isset($mapped_event['text']) ? (string) $mapped_event['text'] : '';
+            if ($text !== '') {
+                if ($result['delta'] === null) {
+                    $result['delta'] = '';
+                }
+                $result['delta'] .= $text;
+            }
+            if (isset($mapped_event['usage']) && is_array($mapped_event['usage'])) {
+                $result['usage'] = $mapped_event['usage'];
+            }
+            if (!empty($mapped_event['warning_text'])) {
+                if ($result['delta'] === null) {
+                    $result['delta'] = '';
+                }
+                $result['delta'] .= (string) $mapped_event['warning_text'];
+                $result['is_warning'] = true;
             }
             return false;
 

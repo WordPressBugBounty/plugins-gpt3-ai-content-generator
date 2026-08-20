@@ -27,6 +27,8 @@ class Provider_Dependencies_Loader
         require_once $traits_path . 'trait-aipkit-chat-completions-sse-parser.php';
 
         // Load OpenAI provider and its component wrappers.
+        require_once $providers_path . 'openai/class-openai-api-mode.php';
+        require_once $providers_path . 'openai/class-openai-chat-completions-adapter.php';
         require_once $providers_path . 'openai/bootstrap-provider-strategy.php';
 
 

@@ -383,6 +383,8 @@ class SettingsAjaxHandler extends BaseDashboardAjaxHandler
                     // Sanitize based on key
                     if (in_array($key, ['base_url', 'endpoint', 'url'], true)) {
                         $sanitized_value = esc_url_raw($value_from_post);
+                    } elseif ($provider_name === 'OpenAI' && $key === 'api_mode') {
+                        $sanitized_value = AIPKit_Providers::normalize_openai_api_mode($value_from_post);
                     } elseif ($key === 'store_conversation') {
                         $sanitized_value = ($value_from_post === '1' ? '1' : '0');
                     } elseif ($key === 'expiration_policy') {
@@ -1259,6 +1261,10 @@ class SettingsAjaxHandler extends BaseDashboardAjaxHandler
      */
     private function sanitize_provider_value_by_key(string $provider_key, $raw_value, $default_value)
     {
+        if ($provider_key === 'api_mode') {
+            return AIPKit_Providers::normalize_openai_api_mode($raw_value);
+        }
+
         if ($provider_key === 'store_conversation') {
             return ((string) $raw_value === '1') ? '1' : '0';
         }

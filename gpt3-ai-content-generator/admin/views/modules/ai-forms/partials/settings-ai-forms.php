@@ -122,7 +122,6 @@ $secondary_action_show_url = $token_limit_secondary_action_type === 'custom_url'
         $aipkit_token_limits_section_id_prefix = 'aipkit_ai_forms_settings_section';
         $aipkit_token_limits_field_id_prefix = 'aipkit_aiforms_token';
         $aipkit_token_limits_field_name_prefix = 'aiforms_token';
-        $aipkit_token_limits_reset_period_row_extra_class = '';
         include WPAICG_PLUGIN_DIR . 'admin/views/modules/shared/token-limits-settings-section.php';
         ?>
 

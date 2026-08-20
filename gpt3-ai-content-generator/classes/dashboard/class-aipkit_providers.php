@@ -6,10 +6,15 @@ namespace WPAICG;
 use WPAICG\Core\Models\AIPKit_Model_Registry;
 use WPAICG\Core\Models\AIPKit_Model_Catalog;
 use WPAICG\Core\Providers\Google\Interactions\GoogleModelCapabilityClassifier;
+use WPAICG\Core\Providers\OpenAI\OpenAIApiMode;
 use WPAICG\Vector\AIPKit_Vector_Store_Registry;
 
 if (!defined('ABSPATH')) {
     exit;
+}
+
+if (!class_exists(OpenAIApiMode::class)) {
+    require_once WPAICG_PLUGIN_DIR . 'classes/core/providers/openai/class-openai-api-mode.php';
 }
 
 /**
@@ -22,6 +27,7 @@ class AIPKit_Providers
             'api_key' => '', 'model' => '', 'embedding_model' => '',
             // phpcs:ignore PluginCheck.CodeAnalysis.AIProvider.DirectIntegration -- Configurable provider endpoint.
             'base_url' => 'https://api.openai.com', 'api_version' => 'v1',
+            'api_mode' => OpenAIApiMode::RESPONSES,
             'store_conversation' => '0',
             'expiration_policy' => 7, // NEW: Default expiration policy in days
         ],
@@ -139,6 +145,11 @@ class AIPKit_Providers
         }
 
         return $provider;
+    }
+
+    public static function normalize_openai_api_mode($mode): string
+    {
+        return OpenAIApiMode::normalize($mode);
     }
 
     public static function get_provider_display_name(string $provider): string
@@ -1041,6 +1052,9 @@ class AIPKit_Providers
         if ($provider === 'Google' && isset($provider_data['model'])) {
             $provider_data['model'] = self::normalize_google_text_model((string) $provider_data['model']);
         }
+        if ($provider === 'OpenAI') {
+            $provider_data['api_mode'] = self::normalize_openai_api_mode($provider_data['api_mode'] ?? null);
+        }
 
         return $provider_data;
     }
@@ -1125,6 +1139,8 @@ class AIPKit_Providers
                 // Sanitize based on key
                 if (in_array($key, ['base_url', 'endpoint', 'url'], true)) {
                     $new_value = esc_url_raw($new_value);
+                } elseif ($provider === 'OpenAI' && $key === 'api_mode') {
+                    $new_value = self::normalize_openai_api_mode($new_value);
                 } elseif ($key === 'store_conversation') {
                     $new_value = ($new_value === '1' ? '1' : '0');
                 } elseif ($key === 'expiration_policy') {

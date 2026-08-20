@@ -242,6 +242,7 @@ class DashboardAssets extends AIPKit_Admin_Asset_Base
         $recommended_models = [];
         $provider_status = [];
         $new_ai_selection = [];
+        $openai_api_mode = 'responses';
         $model_catalog_config = class_exists(\WPAICG\Core\Models\AIPKit_Model_Catalog::class)
             ? \WPAICG\Core\Models\AIPKit_Model_Catalog::get_client_config()
             : [
@@ -275,6 +276,8 @@ class DashboardAssets extends AIPKit_Admin_Asset_Base
             ];
 
             $current_provider = strtolower(AIPKit_Providers::get_current_provider());
+            $openai_provider_data = AIPKit_Providers::get_provider_data('OpenAI');
+            $openai_api_mode = AIPKit_Providers::normalize_openai_api_mode($openai_provider_data['api_mode'] ?? null);
             $new_ai_selection = AIPKit_Providers::get_new_text_generation_selection();
             $provider_status = AIPKit_Providers::get_provider_status_map();
             $provider_connection_states = AIPKit_Providers::get_provider_connection_states();
@@ -300,6 +303,7 @@ class DashboardAssets extends AIPKit_Admin_Asset_Base
             'upgradeUrl' => admin_url('admin.php?page=wpaicg-pricing'),
             'adminUrl' => admin_url(),
             'main_provider' => $current_provider,
+            'openaiApiMode' => $openai_api_mode,
             'models' => [
                 'openai' => $openai_models,
                 'google' => $google_models,

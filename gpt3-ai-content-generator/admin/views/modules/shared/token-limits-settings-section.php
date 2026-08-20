@@ -14,12 +14,6 @@ $aipkit_token_limits_field_id_prefix = isset($aipkit_token_limits_field_id_prefi
 $aipkit_token_limits_field_name_prefix = isset($aipkit_token_limits_field_name_prefix)
     ? preg_replace('/[^A-Za-z0-9_]/', '', (string) $aipkit_token_limits_field_name_prefix)
     : '';
-$aipkit_token_limits_reset_period_row_extra_class = isset($aipkit_token_limits_reset_period_row_extra_class)
-    ? sanitize_html_class((string) $aipkit_token_limits_reset_period_row_extra_class)
-    : '';
-$aipkit_token_limits_reset_period_row_extra_class = $aipkit_token_limits_reset_period_row_extra_class !== ''
-    ? ' ' . $aipkit_token_limits_reset_period_row_extra_class
-    : '';
 $aipkit_settings_section_is_modern = isset($aipkit_settings_section_variant)
     && $aipkit_settings_section_variant === 'ai-forms-modern';
 $aipkit_settings_section_classes = $aipkit_settings_section_is_modern
@@ -37,6 +31,7 @@ $aipkit_settings_section_helper_class = $aipkit_settings_section_is_modern
 $aipkit_settings_section_body_class = $aipkit_settings_section_is_modern
     ? 'aipkit_ai_forms_settings_surface_body'
     : 'aipkit_ai_forms_settings_block_body';
+$aipkit_settings_section_is_initially_hidden = !empty($aipkit_settings_section_initially_hidden);
 
 $aipkit_token_limits_id = static function (string $suffix) use ($aipkit_token_limits_field_id_prefix): string {
     return $aipkit_token_limits_field_id_prefix . '_' . $suffix;
@@ -47,6 +42,61 @@ $aipkit_token_limits_name = static function (string $suffix) use ($aipkit_token_
 $aipkit_token_limits_default_label = static function (string $action_type): string {
     return \WPAICG\Chat\Storage\BotSettingsManager::get_token_limit_action_default_label($action_type);
 };
+$aipkit_customer_dashboard_url_ready = esc_url_raw(trim((string) get_option('aipkit_token_dashboard_page_url', ''))) !== '';
+$aipkit_buy_credits_url = trim((string) get_option('aipkit_token_shop_page_url', ''));
+if ($aipkit_buy_credits_url === '' && function_exists('wc_get_page_id')) {
+    $aipkit_shop_page_id = wc_get_page_id('shop');
+    if ($aipkit_shop_page_id && $aipkit_shop_page_id > 0) {
+        $aipkit_buy_credits_url = trim((string) get_permalink($aipkit_shop_page_id));
+    }
+}
+$aipkit_buy_credits_url_ready = esc_url_raw($aipkit_buy_credits_url) !== '';
+$aipkit_customer_access_settings_url = add_query_arg(
+    [
+        'page' => 'wpaicg',
+        'aipkit_module' => 'stats',
+        'aipkit_stats_tab' => 'woocommerce',
+    ],
+    admin_url('admin.php')
+);
+$aipkit_render_limit_action_notice = static function () use (
+    $aipkit_buy_credits_url_ready,
+    $aipkit_customer_dashboard_url_ready,
+    $aipkit_customer_access_settings_url
+): void {
+    ?>
+    <div
+        class="aipkit_limit_action_notice"
+        data-aipkit-limit-action-notice
+        data-buy-credits-ready="<?php echo esc_attr($aipkit_buy_credits_url_ready ? 'true' : 'false'); ?>"
+        data-dashboard-ready="<?php echo esc_attr($aipkit_customer_dashboard_url_ready ? 'true' : 'false'); ?>"
+        role="status"
+        aria-live="polite"
+        hidden
+    >
+        <span class="dashicons dashicons-info-outline aipkit_limit_action_notice_icon" aria-hidden="true"></span>
+        <span class="aipkit_limit_action_notice_content">
+            <span data-aipkit-limit-action-message="buy_credits" hidden>
+                <?php esc_html_e('Set a Default buy credits URL or assign a published WooCommerce Shop page. Until then, this button will not appear.', 'gpt3-ai-content-generator'); ?>
+            </span>
+            <span data-aipkit-limit-action-message="dashboard" hidden>
+                <?php esc_html_e('Set the Customer dashboard URL. Until then, this button will not appear.', 'gpt3-ai-content-generator'); ?>
+            </span>
+            <span data-aipkit-limit-action-message="custom_url" hidden>
+                <?php esc_html_e('Enter a valid destination in the URL field directly below. Until then, this button will not appear.', 'gpt3-ai-content-generator'); ?>
+            </span>
+            <a
+                class="aipkit_limit_action_notice_link"
+                href="<?php echo esc_url($aipkit_customer_access_settings_url); ?>"
+                data-aipkit-limit-action-settings-link
+            >
+                <?php esc_html_e('Configure customer access', 'gpt3-ai-content-generator'); ?>
+                <span aria-hidden="true">&rarr;</span>
+            </a>
+        </span>
+    </div>
+    <?php
+};
 ?>
 <section
     class="<?php echo esc_attr($aipkit_settings_section_classes); ?>"
@@ -54,6 +104,7 @@ $aipkit_token_limits_default_label = static function (string $action_type): stri
     role="tabpanel"
     aria-labelledby="<?php echo esc_attr($aipkit_token_limits_section_id_prefix . '_tab_limits'); ?>"
     data-aipkit-settings-module-tab-panel="limits"
+    <?php echo $aipkit_settings_section_is_initially_hidden ? 'hidden' : ''; ?>
 >
     <div class="<?php echo esc_attr($aipkit_settings_section_header_class); ?>">
         <div>
@@ -118,7 +169,7 @@ $aipkit_token_limits_default_label = static function (string $action_type): stri
             />
         </div>
 
-        <div class="aipkit_ai_forms_settings_row<?php echo esc_attr($aipkit_token_limits_reset_period_row_extra_class); ?>">
+        <div class="aipkit_ai_forms_settings_row">
             <label class="aipkit_form-label" for="<?php echo esc_attr($aipkit_token_limits_id('reset_period')); ?>">
                 <?php esc_html_e('Reset period', 'gpt3-ai-content-generator'); ?>
                 <span class="aipkit_form-label-helper"><?php esc_html_e('How often usage resets.', 'gpt3-ai-content-generator'); ?></span>
@@ -203,6 +254,7 @@ $aipkit_token_limits_default_label = static function (string $action_type): stri
                     </option>
                 <?php endforeach; ?>
             </select>
+            <?php $aipkit_render_limit_action_notice(); ?>
         </div>
 
         <div
@@ -265,6 +317,7 @@ $aipkit_token_limits_default_label = static function (string $action_type): stri
                     </option>
                 <?php endforeach; ?>
             </select>
+            <?php $aipkit_render_limit_action_notice(); ?>
         </div>
 
         <div

@@ -82,6 +82,11 @@ class AIPKit_Image_Manager
         Manager\Ajax\ajax_delete_generated_image_logic();
     }
 
+    public function ajax_toggle_generated_media_favorite()
+    {
+        Manager\Ajax\ajax_toggle_generated_media_favorite_logic();
+    }
+
     public function ajax_load_more_image_history()
     {
         Manager\Ajax\ajax_load_more_image_history_logic();

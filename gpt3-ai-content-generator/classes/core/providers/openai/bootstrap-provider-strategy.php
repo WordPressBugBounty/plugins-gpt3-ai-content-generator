@@ -10,6 +10,10 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
+require_once __DIR__ . '/class-openai-api-mode.php';
+require_once dirname(__DIR__) . '/traits/trait-aipkit-chat-completions-payload.php';
+require_once dirname(__DIR__) . '/traits/trait-aipkit-chat-completions-response-parser.php';
+require_once __DIR__ . '/class-openai-chat-completions-adapter.php';
 require_once __DIR__ . '/methods.php';
 
 class OpenAIUrlBuilder {

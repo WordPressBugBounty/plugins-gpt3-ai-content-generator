@@ -26,17 +26,16 @@ $ui_text_defaults = AIPKit_Image_Settings_Ajax_Handler::get_default_ui_text_sett
 
 $default_css_template = "/* --- AIPKit Image Generator Custom CSS Example --- */
 .aipkit_image_generator_public_wrapper.aipkit-theme-custom {
-    background-color: #f0f4f8;
-    border: 1px solid #d1d9e4;
-    color: #2c3e50;
-}
-.aipkit_image_generator_public_wrapper.aipkit-theme-custom .aipkit_image_generator_input_bar {
-    background-color: #ffffff;
-    border: 1px solid #d1d9e4;
-}
-.aipkit_image_generator_public_wrapper.aipkit-theme-custom .aipkit_btn-primary {
-    background-color: #3498db;
-    border-color: #2980b9;
+    --aipkit-image-surface: #ffffff;
+    --aipkit-image-surface-subtle: #f5f7fa;
+    --aipkit-image-surface-raised: #ffffff;
+    --aipkit-image-border: #d7dee8;
+    --aipkit-image-border-strong: #bdc8d6;
+    --aipkit-image-text: #253246;
+    --aipkit-image-muted: #66758a;
+    --aipkit-image-faint: #91a0b4;
+    --aipkit-image-accent: #356ae6;
+    --aipkit-image-accent-hover: #2858ca;
 }
 ";
 
@@ -84,29 +83,15 @@ $ui_text_fields = [
         'id' => 'aipkit_image_ui_text_generate_label',
         'name' => 'ui_text_generate_label',
         'key' => 'generate_label',
-        'label' => __('Generate button', 'gpt3-ai-content-generator'),
-        'helper' => __('Generate action label.', 'gpt3-ai-content-generator'),
+        'label' => __('Generate action', 'gpt3-ai-content-generator'),
+        'helper' => __('Accessible label for the send button.', 'gpt3-ai-content-generator'),
     ],
     [
         'id' => 'aipkit_image_ui_text_edit_label',
         'name' => 'ui_text_edit_label',
         'key' => 'edit_label',
-        'label' => __('Edit button', 'gpt3-ai-content-generator'),
-        'helper' => __('Edit action label.', 'gpt3-ai-content-generator'),
-    ],
-    [
-        'id' => 'aipkit_image_ui_text_mode_generate_label',
-        'name' => 'ui_text_mode_generate_label',
-        'key' => 'mode_generate_label',
-        'label' => __('Generate tab', 'gpt3-ai-content-generator'),
-        'helper' => __('Generate mode label.', 'gpt3-ai-content-generator'),
-    ],
-    [
-        'id' => 'aipkit_image_ui_text_mode_edit_label',
-        'name' => 'ui_text_mode_edit_label',
-        'key' => 'mode_edit_label',
-        'label' => __('Edit tab', 'gpt3-ai-content-generator'),
-        'helper' => __('Edit mode label.', 'gpt3-ai-content-generator'),
+        'label' => __('Edit action', 'gpt3-ai-content-generator'),
+        'helper' => __('Accessible label for the send button with an attachment.', 'gpt3-ai-content-generator'),
     ],
     [
         'id' => 'aipkit_image_ui_text_generate_placeholder',
@@ -123,67 +108,46 @@ $ui_text_fields = [
         'helper' => __('Edit prompt hint.', 'gpt3-ai-content-generator'),
     ],
     [
-        'id' => 'aipkit_image_ui_text_source_image_label',
-        'name' => 'ui_text_source_image_label',
-        'key' => 'source_image_label',
-        'label' => __('Source image', 'gpt3-ai-content-generator'),
-        'helper' => __('Upload field label.', 'gpt3-ai-content-generator'),
-    ],
-    [
-        'id' => 'aipkit_image_ui_text_upload_dropzone_title',
-        'name' => 'ui_text_upload_dropzone_title',
-        'key' => 'upload_dropzone_title',
-        'label' => __('Upload title', 'gpt3-ai-content-generator'),
-        'helper' => __('Dropzone title.', 'gpt3-ai-content-generator'),
-    ],
-    [
-        'id' => 'aipkit_image_ui_text_upload_dropzone_meta',
-        'name' => 'ui_text_upload_dropzone_meta',
-        'key' => 'upload_dropzone_meta',
-        'label' => __('Upload meta', 'gpt3-ai-content-generator'),
-        'helper' => __('Dropzone helper line.', 'gpt3-ai-content-generator'),
-    ],
-    [
-        'id' => 'aipkit_image_ui_text_upload_hint',
-        'name' => 'ui_text_upload_hint',
-        'key' => 'upload_hint',
-        'label' => __('Upload helper', 'gpt3-ai-content-generator'),
-        'helper' => __('Upload guidance text.', 'gpt3-ai-content-generator'),
-    ],
-    [
         'id' => 'aipkit_image_ui_text_history_title',
         'name' => 'ui_text_history_title',
         'key' => 'history_title',
         'label' => __('History title', 'gpt3-ai-content-generator'),
         'helper' => __('User history heading.', 'gpt3-ai-content-generator'),
     ],
-    [
-        'id' => 'aipkit_image_ui_text_results_empty',
-        'name' => 'ui_text_results_empty',
-        'key' => 'results_empty',
-        'label' => __('Empty results', 'gpt3-ai-content-generator'),
-        'helper' => __('Shown before results.', 'gpt3-ai-content-generator'),
-    ],
 ];
 ?>
 <form id="aipkit_image_generator_settings_form" class="aipkit_ai_forms_settings_form aipkit_image_generator_settings_form" onsubmit="return false;">
     <input type="hidden" name="_ajax_nonce" value="<?php echo esc_attr($settings_nonce); ?>">
     <div class="aipkit_ai_forms_settings_page" data-aipkit-settings-module-tab-scope="image-generator">
-        <div class="aipkit_settings_module_tabs" role="tablist" aria-label="<?php esc_attr_e('Image Generator settings', 'gpt3-ai-content-generator'); ?>" data-aipkit-settings-module-tabs="image-generator">
+        <div class="aipkit_image_generator_settings_tabs" role="tablist" aria-label="<?php esc_attr_e('Image Generator settings', 'gpt3-ai-content-generator'); ?>" data-aipkit-settings-module-tabs="image-generator">
             <button
                 type="button"
-                class="aipkit_settings_module_tab aipkit_active"
-                id="aipkit_image_generator_settings_section_tab_limits"
+                class="aipkit_image_generator_settings_tab aipkit_active"
+                id="aipkit_image_generator_settings_section_tab_shortcode"
                 role="tab"
                 aria-selected="true"
-                aria-controls="aipkit_image_generator_settings_section_limits"
-                data-aipkit-settings-module-tab="limits"
+                aria-controls="aipkit_image_generator_settings_section_shortcode"
+                data-aipkit-settings-module-tab="shortcode"
             >
-                <?php esc_html_e('Limits', 'gpt3-ai-content-generator'); ?>
+                <span class="dashicons dashicons-shortcode" aria-hidden="true"></span>
+                <span><?php esc_html_e('Shortcode', 'gpt3-ai-content-generator'); ?></span>
             </button>
             <button
                 type="button"
-                class="aipkit_settings_module_tab"
+                class="aipkit_image_generator_settings_tab"
+                id="aipkit_image_generator_settings_section_tab_limits"
+                role="tab"
+                aria-selected="false"
+                aria-controls="aipkit_image_generator_settings_section_limits"
+                data-aipkit-settings-module-tab="limits"
+                tabindex="-1"
+            >
+                <span class="dashicons dashicons-chart-pie" aria-hidden="true"></span>
+                <span><?php esc_html_e('Limits', 'gpt3-ai-content-generator'); ?></span>
+            </button>
+            <button
+                type="button"
+                class="aipkit_image_generator_settings_tab"
                 id="aipkit_image_generator_settings_section_tab_ui_text"
                 role="tab"
                 aria-selected="false"
@@ -191,11 +155,12 @@ $ui_text_fields = [
                 data-aipkit-settings-module-tab="ui-text"
                 tabindex="-1"
             >
-                <?php esc_html_e('UI Text', 'gpt3-ai-content-generator'); ?>
+                <span class="dashicons dashicons-editor-textcolor" aria-hidden="true"></span>
+                <span><?php esc_html_e('UI Text', 'gpt3-ai-content-generator'); ?></span>
             </button>
             <button
                 type="button"
-                class="aipkit_settings_module_tab"
+                class="aipkit_image_generator_settings_tab"
                 id="aipkit_image_generator_settings_section_tab_custom_css"
                 role="tab"
                 aria-selected="false"
@@ -203,11 +168,12 @@ $ui_text_fields = [
                 data-aipkit-settings-module-tab="custom-css"
                 tabindex="-1"
             >
-                <?php esc_html_e('Custom CSS', 'gpt3-ai-content-generator'); ?>
+                <span class="dashicons dashicons-editor-code" aria-hidden="true"></span>
+                <span><?php esc_html_e('Custom CSS', 'gpt3-ai-content-generator'); ?></span>
             </button>
             <button
                 type="button"
-                class="aipkit_settings_module_tab"
+                class="aipkit_image_generator_settings_tab"
                 id="aipkit_image_generator_settings_section_tab_frontend_models"
                 role="tab"
                 aria-selected="false"
@@ -215,32 +181,36 @@ $ui_text_fields = [
                 data-aipkit-settings-module-tab="frontend-models"
                 tabindex="-1"
             >
-                <?php esc_html_e('Frontend Models', 'gpt3-ai-content-generator'); ?>
+                <span class="dashicons dashicons-admin-network" aria-hidden="true"></span>
+                <span><?php esc_html_e('Frontend Models', 'gpt3-ai-content-generator'); ?></span>
             </button>
         </div>
+        <div id="aipkit_image_generator_settings_content" class="aipkit_image_generator_settings_content">
         <?php
+        $aipkit_settings_section_variant = 'ai-forms-modern';
         $aipkit_token_limits_section_id_prefix = 'aipkit_image_generator_settings_section';
         $aipkit_token_limits_field_id_prefix = 'aipkit_image_token';
         $aipkit_token_limits_field_name_prefix = 'image_token';
-        $aipkit_token_limits_reset_period_row_extra_class = 'aipkit_token_reset_period_row';
+        $aipkit_settings_section_initially_hidden = true;
         include WPAICG_PLUGIN_DIR . 'admin/views/modules/shared/token-limits-settings-section.php';
+        unset($aipkit_settings_section_initially_hidden);
         ?>
 
         <section
-            class="aipkit_ai_forms_settings_block aipkit_settings_module_tab_panel"
+            class="aipkit_ai_forms_settings_surface aipkit_ai_forms_settings_tab_panel"
             id="aipkit_image_generator_settings_section_ui_text"
             role="tabpanel"
             aria-labelledby="aipkit_image_generator_settings_section_tab_ui_text"
             data-aipkit-settings-module-tab-panel="ui-text"
             hidden
         >
-            <div class="aipkit_ai_forms_settings_block_header">
+            <div class="aipkit_ai_forms_settings_surface_header">
                 <div>
-                    <h3 class="aipkit_ai_forms_settings_block_title"><?php esc_html_e('UI text', 'gpt3-ai-content-generator'); ?></h3>
-                    <p class="aipkit_ai_forms_settings_block_helper"><?php esc_html_e('Frontend labels and placeholders.', 'gpt3-ai-content-generator'); ?></p>
+                    <h3 class="aipkit_ai_forms_settings_surface_title"><?php esc_html_e('UI text', 'gpt3-ai-content-generator'); ?></h3>
+                    <p class="aipkit_ai_forms_settings_surface_helper"><?php esc_html_e('Frontend labels and placeholders.', 'gpt3-ai-content-generator'); ?></p>
                 </div>
             </div>
-            <div class="aipkit_ai_forms_settings_block_body">
+            <div class="aipkit_ai_forms_settings_surface_body">
                 <?php foreach ($ui_text_fields as $field) : ?>
                     <div class="aipkit_ai_forms_settings_row">
                         <label class="aipkit_form-label" for="<?php echo esc_attr($field['id']); ?>">
@@ -275,6 +245,105 @@ $ui_text_fields = [
         $aipkit_frontend_models_selector_id = 'aipkit_image_gen_models_selector';
         $aipkit_frontend_models_empty_all_selected = $allowed_models_str === '';
         include WPAICG_PLUGIN_DIR . 'admin/views/modules/shared/frontend-models-settings-section.php';
+        unset($aipkit_settings_section_variant);
         ?>
+
+        <section
+            class="aipkit_ai_forms_settings_surface aipkit_ai_forms_settings_tab_panel"
+            id="aipkit_image_generator_settings_section_shortcode"
+            role="tabpanel"
+            aria-labelledby="aipkit_image_generator_settings_section_tab_shortcode"
+            data-aipkit-settings-module-tab-panel="shortcode"
+        >
+            <div class="aipkit_ai_forms_settings_surface_header">
+                <div>
+                    <h3 class="aipkit_ai_forms_settings_surface_title"><?php esc_html_e('Shortcode', 'gpt3-ai-content-generator'); ?></h3>
+                    <p class="aipkit_ai_forms_settings_surface_helper"><?php esc_html_e('Only this copy changes. Saved Image Generator settings stay unchanged.', 'gpt3-ai-content-generator'); ?></p>
+                </div>
+            </div>
+            <div class="aipkit_image_generator_shortcode_configurator" id="aipkit_image_generator_shortcode_configurator">
+                <div class="aipkit_image_generator_shortcode_preview_block" data-aipkit-shortcode-preview-block>
+                    <div class="aipkit_image_generator_shortcode_live_label">
+                        <span class="aipkit_image_generator_shortcode_live_dot" aria-hidden="true"></span>
+                        <span><?php esc_html_e('Updates live', 'gpt3-ai-content-generator'); ?></span>
+                    </div>
+                    <div class="aipkit_image_generator_shortcode_preview_row">
+                        <output class="aipkit_image_generator_shortcode_preview" data-shortcode=""></output>
+                        <button
+                            type="button"
+                            class="aipkit_image_generator_shortcode_variant_copy"
+                            data-shortcode=""
+                            data-copied-label="<?php esc_attr_e('Copied', 'gpt3-ai-content-generator'); ?>"
+                            aria-label="<?php esc_attr_e('Copy shortcode', 'gpt3-ai-content-generator'); ?>"
+                        >
+                            <span class="aipkit_image_generator_shortcode_copy_default">
+                                <span class="dashicons dashicons-clipboard" aria-hidden="true"></span>
+                                <span class="aipkit_image_generator_shortcode_copy_text"><?php esc_html_e('Copy shortcode', 'gpt3-ai-content-generator'); ?></span>
+                            </span>
+                            <span class="aipkit_image_generator_shortcode_copy_success">
+                                <span class="dashicons dashicons-yes-alt" aria-hidden="true"></span>
+                                <span class="aipkit_image_generator_shortcode_copy_text"><?php esc_html_e('Copied', 'gpt3-ai-content-generator'); ?></span>
+                            </span>
+                            <span class="screen-reader-text" data-aipkit-shortcode-copy-live aria-live="polite"></span>
+                        </button>
+                    </div>
+                    <span class="screen-reader-text" data-aipkit-shortcode-announcer aria-live="polite" aria-atomic="true"></span>
+                </div>
+
+                <div class="aipkit_ai_forms_settings_surface_body aipkit_image_generator_shortcode_options">
+                    <div class="aipkit_ai_forms_settings_row aipkit_image_generator_shortcode_option">
+                        <span class="aipkit_form-label">
+                            <?php esc_html_e('Allow visitor model selection', 'gpt3-ai-content-generator'); ?>
+                            <span class="aipkit_form-label-helper"><?php esc_html_e('Uses models enabled under Frontend Models.', 'gpt3-ai-content-generator'); ?></span>
+                        </span>
+                        <label class="aipkit_switch">
+                            <input type="checkbox" data-aipkit-shortcode-option="allow-model-selection" class="aipkit_toggle_switch aipkit_image_generator_shortcode_input" value="1" aria-label="<?php esc_attr_e('Allow visitor model selection', 'gpt3-ai-content-generator'); ?>" checked>
+                            <span class="aipkit_switch_slider"></span>
+                        </label>
+                    </div>
+                    <div class="aipkit_ai_forms_settings_row aipkit_image_generator_shortcode_option">
+                        <span class="aipkit_form-label">
+                            <?php esc_html_e('Show user history', 'gpt3-ai-content-generator'); ?>
+                            <span class="aipkit_form-label-helper"><?php esc_html_e('Displays saved generations for logged-in users.', 'gpt3-ai-content-generator'); ?></span>
+                        </span>
+                        <label class="aipkit_switch">
+                            <input type="checkbox" data-aipkit-shortcode-option="show-history" class="aipkit_toggle_switch aipkit_image_generator_shortcode_input" value="1" aria-label="<?php esc_attr_e('Show user history', 'gpt3-ai-content-generator'); ?>">
+                            <span class="aipkit_switch_slider"></span>
+                        </label>
+                    </div>
+                    <div class="aipkit_ai_forms_settings_row aipkit_image_generator_shortcode_option">
+                        <label class="aipkit_form-label" for="aipkit_image_generator_shortcode_mode">
+                            <?php esc_html_e('Available actions', 'gpt3-ai-content-generator'); ?>
+                            <span class="aipkit_form-label-helper"><?php esc_html_e('Choose what visitors can do.', 'gpt3-ai-content-generator'); ?></span>
+                        </label>
+                        <select id="aipkit_image_generator_shortcode_mode" data-aipkit-shortcode-option="mode" class="aipkit_form-input aipkit_ai_forms_settings_control aipkit_image_generator_shortcode_input">
+                            <option value="generate"><?php esc_html_e('Generate images', 'gpt3-ai-content-generator'); ?></option>
+                            <option value="edit"><?php esc_html_e('Edit images', 'gpt3-ai-content-generator'); ?></option>
+                            <option value="both" selected><?php esc_html_e('Generate and edit', 'gpt3-ai-content-generator'); ?></option>
+                        </select>
+                    </div>
+                    <div class="aipkit_ai_forms_settings_row aipkit_image_generator_shortcode_option">
+                        <label class="aipkit_form-label" for="aipkit_image_generator_shortcode_theme"><?php esc_html_e('Theme', 'gpt3-ai-content-generator'); ?></label>
+                        <select id="aipkit_image_generator_shortcode_theme" data-aipkit-shortcode-option="theme" class="aipkit_form-input aipkit_ai_forms_settings_control aipkit_image_generator_shortcode_input">
+                            <option value="light" selected><?php esc_html_e('Light', 'gpt3-ai-content-generator'); ?></option>
+                            <option value="dark"><?php esc_html_e('Dark', 'gpt3-ai-content-generator'); ?></option>
+                            <option value="custom"><?php esc_html_e('Custom', 'gpt3-ai-content-generator'); ?></option>
+                        </select>
+                    </div>
+                    <div class="aipkit_ai_forms_settings_row aipkit_image_generator_shortcode_option">
+                        <label class="aipkit_form-label" for="aipkit_image_generator_shortcode_font"><?php esc_html_e('Font', 'gpt3-ai-content-generator'); ?></label>
+                        <select id="aipkit_image_generator_shortcode_font" data-aipkit-shortcode-option="font" class="aipkit_form-input aipkit_ai_forms_settings_control aipkit_image_generator_shortcode_input">
+                            <option value="system" selected><?php esc_html_e('System UI', 'gpt3-ai-content-generator'); ?></option>
+                            <option value="theme"><?php esc_html_e('Match site theme', 'gpt3-ai-content-generator'); ?></option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="aipkit_image_generator_shortcode_footer">
+                    <button type="button" class="aipkit_image_generator_shortcode_reset"><?php esc_html_e('Reset to defaults', 'gpt3-ai-content-generator'); ?></button>
+                </div>
+            </div>
+        </section>
+        </div>
     </div>
 </form>

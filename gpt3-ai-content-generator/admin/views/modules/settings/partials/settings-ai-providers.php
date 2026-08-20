@@ -131,6 +131,18 @@ $aipkit_provider_configs = [
         'fields' => array_merge(
             [$aipkit_build_model_field('OpenAI', 'openai')],
             $aipkit_endpoint_fields('OpenAI', 'openai'),
+            [[
+                'id' => 'api_mode',
+                'type' => 'select',
+                'name' => 'openai_api_mode',
+                'label' => __('Chat API', 'gpt3-ai-content-generator'),
+                'description' => __('Choose the request format used for OpenAI-compatible chat endpoints.', 'gpt3-ai-content-generator'),
+                'value' => \WPAICG\AIPKit_Providers::normalize_openai_api_mode($openai_data['api_mode'] ?? null),
+                'options' => [
+                    'responses' => __('Responses API (recommended)', 'gpt3-ai-content-generator'),
+                    'chat_completions' => __('Chat Completions (compatibility)', 'gpt3-ai-content-generator'),
+                ],
+            ]],
             $is_pro ? [[
                 'id' => 'expiration_policy',
                 'type' => 'number',
@@ -719,7 +731,7 @@ $aipkit_get_advanced_fields = static function (array $config) use ($aipkit_commo
         if (in_array($aipkit_config_field_id, ['temperature', 'top_p'], true)) {
             $aipkit_section_key = 'generation';
         } elseif (
-            in_array($aipkit_config_field_id, ['base_url', 'api_version', 'endpoint', 'authoring_version', 'inference_version', 'images_version'], true)
+            in_array($aipkit_config_field_id, ['base_url', 'api_version', 'api_mode', 'endpoint', 'authoring_version', 'inference_version', 'images_version'], true)
         ) {
             $aipkit_section_key = 'endpoint';
         } elseif (
@@ -771,6 +783,7 @@ $aipkit_get_advanced_fields = static function (array $config) use ($aipkit_commo
                         ?>
                         <div
                             class="aipkit_settings_provider_modal_row"
+                            data-aipkit-provider-field-id="<?php echo esc_attr((string) $aipkit_field['id']); ?>"
                             <?php echo !empty($aipkit_field['row_id']) ? 'id="' . esc_attr((string) $aipkit_field['row_id']) . '"' : ''; ?>
                             <?php echo !empty($aipkit_field['hidden']) ? 'hidden' : ''; ?>
                         >
@@ -830,6 +843,14 @@ $aipkit_get_advanced_fields = static function (array $config) use ($aipkit_commo
                                 <?php endif; ?>
                             </div>
                         </div>
+                        <?php if ($aipkit_provider === 'OpenAI' && (string) $aipkit_field['id'] === 'api_mode') : ?>
+                            <div class="aipkit_settings_openai_api_mode_notice" data-aipkit-openai-api-mode-notice hidden>
+                                <span class="dashicons dashicons-info-outline" aria-hidden="true"></span>
+                                <span>
+                                    <?php esc_html_e('Compatibility mode uses /chat/completions. OpenAI-hosted File Search, Web Search, conversation storage/state, and Moderation API are not used. External Knowledge stores remain available.', 'gpt3-ai-content-generator'); ?>
+                                </span>
+                            </div>
+                        <?php endif; ?>
                     <?php endforeach; ?>
                             </div>
                         </section>

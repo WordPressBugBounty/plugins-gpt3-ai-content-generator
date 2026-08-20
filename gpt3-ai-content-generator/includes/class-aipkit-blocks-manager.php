@@ -145,6 +145,9 @@ class AIPKit_Blocks_Manager
             'editor_script' => self::EDITOR_SCRIPT_HANDLE,
             'render_callback' => [$this, 'render_image_generator_block'],
             'attributes' => [
+                'allowModelSelection' => [
+                    'type' => 'boolean',
+                ],
                 'showProvider' => [
                     'type' => 'boolean',
                     'default' => true,
@@ -171,7 +174,11 @@ class AIPKit_Blocks_Manager
                 ],
                 'theme' => [
                     'type' => 'string',
-                    'default' => 'dark',
+                    'default' => 'light',
+                ],
+                'font' => [
+                    'type' => 'string',
+                    'default' => 'system',
                 ],
             ],
             'supports' => [
@@ -245,20 +252,26 @@ class AIPKit_Blocks_Manager
             $mode = 'generate';
         }
 
-        $default_mode = isset($attributes['defaultMode']) ? sanitize_key((string) $attributes['defaultMode']) : 'generate';
-        if (!in_array($default_mode, ['generate', 'edit'], true)) {
-            $default_mode = 'generate';
-        }
-
-        $theme = isset($attributes['theme']) ? sanitize_key((string) $attributes['theme']) : 'dark';
+        $theme = isset($attributes['theme']) ? sanitize_key((string) $attributes['theme']) : 'light';
         if (!in_array($theme, ['light', 'dark', 'custom'], true)) {
-            $theme = 'dark';
+            $theme = 'light';
         }
 
-        $show_provider = !array_key_exists('showProvider', $attributes) || !empty($attributes['showProvider']);
-        $show_model = !array_key_exists('showModel', $attributes) || !empty($attributes['showModel']);
+        $font = isset($attributes['font']) ? sanitize_key((string) $attributes['font']) : 'system';
+        if (!in_array($font, ['theme', 'system'], true)) {
+            $font = 'system';
+        }
+
+        if (array_key_exists('allowModelSelection', $attributes)) {
+            $allow_model_selection = !empty($attributes['allowModelSelection']);
+            $show_provider = $allow_model_selection;
+            $show_model = $allow_model_selection;
+        } else {
+            // Preserve mixed visibility states saved by older Image Generator blocks.
+            $show_provider = !array_key_exists('showProvider', $attributes) || !empty($attributes['showProvider']);
+            $show_model = !array_key_exists('showModel', $attributes) || !empty($attributes['showModel']);
+        }
         $show_history = !empty($attributes['history']);
-        $show_mode_switch = !array_key_exists('showModeSwitch', $attributes) || !empty($attributes['showModeSwitch']);
 
         $shortcode = '[aipkit_image_generator';
 
@@ -274,14 +287,22 @@ class AIPKit_Blocks_Manager
         if ($mode !== 'generate') {
             $shortcode .= sprintf(' mode="%s"', $mode);
         }
-        if ($mode === 'both' && $default_mode !== 'generate') {
-            $shortcode .= sprintf(' default_mode="%s"', $default_mode);
+        if ($mode === 'both') {
+            $default_mode = isset($attributes['defaultMode'])
+                ? sanitize_key((string) $attributes['defaultMode'])
+                : 'generate';
+            if ($default_mode === 'edit') {
+                $shortcode .= ' default_mode="edit"';
+            }
+            if (array_key_exists('showModeSwitch', $attributes) && empty($attributes['showModeSwitch'])) {
+                $shortcode .= ' show_mode_switch="false"';
+            }
         }
-        if ($mode === 'both' && !$show_mode_switch) {
-            $shortcode .= ' show_mode_switch="false"';
-        }
-        if ($theme !== 'dark') {
+        if ($theme !== 'light') {
             $shortcode .= sprintf(' theme="%s"', $theme);
+        }
+        if ($font !== 'system') {
+            $shortcode .= sprintf(' font="%s"', $font);
         }
 
         $shortcode .= ']';
