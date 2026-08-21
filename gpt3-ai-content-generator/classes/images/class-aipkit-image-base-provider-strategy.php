@@ -55,6 +55,8 @@ abstract class AIPKit_Image_Base_Provider_Strategy implements AIPKit_Image_Provi
         if (is_array($decoded)) {
             if (!empty($decoded['error']['message'])) {
                 $message = $decoded['error']['message'];
+            } elseif (!empty($decoded['error']) && is_string($decoded['error'])) {
+                $message = $decoded['error'];
             } elseif (!empty($decoded['detail'])) {
                 $message = is_string($decoded['detail']) ? $decoded['detail'] : json_encode($decoded['detail']);
             } elseif (!empty($decoded['message'])) {

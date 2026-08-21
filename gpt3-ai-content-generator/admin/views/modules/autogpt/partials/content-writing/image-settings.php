@@ -170,39 +170,18 @@ $aipkit_cw_featured_image_prompt_item = $aipkit_cw_image_prompt_items['featured_
 
     <div class="aipkit_task_cw_image_settings_container" hidden>
         <div class="aipkit_autogpt_image_shared_settings">
-            <div class="aipkit_cw_image_row aipkit_autogpt_question_row aipkit_autogpt_image_source_family_row">
-                <div class="aipkit_cw_panel_label_wrap">
-                    <span class="aipkit_cw_panel_label aipkit_autogpt_question">
-                        <?php esc_html_e('Source', 'gpt3-ai-content-generator'); ?>
-                    </span>
-                </div>
-                <div class="aipkit_cw_image_control">
-                    <div class="aipkit_autogpt_compact_choices aipkit_autogpt_image_source_choices" role="group" aria-label="<?php esc_attr_e('Image source', 'gpt3-ai-content-generator'); ?>">
-                        <button type="button" class="aipkit_cw_mode_card is-active" data-aipkit-image-source-family="ai" aria-pressed="true">
-                            <?php esc_html_e('AI generated', 'gpt3-ai-content-generator'); ?>
-                        </button>
-                        <button type="button" class="aipkit_cw_mode_card" data-aipkit-image-source-family="stock" aria-pressed="false">
-                            <?php esc_html_e('Stock photos', 'gpt3-ai-content-generator'); ?>
-                        </button>
-                    </div>
-                </div>
-            </div>
-
         <div class="aipkit_cw_image_section aipkit_task_cw_image_source_section">
             <div class="aipkit_cw_image_row aipkit_autogpt_question_row aipkit_cw_image_row--source">
                 <div class="aipkit_cw_panel_label_wrap">
                     <label
                         class="aipkit_cw_panel_label aipkit_autogpt_question"
                         for="aipkit_task_cw_image_selection_trigger"
-                        data-aipkit-image-selection-label
-                        data-ai-label="<?php echo esc_attr__('Model', 'gpt3-ai-content-generator'); ?>"
-                        data-stock-label="<?php echo esc_attr__('Provider', 'gpt3-ai-content-generator'); ?>"
                     >
-                        <?php esc_html_e('Model', 'gpt3-ai-content-generator'); ?>
+                        <?php esc_html_e('Image source', 'gpt3-ai-content-generator'); ?>
                     </label>
                 </div>
                 <div class="aipkit_cw_image_control aipkit_cw_image_control--selection aipkit_cw_ai_control aipkit_cw_ai_control--model">
-                    <div class="aipkit_cw_image_selection_inline" data-aipkit-image-ai-model-picker>
+                    <div class="aipkit_cw_image_selection_inline" data-aipkit-image-source-picker>
                         <select
                             id="aipkit_task_cw_image_selection"
                             data-aipkit-unified-model-source
@@ -216,28 +195,16 @@ $aipkit_cw_featured_image_prompt_item = $aipkit_cw_image_prompt_items['featured_
                         $aipkit_unified_model_selector_config = [
                             'trigger_id' => 'aipkit_task_cw_image_selection_trigger',
                             'source_id' => 'aipkit_task_cw_image_selection',
-                            'initial_label' => __('Select model', 'gpt3-ai-content-generator'),
+                            'initial_label' => __('Select image source', 'gpt3-ai-content-generator'),
                             'class_name' => 'aipkit_autogpt_unified_model_selector',
                             'capability' => 'image_generation',
+                            'show_trigger_logo' => true,
+                            'show_provider_diagnostics' => false,
+                            'search_placeholder' => __('Search image sources...', 'gpt3-ai-content-generator'),
+                            'empty_text' => __('No image sources found', 'gpt3-ai-content-generator'),
                         ];
                         include dirname(__DIR__, 3) . '/shared/unified-model-selector.php';
                         ?>
-                    </div>
-                    <div
-                        class="aipkit_autogpt_image_stock_providers"
-                        data-aipkit-image-stock-providers
-                        role="group"
-                        aria-label="<?php esc_attr_e('Stock photo provider', 'gpt3-ai-content-generator'); ?>"
-                        hidden
-                    >
-                        <button type="button" class="aipkit_autogpt_image_provider_chip" data-aipkit-image-stock-provider="pexels" aria-pressed="false">
-                            <span class="aipkit_autogpt_image_provider_logo aipkit_autogpt_image_provider_logo--pexels" aria-hidden="true"></span>
-                            <span><?php esc_html_e('Pexels', 'gpt3-ai-content-generator'); ?></span>
-                        </button>
-                        <button type="button" class="aipkit_autogpt_image_provider_chip" data-aipkit-image-stock-provider="pixabay" aria-pressed="false">
-                            <span class="aipkit_autogpt_image_provider_logo aipkit_autogpt_image_provider_logo--pixabay" aria-hidden="true"></span>
-                            <span><?php esc_html_e('Pixabay', 'gpt3-ai-content-generator'); ?></span>
-                        </button>
                     </div>
                 </div>
             </div>

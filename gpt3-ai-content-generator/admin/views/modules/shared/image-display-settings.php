@@ -254,7 +254,7 @@ $aipkit_image_display_settings_provider_option = static function (string $option
 
 $aipkit_image_display_settings_pixabay_categories = ['backgrounds', 'fashion', 'nature', 'science', 'education', 'feelings', 'health', 'people', 'religion', 'places', 'animals', 'industry', 'computer', 'food', 'sports', 'transportation', 'travel', 'buildings', 'business', 'music'];
 $aipkit_image_display_settings_pixabay_category_options = [
-    $aipkit_image_display_settings_option('', __('Any', 'gpt3-ai-content-generator')),
+    $aipkit_image_display_settings_option('', __('Any', 'gpt3-ai-content-generator'), ['selected' => true]),
 ];
 foreach ($aipkit_image_display_settings_pixabay_categories as $cat) {
     $aipkit_image_display_settings_pixabay_category_options[] = $aipkit_image_display_settings_option($cat, ucfirst($cat));
@@ -456,19 +456,19 @@ $aipkit_image_display_settings_provider_fields = [
     ],
     'pexels' => [
         $aipkit_image_display_settings_select('pexels_orientation', __('Orientation', 'gpt3-ai-content-generator'), __('Landscape, portrait, or square results.', 'gpt3-ai-content-generator'), [
-            $aipkit_image_display_settings_option('none', __('Any', 'gpt3-ai-content-generator')),
+            $aipkit_image_display_settings_option('none', __('Any', 'gpt3-ai-content-generator'), ['selected' => true]),
             $aipkit_image_display_settings_option('landscape', __('Landscape', 'gpt3-ai-content-generator')),
             $aipkit_image_display_settings_option('portrait', __('Portrait', 'gpt3-ai-content-generator')),
             $aipkit_image_display_settings_option('square', __('Square', 'gpt3-ai-content-generator')),
         ], ['name' => 'pexels_orientation']),
         $aipkit_image_display_settings_select('pexels_size', __('Size', 'gpt3-ai-content-generator'), __('Filter results by image size.', 'gpt3-ai-content-generator'), [
-            $aipkit_image_display_settings_option('none', __('Any', 'gpt3-ai-content-generator')),
+            $aipkit_image_display_settings_option('none', __('Any', 'gpt3-ai-content-generator'), ['selected' => true]),
             $aipkit_image_display_settings_option('large', __('Large', 'gpt3-ai-content-generator')),
             $aipkit_image_display_settings_option('medium', __('Medium', 'gpt3-ai-content-generator')),
             $aipkit_image_display_settings_option('small', __('Small', 'gpt3-ai-content-generator')),
         ], ['name' => 'pexels_size']),
         $aipkit_image_display_settings_select('pexels_color', __('Color', 'gpt3-ai-content-generator'), __('Filter by dominant color.', 'gpt3-ai-content-generator'), [
-            $aipkit_image_display_settings_option('', __('Any', 'gpt3-ai-content-generator')),
+            $aipkit_image_display_settings_option('', __('Any', 'gpt3-ai-content-generator'), ['selected' => true]),
             $aipkit_image_display_settings_option('red', __('Red', 'gpt3-ai-content-generator')),
             $aipkit_image_display_settings_option('orange', __('Orange', 'gpt3-ai-content-generator')),
             $aipkit_image_display_settings_option('yellow', __('Yellow', 'gpt3-ai-content-generator')),
@@ -485,12 +485,12 @@ $aipkit_image_display_settings_provider_fields = [
     ],
     'pixabay' => [
         $aipkit_image_display_settings_select('pixabay_orientation', __('Orientation', 'gpt3-ai-content-generator'), $aipkit_image_display_settings_pixabay_orientation_helper, [
-            $aipkit_image_display_settings_option('all', __('All', 'gpt3-ai-content-generator')),
+            $aipkit_image_display_settings_option('all', __('All', 'gpt3-ai-content-generator'), ['selected' => true]),
             $aipkit_image_display_settings_option('horizontal', __('Horizontal', 'gpt3-ai-content-generator')),
             $aipkit_image_display_settings_option('vertical', __('Vertical', 'gpt3-ai-content-generator')),
         ], ['name' => 'pixabay_orientation']),
         $aipkit_image_display_settings_select('pixabay_image_type', __('Type', 'gpt3-ai-content-generator'), $aipkit_image_display_settings_pixabay_type_helper, [
-            $aipkit_image_display_settings_option('all', __('All', 'gpt3-ai-content-generator')),
+            $aipkit_image_display_settings_option('all', __('All', 'gpt3-ai-content-generator'), ['selected' => true]),
             $aipkit_image_display_settings_option('photo', __('Photo', 'gpt3-ai-content-generator')),
             $aipkit_image_display_settings_option('illustration', __('Illustration', 'gpt3-ai-content-generator')),
             $aipkit_image_display_settings_option('vector', __('Vector', 'gpt3-ai-content-generator')),

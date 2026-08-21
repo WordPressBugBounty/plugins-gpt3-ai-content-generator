@@ -67,14 +67,9 @@ $default_image_description_prompt_update = AIPKit_Content_Writer_Prompts::get_de
                         'class_name' => 'aipkit_cw_image_unified_model_selector',
                         'capability' => 'image_generation',
                         'show_trigger_logo' => true,
+                        'show_provider_diagnostics' => false,
                         'search_placeholder' => __('Search image sources...', 'gpt3-ai-content-generator'),
                         'empty_text' => __('No image sources found', 'gpt3-ai-content-generator'),
-                        'filter_aria_label' => __('Filter image sources', 'gpt3-ai-content-generator'),
-                        'filters' => [
-                            ['value' => 'all', 'label' => __('All', 'gpt3-ai-content-generator')],
-                            ['value' => 'ai', 'label' => __('AI generated', 'gpt3-ai-content-generator')],
-                            ['value' => 'stock', 'label' => __('Stock photos', 'gpt3-ai-content-generator')],
-                        ],
                     ];
                     include dirname(__DIR__, 3) . '/shared/unified-model-selector.php';
                     ?>

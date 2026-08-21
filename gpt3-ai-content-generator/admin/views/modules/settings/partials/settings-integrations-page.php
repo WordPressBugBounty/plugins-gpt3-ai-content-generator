@@ -349,6 +349,7 @@ $integration_configs = [
         'key_url' => 'https://www.pexels.com/api/new/',
         'key_link' => __('Get your Pexels API key', 'gpt3-ai-content-generator'),
         'connected' => $current_pexels_api_key !== '',
+        'live_test' => true,
         'fields' => [],
     ],
     'pixabay' => [
@@ -367,6 +368,7 @@ $integration_configs = [
         'key_url' => 'https://pixabay.com/api/docs/',
         'key_link' => __('Get your Pixabay API key', 'gpt3-ai-content-generator'),
         'connected' => $current_pixabay_api_key !== '',
+        'live_test' => true,
         'fields' => [],
     ],
 ];
@@ -416,6 +418,7 @@ $integration_groups = [
             class="aipkit_settings_provider_card aipkit_settings_integration_card"
             data-aipkit-integration-card="<?php echo esc_attr($integration_slug); ?>"
             data-aipkit-integration-connected="<?php echo $is_connected ? 'true' : 'false'; ?>"
+            <?php echo !empty($integration_config['live_test']) ? 'data-aipkit-integration-live-test="true"' : ''; ?>
             style="--aipkit-provider-accent: <?php echo esc_attr((string) $integration_config['accent']); ?>;"
         >
             <button
@@ -471,7 +474,7 @@ $integration_groups = [
                                 type="password"
                                 id="<?php echo esc_attr((string) $credential['id']); ?>"
                                 name="<?php echo $is_connected ? '' : esc_attr((string) $credential['name']); ?>"
-                                class="aipkit_form-input aipkit_autosave_trigger aipkit_settings_provider_credential aipkit_settings_integration_credential is-secret<?php echo $credential_mask !== '' ? ' is-visually-masked' : ''; ?>"
+                                class="aipkit_form-input<?php echo empty($integration_config['live_test']) ? ' aipkit_autosave_trigger' : ''; ?> aipkit_settings_provider_credential aipkit_settings_integration_credential is-secret<?php echo $credential_mask !== '' ? ' is-visually-masked' : ''; ?>"
                                 value=""
                                 placeholder="<?php echo esc_attr((string) $credential['placeholder']); ?>"
                                 data-aipkit-integration-credential
@@ -486,6 +489,7 @@ $integration_groups = [
                                 data-lpignore="true"
                                 data-1p-ignore="true"
                                 data-form-type="other"
+                                <?php echo !empty($integration_config['live_test']) ? 'data-aipkit-settings-autosave-exclude="true"' : ''; ?>
                                 <?php echo $credential_mask !== '' ? 'readonly' : ''; ?>
                             />
                             <span

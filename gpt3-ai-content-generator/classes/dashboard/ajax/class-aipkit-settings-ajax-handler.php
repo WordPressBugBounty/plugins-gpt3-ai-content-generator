@@ -10,6 +10,7 @@ use WPAICG\Core\AIPKit_Event_Webhooks_Settings;
 use WPAICG\Core\Models\AIPKit_Model_Registry;
 use WPAICG\Core\Moderation\AIPKit_Global_Security_Settings;
 use WPAICG\Images\AIPKit_Image_Settings_Ajax_Handler;
+use WPAICG\Images\AIPKit_Stock_Photo_Connection_Tester;
 use WPAICG\Utils\AIPKit_Prompt_Sanitizer;
 use WP_Error;
 
@@ -129,6 +130,53 @@ class SettingsAjaxHandler extends BaseDashboardAjaxHandler
                 'providerConnectionStates' => AIPKit_Providers::get_provider_connection_states(),
             ]);
         }
+    }
+
+    /**
+     * Verifies a Pexels or Pixabay key with a real search before saving it.
+     */
+    public function ajax_connect_stock_photo_provider(): void
+    {
+        $permission_check = $this->check_module_access_permissions('settings');
+        if (is_wp_error($permission_check)) {
+            $this->send_wp_error($permission_check);
+            return;
+        }
+
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce is checked above.
+        $provider_slug = isset($_POST['provider']) ? sanitize_key(wp_unslash($_POST['provider'])) : '';
+        $provider_name = AIPKit_Stock_Photo_Connection_Tester::get_provider_name($provider_slug);
+        if ($provider_name === '') {
+            $this->send_wp_error(new WP_Error(
+                'unsupported_stock_photo_provider',
+                __('Unsupported stock photo provider.', 'gpt3-ai-content-generator'),
+                ['status' => 400]
+            ));
+            return;
+        }
+
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce is checked above.
+        $api_key = isset($_POST['api_key']) ? sanitize_text_field(wp_unslash($_POST['api_key'])) : '';
+        $api_key = trim($api_key);
+
+        $tester = new AIPKit_Stock_Photo_Connection_Tester();
+        $result = $tester->test($provider_slug, $api_key);
+        if (is_wp_error($result)) {
+            $this->send_wp_error($result);
+            return;
+        }
+
+        AIPKit_Providers::save_provider_data($provider_name, ['api_key' => $api_key]);
+
+        wp_send_json_success([
+            'message' => sprintf(
+                /* translators: %s: Stock photo provider name. */
+                __('%s connection verified.', 'gpt3-ai-content-generator'),
+                $provider_name
+            ),
+            'provider' => $provider_slug,
+            'providerConnectionStates' => AIPKit_Providers::get_provider_connection_states(),
+        ]);
     }
 
     /**

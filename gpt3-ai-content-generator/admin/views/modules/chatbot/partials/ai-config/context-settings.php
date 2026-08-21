@@ -321,6 +321,7 @@ $knowledge_config_panel_id = 'aipkit_bot_' . $bot_id . '_knowledge_config_panel'
                     }
                     if (!in_array((string) $pinecone_index_name, $known_pinecone_names, true)) {
                         $manual_label = (string) $pinecone_index_name . ' ' . __('(missing)', 'gpt3-ai-content-generator');
+                        $pinecone_dropdown_label = $manual_label;
                         $pinecone_option_rows[] = [
                             'value' => $pinecone_index_name,
                             'label' => $manual_label,
@@ -374,17 +375,25 @@ $knowledge_config_panel_id = 'aipkit_bot_' . $bot_id . '_knowledge_config_panel'
                                         (string) $pinecone_index_name === $option_value
                                     );
                                     ?>
-                                    <label class="aipkit_popover_multiselect_item aipkit_vector_store_pinecone_item">
+                                    <label class="aipkit_popover_multiselect_item aipkit_vector_store_pinecone_item<?php echo $option_preserved ? ' aipkit_popover_multiselect_item--preserved' : ''; ?>">
                                         <span class="aipkit_vector_store_pinecone_item_label">
                                             <input
-                                                type="radio"
+                                                type="<?php echo $option_preserved ? 'checkbox' : 'radio'; ?>"
                                                 class="aipkit_vector_store_pinecone_radio"
                                                 name="aipkit_pinecone_index_choice_<?php echo esc_attr($bot_id); ?>"
                                                 value="<?php echo esc_attr($option_value); ?>"
                                                 <?php checked($option_checked, true); ?>
-                                                <?php disabled($option_disabled); ?>
+                                                <?php disabled($option_disabled && !$option_preserved); ?>
+                                                <?php if ($option_preserved) : ?> data-aipkit-preserved-selection="1"<?php endif; ?>
                                             />
-                                            <span class="aipkit_popover_multiselect_text"><?php echo esc_html($option_label); ?></span>
+                                            <?php if ($option_preserved) : ?>
+                                                <span class="aipkit_popover_multiselect_copy">
+                                                    <span class="aipkit_popover_multiselect_text"><?php echo esc_html($option_label); ?></span>
+                                                    <span class="aipkit_popover_multiselect_hint"><?php esc_html_e('Unavailable. Uncheck to remove.', 'gpt3-ai-content-generator'); ?></span>
+                                                </span>
+                                            <?php else : ?>
+                                                <span class="aipkit_popover_multiselect_text"><?php echo esc_html($option_label); ?></span>
+                                            <?php endif; ?>
                                         </span>
                                     </label>
                                 <?php endforeach; ?>

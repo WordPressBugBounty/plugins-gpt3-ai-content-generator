@@ -379,7 +379,7 @@ class Image_Dependencies_Loader
         $paths = [
             'interface-aipkit-image-provider-strategy.php', 'class-aipkit-image-base-provider-strategy.php',
             'class-aipkit-image-manager.php', 'class-aipkit-image-provider-strategy-factory.php',
-            'class-aipkit-image-storage-helper.php',
+            'class-aipkit-image-storage-helper.php', 'class-aipkit-stock-photo-connection-tester.php',
             'providers/class-aipkit-image-openai-provider-strategy.php',
             'providers/class-aipkit-image-azure-provider-strategy.php',
             'providers/class-aipkit-image-google-provider-strategy.php',

@@ -64,14 +64,16 @@ class AIPKit_Image_Pexels_Provider_Strategy extends AIPKit_Image_Base_Provider_S
 
         $status_code = wp_remote_retrieve_response_code($response);
         $body = wp_remote_retrieve_body($response);
-        $decoded_response = $this->decode_json($body, 'Pexels Image Search');
 
-        if ($status_code !== 200 || is_wp_error($decoded_response)) {
-            $error_msg = is_wp_error($decoded_response)
-                        ? $decoded_response->get_error_message()
-                        : $this->parse_error_response($body, $status_code, 'Pexels');
+        if ($status_code !== 200) {
+            $error_msg = $this->parse_error_response($body, $status_code, 'Pexels');
             /* translators: %1$d: HTTP status code, %2$s: Error message from the API. */
             return new WP_Error('pexels_api_error', sprintf(__('Pexels API Error (%1$d): %2$s', 'gpt3-ai-content-generator'), $status_code, $error_msg));
+        }
+
+        $decoded_response = $this->decode_json($body, 'Pexels Image Search');
+        if (is_wp_error($decoded_response)) {
+            return $decoded_response;
         }
 
         $images = [];
