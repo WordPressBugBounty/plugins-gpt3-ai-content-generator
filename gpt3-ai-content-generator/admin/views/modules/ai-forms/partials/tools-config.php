@@ -217,6 +217,9 @@ $render_ai_form_web_search_location_fields = static function ($provider_key, $lo
                     <option value="auto" selected><?php esc_html_e('Auto', 'gpt3-ai-content-generator'); ?></option>
                     <option value="native"><?php esc_html_e('Native', 'gpt3-ai-content-generator'); ?></option>
                     <option value="exa"><?php esc_html_e('Exa', 'gpt3-ai-content-generator'); ?></option>
+                    <option value="firecrawl"><?php esc_html_e('Firecrawl', 'gpt3-ai-content-generator'); ?></option>
+                    <option value="parallel"><?php esc_html_e('Parallel', 'gpt3-ai-content-generator'); ?></option>
+                    <option value="perplexity"><?php esc_html_e('Perplexity', 'gpt3-ai-content-generator'); ?></option>
                 </select>
             </div>
         </div>
@@ -230,20 +233,77 @@ $render_ai_form_web_search_location_fields = static function ($provider_key, $lo
                         <?php esc_html_e('Results to include.', 'gpt3-ai-content-generator'); ?>
                     </span>
                 </div>
-                <input type="number" id="aipkit_ai_form_openrouter_web_search_max_results" name="openrouter_web_search_max_results" class="aipkit_form-input aipkit_ai_form_web_search_settings_control" min="1" max="10" step="1" value="5" inputmode="numeric">
+                <input type="number" id="aipkit_ai_form_openrouter_web_search_max_results" name="openrouter_web_search_max_results" class="aipkit_form-input aipkit_ai_form_web_search_settings_control" min="1" max="25" step="1" value="5" inputmode="numeric">
             </div>
         </div>
         <div class="aipkit_ai_form_web_search_settings_row">
             <div class="aipkit_ai_form_web_search_settings_row_main">
                 <div class="aipkit_ai_form_web_search_settings_copy">
-                    <label class="aipkit_ai_form_web_search_settings_label" for="aipkit_ai_form_openrouter_web_search_search_prompt">
-                        <?php esc_html_e('Search prompt', 'gpt3-ai-content-generator'); ?>
+                    <label class="aipkit_ai_form_web_search_settings_label" for="aipkit_ai_form_openrouter_web_search_max_uses">
+                        <?php esc_html_e('Max searches', 'gpt3-ai-content-generator'); ?>
                     </label>
                     <span class="aipkit_ai_form_web_search_settings_helper">
-                        <?php esc_html_e('Optional search instruction.', 'gpt3-ai-content-generator'); ?>
+                        <?php esc_html_e('Maximum search calls per response.', 'gpt3-ai-content-generator'); ?>
                     </span>
                 </div>
-                <input type="text" id="aipkit_ai_form_openrouter_web_search_search_prompt" name="openrouter_web_search_search_prompt" class="aipkit_form-input aipkit_ai_form_web_search_settings_control" placeholder="<?php esc_attr_e('Optional', 'gpt3-ai-content-generator'); ?>">
+                <input type="number" id="aipkit_ai_form_openrouter_web_search_max_uses" name="openrouter_web_search_max_uses" class="aipkit_form-input aipkit_ai_form_web_search_settings_control" min="1" max="10" step="1" value="1" inputmode="numeric">
+            </div>
+        </div>
+        <div class="aipkit_ai_form_web_search_settings_row">
+            <div class="aipkit_ai_form_web_search_settings_row_main">
+                <div class="aipkit_ai_form_web_search_settings_copy">
+                    <label class="aipkit_ai_form_web_search_settings_label" for="aipkit_ai_form_openrouter_web_search_max_total_results">
+                        <?php esc_html_e('Total results', 'gpt3-ai-content-generator'); ?>
+                    </label>
+                    <span class="aipkit_ai_form_web_search_settings_helper">
+                        <?php esc_html_e('Maximum results across all searches.', 'gpt3-ai-content-generator'); ?>
+                    </span>
+                </div>
+                <input type="number" id="aipkit_ai_form_openrouter_web_search_max_total_results" name="openrouter_web_search_max_total_results" class="aipkit_form-input aipkit_ai_form_web_search_settings_control" min="1" max="100" step="1" value="10" inputmode="numeric">
+            </div>
+        </div>
+        <div class="aipkit_ai_form_web_search_settings_row">
+            <div class="aipkit_ai_form_web_search_settings_row_main">
+                <div class="aipkit_ai_form_web_search_settings_copy">
+                    <label class="aipkit_ai_form_web_search_settings_label" for="aipkit_ai_form_openrouter_web_search_context_size">
+                        <?php esc_html_e('Search depth', 'gpt3-ai-content-generator'); ?>
+                    </label>
+                    <span class="aipkit_ai_form_web_search_settings_helper">
+                        <?php esc_html_e('Controls how much search context is returned.', 'gpt3-ai-content-generator'); ?>
+                    </span>
+                </div>
+                <select id="aipkit_ai_form_openrouter_web_search_context_size" name="openrouter_web_search_context_size" class="aipkit_form-input aipkit_ai_form_web_search_settings_control">
+                    <option value="auto" selected><?php esc_html_e('Auto', 'gpt3-ai-content-generator'); ?></option>
+                    <option value="low"><?php esc_html_e('Low', 'gpt3-ai-content-generator'); ?></option>
+                    <option value="medium"><?php esc_html_e('Medium', 'gpt3-ai-content-generator'); ?></option>
+                    <option value="high"><?php esc_html_e('High', 'gpt3-ai-content-generator'); ?></option>
+                </select>
+            </div>
+        </div>
+        <div class="aipkit_ai_form_web_search_settings_row">
+            <div class="aipkit_ai_form_web_search_settings_row_main aipkit_ai_form_web_search_settings_row_main--stacked">
+                <div class="aipkit_ai_form_web_search_settings_copy">
+                    <label class="aipkit_ai_form_web_search_settings_label" for="aipkit_ai_form_openrouter_web_search_allowed_domains">
+                        <?php esc_html_e('Allowed domains', 'gpt3-ai-content-generator'); ?>
+                    </label>
+                    <span class="aipkit_ai_form_web_search_settings_helper">
+                        <?php esc_html_e('Optional comma-separated allowlist.', 'gpt3-ai-content-generator'); ?>
+                    </span>
+                </div>
+                <input type="text" id="aipkit_ai_form_openrouter_web_search_allowed_domains" name="openrouter_web_search_allowed_domains" class="aipkit_form-input aipkit_ai_form_web_search_settings_control" placeholder="<?php esc_attr_e('example.com, docs.example.com', 'gpt3-ai-content-generator'); ?>">
+            </div>
+        </div>
+        <div class="aipkit_ai_form_web_search_settings_row">
+            <div class="aipkit_ai_form_web_search_settings_row_main aipkit_ai_form_web_search_settings_row_main--stacked">
+                <div class="aipkit_ai_form_web_search_settings_copy">
+                    <label class="aipkit_ai_form_web_search_settings_label" for="aipkit_ai_form_openrouter_web_search_excluded_domains">
+                        <?php esc_html_e('Excluded domains', 'gpt3-ai-content-generator'); ?>
+                    </label>
+                    <span class="aipkit_ai_form_web_search_settings_helper">
+                        <?php esc_html_e('Ignored when an allowlist is set.', 'gpt3-ai-content-generator'); ?>
+                    </span>
+                </div>
+                <input type="text" id="aipkit_ai_form_openrouter_web_search_excluded_domains" name="openrouter_web_search_excluded_domains" class="aipkit_form-input aipkit_ai_form_web_search_settings_control" placeholder="<?php esc_attr_e('spam.example, lowquality.example', 'gpt3-ai-content-generator'); ?>">
             </div>
         </div>
     </div>

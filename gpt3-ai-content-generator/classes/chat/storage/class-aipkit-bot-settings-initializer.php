@@ -123,6 +123,7 @@ class AIPKit_Bot_Settings_Initializer
         update_post_meta($post_id, '_aipkit_content_aware_enabled', BotSettingsManager::DEFAULT_CONTENT_AWARE_ENABLED);
         update_post_meta($post_id, '_aipkit_openai_conversation_state_enabled', BotSettingsManager::DEFAULT_OPENAI_CONVERSATION_STATE_ENABLED);
         update_post_meta($post_id, '_aipkit_google_conversation_state_enabled', BotSettingsManager::DEFAULT_GOOGLE_CONVERSATION_STATE_ENABLED);
+        update_post_meta($post_id, '_aipkit_openrouter_session_stickiness', BotSettingsManager::DEFAULT_OPENROUTER_SESSION_STICKINESS);
         $default_guest_limit_value = (BotSettingsManager::DEFAULT_TOKEN_GUEST_LIMIT === null) ? '' : (string)BotSettingsManager::DEFAULT_TOKEN_GUEST_LIMIT;
         $default_user_limit_value = (BotSettingsManager::DEFAULT_TOKEN_USER_LIMIT === null) ? '' : (string)BotSettingsManager::DEFAULT_TOKEN_USER_LIMIT;
         update_post_meta($post_id, '_aipkit_token_guest_limit', $default_guest_limit_value);
@@ -191,7 +192,11 @@ class AIPKit_Bot_Settings_Initializer
         update_post_meta($post_id, '_aipkit_openrouter_web_search_enabled', BotSettingsManager::DEFAULT_OPENROUTER_WEB_SEARCH_ENABLED);
         update_post_meta($post_id, '_aipkit_openrouter_web_search_engine', BotSettingsManager::DEFAULT_OPENROUTER_WEB_SEARCH_ENGINE);
         update_post_meta($post_id, '_aipkit_openrouter_web_search_max_results', (string) BotSettingsManager::DEFAULT_OPENROUTER_WEB_SEARCH_MAX_RESULTS);
-        update_post_meta($post_id, '_aipkit_openrouter_web_search_search_prompt', BotSettingsManager::DEFAULT_OPENROUTER_WEB_SEARCH_SEARCH_PROMPT);
+        update_post_meta($post_id, '_aipkit_openrouter_web_search_max_uses', (string) BotSettingsManager::DEFAULT_OPENROUTER_WEB_SEARCH_MAX_USES);
+        update_post_meta($post_id, '_aipkit_openrouter_web_search_max_total_results', (string) BotSettingsManager::DEFAULT_OPENROUTER_WEB_SEARCH_MAX_TOTAL_RESULTS);
+        update_post_meta($post_id, '_aipkit_openrouter_web_search_context_size', BotSettingsManager::DEFAULT_OPENROUTER_WEB_SEARCH_CONTEXT_SIZE);
+        update_post_meta($post_id, '_aipkit_openrouter_web_search_allowed_domains', BotSettingsManager::DEFAULT_OPENROUTER_WEB_SEARCH_ALLOWED_DOMAINS);
+        update_post_meta($post_id, '_aipkit_openrouter_web_search_excluded_domains', BotSettingsManager::DEFAULT_OPENROUTER_WEB_SEARCH_EXCLUDED_DOMAINS);
         update_post_meta($post_id, '_aipkit_xai_web_search_enabled', BotSettingsManager::DEFAULT_XAI_WEB_SEARCH_ENABLED);
         update_post_meta($post_id, '_aipkit_web_toggle_default_on', BotSettingsManager::DEFAULT_WEB_TOGGLE_DEFAULT_ON);
         update_post_meta($post_id, '_aipkit_show_sources', BotSettingsManager::DEFAULT_SHOW_SOURCES);

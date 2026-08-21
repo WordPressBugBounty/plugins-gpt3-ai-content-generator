@@ -5,6 +5,7 @@ namespace WPAICG\Chat\Core\AIService\GenerateResponse\AiParams;
 use WPAICG\Chat\Storage\BotSettingsManager;
 use WPAICG\Utils\AIPKit_Prompt_Sanitizer;
 use WPAICG\Core\AIPKit_OpenAI_Reasoning;
+use WPAICG\Core\AIPKit_OpenRouter_Reasoning;
 use WPAICG\AIPKit_Providers; // For checking provider data existence if needed.
 
 if (!defined('ABSPATH')) {
@@ -263,7 +264,7 @@ function apply_claude_web_search_logic(
 
 // --- apply-openrouter-web-search.php ---
 /**
- * Applies OpenRouter web search plugin configuration to AI parameters.
+ * Applies OpenRouter web search server-tool configuration to AI parameters.
  *
  * @param array &$final_ai_params Reference to the final AI parameters array to be modified.
  * @param array $bot_settings Bot settings.
@@ -293,21 +294,31 @@ function apply_openrouter_web_search_logic(
     ];
 
     $engine = isset($bot_settings['openrouter_web_search_engine']) ? sanitize_key((string) $bot_settings['openrouter_web_search_engine']) : BotSettingsManager::DEFAULT_OPENROUTER_WEB_SEARCH_ENGINE;
-    if (in_array($engine, ['native', 'exa'], true)) {
+    if (in_array($engine, ['native', 'exa', 'firecrawl', 'parallel', 'perplexity'], true)) {
         $web_search_config['engine'] = $engine;
     }
 
     $max_results = isset($bot_settings['openrouter_web_search_max_results'])
         ? absint($bot_settings['openrouter_web_search_max_results'])
         : BotSettingsManager::DEFAULT_OPENROUTER_WEB_SEARCH_MAX_RESULTS;
-    $web_search_config['max_results'] = max(1, min($max_results, 10));
+    $web_search_config['max_results'] = max(1, min($max_results, 25));
+    $max_uses = isset($bot_settings['openrouter_web_search_max_uses'])
+        ? absint($bot_settings['openrouter_web_search_max_uses'])
+        : BotSettingsManager::DEFAULT_OPENROUTER_WEB_SEARCH_MAX_USES;
+    $web_search_config['max_uses'] = max(1, min($max_uses, 10));
+    $max_total_results = isset($bot_settings['openrouter_web_search_max_total_results'])
+        ? absint($bot_settings['openrouter_web_search_max_total_results'])
+        : BotSettingsManager::DEFAULT_OPENROUTER_WEB_SEARCH_MAX_TOTAL_RESULTS;
+    $web_search_config['max_total_results'] = max(1, min($max_total_results, 100));
 
-    $search_prompt = isset($bot_settings['openrouter_web_search_search_prompt'])
-        ? AIPKit_Prompt_Sanitizer::sanitize($bot_settings['openrouter_web_search_search_prompt'])
-        : BotSettingsManager::DEFAULT_OPENROUTER_WEB_SEARCH_SEARCH_PROMPT;
-    if ($search_prompt !== '') {
-        $web_search_config['search_prompt'] = $search_prompt;
+    $context_size = isset($bot_settings['openrouter_web_search_context_size'])
+        ? sanitize_key((string) $bot_settings['openrouter_web_search_context_size'])
+        : BotSettingsManager::DEFAULT_OPENROUTER_WEB_SEARCH_CONTEXT_SIZE;
+    if (in_array($context_size, ['low', 'medium', 'high'], true)) {
+        $web_search_config['search_context_size'] = $context_size;
     }
+    $web_search_config['allowed_domains'] = $bot_settings['openrouter_web_search_allowed_domains'] ?? '';
+    $web_search_config['excluded_domains'] = $bot_settings['openrouter_web_search_excluded_domains'] ?? '';
 
     $final_ai_params['web_search_tool_config'] = $web_search_config;
     $final_ai_params['frontend_web_search_active'] = $frontend_web_search_active;
@@ -376,6 +387,27 @@ function apply_openai_reasoning_logic(
         $bot_settings['reasoning_effort'] ?? ''
     );
 
+    if ($reasoning_effort !== '') {
+        $final_ai_params['reasoning'] = ['effort' => $reasoning_effort];
+    }
+}
+
+// --- apply-openrouter-reasoning.php ---
+/**
+ * Applies the selected model's normalized OpenRouter reasoning effort.
+ *
+ * @param array<string, mixed> $final_ai_params
+ * @param array<string, mixed> $bot_settings
+ */
+function apply_openrouter_reasoning_logic(
+    array &$final_ai_params,
+    array $bot_settings,
+    string $model
+): void {
+    $reasoning_effort = AIPKit_OpenRouter_Reasoning::normalize_effort_for_model(
+        $model,
+        $bot_settings['reasoning_effort'] ?? ''
+    );
     if ($reasoning_effort !== '') {
         $final_ai_params['reasoning'] = ['effort' => $reasoning_effort];
     }

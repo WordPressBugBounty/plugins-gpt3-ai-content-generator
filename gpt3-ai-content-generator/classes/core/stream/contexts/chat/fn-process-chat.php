@@ -317,6 +317,20 @@ function process_chat_logic(
         return $request_data_for_ai;
     }
 
+    $openrouter_bot_id = absint($params['bot_id'] ?? 0);
+    $openrouter_conversation_uuid = sanitize_key((string) ($params['conversation_uuid'] ?? ''));
+    if (
+        ($request_data_for_ai['provider'] ?? '') === 'OpenRouter'
+        && ($bot_settings['openrouter_session_stickiness'] ?? '0') === '1'
+        && $openrouter_bot_id > 0
+        && $openrouter_conversation_uuid !== ''
+    ) {
+        $request_data_for_ai['ai_params']['openrouter_session_context'] = [
+            'bot_id' => $openrouter_bot_id,
+            'conversation_uuid' => $openrouter_conversation_uuid,
+        ];
+    }
+
     // 8. Construct Final Input for SSEStreamProcessor
     return Process\construct_sse_processor_input_logic(
         $request_data_for_ai,

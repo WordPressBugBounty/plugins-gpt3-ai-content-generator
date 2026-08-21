@@ -959,7 +959,7 @@ function get_claude_specific_config_logic(int $bot_id, callable $get_meta_fn): a
 
 // --- fn-get-openrouter-specific-config.php ---
 /**
- * Retrieves OpenRouter-specific configuration settings (Web Search).
+ * Retrieves OpenRouter-specific chatbot configuration settings.
  *
  * @param int $bot_id The ID of the bot post.
  * @param callable $get_meta_fn A function to retrieve post meta.
@@ -976,6 +976,13 @@ function get_openrouter_specific_config_logic(int $bot_id, callable $get_meta_fn
         }
     }
 
+    $settings['openrouter_session_stickiness'] = in_array(
+        $get_meta_fn('_aipkit_openrouter_session_stickiness', BotSettingsManager::DEFAULT_OPENROUTER_SESSION_STICKINESS),
+        ['0', '1'],
+        true
+    ) ? $get_meta_fn('_aipkit_openrouter_session_stickiness', BotSettingsManager::DEFAULT_OPENROUTER_SESSION_STICKINESS)
+      : BotSettingsManager::DEFAULT_OPENROUTER_SESSION_STICKINESS;
+
     $settings['openrouter_web_search_enabled'] = in_array(
         $get_meta_fn('_aipkit_openrouter_web_search_enabled', BotSettingsManager::DEFAULT_OPENROUTER_WEB_SEARCH_ENABLED),
         ['0', '1'],
@@ -984,7 +991,7 @@ function get_openrouter_specific_config_logic(int $bot_id, callable $get_meta_fn
       : BotSettingsManager::DEFAULT_OPENROUTER_WEB_SEARCH_ENABLED;
 
     $engine = $get_meta_fn('_aipkit_openrouter_web_search_engine', BotSettingsManager::DEFAULT_OPENROUTER_WEB_SEARCH_ENGINE);
-    $settings['openrouter_web_search_engine'] = in_array($engine, ['auto', 'native', 'exa'], true)
+    $settings['openrouter_web_search_engine'] = in_array($engine, ['auto', 'native', 'exa', 'firecrawl', 'parallel', 'perplexity'], true)
         ? $engine
         : BotSettingsManager::DEFAULT_OPENROUTER_WEB_SEARCH_ENGINE;
 
@@ -993,12 +1000,25 @@ function get_openrouter_specific_config_logic(int $bot_id, callable $get_meta_fn
         (string) BotSettingsManager::DEFAULT_OPENROUTER_WEB_SEARCH_MAX_RESULTS
     );
     $max_results = is_numeric($raw_max_results) ? absint($raw_max_results) : BotSettingsManager::DEFAULT_OPENROUTER_WEB_SEARCH_MAX_RESULTS;
-    $settings['openrouter_web_search_max_results'] = max(1, min($max_results, 10));
+    $settings['openrouter_web_search_max_results'] = max(1, min($max_results, 25));
 
-    $settings['openrouter_web_search_search_prompt'] = $get_meta_fn(
-        '_aipkit_openrouter_web_search_search_prompt',
-        BotSettingsManager::DEFAULT_OPENROUTER_WEB_SEARCH_SEARCH_PROMPT
-    );
+    $raw_max_uses = $get_meta_fn('_aipkit_openrouter_web_search_max_uses', (string) BotSettingsManager::DEFAULT_OPENROUTER_WEB_SEARCH_MAX_USES);
+    $max_uses = is_numeric($raw_max_uses) ? absint($raw_max_uses) : BotSettingsManager::DEFAULT_OPENROUTER_WEB_SEARCH_MAX_USES;
+    $settings['openrouter_web_search_max_uses'] = max(1, min($max_uses, 10));
+
+    $raw_max_total_results = $get_meta_fn('_aipkit_openrouter_web_search_max_total_results', (string) BotSettingsManager::DEFAULT_OPENROUTER_WEB_SEARCH_MAX_TOTAL_RESULTS);
+    $max_total_results = is_numeric($raw_max_total_results) ? absint($raw_max_total_results) : BotSettingsManager::DEFAULT_OPENROUTER_WEB_SEARCH_MAX_TOTAL_RESULTS;
+    $settings['openrouter_web_search_max_total_results'] = max(1, min($max_total_results, 100));
+
+    $context_size = $get_meta_fn('_aipkit_openrouter_web_search_context_size', BotSettingsManager::DEFAULT_OPENROUTER_WEB_SEARCH_CONTEXT_SIZE);
+    $settings['openrouter_web_search_context_size'] = in_array($context_size, ['auto', 'low', 'medium', 'high'], true)
+        ? $context_size
+        : BotSettingsManager::DEFAULT_OPENROUTER_WEB_SEARCH_CONTEXT_SIZE;
+    $settings['openrouter_web_search_allowed_domains'] = $get_meta_fn('_aipkit_openrouter_web_search_allowed_domains', BotSettingsManager::DEFAULT_OPENROUTER_WEB_SEARCH_ALLOWED_DOMAINS);
+    $settings['openrouter_web_search_excluded_domains'] = $get_meta_fn('_aipkit_openrouter_web_search_excluded_domains', BotSettingsManager::DEFAULT_OPENROUTER_WEB_SEARCH_EXCLUDED_DOMAINS);
+    if ($settings['openrouter_web_search_allowed_domains'] !== '') {
+        $settings['openrouter_web_search_excluded_domains'] = '';
+    }
 
     return $settings;
 }

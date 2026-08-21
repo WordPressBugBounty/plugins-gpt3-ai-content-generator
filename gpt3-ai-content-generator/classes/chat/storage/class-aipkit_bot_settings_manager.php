@@ -86,6 +86,7 @@ class BotSettingsManager
     public const DEFAULT_ENABLE_IMAGE_UPLOAD = '0';
     public const DEFAULT_OPENAI_CONVERSATION_STATE_ENABLED = '0';
     public const DEFAULT_GOOGLE_CONVERSATION_STATE_ENABLED = '0';
+    public const DEFAULT_OPENROUTER_SESSION_STICKINESS = '0';
     // --- Typing Indicator Defaults ---
     public const DEFAULT_CUSTOM_TYPING_TEXT = '';
     // --- Vector Store Constants ---
@@ -112,7 +113,11 @@ class BotSettingsManager
     public const DEFAULT_OPENROUTER_WEB_SEARCH_ENABLED = '0';
     public const DEFAULT_OPENROUTER_WEB_SEARCH_ENGINE = 'auto';
     public const DEFAULT_OPENROUTER_WEB_SEARCH_MAX_RESULTS = 5;
-    public const DEFAULT_OPENROUTER_WEB_SEARCH_SEARCH_PROMPT = '';
+    public const DEFAULT_OPENROUTER_WEB_SEARCH_MAX_USES = 1;
+    public const DEFAULT_OPENROUTER_WEB_SEARCH_MAX_TOTAL_RESULTS = 10;
+    public const DEFAULT_OPENROUTER_WEB_SEARCH_CONTEXT_SIZE = 'auto';
+    public const DEFAULT_OPENROUTER_WEB_SEARCH_ALLOWED_DOMAINS = '';
+    public const DEFAULT_OPENROUTER_WEB_SEARCH_EXCLUDED_DOMAINS = '';
     // --- xAI Web Search Constants ---
     public const DEFAULT_XAI_WEB_SEARCH_ENABLED = '0';
     // --- Frontend Web Toggle Defaults ---

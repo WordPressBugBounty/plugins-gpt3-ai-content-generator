@@ -106,10 +106,11 @@ return [
     'onLabel'                   => __('on', 'gpt3-ai-content-generator'),
     'reasoningHelpGeneric'      => '',
     'reasoningHelpOpenAI'       => '',
+    'reasoningHelpOpenRouter'   => __('OpenRouter maps this level to the selected model\'s supported reasoning effort.', 'gpt3-ai-content-generator'),
     'reasoningHelpOllama'       => __('Maps to Ollama think mode. GPT-OSS uses levels, while most other thinking-capable Ollama models use on or off.', 'gpt3-ai-content-generator'),
     'openaiOnly'                => __('Available for OpenAI only', 'gpt3-ai-content-generator'),
     'openaiReasoningOnly'       => __('Available for OpenAI reasoning models only', 'gpt3-ai-content-generator'),
-    'openaiOllamaReasoningOnly' => __('Available for OpenAI reasoning models and Ollama thinking-capable models', 'gpt3-ai-content-generator'),
+    'openaiOllamaReasoningOnly' => __('Available for reasoning-capable OpenAI/OpenRouter models and Ollama thinking-capable models', 'gpt3-ai-content-generator'),
     'openaiClaudeOnly'          => __('Available for OpenAI, Anthropic, OpenRouter, and xAI only', 'gpt3-ai-content-generator'),
     // User Credits
     'userCreditsLoading'        => __('Loading user credits...', 'gpt3-ai-content-generator'),

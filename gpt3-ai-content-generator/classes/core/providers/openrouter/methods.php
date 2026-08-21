@@ -5,7 +5,6 @@ use WPAICG\Core\Providers\OpenRouterProviderStrategy;
 use WPAICG\Core\Providers\OpenRouter\OpenRouterUrlBuilder; // For direct call
 use WP_Error;
 use WPAICG\Core\Providers\OpenRouter\OpenRouterPayloadFormatter; // For direct call
-use WPAICG\Utils\AIPKit_Prompt_Sanitizer;
 use WPAICG\Core\Providers\OpenRouter\OpenRouterResponseParser; // For direct call
 use function WPAICG\Core\Providers\Shared\extract_sse_event_blocks;
 use function WPAICG\Core\Providers\Shared\decode_event_type_sse_event_block;
@@ -86,6 +85,208 @@ function _openrouter_attach_image_inputs(array $input_array, array $image_inputs
 }
 
 /**
+ * Normalizes a provider-routing toggle without treating an unknown value as
+ * an instruction to weaken an existing default.
+ *
+ * @param mixed  $value Raw setting value.
+ * @param string $default Normalized fallback value.
+ */
+function normalize_routing_toggle_logic($value, string $default): string {
+    if (is_bool($value)) {
+        return $value ? '1' : '0';
+    }
+    if (!is_scalar($value)) {
+        return $default;
+    }
+
+    $normalized = strtolower(trim((string) $value));
+    if (in_array($normalized, ['1', 'true', 'yes', 'on'], true)) {
+        return '1';
+    }
+    if (in_array($normalized, ['0', 'false', 'no', 'off'], true)) {
+        return '0';
+    }
+
+    return $default;
+}
+
+/**
+ * Sanitizes one OpenRouter model identifier used as an ordered fallback.
+ * OpenRouter IDs may include family aliases (`~`), variants (`:`), and `/`.
+ *
+ * @param mixed $value Raw model identifier.
+ */
+function sanitize_routing_model_id_logic($value): string {
+    if (!is_scalar($value)) {
+        return '';
+    }
+
+    $model_id = trim(sanitize_text_field((string) $value));
+    if (
+        $model_id === ''
+        || strlen($model_id) > 200
+        || !preg_match('/^[A-Za-z0-9~][A-Za-z0-9._~:\/-]*$/', $model_id)
+    ) {
+        return '';
+    }
+
+    return $model_id;
+}
+
+/**
+ * Sanitizes the persisted OpenRouter provider-routing settings.
+ *
+ * @param array<string, mixed> $settings Raw provider settings.
+ * @return array<string, string>
+ */
+function sanitize_routing_settings_logic(array $settings): array {
+    $data_collection = isset($settings['data_collection']) && is_scalar($settings['data_collection'])
+        ? strtolower(trim((string) $settings['data_collection']))
+        : 'allow';
+    $normalized = [
+        'allow_fallbacks' => normalize_routing_toggle_logic($settings['allow_fallbacks'] ?? '1', '1'),
+        'require_parameters' => normalize_routing_toggle_logic($settings['require_parameters'] ?? '0', '0'),
+        'data_collection' => $data_collection === 'deny' ? 'deny' : 'allow',
+        'zdr' => normalize_routing_toggle_logic($settings['zdr'] ?? '0', '0'),
+    ];
+
+    $seen_models = [];
+    for ($position = 1; $position <= 3; $position++) {
+        $key = 'fallback_model_' . $position;
+        $model_id = sanitize_routing_model_id_logic($settings[$key] ?? '');
+        $lookup_id = strtolower($model_id);
+        if ($model_id !== '' && isset($seen_models[$lookup_id])) {
+            $model_id = '';
+        }
+        if ($model_id !== '') {
+            $seen_models[$lookup_id] = true;
+        }
+        $normalized[$key] = $model_id;
+    }
+
+    return $normalized;
+}
+
+/**
+ * Builds an opaque, site-specific OpenRouter session key for one chatbot
+ * conversation. Raw WordPress user, guest, bot, and conversation identifiers
+ * are never returned or sent to OpenRouter.
+ */
+function build_session_stickiness_id_logic($bot_id, $conversation_uuid): string {
+    $bot_id = absint($bot_id);
+    $conversation_uuid = substr(sanitize_key((string) $conversation_uuid), 0, 191);
+    if ($bot_id <= 0 || $conversation_uuid === '' || !function_exists('wp_salt')) {
+        return '';
+    }
+
+    $site_secret = (string) wp_salt('auth');
+    if ($site_secret === '') {
+        return '';
+    }
+
+    return 'aipkit_chat_' . hash_hmac(
+        'sha256',
+        $bot_id . '|' . $conversation_uuid,
+        $site_secret
+    );
+}
+
+/**
+ * Builds the OpenRouter Responses extensions for routing and model failover.
+ * Default-valued provider preferences are omitted so upgraded sites retain
+ * the gateway's existing behavior until an administrator opts into a policy.
+ *
+ * @param array<string, mixed> $settings Raw provider settings.
+ * @param array<string, mixed> $request_context Internal chatbot request context.
+ * @return array<string, mixed>
+ */
+function build_routing_request_options_logic(array $settings, string $primary_model, array $request_context = []): array {
+    $settings = sanitize_routing_settings_logic($settings);
+    $provider_preferences = [];
+
+    if ($settings['allow_fallbacks'] === '0') {
+        $provider_preferences['allow_fallbacks'] = false;
+    }
+    if ($settings['require_parameters'] === '1') {
+        $provider_preferences['require_parameters'] = true;
+    }
+    if ($settings['data_collection'] === 'deny') {
+        $provider_preferences['data_collection'] = 'deny';
+    }
+    if ($settings['zdr'] === '1') {
+        $provider_preferences['zdr'] = true;
+    }
+
+    $request_options = [];
+    if (!empty($provider_preferences)) {
+        $request_options['provider'] = $provider_preferences;
+    }
+
+    $primary_lookup = strtolower(trim($primary_model));
+    $fallback_models = [];
+    for ($position = 1; $position <= 3; $position++) {
+        $model_id = $settings['fallback_model_' . $position];
+        if ($model_id === '' || strtolower($model_id) === $primary_lookup) {
+            continue;
+        }
+        $fallback_models[] = $model_id;
+    }
+    if (!empty($fallback_models)) {
+        $request_options['models'] = $fallback_models;
+    }
+
+    $session_id = build_session_stickiness_id_logic(
+        $request_context['bot_id'] ?? 0,
+        $request_context['conversation_uuid'] ?? ''
+    );
+    if ($session_id !== '') {
+        $request_options['session_id'] = $session_id;
+    }
+
+    return $request_options;
+}
+
+/**
+ * Reads the global OpenRouter policy and returns request-ready extensions.
+ *
+ * @param array<string, mixed> $request_context Internal chatbot request context.
+ * @return array<string, mixed>
+ */
+function get_saved_routing_request_options_logic(string $primary_model, array $request_context = []): array {
+    $settings = [];
+    if (class_exists(\WPAICG\AIPKit_Providers::class)) {
+        $provider_data = \WPAICG\AIPKit_Providers::get_provider_data('OpenRouter');
+        if (is_array($provider_data)) {
+            $settings = $provider_data;
+        }
+    }
+
+    return build_routing_request_options_logic($settings, $primary_model, $request_context);
+}
+
+/**
+ * Returns the subset of routing preferences supported by the dedicated Image
+ * API. Privacy, strict-parameter, and cross-model fallback controls are text
+ * Responses features and must not leak into the image request contract.
+ *
+ * @return array<string, mixed>
+ */
+function get_saved_image_routing_preferences_logic(): array {
+    $settings = [];
+    if (class_exists(\WPAICG\AIPKit_Providers::class)) {
+        $provider_data = \WPAICG\AIPKit_Providers::get_provider_data('OpenRouter');
+        if (is_array($provider_data)) {
+            $settings = $provider_data;
+        }
+    }
+
+    $settings = sanitize_routing_settings_logic($settings);
+    return $settings['allow_fallbacks'] === '0'
+        ? ['allow_fallbacks' => false]
+        : [];
+}
+
+/**
  * Shared formatting logic for OpenRouter Responses API payloads.
  *
  * @param string $instructions System instructions.
@@ -134,16 +335,19 @@ function _shared_format_logic(string $instructions, array $history, array $ai_pa
         $input_array = _openrouter_attach_image_inputs($input_array, $ai_params['image_inputs']);
     }
 
+    // OpenRouter Responses is stateless: send the complete input on every call
+    // and intentionally do not forward OpenAI `previous_response_id` or `store` state.
     $body_data = [
         'model' => $model,
         'input' => $input_array,
     ];
 
-    if (isset($ai_params['previous_response_id']) && is_string($ai_params['previous_response_id'])) {
-        $previous_response_id = sanitize_text_field($ai_params['previous_response_id']);
-        if ($previous_response_id !== '') {
-            $body_data['previous_response_id'] = $previous_response_id;
-        }
+    $openrouter_session_context = isset($ai_params['openrouter_session_context'])
+        && is_array($ai_params['openrouter_session_context'])
+        ? $ai_params['openrouter_session_context']
+        : [];
+    foreach (get_saved_routing_request_options_logic($model, $openrouter_session_context) as $routing_key => $routing_value) {
+        $body_data[$routing_key] = $routing_value;
     }
 
     $param_map = [
@@ -171,28 +375,32 @@ function _shared_format_logic(string $instructions, array $history, array $ai_pa
     }
 
     if (isset($ai_params['reasoning']) && is_array($ai_params['reasoning'])) {
-        $body_data['reasoning'] = $ai_params['reasoning'];
+        $reasoning = sanitize_reasoning_request_logic($model, $ai_params['reasoning']);
+        if (!empty($reasoning)) {
+            $body_data['reasoning'] = $reasoning;
+        }
     }
 
     $capability_map = get_capability_map_logic();
-    $model_supports_web_search = model_supports_web_search_plugin_logic($model);
+    $model_supports_web_search = model_supports_web_search_tool_logic($model);
     $bot_allows_web_search = !empty($ai_params['web_search_tool_config']['enabled']);
     $frontend_requests_web_search = !empty($ai_params['frontend_web_search_active']);
     if (
-        !empty($capability_map['web_search_plugin']) &&
+        !empty($capability_map['web_search_tool']) &&
         $model_supports_web_search &&
         $bot_allows_web_search &&
         $frontend_requests_web_search
     ) {
-        $web_plugin = array_merge(
-            ['id' => 'web'],
-            sanitize_web_search_config_logic(
-                is_array($ai_params['web_search_tool_config'] ?? null)
-                    ? $ai_params['web_search_tool_config']
-                    : []
-            )
+        $web_search_tool = ['type' => 'openrouter:web_search'];
+        $web_search_parameters = sanitize_web_search_tool_config_logic(
+            is_array($ai_params['web_search_tool_config'] ?? null)
+                ? $ai_params['web_search_tool_config']
+                : []
         );
-        $body_data['plugins'] = [$web_plugin];
+        if (!empty($web_search_parameters)) {
+            $web_search_tool['parameters'] = $web_search_parameters;
+        }
+        $body_data['tools'] = [$web_search_tool];
     }
 
     return $body_data;
@@ -255,7 +463,7 @@ function build_sse_payload_logic(
 /**
  * Logic for the build static method of OpenRouterUrlBuilder.
  *
- * @param string $operation ('chat', 'models', 'stream', 'embeddings', 'embedding_models')
+ * @param string $operation ('chat', 'models', 'stream', 'embeddings', 'embedding_models', 'image_models')
  * @param array  $params Required parameters (base_url, api_version).
  * @return string|WP_Error The full URL or WP_Error.
  */
@@ -270,6 +478,7 @@ function build_logic_for_url_builder(string $operation, array $params) {
         'models'           => '/models',
         'embeddings'       => '/embeddings',
         'embedding_models' => '/embeddings/models',
+        'image_models'     => '/images/models',
     ];
 
     // OpenRouter runtime chat/stream now targets Responses API.
@@ -303,13 +512,228 @@ function get_capability_map_logic(): array {
     return [
         'chat' => true,
         'stream' => true,
+        'reasoning' => false,
         'tools' => false,
-        'web_search_plugin' => false,
+        'web_search_tool' => true,
         'image_input' => false,
         'image_output' => false,
         'image_generation' => false,
         'embeddings' => false,
     ];
+}
+
+/**
+ * Sanitizes OpenRouter's model-level reasoning descriptor.
+ *
+ * A null supported_efforts value means the gateway accepts every normalized
+ * effort. An omitted supported_efforts key means the model does not expose an
+ * effort selector, even when reasoning itself may be enabled by default.
+ *
+ * @param mixed $value Raw reasoning metadata.
+ * @return array<string, mixed>
+ */
+function sanitize_reasoning_metadata_logic($value): array {
+    if (!is_array($value)) {
+        return [];
+    }
+
+    $normalized = [];
+    foreach (['mandatory', 'default_enabled', 'supports_max_tokens'] as $boolean_key) {
+        if (array_key_exists($boolean_key, $value)) {
+            $normalized[$boolean_key] = (bool) $value[$boolean_key];
+        }
+    }
+
+    $allowed_api_efforts = ['none', 'minimal', 'low', 'medium', 'high', 'xhigh', 'max'];
+    if (array_key_exists('supported_efforts', $value)) {
+        if ($value['supported_efforts'] === null) {
+            $normalized['supported_efforts'] = null;
+        } elseif (is_array($value['supported_efforts'])) {
+            $supported_efforts = [];
+            foreach ($value['supported_efforts'] as $effort) {
+                if (!is_string($effort)) {
+                    continue;
+                }
+                $effort = sanitize_key($effort);
+                if (in_array($effort, $allowed_api_efforts, true)) {
+                    $supported_efforts[] = $effort;
+                }
+            }
+            $normalized['supported_efforts'] = array_values(array_unique($supported_efforts));
+        }
+    }
+
+    if (isset($value['default_effort']) && is_string($value['default_effort'])) {
+        $default_effort = sanitize_key($value['default_effort']);
+        if (in_array($default_effort, $allowed_api_efforts, true)) {
+            $normalized['default_effort'] = $default_effort;
+        }
+    }
+
+    return $normalized;
+}
+
+/**
+ * Maps OpenRouter's extended effort vocabulary onto the plugin's stable UI.
+ */
+function map_api_reasoning_effort_to_ui_logic(string $effort): string {
+    if ($effort === 'minimal') {
+        return 'low';
+    }
+    if ($effort === 'max') {
+        return 'xhigh';
+    }
+    return $effort;
+}
+
+/**
+ * Builds the reasoning-effort UI and request rule from synchronized metadata.
+ *
+ * @param array<string, mixed> $metadata Model metadata.
+ * @return array{supported: bool, allowed: array<int, string>, default: string, mandatory: bool, api_effort_map: array<string, string>}
+ */
+function get_reasoning_rule_from_metadata_logic(array $metadata): array {
+    $unsupported = [
+        'supported' => false,
+        'allowed' => [],
+        'default' => '',
+        'mandatory' => false,
+        'api_effort_map' => [],
+    ];
+
+    $model_id = strtolower(trim((string) ($metadata['id'] ?? '')));
+    if (
+        $model_id === 'openrouter/auto'
+        || $model_id === 'auto'
+        || strpos($model_id, 'auto-router') !== false
+    ) {
+        return $unsupported;
+    }
+
+    $has_reasoning_metadata = array_key_exists('reasoning', $metadata);
+    $reasoning = $has_reasoning_metadata
+        ? sanitize_reasoning_metadata_logic($metadata['reasoning'])
+        : [];
+    $mandatory = !empty($reasoning['mandatory']);
+    $api_effort_map = [];
+
+    if ($has_reasoning_metadata) {
+        if (!array_key_exists('supported_efforts', $reasoning)) {
+            return $unsupported;
+        }
+
+        $api_efforts = $reasoning['supported_efforts'];
+        if ($api_efforts === null) {
+            $api_efforts = ['low', 'medium', 'high', 'xhigh'];
+        }
+
+        foreach ($api_efforts as $api_effort) {
+            $ui_effort = map_api_reasoning_effort_to_ui_logic((string) $api_effort);
+            if (!in_array($ui_effort, ['low', 'medium', 'high', 'xhigh'], true)) {
+                continue;
+            }
+            // Prefer the exact normalized gateway value when both an alias and
+            // the UI value are advertised by the model.
+            if (!isset($api_effort_map[$ui_effort]) || $api_effort === $ui_effort) {
+                $api_effort_map[$ui_effort] = (string) $api_effort;
+            }
+        }
+    } else {
+        $supported_parameters = normalize_capability_list_logic(
+            $metadata['supported_parameters']
+                ?? ($metadata['supportedParameters']
+                    ?? ($metadata['supported_sampling_parameters'] ?? []))
+        );
+        if (
+            !in_array('reasoning', $supported_parameters, true)
+            && !in_array('reasoning_effort', $supported_parameters, true)
+        ) {
+            return $unsupported;
+        }
+        foreach (['low', 'medium', 'high', 'xhigh'] as $effort) {
+            $api_effort_map[$effort] = $effort;
+        }
+    }
+
+    $effort_values = array_keys($api_effort_map);
+    if (empty($effort_values)) {
+        return $unsupported;
+    }
+
+    $allowed = $mandatory ? $effort_values : array_merge(['none'], $effort_values);
+    $default = '';
+    if (!empty($reasoning['default_effort'])) {
+        $candidate_default = map_api_reasoning_effort_to_ui_logic((string) $reasoning['default_effort']);
+        if (in_array($candidate_default, $allowed, true)) {
+            $default = $candidate_default;
+        }
+    }
+    if ($default === '' && !$mandatory && empty($reasoning['default_enabled'])) {
+        $default = 'none';
+    }
+    if ($default === '') {
+        $default = in_array('medium', $allowed, true) ? 'medium' : $effort_values[0];
+    }
+
+    return [
+        'supported' => true,
+        'allowed' => array_values(array_unique($allowed)),
+        'default' => $default,
+        'mandatory' => $mandatory,
+        'api_effort_map' => $api_effort_map,
+    ];
+}
+
+/**
+ * Resolves the synchronized reasoning-effort rule for an OpenRouter model.
+ *
+ * @return array{supported: bool, allowed: array<int, string>, default: string, mandatory: bool, api_effort_map: array<string, string>}
+ */
+function get_reasoning_rule_logic(string $model_id): array {
+    $metadata = get_model_metadata_logic($model_id);
+    if (!is_array($metadata)) {
+        return get_reasoning_rule_from_metadata_logic(['id' => $model_id]);
+    }
+    return get_reasoning_rule_from_metadata_logic($metadata);
+}
+
+/**
+ * Normalizes the saved five-level setting to the model's exact API effort.
+ */
+function normalize_reasoning_effort_logic(string $model_id, $effort): string {
+    if (!is_string($effort)) {
+        return '';
+    }
+
+    $ui_effort = map_api_reasoning_effort_to_ui_logic(sanitize_key($effort));
+    $rule = get_reasoning_rule_logic($model_id);
+    if (!$rule['supported']) {
+        return '';
+    }
+
+    if ($ui_effort === 'none') {
+        if (!$rule['mandatory']) {
+            return 'none';
+        }
+        $ui_effort = $rule['default'];
+    }
+
+    if (!in_array($ui_effort, $rule['allowed'], true)) {
+        return '';
+    }
+
+    return $rule['api_effort_map'][$ui_effort] ?? $ui_effort;
+}
+
+/**
+ * Sanitizes the reasoning object before it reaches OpenRouter.
+ *
+ * @param array<string, mixed> $reasoning Raw request setting.
+ * @return array{effort: string}|array{}
+ */
+function sanitize_reasoning_request_logic(string $model_id, array $reasoning): array {
+    $effort = normalize_reasoning_effort_logic($model_id, $reasoning['effort'] ?? '');
+    return $effort === '' ? [] : ['effort' => $effort];
 }
 
 /**
@@ -338,6 +762,66 @@ function normalize_capability_list_logic($value): array {
 }
 
 /**
+ * Normalizes capability descriptors returned by OpenRouter's Image Models API.
+ *
+ * @param mixed $value Raw supported_parameters descriptor map.
+ * @return array<string, array<string, mixed>>
+ */
+function normalize_supported_parameter_schema_logic($value): array {
+    if (!is_array($value)) {
+        return [];
+    }
+
+    $normalized = [];
+    foreach ($value as $parameter => $descriptor) {
+        if (!is_string($parameter) || !is_array($descriptor)) {
+            continue;
+        }
+        $parameter = strtolower(trim($parameter));
+        if ($parameter === '') {
+            continue;
+        }
+
+        $type = isset($descriptor['type']) && is_string($descriptor['type'])
+            ? strtolower(trim($descriptor['type']))
+            : '';
+        if (!in_array($type, ['enum', 'range', 'boolean'], true)) {
+            continue;
+        }
+
+        $normalized_descriptor = ['type' => $type];
+        if ($type === 'enum') {
+            $values = [];
+            foreach (($descriptor['values'] ?? []) as $enum_value) {
+                if (!is_scalar($enum_value)) {
+                    continue;
+                }
+                $enum_value = sanitize_text_field((string) $enum_value);
+                if ($enum_value !== '') {
+                    $values[] = $enum_value;
+                }
+            }
+            $values = array_values(array_unique($values));
+            if (empty($values)) {
+                continue;
+            }
+            $normalized_descriptor['values'] = $values;
+        } elseif ($type === 'range') {
+            if (isset($descriptor['min']) && is_numeric($descriptor['min'])) {
+                $normalized_descriptor['min'] = 0 + $descriptor['min'];
+            }
+            if (isset($descriptor['max']) && is_numeric($descriptor['max'])) {
+                $normalized_descriptor['max'] = 0 + $descriptor['max'];
+            }
+        }
+
+        $normalized[$parameter] = $normalized_descriptor;
+    }
+
+    return $normalized;
+}
+
+/**
  * Sanitizes capability payload from stored metadata.
  *
  * @param mixed $capabilities Raw stored capabilities.
@@ -346,6 +830,12 @@ function normalize_capability_list_logic($value): array {
 function sanitize_capabilities_payload_logic($capabilities): array {
     if (!is_array($capabilities)) {
         return [];
+    }
+
+    // Preserve synchronized model registries created before the OpenRouter
+    // server-tool migration without keeping the deprecated key active.
+    if (!array_key_exists('web_search_tool', $capabilities) && array_key_exists('web_search_plugin', $capabilities)) {
+        $capabilities['web_search_tool'] = (bool) $capabilities['web_search_plugin'];
     }
 
     $allowed_keys = array_keys(get_capability_map_logic());
@@ -422,7 +912,7 @@ function resolve_model_capabilities_from_metadata_logic(array $metadata): array 
 
         // Treat explicit supported_features payload as authoritative for these capabilities.
         $resolved['tools'] = $supports_tools_feature;
-        $resolved['web_search_plugin'] = $supports_web_feature;
+        $resolved['web_search_tool'] = $supports_web_feature;
         $resolved['image_generation'] = $supports_image_generation_feature || $resolved['image_generation'];
         $resolved['image_output'] = $resolved['image_generation'];
 
@@ -445,17 +935,20 @@ function resolve_model_capabilities_from_metadata_logic(array $metadata): array 
         if (empty($supported_features)) {
             // If we do not have explicit feature metadata, use parameter metadata directly.
             $resolved['tools'] = $supports_tools_param;
-            $resolved['web_search_plugin'] = $supports_tools_param;
+            $resolved['web_search_tool'] = $supports_tools_param;
         } else {
             // If feature metadata exists, treat parameter metadata as supplementary.
             $resolved['tools'] = !empty($resolved['tools']) || $supports_tools_param;
-            $resolved['web_search_plugin'] = !empty($resolved['web_search_plugin']) || $supports_tools_param;
+            $resolved['web_search_tool'] = !empty($resolved['web_search_tool']) || $supports_tools_param;
         }
     }
 
+    $reasoning_rule = get_reasoning_rule_from_metadata_logic($metadata);
+    $resolved['reasoning'] = $reasoning_rule['supported'];
+
     // Keep compatibility with OpenRouter pricing hints.
     if (array_key_exists('pricing_web_search', $metadata)) {
-        $resolved['web_search_plugin'] = true;
+        $resolved['web_search_tool'] = true;
     }
 
     // Resolve image output strictly:
@@ -558,7 +1051,7 @@ function resolve_model_capabilities_logic(string $model_id): array {
 }
 
 /**
- * Checks whether selected OpenRouter model appears to support web search plugin usage.
+ * Checks whether selected OpenRouter model appears to support the web search server tool.
  *
  * Decision policy:
  * - If synced metadata explicitly declares support (`supported_features` / `supported_parameters`), trust it.
@@ -568,9 +1061,9 @@ function resolve_model_capabilities_logic(string $model_id): array {
  * @param string $model_id OpenRouter model id.
  * @return bool
  */
-function model_supports_web_search_plugin_logic(string $model_id): bool {
+function model_supports_web_search_tool_logic(string $model_id): bool {
     $resolved = resolve_model_capabilities_logic($model_id);
-    return !empty($resolved['web_search_plugin']);
+    return !empty($resolved['web_search_tool']);
 }
 
 /**
@@ -585,63 +1078,19 @@ function model_supports_image_output_logic(string $model_id): bool {
 }
 
 /**
- * Returns normalized output modalities for a synced OpenRouter model.
+ * Returns the normalized dedicated Image API parameter schema for a model.
  *
  * @param string $model_id OpenRouter model id.
- * @return array<int, string>
+ * @return array<string, array<string, mixed>>
  */
-function model_output_modalities_logic(string $model_id): array {
+function model_image_parameter_schema_logic(string $model_id): array {
     $metadata = get_model_metadata_logic($model_id);
     if (!is_array($metadata)) {
         return [];
     }
 
-    return normalize_capability_list_logic(
-        $metadata['output_modalities'] ?? ($metadata['architecture']['output_modalities'] ?? [])
-    );
-}
-
-/**
- * Checks whether selected OpenRouter model is a documented image_config-capable family.
- *
- * OpenRouter's model metadata does not consistently expose image_config in
- * supported_parameters, so keep this conservative and limited to documented
- * image model families instead of sending image_config to every image model.
- *
- * @param string $model_id OpenRouter model id.
- * @return bool
- */
-function model_supports_image_config_logic(string $model_id): bool {
-    $model_id = strtolower(sanitize_text_field($model_id));
-    if ($model_id === '') {
-        return false;
-    }
-
-    $metadata = get_model_metadata_logic($model_id);
-    if (is_array($metadata)) {
-        $supported_parameters = normalize_capability_list_logic(
-            $metadata['supported_parameters']
-                ?? ($metadata['supportedParameters']
-                    ?? ($metadata['supported_sampling_parameters'] ?? []))
-        );
-        foreach ($supported_parameters as $parameter) {
-            if (
-                $parameter === 'image_config'
-                || $parameter === 'image_config.aspect_ratio'
-                || $parameter === 'image_config.image_size'
-            ) {
-                return true;
-            }
-        }
-    }
-
-    $is_google_image_model = strpos($model_id, 'google/gemini-') === 0
-        && strpos($model_id, 'image') !== false;
-    $is_flux_model = strpos($model_id, 'black-forest-labs/flux') === 0;
-    $is_recraft_model = strpos($model_id, 'recraft/') === 0;
-    $is_sourceful_model = strpos($model_id, 'sourceful/riverflow') === 0;
-
-    return $is_google_image_model || $is_flux_model || $is_recraft_model || $is_sourceful_model;
+    $schema = $metadata['supported_parameter_schema'] ?? [];
+    return is_array($schema) ? normalize_supported_parameter_schema_logic($schema) : [];
 }
 
 /**
@@ -653,37 +1102,112 @@ function model_supports_image_config_logic(string $model_id): bool {
  */
 function model_supports_image_editing_logic(string $model_id): bool {
     $resolved = resolve_model_capabilities_logic($model_id);
-    return !empty($resolved['image_input']) && !empty($resolved['image_output']);
+    if (empty($resolved['image_input']) || empty($resolved['image_output'])) {
+        return false;
+    }
+
+    $parameter_schema = model_image_parameter_schema_logic($model_id);
+    return empty($parameter_schema) || isset($parameter_schema['input_references']);
 }
 
 /**
- * Sanitizes web search plugin configuration for OpenRouter Responses payloads.
+ * Normalizes domain filters accepted by the OpenRouter web search server tool.
+ *
+ * @param mixed $raw_domains Comma/newline-delimited string or a list of domains.
+ * @return array<int, string>
+ */
+function normalize_web_search_domains_logic($raw_domains): array {
+    $domains = is_array($raw_domains)
+        ? $raw_domains
+        : preg_split('/[\s,]+/', (string) $raw_domains, -1, PREG_SPLIT_NO_EMPTY);
+    if (!is_array($domains)) {
+        return [];
+    }
+
+    $normalized = [];
+    foreach ($domains as $domain) {
+        if (!is_string($domain)) {
+            continue;
+        }
+        $domain = strtolower(trim(sanitize_text_field($domain)));
+        if ($domain === '' || strpos($domain, '*') !== false) {
+            continue;
+        }
+
+        $host = wp_parse_url(
+            preg_match('#^https?://#i', $domain) ? $domain : 'https://' . ltrim($domain, '.'),
+            PHP_URL_HOST
+        );
+        if (!is_string($host) || $host === '') {
+            continue;
+        }
+        $host = strtolower(rtrim($host, '.'));
+        if (
+            $host === ''
+            || strpos($host, '.') === false
+            || strlen($host) > 253
+            || !preg_match('/^(?=.{1,253}$)(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.)*[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?$/', $host)
+        ) {
+            continue;
+        }
+        $normalized[] = $host;
+    }
+
+    return array_values(array_unique($normalized));
+}
+
+/**
+ * Sanitizes web search server-tool configuration for OpenRouter Responses payloads.
  *
  * @param array $raw_config Raw web search tool config.
- * @return array Sanitized web plugin config fields.
+ * @return array Sanitized web search tool parameters.
  */
-function sanitize_web_search_config_logic(array $raw_config): array {
+function sanitize_web_search_tool_config_logic(array $raw_config): array {
     $sanitized = [];
 
     if (isset($raw_config['max_results'])) {
         $max_results = absint($raw_config['max_results']);
         if ($max_results > 0) {
-            $sanitized['max_results'] = max(1, min($max_results, 10));
+            $sanitized['max_results'] = max(1, min($max_results, 25));
         }
     }
 
-    if (!empty($raw_config['search_prompt'])) {
-        $search_prompt = AIPKit_Prompt_Sanitizer::sanitize($raw_config['search_prompt']);
-        if ($search_prompt !== '') {
-            $sanitized['search_prompt'] = $search_prompt;
+    if (isset($raw_config['max_uses'])) {
+        $max_uses = absint($raw_config['max_uses']);
+        if ($max_uses > 0) {
+            $sanitized['max_uses'] = max(1, min($max_uses, 10));
+        }
+    }
+
+    if (isset($raw_config['max_total_results'])) {
+        $max_total_results = absint($raw_config['max_total_results']);
+        if ($max_total_results > 0) {
+            $sanitized['max_total_results'] = max(1, min($max_total_results, 100));
         }
     }
 
     if (!empty($raw_config['engine'])) {
         $engine = sanitize_key((string) $raw_config['engine']);
-        if (in_array($engine, ['native', 'exa'], true)) {
+        if (in_array($engine, ['native', 'exa', 'firecrawl', 'parallel', 'perplexity'], true)) {
             $sanitized['engine'] = $engine;
         }
+    }
+
+    if (!empty($raw_config['search_context_size'])) {
+        $search_context_size = sanitize_key((string) $raw_config['search_context_size']);
+        if (in_array($search_context_size, ['low', 'medium', 'high'], true)) {
+            $sanitized['search_context_size'] = $search_context_size;
+        }
+    }
+
+    $allowed_domains = normalize_web_search_domains_logic($raw_config['allowed_domains'] ?? []);
+    $excluded_domains = normalize_web_search_domains_logic($raw_config['excluded_domains'] ?? []);
+    if (!empty($allowed_domains)) {
+        $sanitized['allowed_domains'] = $allowed_domains;
+    } elseif (!empty($excluded_domains)) {
+        // OpenRouter engines apply these filters differently. Avoid sending
+        // conflicting lists: an allowlist always takes precedence.
+        $sanitized['excluded_domains'] = $excluded_domains;
     }
 
     return $sanitized;
@@ -894,7 +1418,7 @@ function get_api_headers_logic(OpenRouterProviderStrategy $strategyInstance, str
         'Content-Type' => 'application/json',
         'Authorization' => 'Bearer ' . $api_key,
         'HTTP-Referer' => get_bloginfo('url'),
-        'X-Title' => 'AIPKit',
+        'X-OpenRouter-Title' => 'AIPKit',
     ];
     if ($operation === 'stream') {
         $headers['Accept'] = 'text/event-stream';
@@ -1028,23 +1552,50 @@ function get_models_logic(OpenRouterProviderStrategy $strategyInstance, array $a
 }
 
 /**
+ * Excludes models whose advertised output format is exclusively non-raster.
+ *
+ * WordPress Media Library storage in the image modules expects raster bytes.
+ * Models without an output_format descriptor remain available because their
+ * default response may still be a supported raster format.
+ *
+ * @param array<int, array<string, mixed>> $models Formatted Image API models.
+ * @return array<int, array<string, mixed>>
+ */
+function filter_raster_image_models_logic(array $models): array {
+    $raster_formats = ['png', 'jpeg', 'jpg', 'webp'];
+
+    return array_values(array_filter($models, static function (array $model) use ($raster_formats): bool {
+        $descriptor = $model['supported_parameter_schema']['output_format'] ?? null;
+        if (!is_array($descriptor) || empty($descriptor['values']) || !is_array($descriptor['values'])) {
+            return true;
+        }
+
+        $advertised_formats = [];
+        foreach ($descriptor['values'] as $format) {
+            if (is_scalar($format)) {
+                $advertised_formats[] = strtolower(trim((string) $format));
+            }
+        }
+
+        return !empty(array_intersect($raster_formats, $advertised_formats));
+    }));
+}
+
+/**
  * Logic for syncing OpenRouter image-output models.
  *
- * OpenRouter's general /models response does not currently include every
- * image-only model family, so image model lists use the output_modalities
- * filtered endpoint.
+ * Uses OpenRouter's dedicated Image Models API so the synchronized rows carry
+ * the exact capability descriptors used by the Image API payload validator.
  *
  * @param OpenRouterProviderStrategy $strategyInstance The instance of the strategy class.
  * @param array $api_params Connection parameters (api_key, base_url, etc.).
  * @return array|WP_Error
  */
 function get_image_models_logic(OpenRouterProviderStrategy $strategyInstance, array $api_params) {
-    $url = $strategyInstance->build_api_url('models', $api_params);
+    $url = $strategyInstance->build_api_url('image_models', $api_params);
     if (is_wp_error($url)) {
         return $url;
     }
-
-    $url .= (strpos($url, '?') !== false ? '&' : '?') . 'output_modalities=image';
 
     $headers = $strategyInstance->get_api_headers($api_params['api_key'] ?? '', 'models');
     $options = $strategyInstance->get_request_options('models');
@@ -1077,7 +1628,7 @@ function get_image_models_logic(OpenRouterProviderStrategy $strategyInstance, ar
         return [];
     }
 
-    return format_models_logic($raw_models);
+    return filter_raster_image_models_logic(format_models_logic($raw_models));
 }
 
 /**
@@ -1105,24 +1656,35 @@ function format_models_logic(array $raw_models): array {
         ];
 
         $supported_parameters = [];
+        $supported_parameter_schema = [];
         $raw_supported_parameters = $model['supported_parameters']
             ?? $model['supportedParameters']
             ?? $model['supported_sampling_parameters']
             ?? [];
         if (is_array($raw_supported_parameters)) {
-            foreach ($raw_supported_parameters as $param) {
-                if (!is_string($param)) {
-                    continue;
+            $is_list = empty($raw_supported_parameters)
+                || array_keys($raw_supported_parameters) === range(0, count($raw_supported_parameters) - 1);
+            if ($is_list) {
+                foreach ($raw_supported_parameters as $param) {
+                    if (!is_string($param)) {
+                        continue;
+                    }
+                    $param = strtolower(trim($param));
+                    if ($param !== '') {
+                        $supported_parameters[] = $param;
+                    }
                 }
-                $param = strtolower(trim($param));
-                if ($param !== '') {
-                    $supported_parameters[] = $param;
-                }
+            } else {
+                $supported_parameter_schema = normalize_supported_parameter_schema_logic($raw_supported_parameters);
+                $supported_parameters = array_keys($supported_parameter_schema);
             }
             $supported_parameters = array_values(array_unique($supported_parameters));
         }
         if (!empty($supported_parameters)) {
             $item['supported_parameters'] = $supported_parameters;
+        }
+        if (!empty($supported_parameter_schema)) {
+            $item['supported_parameter_schema'] = $supported_parameter_schema;
         }
 
         $input_modalities = [];
@@ -1185,6 +1747,20 @@ function format_models_logic(array $raw_models): array {
             $item['supported_features'] = $supported_features;
         }
 
+        if (array_key_exists('reasoning', $model)) {
+            $item['reasoning'] = sanitize_reasoning_metadata_logic($model['reasoning']);
+        }
+
+        if (array_key_exists('supports_streaming', $model)) {
+            $item['supports_streaming'] = (bool) $model['supports_streaming'];
+        }
+        if (!empty($model['endpoints']) && is_string($model['endpoints'])) {
+            $endpoints_path = sanitize_text_field($model['endpoints']);
+            if ($endpoints_path !== '') {
+                $item['endpoints'] = $endpoints_path;
+            }
+        }
+
         // Keep a tiny pricing hint for runtime feature guards.
         if (isset($model['pricing']) && is_array($model['pricing']) && isset($model['pricing']['web_search'])) {
             $item['pricing_web_search'] = sanitize_text_field((string) $model['pricing']['web_search']);
@@ -1205,6 +1781,201 @@ function format_models_logic(array $raw_models): array {
 }
 
 // --- map-sse-event.php ---
+/**
+ * Extracts OpenRouter Responses URL citations from a completed response.
+ *
+ * @param array<string, mixed> $response Responses API response object.
+ * @return array<int, array<string, mixed>>
+ */
+function extract_citations_from_response_logic_for_response_parser(array $response): array {
+    if (isset($response['response']) && is_array($response['response'])) {
+        $response = $response['response'];
+    }
+
+    $citations = [];
+    $output = isset($response['output']) && is_array($response['output']) ? $response['output'] : [];
+    foreach ($output as $output_item) {
+        if (!is_array($output_item) || empty($output_item['content']) || !is_array($output_item['content'])) {
+            continue;
+        }
+        foreach ($output_item['content'] as $content_item) {
+            if (!is_array($content_item) || empty($content_item['annotations']) || !is_array($content_item['annotations'])) {
+                continue;
+            }
+            $full_text = isset($content_item['text']) && is_string($content_item['text'])
+                ? $content_item['text']
+                : '';
+            foreach ($content_item['annotations'] as $annotation) {
+                if (!is_array($annotation)) {
+                    continue;
+                }
+                $normalized = normalize_citation_logic_for_response_parser($annotation, $full_text);
+                if ($normalized !== null) {
+                    $citations[] = $normalized;
+                }
+            }
+        }
+    }
+
+    return dedupe_citations_logic_for_response_parser($citations);
+}
+
+/**
+ * Extracts citations exposed by incremental and completion SSE payloads.
+ *
+ * @param array<string, mixed> $payload Event payload.
+ * @return array<int, array<string, mixed>>
+ */
+function extract_citations_from_event_payload_logic_for_response_parser(array $payload): array {
+    $citations = [];
+
+    if (isset($payload['annotation']) && is_array($payload['annotation'])) {
+        $normalized = normalize_citation_logic_for_response_parser($payload['annotation']);
+        if ($normalized !== null) {
+            $citations[] = $normalized;
+        }
+    }
+
+    foreach (['part', 'item'] as $container_key) {
+        $container = isset($payload[$container_key]) && is_array($payload[$container_key])
+            ? $payload[$container_key]
+            : null;
+        if ($container === null) {
+            continue;
+        }
+
+        $content_items = $container_key === 'part'
+            ? [$container]
+            : (isset($container['content']) && is_array($container['content']) ? $container['content'] : []);
+        foreach ($content_items as $content_item) {
+            if (!is_array($content_item) || empty($content_item['annotations']) || !is_array($content_item['annotations'])) {
+                continue;
+            }
+            $full_text = isset($content_item['text']) && is_string($content_item['text'])
+                ? $content_item['text']
+                : '';
+            foreach ($content_item['annotations'] as $annotation) {
+                if (!is_array($annotation)) {
+                    continue;
+                }
+                $normalized = normalize_citation_logic_for_response_parser($annotation, $full_text);
+                if ($normalized !== null) {
+                    $citations[] = $normalized;
+                }
+            }
+        }
+    }
+
+    if (isset($payload['response']) && is_array($payload['response'])) {
+        $citations = array_merge(
+            $citations,
+            extract_citations_from_response_logic_for_response_parser($payload['response'])
+        );
+    }
+
+    return dedupe_citations_logic_for_response_parser($citations);
+}
+
+/**
+ * Normalizes an OpenRouter URL annotation into the citation shape shared by the frontend.
+ *
+ * @param array<string, mixed> $annotation OpenRouter annotation.
+ * @param string $full_text Full output text used for an index-based excerpt fallback.
+ * @return array<string, mixed>|null
+ */
+function normalize_citation_logic_for_response_parser(array $annotation, string $full_text = ''): ?array {
+    if (($annotation['type'] ?? '') !== 'url_citation') {
+        return null;
+    }
+
+    $raw_url = isset($annotation['url']) && is_string($annotation['url'])
+        ? trim($annotation['url'])
+        : '';
+    $url = esc_url_raw($raw_url, ['http', 'https']);
+    if ($url === '') {
+        return null;
+    }
+
+    $normalized = [
+        'type' => 'char_location',
+        'url' => $url,
+    ];
+
+    if (!empty($annotation['title']) && is_string($annotation['title'])) {
+        $title = sanitize_text_field($annotation['title']);
+        if ($title !== '') {
+            $normalized['title'] = $title;
+            $normalized['source_title'] = $title;
+        }
+    }
+
+    $start_index = isset($annotation['start_index']) && is_numeric($annotation['start_index'])
+        ? max(0, (int) $annotation['start_index'])
+        : null;
+    $end_index = isset($annotation['end_index']) && is_numeric($annotation['end_index'])
+        ? max(0, (int) $annotation['end_index'])
+        : null;
+    if ($start_index !== null) {
+        $normalized['start_char_index'] = $start_index;
+    }
+    if ($end_index !== null) {
+        $normalized['end_char_index'] = $end_index;
+    }
+
+    $cited_text = '';
+    foreach (['content', 'text', 'snippet', 'excerpt'] as $field) {
+        if (!empty($annotation[$field]) && is_string($annotation[$field])) {
+            $cited_text = trim(wp_strip_all_tags($annotation[$field]));
+            if ($cited_text !== '') {
+                break;
+            }
+        }
+    }
+    if ($cited_text === '' && $full_text !== '' && $start_index !== null && $end_index !== null && $end_index > $start_index) {
+        $length = $end_index - $start_index;
+        $cited_text = function_exists('mb_substr')
+            ? mb_substr($full_text, $start_index, $length)
+            : substr($full_text, $start_index, $length);
+        $cited_text = trim(wp_strip_all_tags((string) $cited_text));
+    }
+    if ($cited_text !== '') {
+        $normalized['cited_text'] = $cited_text;
+    }
+
+    return $normalized;
+}
+
+/**
+ * Deduplicates citation rows by URL while preserving richer metadata.
+ *
+ * @param array<int, array<string, mixed>> $citations Citation list.
+ * @return array<int, array<string, mixed>>
+ */
+function dedupe_citations_logic_for_response_parser(array $citations): array {
+    $deduped = [];
+    $url_indexes = [];
+
+    foreach ($citations as $citation) {
+        if (!is_array($citation) || empty($citation['url']) || !is_string($citation['url'])) {
+            continue;
+        }
+        $key = strtolower(trim($citation['url']));
+        if (isset($url_indexes[$key])) {
+            $index = $url_indexes[$key];
+            foreach ($citation as $field => $value) {
+                if (!isset($deduped[$index][$field]) || $deduped[$index][$field] === '') {
+                    $deduped[$index][$field] = $value;
+                }
+            }
+            continue;
+        }
+        $url_indexes[$key] = count($deduped);
+        $deduped[] = $citation;
+    }
+
+    return $deduped;
+}
+
 /**
  * Maps a normalized OpenRouter SSE event into an internal typed event.
  *
@@ -1229,13 +2000,16 @@ function map_sse_event_logic_for_response_parser(array $decoded_event): array {
         ];
     }
 
-    if ($event_type === 'error' || isset($payload['error'])) {
+    if ($event_type === 'error' || $event_type === 'response.error' || isset($payload['error'])) {
+        $error_details = extract_error_details_logic_for_response_parser($payload);
         return [
             'kind' => 'error',
             'event' => $event_type,
-            'message' => parse_error_logic_for_response_parser($payload, 500),
+            'message' => $error_details['message'],
         ];
     }
+
+    $event_citations = extract_citations_from_event_payload_logic_for_response_parser($payload);
 
     switch ($event_type) {
         case 'response.created':
@@ -1251,7 +2025,6 @@ function map_sse_event_logic_for_response_parser(array $decoded_event): array {
         case 'response.image_generation_call.generating':
         case 'response.image_generation_call.completed':
         case 'response.output_item.added':
-        case 'response.output_item.done':
         case 'response.content_part.added':
         case 'response.output_text.done':
         case 'response.reasoning.delta':
@@ -1260,6 +2033,23 @@ function map_sse_event_logic_for_response_parser(array $decoded_event): array {
         case 'response.function_call_arguments.done':
         case 'tool.preliminary_result':
         case 'tool.result':
+            return [
+                'kind' => 'status',
+                'event' => $event_type,
+                'status' => build_sse_status_logic_for_response_parser($event_type, $payload),
+            ];
+
+        case 'response.output_text.annotation.added':
+        case 'response.content_part.done':
+        case 'response.output_item.done':
+            if (!empty($event_citations)) {
+                return [
+                    'kind' => 'citations',
+                    'event' => $event_type,
+                    'citations' => $event_citations,
+                ];
+            }
+
             return [
                 'kind' => 'status',
                 'event' => $event_type,
@@ -1312,15 +2102,16 @@ function map_sse_event_logic_for_response_parser(array $decoded_event): array {
                 'usage' => extract_sse_usage_logic_for_response_parser($payload),
                 'status' => build_sse_status_logic_for_response_parser($event_type, $payload),
                 'warning_text' => $warning_text,
+                'citations' => $event_citations,
             ];
 
         case 'response.failed':
-            $error_message = $payload['response']['error']['message'] ?? __('Response failed', 'gpt3-ai-content-generator');
+            $error_details = extract_error_details_logic_for_response_parser($payload);
 
             return [
                 'kind' => 'error',
                 'event' => $event_type,
-                'message' => sprintf(' (%s: %s)', __('Error', 'gpt3-ai-content-generator'), $error_message),
+                'message' => $error_details['message'],
             ];
 
         default:
@@ -1469,10 +2260,18 @@ function parse_chat_response_logic(
 function parse_chat_logic_for_response_parser(array $decoded_response) {
     $content = null;
     $usage = null;
+    $citations = extract_citations_from_response_logic_for_response_parser($decoded_response);
 
-    if (isset($decoded_response['status']) && $decoded_response['status'] === 'failed') {
-        $failed_message = parse_error_logic_for_response_parser($decoded_response, 500);
-        return new WP_Error('openrouter_failed_response_logic', $failed_message);
+    if (
+        (isset($decoded_response['status']) && $decoded_response['status'] === 'failed')
+        || isset($decoded_response['error'])
+    ) {
+        $error_details = extract_error_details_logic_for_response_parser($decoded_response);
+        $error_data = [];
+        if ($error_details['error_type'] !== '') {
+            $error_data['error_type'] = $error_details['error_type'];
+        }
+        return new WP_Error('openrouter_failed_response_logic', $error_details['message'], $error_data);
     }
 
     if (isset($decoded_response['output_text']) && is_string($decoded_response['output_text'])) {
@@ -1552,7 +2351,12 @@ function parse_chat_logic_for_response_parser(array $decoded_response) {
         return new WP_Error('invalid_response_structure_openrouter_logic', __('Unexpected response structure from OpenRouter API.', 'gpt3-ai-content-generator'));
     }
 
-    return ['content' => $content, 'usage' => $usage];
+    $parsed = ['content' => $content, 'usage' => $usage];
+    if (!empty($citations)) {
+        $parsed['citations'] = $citations;
+    }
+
+    return $parsed;
 }
 
 // --- parse-error-response.php ---
@@ -1590,24 +2394,77 @@ function parse_error_response_logic(
  * @return string A user-friendly error message.
  */
 function parse_error_logic_for_response_parser($response_body, int $status_code): string {
-    $message = __('An unknown API error occurred.', 'gpt3-ai-content-generator');
+    $error_details = extract_error_details_logic_for_response_parser($response_body);
+    return $error_details['message'];
+}
+
+/**
+ * Extracts the current OpenRouter error envelope from standard and Responses SSE payloads.
+ *
+ * OpenRouter exposes the stable provider error category as `error_type`. Responses
+ * streaming failures wrap the same envelope under `response`, while pre-stream and
+ * standard failures expose it at the top level.
+ *
+ * @param mixed $response_body Raw JSON, decoded error payload, or Responses SSE payload.
+ * @return array{message: string, error_type: string}
+ */
+function extract_error_details_logic_for_response_parser($response_body): array {
+    $default_message = __('An unknown API error occurred.', 'gpt3-ai-content-generator');
     $decoded = is_string($response_body) ? json_decode($response_body, true) : $response_body;
 
-    if (is_array($decoded)) {
-        // Check common error structures
-        if (!empty($decoded['error']['message'])) {
-            $message = $decoded['error']['message'];
-            if (!empty($decoded['error']['code'])) { $message .= ' (Code: ' . $decoded['error']['code'] . ')'; }
-        } elseif (!empty($decoded['detail'])) { // Sometimes uses 'detail'
-            $message = is_string($decoded['detail']) ? $decoded['detail'] : json_encode($decoded['detail']);
-        } elseif (!empty($decoded['message'])) { // Top-level message fallback
-            $message = $decoded['message'];
-        }
-    } elseif (is_string($response_body)) {
-         $message = substr($response_body, 0, 200); // Raw snippet
+    if (!is_array($decoded)) {
+        $raw_message = is_string($response_body) ? trim(substr($response_body, 0, 200)) : '';
+        return [
+            'message' => $raw_message !== '' ? $raw_message : $default_message,
+            'error_type' => '',
+        ];
     }
 
-    return trim($message);
+    $envelope = isset($decoded['response']) && is_array($decoded['response'])
+        ? $decoded['response']
+        : $decoded;
+    $error = isset($envelope['error']) && is_array($envelope['error'])
+        ? $envelope['error']
+        : [];
+
+    $message = $default_message;
+    if (!empty($error['message']) && is_string($error['message'])) {
+        $message = $error['message'];
+    } elseif (!empty($envelope['detail'])) {
+        $message = is_string($envelope['detail'])
+            ? $envelope['detail']
+            : (string) wp_json_encode($envelope['detail']);
+    } elseif (!empty($envelope['message']) && is_string($envelope['message'])) {
+        $message = $envelope['message'];
+    }
+
+    $error_code = '';
+    if (isset($error['code']) && (is_string($error['code']) || is_numeric($error['code']))) {
+        $error_code = sanitize_text_field((string) $error['code']);
+    }
+
+    $error_type = '';
+    $raw_error_type = $envelope['error_type']
+        ?? ($error['error_type'] ?? ($error['metadata']['error_type'] ?? ''));
+    if (is_string($raw_error_type)) {
+        $error_type = sanitize_key($raw_error_type);
+    }
+
+    $qualifiers = [];
+    if ($error_code !== '') {
+        $qualifiers[] = sprintf('Code: %s', $error_code);
+    }
+    if ($error_type !== '' && $error_type !== sanitize_key($error_code)) {
+        $qualifiers[] = sprintf('Type: %s', $error_type);
+    }
+    if (!empty($qualifiers)) {
+        $message .= ' (' . implode('; ', $qualifiers) . ')';
+    }
+
+    return [
+        'message' => trim($message),
+        'error_type' => $error_type,
+    ];
 }
 
 // --- parse-sse-chunk.php ---
@@ -1656,6 +2513,7 @@ function parse_sse_chunk_logic_for_response_parser(string $sse_chunk, string &$c
         'is_warning' => false,
         'is_done' => false,
         'status' => null,
+        'citations' => null,
     ];
 
     foreach (extract_sse_event_blocks($current_buffer) as $event_block) {
@@ -1684,11 +2542,23 @@ function parse_sse_chunk_logic_for_response_parser(string $sse_chunk, string &$c
 function reduce_sse_event_logic_for_response_parser(array $mapped_event, array &$result): bool {
     $kind = isset($mapped_event['kind']) && is_string($mapped_event['kind']) ? $mapped_event['kind'] : 'skip';
 
+    if (isset($mapped_event['citations']) && is_array($mapped_event['citations']) && !empty($mapped_event['citations'])) {
+        $existing_citations = isset($result['citations']) && is_array($result['citations'])
+            ? $result['citations']
+            : [];
+        $result['citations'] = dedupe_citations_logic_for_response_parser(
+            array_merge($existing_citations, $mapped_event['citations'])
+        );
+    }
+
     switch ($kind) {
         case 'status':
             if (isset($mapped_event['status']) && is_array($mapped_event['status'])) {
                 $result['status'] = $mapped_event['status'];
             }
+            return false;
+
+        case 'citations':
             return false;
 
         case 'delta':

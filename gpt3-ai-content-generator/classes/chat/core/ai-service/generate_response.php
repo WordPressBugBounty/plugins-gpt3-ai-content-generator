@@ -45,6 +45,7 @@ require_once __DIR__ . '/determine_provider_model.php';
  * @param string|null $frontend_active_chroma_collection_name Optional active Chroma collection name from frontend.
  * @param string|null $frontend_active_chroma_file_upload_context_id Optional active Chroma file context ID from frontend.
  * @param string|null $frontend_active_claude_file_id Optional active Claude file ID from frontend.
+ * @param string|null $conversation_uuid Optional chatbot conversation UUID for provider routing affinity.
  * @return array|WP_Error Response data or WP_Error.
  */
 function generate_response(
@@ -64,7 +65,8 @@ function generate_response(
     ?string $frontend_active_qdrant_file_upload_context_id = null,
     ?string $frontend_active_chroma_collection_name = null,
     ?string $frontend_active_chroma_file_upload_context_id = null,
-    ?string $frontend_active_claude_file_id = null
+    ?string $frontend_active_claude_file_id = null,
+    ?string $conversation_uuid = null
 ) {
     $ai_caller = $serviceInstance->get_ai_caller();
     $vector_store_manager = $serviceInstance->get_vector_store_manager(); // Get Vector Store Manager
@@ -171,6 +173,21 @@ function generate_response(
     );
     $final_ai_params = $final_ai_params_result['final_ai_params'];
     $actual_previous_response_id_to_use = $final_ai_params_result['actual_previous_response_id_to_use'];
+
+    $openrouter_conversation_uuid = sanitize_key((string) $conversation_uuid);
+    $openrouter_bot_id = absint($bot_settings['bot_id'] ?? 0);
+    $openrouter_session_stickiness = ($bot_settings['openrouter_session_stickiness'] ?? '0') === '1';
+    if (
+        $main_provider === 'OpenRouter'
+        && $openrouter_session_stickiness
+        && $openrouter_bot_id > 0
+        && $openrouter_conversation_uuid !== ''
+    ) {
+        $final_ai_params['openrouter_session_context'] = [
+            'bot_id' => $openrouter_bot_id,
+            'conversation_uuid' => $openrouter_conversation_uuid,
+        ];
+    }
 
     $ai_call_result = GenerateResponse\execute_ai_call_logic(
         $ai_caller,

@@ -6,6 +6,7 @@ namespace WPAICG\PostEnhancer\Ajax\Actions;
 use WPAICG\PostEnhancer\Ajax\Base\AIPKit_Post_Enhancer_Base_Ajax_Action;
 use WPAICG\Core\AIPKit_AI_Caller;
 use WPAICG\Core\AIPKit_OpenAI_Reasoning;
+use WPAICG\Core\AIPKit_OpenRouter_Reasoning;
 use WPAICG\AIPKit_Providers;
 use WPAICG\AIPKIT_AI_Settings;
 use WPAICG\ContentWriter\AIPKit_Content_Writer_Output_Cleaner;
@@ -162,6 +163,14 @@ class AIPKit_PostEnhancer_Bulk_Process_Single_Field extends AIPKit_Post_Enhancer
         ];
         if ($provider === 'OpenAI') {
             $reasoning_effort = AIPKit_OpenAI_Reasoning::normalize_effort_for_model(
+                (string) $model,
+                $item_config['reasoning_effort'] ?? ''
+            );
+            if ($reasoning_effort !== '') {
+                $ai_params['reasoning'] = ['effort' => $reasoning_effort];
+            }
+        } elseif ($provider === 'OpenRouter') {
+            $reasoning_effort = AIPKit_OpenRouter_Reasoning::normalize_effort_for_model(
                 (string) $model,
                 $item_config['reasoning_effort'] ?? ''
             );

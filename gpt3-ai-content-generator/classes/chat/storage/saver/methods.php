@@ -257,6 +257,7 @@ function sanitize_settings_logic(array $raw_settings, int $bot_id): array
     $sanitized['content_aware_enabled'] = (isset($raw_settings['content_aware_enabled']) && $raw_settings['content_aware_enabled'] === '1') ? '1' : '0';
     $sanitized['openai_conversation_state_enabled'] = (isset($raw_settings['openai_conversation_state_enabled']) && $raw_settings['openai_conversation_state_enabled'] === '1') ? '1' : '0';
     $sanitized['google_conversation_state_enabled'] = (isset($raw_settings['google_conversation_state_enabled']) && $raw_settings['google_conversation_state_enabled'] === '1') ? '1' : '0';
+    $sanitized['openrouter_session_stickiness'] = (isset($raw_settings['openrouter_session_stickiness']) && $raw_settings['openrouter_session_stickiness'] === '1') ? '1' : '0';
     $sanitized['token_limit_mode'] = isset($raw_settings['token_limit_mode']) && in_array($raw_settings['token_limit_mode'], ['general', 'role_based']) ? $raw_settings['token_limit_mode'] : BotSettingsManager::DEFAULT_TOKEN_LIMIT_MODE;
     $raw_guest_limit = isset($raw_settings['token_guest_limit']) ? trim($raw_settings['token_guest_limit']) : '';
     $sanitized['token_guest_limit'] = ($raw_guest_limit === '0' || (ctype_digit($raw_guest_limit) && $raw_guest_limit > 0)) ? (string)absint($raw_guest_limit) : ''; // Store as string or empty
@@ -525,16 +526,29 @@ function sanitize_settings_logic(array $raw_settings, int $bot_id): array
         ? $raw_settings['claude_web_search_cache_ttl']
         : BotSettingsManager::DEFAULT_CLAUDE_WEB_SEARCH_CACHE_TTL;
     $sanitized['openrouter_web_search_enabled'] = (isset($raw_settings['openrouter_web_search_enabled']) && $raw_settings['openrouter_web_search_enabled'] === '1') ? '1' : '0';
-    $sanitized['openrouter_web_search_engine'] = isset($raw_settings['openrouter_web_search_engine']) && in_array($raw_settings['openrouter_web_search_engine'], ['auto', 'native', 'exa'], true)
+    $sanitized['openrouter_web_search_engine'] = isset($raw_settings['openrouter_web_search_engine']) && in_array($raw_settings['openrouter_web_search_engine'], ['auto', 'native', 'exa', 'firecrawl', 'parallel', 'perplexity'], true)
         ? $raw_settings['openrouter_web_search_engine']
         : BotSettingsManager::DEFAULT_OPENROUTER_WEB_SEARCH_ENGINE;
     $raw_openrouter_max_results = isset($raw_settings['openrouter_web_search_max_results'])
         ? absint($raw_settings['openrouter_web_search_max_results'])
         : BotSettingsManager::DEFAULT_OPENROUTER_WEB_SEARCH_MAX_RESULTS;
-    $sanitized['openrouter_web_search_max_results'] = max(1, min($raw_openrouter_max_results, 10));
-    $sanitized['openrouter_web_search_search_prompt'] = isset($raw_settings['openrouter_web_search_search_prompt'])
-        ? AIPKit_Prompt_Sanitizer::sanitize($raw_settings['openrouter_web_search_search_prompt'])
-        : BotSettingsManager::DEFAULT_OPENROUTER_WEB_SEARCH_SEARCH_PROMPT;
+    $sanitized['openrouter_web_search_max_results'] = max(1, min($raw_openrouter_max_results, 25));
+    $raw_openrouter_max_uses = isset($raw_settings['openrouter_web_search_max_uses'])
+        ? absint($raw_settings['openrouter_web_search_max_uses'])
+        : BotSettingsManager::DEFAULT_OPENROUTER_WEB_SEARCH_MAX_USES;
+    $sanitized['openrouter_web_search_max_uses'] = max(1, min($raw_openrouter_max_uses, 10));
+    $raw_openrouter_max_total_results = isset($raw_settings['openrouter_web_search_max_total_results'])
+        ? absint($raw_settings['openrouter_web_search_max_total_results'])
+        : BotSettingsManager::DEFAULT_OPENROUTER_WEB_SEARCH_MAX_TOTAL_RESULTS;
+    $sanitized['openrouter_web_search_max_total_results'] = max(1, min($raw_openrouter_max_total_results, 100));
+    $sanitized['openrouter_web_search_context_size'] = isset($raw_settings['openrouter_web_search_context_size']) && in_array($raw_settings['openrouter_web_search_context_size'], ['auto', 'low', 'medium', 'high'], true)
+        ? $raw_settings['openrouter_web_search_context_size']
+        : BotSettingsManager::DEFAULT_OPENROUTER_WEB_SEARCH_CONTEXT_SIZE;
+    $sanitized['openrouter_web_search_allowed_domains'] = $normalize_domains($raw_settings['openrouter_web_search_allowed_domains'] ?? '');
+    $sanitized['openrouter_web_search_excluded_domains'] = $normalize_domains($raw_settings['openrouter_web_search_excluded_domains'] ?? '');
+    if ($sanitized['openrouter_web_search_allowed_domains'] !== '') {
+        $sanitized['openrouter_web_search_excluded_domains'] = '';
+    }
     $sanitized['xai_web_search_enabled'] = (isset($raw_settings['xai_web_search_enabled']) && $raw_settings['xai_web_search_enabled'] === '1') ? '1' : '0';
     $sanitized['google_search_grounding_enabled'] = (isset($raw_settings['google_search_grounding_enabled']) && $raw_settings['google_search_grounding_enabled'] === '1') ? '1' : '0';
     $sanitized['web_toggle_default_on'] = (isset($raw_settings['web_toggle_default_on']) && $raw_settings['web_toggle_default_on'] === '1') ? '1' : '0';
@@ -737,6 +751,7 @@ function save_meta_fields_logic(int $botId, array $sanitized_settings)
     update_post_meta($botId, '_aipkit_content_aware_enabled', $sanitized_settings['content_aware_enabled']);
     update_post_meta($botId, '_aipkit_openai_conversation_state_enabled', $sanitized_settings['openai_conversation_state_enabled']);
     update_post_meta($botId, '_aipkit_google_conversation_state_enabled', $sanitized_settings['google_conversation_state_enabled']);
+    update_post_meta($botId, '_aipkit_openrouter_session_stickiness', $sanitized_settings['openrouter_session_stickiness']);
     update_post_meta($botId, '_aipkit_token_limit_mode', $sanitized_settings['token_limit_mode']);
     delete_post_meta($botId, '_aipkit_token_pricing_mode');
     if ($sanitized_settings['token_guest_limit'] === '') {
@@ -937,10 +952,20 @@ function save_meta_fields_logic(int $botId, array $sanitized_settings)
     if ($sanitized_settings['openrouter_web_search_enabled'] === '1') {
         update_post_meta($botId, '_aipkit_openrouter_web_search_engine', $sanitized_settings['openrouter_web_search_engine']);
         update_post_meta($botId, '_aipkit_openrouter_web_search_max_results', (string) $sanitized_settings['openrouter_web_search_max_results']);
-        update_post_meta($botId, '_aipkit_openrouter_web_search_search_prompt', $sanitized_settings['openrouter_web_search_search_prompt']);
+        update_post_meta($botId, '_aipkit_openrouter_web_search_max_uses', (string) $sanitized_settings['openrouter_web_search_max_uses']);
+        update_post_meta($botId, '_aipkit_openrouter_web_search_max_total_results', (string) $sanitized_settings['openrouter_web_search_max_total_results']);
+        update_post_meta($botId, '_aipkit_openrouter_web_search_context_size', $sanitized_settings['openrouter_web_search_context_size']);
+        update_post_meta($botId, '_aipkit_openrouter_web_search_allowed_domains', $sanitized_settings['openrouter_web_search_allowed_domains']);
+        update_post_meta($botId, '_aipkit_openrouter_web_search_excluded_domains', $sanitized_settings['openrouter_web_search_excluded_domains']);
+        delete_post_meta($botId, '_aipkit_openrouter_web_search_search_prompt');
     } else {
         delete_post_meta($botId, '_aipkit_openrouter_web_search_engine');
         delete_post_meta($botId, '_aipkit_openrouter_web_search_max_results');
+        delete_post_meta($botId, '_aipkit_openrouter_web_search_max_uses');
+        delete_post_meta($botId, '_aipkit_openrouter_web_search_max_total_results');
+        delete_post_meta($botId, '_aipkit_openrouter_web_search_context_size');
+        delete_post_meta($botId, '_aipkit_openrouter_web_search_allowed_domains');
+        delete_post_meta($botId, '_aipkit_openrouter_web_search_excluded_domains');
         delete_post_meta($botId, '_aipkit_openrouter_web_search_search_prompt');
     }
     update_post_meta($botId, '_aipkit_xai_web_search_enabled', $sanitized_settings['xai_web_search_enabled']);

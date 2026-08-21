@@ -26,6 +26,12 @@ $aipkit_pufferworks_products = [
         'icon'        => 'pufferbay.svg',
         'url'         => 'https://wordpress.org/plugins/pufferbay/',
     ],
+    [
+        'name'        => 'PufferPDF',
+        'description' => __('Turn PDFs into editable WordPress content.', 'gpt3-ai-content-generator'),
+        'icon'        => 'pufferpdf.svg',
+        'url'         => 'https://wordpress.org/plugins/pufferpdf/',
+    ],
 ];
 ?>
 

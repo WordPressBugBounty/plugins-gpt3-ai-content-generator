@@ -55,6 +55,12 @@ class AIPKit_REST_Chat_Handler extends AIPKit_REST_Base_Handler
                     ),
                 ),
             ),
+            'conversation_uuid' => array(
+                'description' => __('An optional stable conversation identifier used for provider session stickiness.', 'gpt3-ai-content-generator'),
+                'type' => 'string',
+                'required' => false,
+                'sanitize_callback' => 'sanitize_key',
+            ),
             'aipkit_api_key' => array(
                 'description' => __('API Key for accessing this endpoint.', 'gpt3-ai-content-generator'),
                 'type'        => 'string',
@@ -109,6 +115,7 @@ class AIPKit_REST_Chat_Handler extends AIPKit_REST_Base_Handler
 
         $bot_id = (int) $request->get_param('bot_id');
         $messages = $request->get_param('messages');
+        $conversation_uuid = sanitize_key((string) $request->get_param('conversation_uuid'));
 
         // Basic validation
         if (empty($messages) || !is_array($messages)) {
@@ -146,7 +153,8 @@ class AIPKit_REST_Chat_Handler extends AIPKit_REST_Base_Handler
             null, // frontend_active_qdrant_file_upload_context_id
             null, // frontend_active_chroma_collection_name
             null, // frontend_active_chroma_file_upload_context_id
-            null  // frontend_active_claude_file_id
+            null, // frontend_active_claude_file_id
+            $conversation_uuid !== '' ? $conversation_uuid : null
         );
 
         if (is_wp_error($ai_result)) {

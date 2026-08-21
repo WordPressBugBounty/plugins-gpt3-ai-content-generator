@@ -12,7 +12,7 @@ if (!defined('ABSPATH')) {
 
 /**
  * OpenRouter Image Generation Provider Strategy.
- * Uses OpenRouter Chat Completions with model-appropriate image output modalities.
+ * Uses OpenRouter's dedicated Image API and its synchronized capability schema.
  */
 class AIPKit_Image_OpenRouter_Provider_Strategy extends AIPKit_Image_Base_Provider_Strategy
 {
@@ -22,6 +22,13 @@ class AIPKit_Image_OpenRouter_Provider_Strategy extends AIPKit_Image_Base_Provid
      * @var array<int, string>
      */
     private const EDIT_ALLOWED_MIME_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
+
+    /**
+     * Raster response formats supported by the plugin's Media Library path.
+     *
+     * @var array<int, string>
+     */
+    private const GENERATED_ALLOWED_MIME_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
 
     /**
      * Build OpenRouter image generation endpoint URL.
@@ -42,11 +49,16 @@ class AIPKit_Image_OpenRouter_Provider_Strategy extends AIPKit_Image_Base_Provid
             $api_version = 'v1';
         }
 
-        return rtrim($base_url, '/') . '/' . trim($api_version, '/') . '/chat/completions';
+        $base_url = rtrim($base_url, '/');
+        if (strpos($base_url, '/' . trim($api_version, '/')) === false) {
+            $base_url .= '/' . trim($api_version, '/');
+        }
+
+        return $base_url . '/images';
     }
 
     /**
-     * Maps WxH values to aspect ratio accepted by OpenRouter image_config.
+     * Maps legacy plugin WxH values to the dedicated Image API aspect ratio.
      *
      * @param string $size Size formatted like "1024x1024".
      * @return string|null
@@ -72,115 +84,72 @@ class AIPKit_Image_OpenRouter_Provider_Strategy extends AIPKit_Image_Base_Provid
     }
 
     /**
-     * Check if selected OpenRouter model supports image_config.
+     * @return array<string, array<string, mixed>>
+     */
+    private function get_model_parameter_schema(string $model_id): array
+    {
+        $model_id = sanitize_text_field($model_id);
+        if ($model_id === '') {
+            return [];
+        }
+
+        $resolver_fn = '\WPAICG\Core\Providers\OpenRouter\Methods\model_image_parameter_schema_logic';
+        if (!function_exists($resolver_fn)) {
+            $capability_file = WPAICG_PLUGIN_DIR . 'classes/core/providers/openrouter/methods.php';
+            if (file_exists($capability_file)) {
+                require_once $capability_file;
+            }
+        }
+
+        if (!function_exists($resolver_fn)) {
+            return [];
+        }
+
+        $schema = call_user_func($resolver_fn, $model_id);
+        return is_array($schema) ? $schema : [];
+    }
+
+    /**
+     * Return the canonical enum value accepted by a capability descriptor.
      *
-     * @param string $model_id Model id.
-     * @return bool
+     * @param mixed $value Candidate value.
+     * @param array<string, mixed> $descriptor Capability descriptor.
      */
-    private function model_supports_image_config(string $model_id): bool
+    private function normalize_enum_parameter($value, array $descriptor): string
     {
-        $model_id = sanitize_text_field($model_id);
-        if ($model_id === '') {
-            return false;
+        if (!is_scalar($value)) {
+            return '';
         }
-
-        $resolver_fn = '\WPAICG\Core\Providers\OpenRouter\Methods\model_supports_image_config_logic';
-        if (!function_exists($resolver_fn)) {
-            $capability_file = WPAICG_PLUGIN_DIR . 'classes/core/providers/openrouter/methods.php';
-            if (file_exists($capability_file)) {
-                require_once $capability_file;
-            }
-        }
-
-        if (!function_exists($resolver_fn)) {
-            return false;
-        }
-
-        return (bool) call_user_func($resolver_fn, $model_id);
-    }
-
-    /**
-     * @return array<int, string>
-     */
-    private function get_model_output_modalities(string $model_id): array
-    {
-        $model_id = sanitize_text_field($model_id);
-        if ($model_id === '') {
-            return [];
-        }
-
-        $resolver_fn = '\WPAICG\Core\Providers\OpenRouter\Methods\model_output_modalities_logic';
-        if (!function_exists($resolver_fn)) {
-            $capability_file = WPAICG_PLUGIN_DIR . 'classes/core/providers/openrouter/methods.php';
-            if (file_exists($capability_file)) {
-                require_once $capability_file;
-            }
-        }
-
-        if (!function_exists($resolver_fn)) {
-            return [];
-        }
-
-        $modalities = call_user_func($resolver_fn, $model_id);
-        return is_array($modalities) ? $modalities : [];
-    }
-
-    /**
-     * @return array<int, string>
-     */
-    private function get_request_modalities(string $model_id): array
-    {
-        $output_modalities = $this->get_model_output_modalities($model_id);
-        if (!empty($output_modalities)) {
-            return in_array('text', $output_modalities, true)
-                ? ['image', 'text']
-                : ['image'];
-        }
-
-        $model_id = strtolower($model_id);
-        $image_only_prefixes = [
-            'black-forest-labs/flux',
-            'recraft/',
-            'sourceful/riverflow',
-            'bytedance-seed/seedream',
-        ];
-        foreach ($image_only_prefixes as $prefix) {
-            if (strpos($model_id, $prefix) === 0) {
-                return ['image'];
-            }
-        }
-
-        return ['image', 'text'];
-    }
-
-    private function normalize_aspect_ratio($value, string $model_id): string
-    {
-        $aspect_ratio = is_string($value) ? sanitize_text_field($value) : '';
-        if ($aspect_ratio === '') {
+        $value = sanitize_text_field((string) $value);
+        if ($value === '') {
             return '';
         }
 
-        $allowed = ['1:1', '2:3', '3:2', '3:4', '4:3', '4:5', '5:4', '9:16', '16:9', '21:9'];
-        if (strpos(strtolower($model_id), 'google/gemini-3.1-flash-image') !== false) {
-            $allowed = array_merge($allowed, ['1:4', '4:1', '1:8', '8:1']);
+        foreach (($descriptor['values'] ?? []) as $allowed_value) {
+            if (is_scalar($allowed_value) && strcasecmp((string) $allowed_value, $value) === 0) {
+                return sanitize_text_field((string) $allowed_value);
+            }
         }
 
-        return in_array($aspect_ratio, $allowed, true) ? $aspect_ratio : '';
+        return '';
     }
 
-    private function normalize_image_size($value, string $model_id): string
+    /**
+     * Normalize an integer against an Image Models API range descriptor.
+     *
+     * @param mixed $value Candidate value.
+     * @param array<string, mixed> $descriptor Capability descriptor.
+     * @return int|null
+     */
+    private function normalize_range_parameter($value, array $descriptor): ?int
     {
-        $image_size = is_string($value) ? strtolower(sanitize_text_field($value)) : '';
-        if ($image_size === '') {
-            return '';
+        if (!is_numeric($value)) {
+            return null;
         }
-
-        $allowed = ['1k', '2k', '4k'];
-        if (strpos(strtolower($model_id), 'google/gemini-3.1-flash-image') !== false) {
-            $allowed[] = '0.5k';
-        }
-
-        return in_array($image_size, $allowed, true) ? strtoupper($image_size) : '';
+        $value = (int) $value;
+        $minimum = isset($descriptor['min']) && is_numeric($descriptor['min']) ? (int) $descriptor['min'] : PHP_INT_MIN;
+        $maximum = isset($descriptor['max']) && is_numeric($descriptor['max']) ? (int) $descriptor['max'] : PHP_INT_MAX;
+        return max($minimum, min($value, $maximum));
     }
 
     /**
@@ -241,13 +210,12 @@ class AIPKit_Image_OpenRouter_Provider_Strategy extends AIPKit_Image_Base_Provid
     }
 
     /**
-     * Build OpenRouter edit-mode user message content.
+     * Build one dedicated Image API input reference.
      *
-     * @param string $prompt Prompt text.
      * @param array  $source_image Source image payload from upload parser.
      * @return array|WP_Error
      */
-    private function build_edit_user_content(string $prompt, array $source_image)
+    private function build_input_reference(array $source_image)
     {
         $mime_type = isset($source_image['mime_type']) ? strtolower(sanitize_text_field((string) $source_image['mime_type'])) : '';
         if ($mime_type === '' || !in_array($mime_type, self::EDIT_ALLOWED_MIME_TYPES, true)) {
@@ -277,15 +245,9 @@ class AIPKit_Image_OpenRouter_Provider_Strategy extends AIPKit_Image_Base_Provid
         }
 
         return [
-            [
-                'type' => 'text',
-                'text' => $prompt,
-            ],
-            [
-                'type' => 'image_url',
-                'image_url' => [
-                    'url' => 'data:' . $mime_type . ';base64,' . $base64_data,
-                ],
+            'type' => 'image_url',
+            'image_url' => [
+                'url' => 'data:' . $mime_type . ';base64,' . $base64_data,
             ],
         ];
     }
@@ -299,82 +261,222 @@ class AIPKit_Image_OpenRouter_Provider_Strategy extends AIPKit_Image_Base_Provid
     private function parse_images(array $decoded_response): array
     {
         $images = [];
-        $choices = isset($decoded_response['choices']) && is_array($decoded_response['choices'])
-            ? $decoded_response['choices']
+        $image_blocks = isset($decoded_response['data']) && is_array($decoded_response['data'])
+            ? $decoded_response['data']
             : [];
-
-        if (empty($choices) || !isset($choices[0]['message']) || !is_array($choices[0]['message'])) {
-            return $images;
-        }
-
-        $message = $choices[0]['message'];
-        $image_blocks = [];
-
-        if (isset($message['images']) && is_array($message['images'])) {
-            $image_blocks = $message['images'];
-        } elseif (isset($message['content']) && is_array($message['content'])) {
-            foreach ($message['content'] as $content_block) {
-                if (!is_array($content_block)) {
-                    continue;
-                }
-                $block_type = isset($content_block['type']) ? strtolower((string) $content_block['type']) : '';
-                $has_image_payload = !empty($content_block['image_url']) || !empty($content_block['imageUrl']) || !empty($content_block['url']);
-                if ($block_type === 'image_url' || $block_type === 'image' || $has_image_payload) {
-                    $image_blocks[] = $content_block;
-                }
-            }
-        }
-
-        $revised_prompt = '';
-        if (isset($message['content']) && is_string($message['content'])) {
-            $revised_prompt = $message['content'];
-        }
 
         foreach ($image_blocks as $image_block) {
             if (!is_array($image_block)) {
                 continue;
             }
 
-            $image_url_value = '';
-            if (!empty($image_block['image_url']['url']) && is_string($image_block['image_url']['url'])) {
-                $image_url_value = $image_block['image_url']['url'];
-            } elseif (!empty($image_block['imageUrl']['url']) && is_string($image_block['imageUrl']['url'])) {
-                $image_url_value = $image_block['imageUrl']['url'];
-            } elseif (!empty($image_block['url']) && is_string($image_block['url'])) {
-                $image_url_value = $image_block['url'];
-            }
-
-            if ($image_url_value === '') {
+            $base64_data = isset($image_block['b64_json']) && is_string($image_block['b64_json'])
+                ? trim($image_block['b64_json'])
+                : '';
+            if ($base64_data === '' || base64_decode($base64_data, true) === false) {
                 continue;
             }
 
-            $image_item = [
+            $mime_type = isset($image_block['media_type']) && is_string($image_block['media_type'])
+                ? strtolower(sanitize_text_field($image_block['media_type']))
+                : '';
+            if ($mime_type === '') {
+                $mime_type = 'image/png';
+            }
+            if (!in_array($mime_type, self::GENERATED_ALLOWED_MIME_TYPES, true)) {
+                continue;
+            }
+
+            $images[] = [
                 'url' => null,
-                'b64_json' => null,
-                'mime_type' => null,
-                'revised_prompt' => $revised_prompt !== '' ? $revised_prompt : null,
+                'b64_json' => $base64_data,
+                'mime_type' => $mime_type,
+                'revised_prompt' => null,
             ];
-
-            if (preg_match('#^data:(image/[^;]+);base64,#i', $image_url_value, $matches) === 1) {
-                $base64_data = (string) substr($image_url_value, strpos($image_url_value, ',') + 1);
-                if ($base64_data !== '') {
-                    $image_item['b64_json'] = $base64_data;
-                    if (!empty($matches[1])) {
-                        $image_item['mime_type'] = strtolower(sanitize_text_field((string) $matches[1]));
-                    }
-                }
-            } else {
-                $image_item['url'] = esc_url_raw($image_url_value);
-            }
-
-            if ($image_item['url'] === null && $image_item['b64_json'] === null) {
-                continue;
-            }
-
-            $images[] = $image_item;
         }
 
         return $images;
+    }
+
+    /**
+     * Find non-raster media types in otherwise valid response image blocks.
+     *
+     * @param array $decoded_response Decoded OpenRouter response.
+     * @return array<int, string>
+     */
+    private function get_unsupported_response_media_types(array $decoded_response): array
+    {
+        $unsupported = [];
+        $image_blocks = isset($decoded_response['data']) && is_array($decoded_response['data'])
+            ? $decoded_response['data']
+            : [];
+
+        foreach ($image_blocks as $image_block) {
+            if (!is_array($image_block) || empty($image_block['b64_json']) || !is_string($image_block['b64_json'])) {
+                continue;
+            }
+            if (base64_decode(trim($image_block['b64_json']), true) === false) {
+                continue;
+            }
+
+            $mime_type = isset($image_block['media_type']) && is_string($image_block['media_type'])
+                ? strtolower(sanitize_text_field($image_block['media_type']))
+                : 'image/png';
+            if ($mime_type !== '' && !in_array($mime_type, self::GENERATED_ALLOWED_MIME_TYPES, true)) {
+                $unsupported[] = $mime_type;
+            }
+        }
+
+        return array_values(array_unique($unsupported));
+    }
+
+    /**
+     * Build a dedicated Image API payload from normalized plugin options.
+     *
+     * A non-empty synchronized schema is authoritative. When no dedicated
+     * schema has been synchronized yet, conservative documented fallbacks keep
+     * existing installations functional until their next model sync.
+     *
+     * @param string $prompt Sanitized prompt.
+     * @param string $model Model id.
+     * @param string $image_mode Generate or edit.
+     * @param array<string, mixed> $options Runtime options.
+     * @param array<string, array<string, mixed>> $parameter_schema Model capability descriptors.
+     * @return array<string, mixed>|WP_Error
+     */
+    private function build_image_payload(string $prompt, string $model, string $image_mode, array $options, array $parameter_schema)
+    {
+        $payload = [
+            'model' => $model,
+            'prompt' => $prompt,
+        ];
+        $image_routing_fn = '\\WPAICG\\Core\\Providers\\OpenRouter\\Methods\\get_saved_image_routing_preferences_logic';
+        if (function_exists($image_routing_fn)) {
+            $provider_preferences = call_user_func($image_routing_fn);
+            if (is_array($provider_preferences) && !empty($provider_preferences)) {
+                $payload['provider'] = $provider_preferences;
+            }
+        }
+        $has_authoritative_schema = !empty($parameter_schema);
+        $supports_parameter = static function (string $parameter) use ($parameter_schema, $has_authoritative_schema): bool {
+            return !$has_authoritative_schema || isset($parameter_schema[$parameter]);
+        };
+
+        if ($image_mode === 'edit') {
+            if (!$supports_parameter('input_references')) {
+                return new WP_Error(
+                    'openrouter_image_edit_model_unsupported',
+                    __('Selected OpenRouter model does not support image editing.', 'gpt3-ai-content-generator'),
+                    ['status' => 400]
+                );
+            }
+            $source_image = isset($options['source_image']) && is_array($options['source_image'])
+                ? $options['source_image']
+                : null;
+            if (!is_array($source_image)) {
+                return new WP_Error(
+                    'openrouter_image_edit_missing_source',
+                    __('Source image is required for OpenRouter edit mode.', 'gpt3-ai-content-generator'),
+                    ['status' => 400]
+                );
+            }
+            $input_reference = $this->build_input_reference($source_image);
+            if (is_wp_error($input_reference)) {
+                return $input_reference;
+            }
+            $payload['input_references'] = [$input_reference];
+        }
+
+        $requested_count = isset($options['n']) ? max(1, min(absint($options['n']), 10)) : 1;
+        if ($requested_count > 1 && $supports_parameter('n')) {
+            $count_descriptor = isset($parameter_schema['n']) && is_array($parameter_schema['n'])
+                ? $parameter_schema['n']
+                : ['type' => 'range', 'min' => 1, 'max' => 10];
+            $normalized_count = $this->normalize_range_parameter($requested_count, $count_descriptor);
+            if ($normalized_count !== null && $normalized_count > 1) {
+                $payload['n'] = $normalized_count;
+            }
+        }
+
+        $fallback_enums = [
+            'aspect_ratio' => ['auto', '1:1', '1:2', '2:1', '2:3', '3:2', '3:4', '4:3', '4:5', '5:4', '9:16', '16:9', '9:19.5', '19.5:9', '9:20', '20:9', '9:21', '21:9', '1:4', '4:1', '1:8', '8:1'],
+            'resolution' => ['512', '1K', '2K', '4K'],
+            'quality' => ['auto', 'low', 'medium', 'high'],
+            'output_format' => ['png', 'jpeg', 'webp'],
+            'background' => ['auto', 'transparent', 'opaque'],
+        ];
+        $normalize_enum = function (string $parameter, $value) use ($parameter_schema, $fallback_enums): string {
+            $descriptor = isset($parameter_schema[$parameter]) && is_array($parameter_schema[$parameter])
+                ? $parameter_schema[$parameter]
+                : ['type' => 'enum', 'values' => $fallback_enums[$parameter] ?? []];
+            return $this->normalize_enum_parameter($value, $descriptor);
+        };
+
+        $aspect_ratio = isset($options['aspect_ratio']) ? $options['aspect_ratio'] : '';
+        if ($aspect_ratio === '' && !empty($options['size']) && is_string($options['size'])) {
+            $aspect_ratio = $this->map_size_to_aspect_ratio($options['size']) ?? '';
+        }
+        if ($aspect_ratio !== '' && $supports_parameter('aspect_ratio')) {
+            $aspect_ratio = $normalize_enum('aspect_ratio', $aspect_ratio);
+            if ($aspect_ratio !== '') {
+                $payload['aspect_ratio'] = $aspect_ratio;
+            }
+        }
+
+        $resolution = $options['resolution'] ?? ($options['image_size'] ?? '');
+        if (is_string($resolution) && strtolower(trim($resolution)) === '0.5k') {
+            $resolution = '512';
+        }
+        if ($resolution !== '' && $supports_parameter('resolution')) {
+            $resolution = $normalize_enum('resolution', $resolution);
+            if ($resolution !== '') {
+                $payload['resolution'] = $resolution;
+            }
+        }
+
+        if (!isset($payload['aspect_ratio']) && $supports_parameter('size') && !empty($options['size']) && is_string($options['size'])) {
+            $size = strtolower(sanitize_text_field($options['size']));
+            if (preg_match('/^(?:512|1k|2k|4k|[1-9][0-9]{2,4}x[1-9][0-9]{2,4})$/i', $size) === 1) {
+                $payload['size'] = strtoupper($size);
+            }
+        }
+
+        foreach (['quality', 'output_format', 'background'] as $parameter) {
+            if (!$supports_parameter($parameter) || empty($options[$parameter])) {
+                continue;
+            }
+            if (
+                $parameter === 'output_format'
+                && !in_array(strtolower((string) $options[$parameter]), ['png', 'jpeg', 'jpg', 'webp'], true)
+            ) {
+                continue;
+            }
+            $normalized_value = $normalize_enum($parameter, $options[$parameter]);
+            if ($normalized_value !== '') {
+                $payload[$parameter] = $normalized_value;
+            }
+        }
+
+        if (
+            $supports_parameter('output_compression')
+            && isset($options['output_compression'])
+            && $options['output_compression'] !== ''
+            && (!isset($payload['output_format']) || in_array($payload['output_format'], ['jpeg', 'webp'], true))
+        ) {
+            $compression_descriptor = isset($parameter_schema['output_compression']) && is_array($parameter_schema['output_compression'])
+                ? $parameter_schema['output_compression']
+                : ['type' => 'range', 'min' => 0, 'max' => 100];
+            $compression = $this->normalize_range_parameter($options['output_compression'], $compression_descriptor);
+            if ($compression !== null) {
+                $payload['output_compression'] = $compression;
+            }
+        }
+
+        if ($supports_parameter('seed') && isset($options['seed']) && is_numeric($options['seed'])) {
+            $payload['seed'] = max(0, (int) $options['seed']);
+        }
+
+        return $payload;
     }
 
     /**
@@ -418,69 +520,15 @@ class AIPKit_Image_OpenRouter_Provider_Strategy extends AIPKit_Image_Base_Provid
             return $url;
         }
 
-        $user_content = $clean_prompt;
-        if ($image_mode === 'edit') {
-            $source_image = isset($options['source_image']) && is_array($options['source_image'])
-                ? $options['source_image']
-                : null;
-            if (!is_array($source_image)) {
-                return new WP_Error(
-                    'openrouter_image_edit_missing_source',
-                    __('Source image is required for OpenRouter edit mode.', 'gpt3-ai-content-generator'),
-                    ['status' => 400]
-                );
-            }
-
-            $edit_user_content = $this->build_edit_user_content($clean_prompt, $source_image);
-            if (is_wp_error($edit_user_content)) {
-                return $edit_user_content;
-            }
-            $user_content = $edit_user_content;
-        }
-
-        $payload = [
-            'model' => $model,
-            'messages' => [
-                [
-                    'role' => 'user',
-                    'content' => $user_content,
-                ],
-            ],
-            'modalities' => $this->get_request_modalities($model),
-            'stream' => false,
-        ];
-
-        if ($image_mode === 'edit') {
-            $payload['n'] = 1;
-        } elseif (isset($options['n'])) {
-            $num_images = absint($options['n']);
-            if ($num_images > 0) {
-                $payload['n'] = $num_images;
-            }
-        }
-
-        $image_config = [];
-        if ($this->model_supports_image_config($model)) {
-            $aspect_ratio = '';
-            if (!empty($options['aspect_ratio'])) {
-                $aspect_ratio = $this->normalize_aspect_ratio($options['aspect_ratio'], $model);
-            } elseif (!empty($options['size']) && is_string($options['size'])) {
-                $aspect_ratio = $this->normalize_aspect_ratio(
-                    $this->map_size_to_aspect_ratio($options['size']) ?? '',
-                    $model
-                );
-            }
-            if ($aspect_ratio !== '') {
-                $image_config['aspect_ratio'] = $aspect_ratio;
-            }
-
-            $image_size = $this->normalize_image_size($options['image_size'] ?? '', $model);
-            if ($image_size !== '') {
-                $image_config['image_size'] = $image_size;
-            }
-        }
-        if (!empty($image_config)) {
-            $payload['image_config'] = $image_config;
+        $payload = $this->build_image_payload(
+            $clean_prompt,
+            $model,
+            $image_mode,
+            $options,
+            $this->get_model_parameter_schema($model)
+        );
+        if (is_wp_error($payload)) {
+            return $payload;
         }
 
         $headers = $this->get_api_headers($api_key, 'generate');
@@ -508,11 +556,19 @@ class AIPKit_Image_OpenRouter_Provider_Strategy extends AIPKit_Image_Base_Provid
         }
 
         $images = $this->parse_images($decoded_response);
-        $requested_count = isset($payload['n']) ? absint($payload['n']) : 1;
+        $requested_count = isset($options['n']) ? max(1, min(absint($options['n']), 10)) : 1;
         if ($requested_count > 0 && count($images) > $requested_count) {
             $images = array_slice($images, 0, $requested_count);
         }
         if (empty($images)) {
+            $unsupported_media_types = $this->get_unsupported_response_media_types($decoded_response);
+            if (!empty($unsupported_media_types)) {
+                return new WP_Error(
+                    'openrouter_image_unsupported_media_type',
+                    __('OpenRouter returned a non-raster image that cannot be saved safely to the WordPress Media Library. Select a raster-capable model or PNG, JPEG, or WEBP output.', 'gpt3-ai-content-generator'),
+                    ['status' => 400, 'media_types' => $unsupported_media_types]
+                );
+            }
             return new WP_Error('openrouter_image_no_data', __('OpenRouter API returned success but no image data was found.', 'gpt3-ai-content-generator'));
         }
 
@@ -527,6 +583,9 @@ class AIPKit_Image_OpenRouter_Provider_Strategy extends AIPKit_Image_Base_Provid
                 'total_tokens' => $total_tokens,
                 'provider_raw' => $decoded_response['usage'],
             ];
+            if (isset($decoded_response['usage']['cost']) && is_numeric($decoded_response['usage']['cost'])) {
+                $usage_data['cost'] = (float) $decoded_response['usage']['cost'];
+            }
         }
 
         return [
@@ -546,6 +605,22 @@ class AIPKit_Image_OpenRouter_Provider_Strategy extends AIPKit_Image_Base_Provid
     }
 
     /**
+     * Dedicated image generation can legitimately exceed the shared 120 second
+     * image timeout for high-resolution models.
+     *
+     * @param string $operation Operation name.
+     * @return array
+     */
+    public function get_request_options(string $operation): array
+    {
+        $options = parent::get_request_options($operation);
+        if ($operation === 'generate') {
+            $options['timeout'] = 180;
+        }
+        return $options;
+    }
+
+    /**
      * OpenRouter request headers.
      *
      * @param string $api_key API key.
@@ -558,7 +633,7 @@ class AIPKit_Image_OpenRouter_Provider_Strategy extends AIPKit_Image_Base_Provid
             'Content-Type' => 'application/json',
             'Authorization' => 'Bearer ' . $api_key,
             'HTTP-Referer' => get_bloginfo('url'),
-            'X-Title' => get_bloginfo('name'),
+            'X-OpenRouter-Title' => get_bloginfo('name'),
         ];
     }
 }

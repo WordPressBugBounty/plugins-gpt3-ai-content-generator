@@ -102,7 +102,8 @@ class AIService
         ?string $frontend_active_qdrant_file_upload_context_id = null,
         ?string $frontend_active_chroma_collection_name = null,
         ?string $frontend_active_chroma_file_upload_context_id = null,
-        ?string $frontend_active_claude_file_id = null
+        ?string $frontend_active_claude_file_id = null,
+        ?string $conversation_uuid = null
     ) {
         return AIService\generate_response(
             $this,
@@ -121,7 +122,8 @@ class AIService
             $frontend_active_qdrant_file_upload_context_id,
             $frontend_active_chroma_collection_name,
             $frontend_active_chroma_file_upload_context_id,
-            $frontend_active_claude_file_id
+            $frontend_active_claude_file_id,
+            $conversation_uuid
         );
     }
 

@@ -4,7 +4,7 @@ Tags: ai, chatbot, openai, ai writer, automation
 Requires at least: 6.0
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 2.4.68
+Stable tag: 2.4.69
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -125,6 +125,15 @@ Yes. AIP supports GPT-5, GPT-4o, GPT-4 Turbo, Google Gemini 1.5, Imagen 4.0, and
 ---
 
 == Changelog ==
+
+= 2.4.69 =
+
+- Upgraded OpenRouter text generation to the Responses API with streaming, vision, usage, and improved error support.
+- Added OpenRouter web search with domain filtering and source citations in Chatbot and AI Forms.
+- Added OpenRouter image generation and editing across Image Generator, Content Writer, Automations, and the REST API.
+- Added OpenRouter reasoning effort controls across supported text-generation modules.
+- Added OpenRouter routing and privacy controls for provider failover, strict parameter support, fallback models, data collection, and zero data retention.
+- Added per-chatbot Session stickiness for OpenRouter to improve provider and prompt-cache affinity without changing conversation history.
 
 = 2.4.68 =
 

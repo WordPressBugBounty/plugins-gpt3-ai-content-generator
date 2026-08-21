@@ -6,6 +6,7 @@ use WPAICG\Core\Stream\Contexts\AIForms\SSEAIFormsStreamContextHandler;
 use WPAICG\Core\TokenManager\Constants\GuestTableConstants;
 use WP_Error;
 use WPAICG\Core\AIPKit_OpenAI_Reasoning;
+use WPAICG\Core\AIPKit_OpenRouter_Reasoning;
 use WPAICG\Core\AIPKit_Payload_Sanitizer;
 use WPAICG\AIPKit_Providers;
 use WPAICG\AIPKIT_AI_Settings;
@@ -597,6 +598,14 @@ function prepare_stream_data_logic(
         if ($reasoning_effort !== '') {
             $ai_params_for_payload['reasoning'] = ['effort' => $reasoning_effort];
         }
+    } elseif ($provider === 'OpenRouter') {
+        $reasoning_effort = AIPKit_OpenRouter_Reasoning::normalize_effort_for_model(
+            (string) $model,
+            $form_config['reasoning_effort'] ?? ''
+        );
+        if ($reasoning_effort !== '') {
+            $ai_params_for_payload['reasoning'] = ['effort' => $reasoning_effort];
+        }
     } elseif ($provider === 'Ollama') {
         $reasoning_effort = AIPKit_OpenAI_Reasoning::sanitize_effort($form_config['reasoning_effort'] ?? '');
         if ($reasoning_effort !== '' && $reasoning_effort !== 'none') {
@@ -720,21 +729,30 @@ function prepare_stream_data_logic(
         $openrouter_engine = isset($form_config['openrouter_web_search_engine'])
             ? sanitize_key((string) $form_config['openrouter_web_search_engine'])
             : 'auto';
-        if (in_array($openrouter_engine, ['native', 'exa'], true)) {
+        if (in_array($openrouter_engine, ['native', 'exa', 'firecrawl', 'parallel', 'perplexity'], true)) {
             $web_search_config['engine'] = $openrouter_engine;
         }
 
         $openrouter_max_results = isset($form_config['openrouter_web_search_max_results'])
             ? absint($form_config['openrouter_web_search_max_results'])
             : 5;
-        $web_search_config['max_results'] = max(1, min($openrouter_max_results, 10));
-
-        $openrouter_search_prompt = isset($form_config['openrouter_web_search_search_prompt'])
-            ? AIPKit_Prompt_Sanitizer::sanitize($form_config['openrouter_web_search_search_prompt'])
-            : '';
-        if ($openrouter_search_prompt !== '') {
-            $web_search_config['search_prompt'] = $openrouter_search_prompt;
+        $web_search_config['max_results'] = max(1, min($openrouter_max_results, 25));
+        $openrouter_max_uses = isset($form_config['openrouter_web_search_max_uses'])
+            ? absint($form_config['openrouter_web_search_max_uses'])
+            : 1;
+        $web_search_config['max_uses'] = max(1, min($openrouter_max_uses, 10));
+        $openrouter_max_total_results = isset($form_config['openrouter_web_search_max_total_results'])
+            ? absint($form_config['openrouter_web_search_max_total_results'])
+            : 10;
+        $web_search_config['max_total_results'] = max(1, min($openrouter_max_total_results, 100));
+        $openrouter_context_size = isset($form_config['openrouter_web_search_context_size'])
+            ? sanitize_key((string) $form_config['openrouter_web_search_context_size'])
+            : 'auto';
+        if (in_array($openrouter_context_size, ['low', 'medium', 'high'], true)) {
+            $web_search_config['search_context_size'] = $openrouter_context_size;
         }
+        $web_search_config['allowed_domains'] = $form_config['openrouter_web_search_allowed_domains'] ?? '';
+        $web_search_config['excluded_domains'] = $form_config['openrouter_web_search_excluded_domains'] ?? '';
 
         $ai_params_for_payload['web_search_tool_config'] = $web_search_config;
         $ai_params_for_payload['frontend_web_search_active'] = true;

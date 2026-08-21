@@ -11,6 +11,7 @@ use WPAICG\ContentWriter\Prompt\AIPKit_Content_Writer_User_Prompt_Builder;
 use WPAICG\Vector\AIPKit_Vector_Store_Manager;
 use WPAICG\Core\Stream\Vector as VectorContextBuilder;
 use WPAICG\Core\AIPKit_OpenAI_Reasoning;
+use WPAICG\Core\AIPKit_OpenRouter_Reasoning;
 use WPAICG\ContentWriter\TemplateManagerMethods as CwTemplateMethods;
 use WPAICG\Utils\AIPKit_TOC_Generator;
 use WPAICG\ContentWriter\AIPKit_Image_Injector;
@@ -245,6 +246,14 @@ function generate_post_logic(array $prompts, array $cw_config, AIPKit_AI_Caller 
 
     if (($provider ?? '') === 'OpenAI') {
         $reasoning_effort = AIPKit_OpenAI_Reasoning::normalize_effort_for_model(
+            (string) ($model ?? ''),
+            $cw_config['reasoning_effort'] ?? ''
+        );
+        if ($reasoning_effort !== '') {
+            $content_ai_params['reasoning'] = ['effort' => $reasoning_effort];
+        }
+    } elseif (($provider ?? '') === 'OpenRouter') {
+        $reasoning_effort = AIPKit_OpenRouter_Reasoning::normalize_effort_for_model(
             (string) ($model ?? ''),
             $cw_config['reasoning_effort'] ?? ''
         );

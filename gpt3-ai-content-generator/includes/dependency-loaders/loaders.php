@@ -74,6 +74,7 @@ class Core_Services_Loader {
         require_once $core_path . 'class-aipkit_ai_caller.php';
         require_once $core_path . 'models_api.php';
         require_once $core_path . 'class-aipkit-openai-reasoning.php';
+        require_once $core_path . 'class-aipkit-openrouter-reasoning.php';
         require_once $core_path . 'class-aipkit-instruction-manager.php';
         require_once $core_path . 'class-aipkit-content-moderator.php';
         require_once $core_path . 'class-aipkit-payload-sanitizer.php';

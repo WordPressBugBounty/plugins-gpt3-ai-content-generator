@@ -5,6 +5,7 @@ namespace WPAICG\AutoGPT\Cron\EventProcessor\Processor\CommentReply;
 
 use WPAICG\Core\AIPKit_AI_Caller;
 use WPAICG\Core\AIPKit_OpenAI_Reasoning;
+use WPAICG\Core\AIPKit_OpenRouter_Reasoning;
 use WPAICG\Chat\Storage\LogStorage;
 use WP_Error;
 
@@ -73,6 +74,14 @@ function process_comment_reply_item_logic(array $item, array $item_config): arra
     $ai_params_override = ['temperature' => floatval($item_config['ai_temperature'] ?? 1), 'max_completion_tokens' => intval($item_config['content_max_tokens'] ?? 4000)];
     if (($item_config['ai_provider'] ?? '') === 'OpenAI') {
         $reasoning_effort = AIPKit_OpenAI_Reasoning::normalize_effort_for_model(
+            (string) ($item_config['ai_model'] ?? ''),
+            $item_config['reasoning_effort'] ?? ''
+        );
+        if ($reasoning_effort !== '') {
+            $ai_params_override['reasoning'] = ['effort' => $reasoning_effort];
+        }
+    } elseif (($item_config['ai_provider'] ?? '') === 'OpenRouter') {
+        $reasoning_effort = AIPKit_OpenRouter_Reasoning::normalize_effort_for_model(
             (string) ($item_config['ai_model'] ?? ''),
             $item_config['reasoning_effort'] ?? ''
         );

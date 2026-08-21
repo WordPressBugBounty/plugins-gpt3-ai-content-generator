@@ -9,6 +9,7 @@ use WP_Error;
 use WPAICG\ContentWriter\Prompt\AIPKit_Content_Writer_System_Instruction_Builder;
 use WPAICG\ContentWriter\Prompt\AIPKit_Content_Writer_User_Prompt_Builder;
 use WPAICG\Core\AIPKit_OpenAI_Reasoning;
+use WPAICG\Core\AIPKit_OpenRouter_Reasoning;
 use WPAICG\Lib\ContentWriter\AIPKit_Google_Sheets_Parser;
 use WPAICG\Lib\Utils\AIPKit_Google_Credentials_Handler;
 use WPAICG\ContentWriter\SEO\AIPKit_Content_Writer_Smart_SEO_Keyphrase_Usage;
@@ -207,6 +208,14 @@ function prepare_ai_params_logic(array $settings): array
     // Add provider-specific reasoning / think controls.
     if (($settings['provider'] ?? '') === 'OpenAI') {
         $reasoning_effort = AIPKit_OpenAI_Reasoning::normalize_effort_for_model(
+            (string) ($settings['ai_model'] ?? ''),
+            $settings['reasoning_effort'] ?? ''
+        );
+        if ($reasoning_effort !== '') {
+            $ai_params_override['reasoning'] = ['effort' => $reasoning_effort];
+        }
+    } elseif (($settings['provider'] ?? '') === 'OpenRouter') {
+        $reasoning_effort = AIPKit_OpenRouter_Reasoning::normalize_effort_for_model(
             (string) ($settings['ai_model'] ?? ''),
             $settings['reasoning_effort'] ?? ''
         );

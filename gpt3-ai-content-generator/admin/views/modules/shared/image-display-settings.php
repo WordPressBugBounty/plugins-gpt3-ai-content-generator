@@ -353,8 +353,11 @@ $aipkit_image_display_settings_provider_fields = [
         ]), ['name' => 'google_image_size', 'attrs' => $aipkit_image_display_settings_provider_option('image_size'), 'row_attrs' => ['data-aipkit-google-image-size-row' => true, 'hidden' => true]]),
     ],
     'openrouter' => [
-        $aipkit_image_display_settings_select('openrouter_aspect_ratio', __('Aspect ratio', 'gpt3-ai-content-generator'), __('Model-dependent image_config shape.', 'gpt3-ai-content-generator'), array_merge($aipkit_image_display_settings_default_option, [
+        $aipkit_image_display_settings_select('openrouter_aspect_ratio', __('Aspect ratio', 'gpt3-ai-content-generator'), __('Values are limited to those supported by the selected OpenRouter image model.', 'gpt3-ai-content-generator'), array_merge($aipkit_image_display_settings_default_option, [
+            $aipkit_image_display_settings_option('auto', __('Auto', 'gpt3-ai-content-generator')),
             $aipkit_image_display_settings_option('1:1', __('Square', 'gpt3-ai-content-generator')),
+            $aipkit_image_display_settings_option('1:2', '1:2'),
+            $aipkit_image_display_settings_option('2:1', '2:1'),
             $aipkit_image_display_settings_option('2:3', '2:3'),
             $aipkit_image_display_settings_option('3:2', '3:2'),
             $aipkit_image_display_settings_option('3:4', __('Portrait 3:4', 'gpt3-ai-content-generator')),
@@ -363,15 +366,40 @@ $aipkit_image_display_settings_provider_fields = [
             $aipkit_image_display_settings_option('5:4', '5:4'),
             $aipkit_image_display_settings_option('9:16', __('Vertical 9:16', 'gpt3-ai-content-generator')),
             $aipkit_image_display_settings_option('16:9', __('Wide 16:9', 'gpt3-ai-content-generator')),
+            $aipkit_image_display_settings_option('9:19.5', '9:19.5'),
+            $aipkit_image_display_settings_option('19.5:9', '19.5:9'),
+            $aipkit_image_display_settings_option('9:20', '9:20'),
+            $aipkit_image_display_settings_option('20:9', '20:9'),
+            $aipkit_image_display_settings_option('9:21', '9:21'),
             $aipkit_image_display_settings_option('21:9', '21:9'),
             $aipkit_image_display_settings_option('1:4', '1:4'),
             $aipkit_image_display_settings_option('4:1', '4:1'),
             $aipkit_image_display_settings_option('1:8', '1:8'),
             $aipkit_image_display_settings_option('8:1', '8:1'),
         ]), ['name' => 'openrouter_aspect_ratio', 'attrs' => $aipkit_image_display_settings_provider_option('aspect_ratio'), 'row_attrs' => ['data-aipkit-openrouter-aspect-ratio-row' => true, 'hidden' => true]]),
-        $aipkit_image_display_settings_select('openrouter_image_size', __('Image size', 'gpt3-ai-content-generator'), __('Provider output resolution.', 'gpt3-ai-content-generator'), array_merge($aipkit_image_display_settings_common_options['image_size'], [
-            $aipkit_image_display_settings_option('0.5k', '0.5K'),
-        ]), ['name' => 'openrouter_image_size', 'attrs' => $aipkit_image_display_settings_provider_option('image_size'), 'row_attrs' => ['data-aipkit-openrouter-image-size-row' => true, 'hidden' => true]]),
+        $aipkit_image_display_settings_select('openrouter_image_size', __('Resolution', 'gpt3-ai-content-generator'), __('Normalized output tier supported by the selected model.', 'gpt3-ai-content-generator'), array_merge($aipkit_image_display_settings_default_option, [
+            $aipkit_image_display_settings_option('512', '512'),
+            $aipkit_image_display_settings_option('1k', '1K'),
+            $aipkit_image_display_settings_option('2k', '2K'),
+            $aipkit_image_display_settings_option('4k', '4K'),
+        ]), ['name' => 'openrouter_image_size', 'attrs' => $aipkit_image_display_settings_provider_option('image_size'), 'row_attrs' => ['data-aipkit-openrouter-resolution-row' => true, 'hidden' => true]]),
+        $aipkit_image_display_settings_select('openrouter_quality', __('Quality', 'gpt3-ai-content-generator'), __('Controls generation cost and detail when supported.', 'gpt3-ai-content-generator'), array_merge($aipkit_image_display_settings_default_option, [
+            $aipkit_image_display_settings_option('auto', __('Auto', 'gpt3-ai-content-generator')),
+            $aipkit_image_display_settings_option('low', __('Low', 'gpt3-ai-content-generator')),
+            $aipkit_image_display_settings_option('medium', __('Medium', 'gpt3-ai-content-generator')),
+            $aipkit_image_display_settings_option('high', __('High', 'gpt3-ai-content-generator')),
+        ]), ['name' => 'openrouter_quality', 'attrs' => $aipkit_image_display_settings_provider_option('quality'), 'row_attrs' => ['data-aipkit-openrouter-quality-row' => true, 'hidden' => true]]),
+        $aipkit_image_display_settings_select('openrouter_output_format', __('Output format', 'gpt3-ai-content-generator'), __('Raster format saved to the WordPress Media Library.', 'gpt3-ai-content-generator'), array_merge($aipkit_image_display_settings_default_option, [
+            $aipkit_image_display_settings_option('png', 'PNG'),
+            $aipkit_image_display_settings_option('jpeg', 'JPEG'),
+            $aipkit_image_display_settings_option('webp', 'WebP'),
+        ]), ['name' => 'openrouter_output_format', 'attrs' => $aipkit_image_display_settings_provider_option('output_format'), 'row_attrs' => ['data-aipkit-openrouter-output-format-row' => true, 'hidden' => true]]),
+        $aipkit_image_display_settings_select('openrouter_output_compression', __('Compression', 'gpt3-ai-content-generator'), __('Only used for JPEG or WebP output.', 'gpt3-ai-content-generator'), $aipkit_image_display_settings_common_options['compression'], ['name' => 'openrouter_output_compression', 'attrs' => $aipkit_image_display_settings_provider_option('output_compression'), 'row_attrs' => ['data-aipkit-openrouter-compression-row' => true, 'hidden' => true]]),
+        $aipkit_image_display_settings_select('openrouter_background', __('Background', 'gpt3-ai-content-generator'), __('Transparent output requires PNG or WebP support.', 'gpt3-ai-content-generator'), array_merge($aipkit_image_display_settings_default_option, [
+            $aipkit_image_display_settings_option('auto', __('Auto', 'gpt3-ai-content-generator')),
+            $aipkit_image_display_settings_option('transparent', __('Transparent', 'gpt3-ai-content-generator')),
+            $aipkit_image_display_settings_option('opaque', __('Opaque', 'gpt3-ai-content-generator')),
+        ]), ['name' => 'openrouter_background', 'attrs' => $aipkit_image_display_settings_provider_option('background'), 'row_attrs' => ['data-aipkit-openrouter-background-row' => true, 'hidden' => true]]),
     ],
     'xai' => [
         $aipkit_image_display_settings_select('xai_aspect_ratio', __('Aspect ratio', 'gpt3-ai-content-generator'), __('Generated image shape.', 'gpt3-ai-content-generator'), array_merge($aipkit_image_display_settings_default_option, [

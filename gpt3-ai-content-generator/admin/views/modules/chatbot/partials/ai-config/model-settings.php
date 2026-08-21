@@ -138,6 +138,31 @@ $saved_max_messages = max(1, min($saved_max_messages, 1024));
                 </option>
             </select>
         </div>
+        <div
+            class="aipkit_behavior_compact_cell aipkit_stateful_convo_group"
+            data-provider="OpenRouter"
+            style="<?php echo ($current_provider_for_this_bot === 'OpenRouter') ? '' : 'display:none;'; ?>"
+        >
+            <label
+                class="aipkit_popover_option_label"
+                for="aipkit_bot_<?php echo esc_attr($bot_id); ?>_openrouter_session_stickiness_select"
+                data-tooltip="<?php esc_attr_e('Keeps this chatbot on the same OpenRouter provider to improve prompt cache affinity. This does not store conversation state.', 'gpt3-ai-content-generator'); ?>"
+            >
+                <?php esc_html_e('Session stickiness', 'gpt3-ai-content-generator'); ?>
+            </label>
+            <select
+                id="aipkit_bot_<?php echo esc_attr($bot_id); ?>_openrouter_session_stickiness_select"
+                name="openrouter_session_stickiness"
+                class="aipkit_form-input aipkit_popover_option_select aipkit_openrouter_session_stickiness_toggle aipkit_stateful_convo_checkbox"
+            >
+                <option value="1" <?php selected($openrouter_session_stickiness_val, '1'); ?>>
+                    <?php esc_html_e('Yes', 'gpt3-ai-content-generator'); ?>
+                </option>
+                <option value="0" <?php selected($openrouter_session_stickiness_val, '0'); ?>>
+                    <?php esc_html_e('No', 'gpt3-ai-content-generator'); ?>
+                </option>
+            </select>
+        </div>
         <div class="aipkit_behavior_compact_cell aipkit_reasoning_effort_field">
             <label
                 class="aipkit_popover_option_label"

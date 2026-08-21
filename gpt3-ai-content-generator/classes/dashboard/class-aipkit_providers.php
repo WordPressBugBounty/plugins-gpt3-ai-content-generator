@@ -35,6 +35,13 @@ class AIPKit_Providers
             'api_key' => '', 'model' => '',
             // phpcs:ignore PluginCheck.CodeAnalysis.AIProvider.DirectIntegration -- Configurable provider endpoint.
             'base_url' => 'https://openrouter.ai/api', 'api_version' => 'v1',
+            'allow_fallbacks' => '1',
+            'require_parameters' => '0',
+            'data_collection' => 'allow',
+            'zdr' => '0',
+            'fallback_model_1' => '',
+            'fallback_model_2' => '',
+            'fallback_model_3' => '',
         ],
         'Google' => [
             'api_key' => '', 'model' => '', 'embedding_model' => '',
@@ -1141,6 +1148,15 @@ class AIPKit_Providers
                     $new_value = esc_url_raw($new_value);
                 } elseif ($provider === 'OpenAI' && $key === 'api_mode') {
                     $new_value = self::normalize_openai_api_mode($new_value);
+                } elseif (
+                    $provider === 'OpenRouter'
+                    && function_exists('WPAICG\\Core\\Providers\\OpenRouter\\Methods\\sanitize_routing_settings_logic')
+                    && in_array($key, ['allow_fallbacks', 'require_parameters', 'data_collection', 'zdr', 'fallback_model_1', 'fallback_model_2', 'fallback_model_3'], true)
+                ) {
+                    $routing_settings = \WPAICG\Core\Providers\OpenRouter\Methods\sanitize_routing_settings_logic([
+                        $key => $new_value,
+                    ]);
+                    $new_value = $routing_settings[$key];
                 } elseif ($key === 'store_conversation') {
                     $new_value = ($new_value === '1' ? '1' : '0');
                 } elseif ($key === 'expiration_policy') {
@@ -1152,6 +1168,23 @@ class AIPKit_Providers
 
                 if (!isset($current_provider_settings_ref[$key]) || $current_provider_settings_ref[$key] !== $new_value) {
                     $current_provider_settings_ref[$key] = $new_value;
+                    $changed_for_this_provider = true;
+                }
+            }
+        }
+        if (
+            $provider === 'OpenRouter'
+            && function_exists('WPAICG\\Core\\Providers\\OpenRouter\\Methods\\sanitize_routing_settings_logic')
+        ) {
+            $normalized_routing_settings = \WPAICG\Core\Providers\OpenRouter\Methods\sanitize_routing_settings_logic(
+                array_merge($current_provider_settings_ref, $data)
+            );
+            foreach ($normalized_routing_settings as $routing_key => $routing_value) {
+                if (
+                    !isset($current_provider_settings_ref[$routing_key])
+                    || $current_provider_settings_ref[$routing_key] !== $routing_value
+                ) {
+                    $current_provider_settings_ref[$routing_key] = $routing_value;
                     $changed_for_this_provider = true;
                 }
             }
@@ -1277,7 +1310,11 @@ class AIPKit_Providers
     }
     public static function get_openrouter_image_models(): array
     {
-        $models = self::get_model_list('OpenRouter');
+        $models = self::get_model_list('OpenRouterImage');
+        if (empty($models)) {
+            // Backward compatibility until the first dedicated Image Models sync.
+            $models = self::get_model_list('OpenRouter');
+        }
         if (!is_array($models) || empty($models)) {
             return [];
         }
@@ -1324,6 +1361,16 @@ class AIPKit_Providers
                     $item['output_modalities'] = $normalized_output_modalities;
                 }
             }
+            if (isset($model['input_modalities']) && is_array($model['input_modalities'])) {
+                $normalized_input_modalities = array_values(array_unique(array_map(
+                    static fn($modality): string => strtolower(trim((string) $modality)),
+                    $model['input_modalities']
+                )));
+                $normalized_input_modalities = array_values(array_filter($normalized_input_modalities, static fn($modality): bool => $modality !== ''));
+                if (!empty($normalized_input_modalities)) {
+                    $item['input_modalities'] = $normalized_input_modalities;
+                }
+            }
             if (isset($model['supported_parameters']) && is_array($model['supported_parameters'])) {
                 $normalized_supported_parameters = array_values(array_unique(array_map(
                     static fn($parameter): string => strtolower(trim((string) $parameter)),
@@ -1333,6 +1380,12 @@ class AIPKit_Providers
                 if (!empty($normalized_supported_parameters)) {
                     $item['supported_parameters'] = $normalized_supported_parameters;
                 }
+            }
+            if (isset($model['supported_parameter_schema']) && is_array($model['supported_parameter_schema'])) {
+                $item['supported_parameter_schema'] = $model['supported_parameter_schema'];
+            }
+            if (array_key_exists('supports_streaming', $model)) {
+                $item['supports_streaming'] = (bool) $model['supports_streaming'];
             }
             if (!empty($capabilities)) {
                 $item['capabilities'] = $capabilities;

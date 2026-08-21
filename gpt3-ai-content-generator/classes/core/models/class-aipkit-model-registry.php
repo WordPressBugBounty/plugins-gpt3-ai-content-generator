@@ -2505,6 +2505,7 @@ final class AIPKit_Model_Registry
             'OpenAIImage' => 'OpenAI',
             'OpenAIRealtime' => 'OpenAI',
             'OpenAIVectorStores' => 'OpenAIVectorStores',
+            'OpenRouterImage' => 'OpenRouter',
             'OpenRouterEmbedding' => 'OpenRouter',
             'GoogleImage' => 'Google',
             'GoogleVideo' => 'Google',

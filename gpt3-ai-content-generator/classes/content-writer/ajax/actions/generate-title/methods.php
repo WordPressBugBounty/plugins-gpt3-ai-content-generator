@@ -8,6 +8,7 @@ use WPAICG\Utils\AIPKit_Prompt_Sanitizer;
 use WP_Error;
 use WPAICG\ContentWriter\AIPKit_Content_Writer_Prompts;
 use WPAICG\Core\AIPKit_OpenAI_Reasoning;
+use WPAICG\Core\AIPKit_OpenRouter_Reasoning;
 use function WPAICG\ContentWriter\Ajax\Actions\Shared\smart_seo_keyword_resolution_response_fields_logic;
 
 if (!defined('ABSPATH')) {
@@ -141,6 +142,14 @@ function prepare_ai_params_logic(array $validated_params): array
     // Add provider-specific reasoning / think controls.
     if (($validated_params['provider'] ?? '') === 'OpenAI') {
         $reasoning_effort = AIPKit_OpenAI_Reasoning::normalize_effort_for_model(
+            (string) ($validated_params['ai_model'] ?? ''),
+            $validated_params['reasoning_effort'] ?? ''
+        );
+        if ($reasoning_effort !== '') {
+            $ai_params_override['reasoning'] = ['effort' => $reasoning_effort];
+        }
+    } elseif (($validated_params['provider'] ?? '') === 'OpenRouter') {
+        $reasoning_effort = AIPKit_OpenRouter_Reasoning::normalize_effort_for_model(
             (string) ($validated_params['ai_model'] ?? ''),
             $validated_params['reasoning_effort'] ?? ''
         );

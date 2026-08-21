@@ -245,12 +245,24 @@ function do_ajax_save_form_logic(AIPKit_AI_Form_Ajax_Handler $handler_instance):
 
     // OpenRouter Web Search sub-settings
     $openrouter_web_search_engine = isset($post_data['openrouter_web_search_engine']) ? sanitize_key((string) $post_data['openrouter_web_search_engine']) : 'auto';
-    if (!in_array($openrouter_web_search_engine, ['auto', 'native', 'exa'], true)) {
+    if (!in_array($openrouter_web_search_engine, ['auto', 'native', 'exa', 'firecrawl', 'parallel', 'perplexity'], true)) {
         $openrouter_web_search_engine = 'auto';
     }
     $openrouter_web_search_max_results = isset($post_data['openrouter_web_search_max_results']) ? absint($post_data['openrouter_web_search_max_results']) : 5;
-    $openrouter_web_search_max_results = max(1, min($openrouter_web_search_max_results, 10));
-    $openrouter_web_search_search_prompt = isset($post_data['openrouter_web_search_search_prompt']) ? AIPKit_Prompt_Sanitizer::sanitize($post_data['openrouter_web_search_search_prompt']) : '';
+    $openrouter_web_search_max_results = max(1, min($openrouter_web_search_max_results, 25));
+    $openrouter_web_search_max_uses = isset($post_data['openrouter_web_search_max_uses']) ? absint($post_data['openrouter_web_search_max_uses']) : 1;
+    $openrouter_web_search_max_uses = max(1, min($openrouter_web_search_max_uses, 10));
+    $openrouter_web_search_max_total_results = isset($post_data['openrouter_web_search_max_total_results']) ? absint($post_data['openrouter_web_search_max_total_results']) : 10;
+    $openrouter_web_search_max_total_results = max(1, min($openrouter_web_search_max_total_results, 100));
+    $openrouter_web_search_context_size = isset($post_data['openrouter_web_search_context_size']) ? sanitize_key((string) $post_data['openrouter_web_search_context_size']) : 'auto';
+    if (!in_array($openrouter_web_search_context_size, ['auto', 'low', 'medium', 'high'], true)) {
+        $openrouter_web_search_context_size = 'auto';
+    }
+    $openrouter_web_search_allowed_domains = isset($post_data['openrouter_web_search_allowed_domains']) ? $normalize_domains((string) $post_data['openrouter_web_search_allowed_domains']) : '';
+    $openrouter_web_search_excluded_domains = isset($post_data['openrouter_web_search_excluded_domains']) ? $normalize_domains((string) $post_data['openrouter_web_search_excluded_domains']) : '';
+    if ($openrouter_web_search_allowed_domains !== '') {
+        $openrouter_web_search_excluded_domains = '';
+    }
     
     $decoded_structure = json_decode($form_structure_json, true);
     if (json_last_error() !== JSON_ERROR_NONE || !is_array($decoded_structure)) {
@@ -332,7 +344,11 @@ function do_ajax_save_form_logic(AIPKit_AI_Form_Ajax_Handler $handler_instance):
         // OpenRouter Web Search sub-settings
         'openrouter_web_search_engine' => $openrouter_web_search_engine,
         'openrouter_web_search_max_results' => $openrouter_web_search_max_results,
-        'openrouter_web_search_search_prompt' => $openrouter_web_search_search_prompt,
+        'openrouter_web_search_max_uses' => $openrouter_web_search_max_uses,
+        'openrouter_web_search_max_total_results' => $openrouter_web_search_max_total_results,
+        'openrouter_web_search_context_size' => $openrouter_web_search_context_size,
+        'openrouter_web_search_allowed_domains' => $openrouter_web_search_allowed_domains,
+        'openrouter_web_search_excluded_domains' => $openrouter_web_search_excluded_domains,
         // Save protection flags
         'allow_empty_structure' => $allow_empty_structure,
         // Labels

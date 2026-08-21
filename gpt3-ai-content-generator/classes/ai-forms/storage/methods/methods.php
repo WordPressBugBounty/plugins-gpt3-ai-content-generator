@@ -175,11 +175,23 @@ function get_form_data_logic(\WPAICG\AIForms\Storage\AIPKit_AI_Form_Storage $sto
 
     // OpenRouter Web Search sub-settings
     $openrouter_engine = get_post_meta($form_id, '_aipkit_ai_form_openrouter_web_search_engine', true) ?: 'auto';
-    $data['openrouter_web_search_engine'] = in_array($openrouter_engine, ['auto', 'native', 'exa'], true) ? $openrouter_engine : 'auto';
+    $data['openrouter_web_search_engine'] = in_array($openrouter_engine, ['auto', 'native', 'exa', 'firecrawl', 'parallel', 'perplexity'], true) ? $openrouter_engine : 'auto';
     $openrouter_max_results_raw = get_post_meta($form_id, '_aipkit_ai_form_openrouter_web_search_max_results', true);
     $openrouter_max_results = is_numeric($openrouter_max_results_raw) ? absint($openrouter_max_results_raw) : 5;
-    $data['openrouter_web_search_max_results'] = max(1, min($openrouter_max_results, 10));
-    $data['openrouter_web_search_search_prompt'] = get_post_meta($form_id, '_aipkit_ai_form_openrouter_web_search_search_prompt', true) ?: '';
+    $data['openrouter_web_search_max_results'] = max(1, min($openrouter_max_results, 25));
+    $openrouter_max_uses_raw = get_post_meta($form_id, '_aipkit_ai_form_openrouter_web_search_max_uses', true);
+    $openrouter_max_uses = is_numeric($openrouter_max_uses_raw) ? absint($openrouter_max_uses_raw) : 1;
+    $data['openrouter_web_search_max_uses'] = max(1, min($openrouter_max_uses, 10));
+    $openrouter_max_total_results_raw = get_post_meta($form_id, '_aipkit_ai_form_openrouter_web_search_max_total_results', true);
+    $openrouter_max_total_results = is_numeric($openrouter_max_total_results_raw) ? absint($openrouter_max_total_results_raw) : 10;
+    $data['openrouter_web_search_max_total_results'] = max(1, min($openrouter_max_total_results, 100));
+    $openrouter_context_size = get_post_meta($form_id, '_aipkit_ai_form_openrouter_web_search_context_size', true) ?: 'auto';
+    $data['openrouter_web_search_context_size'] = in_array($openrouter_context_size, ['auto', 'low', 'medium', 'high'], true) ? $openrouter_context_size : 'auto';
+    $data['openrouter_web_search_allowed_domains'] = get_post_meta($form_id, '_aipkit_ai_form_openrouter_web_search_allowed_domains', true) ?: '';
+    $data['openrouter_web_search_excluded_domains'] = get_post_meta($form_id, '_aipkit_ai_form_openrouter_web_search_excluded_domains', true) ?: '';
+    if ($data['openrouter_web_search_allowed_domains'] !== '') {
+        $data['openrouter_web_search_excluded_domains'] = '';
+    }
     
     // --- Add Labels ---
     $labels_json = get_post_meta($form_id, '_aipkit_ai_form_labels', true);
@@ -448,19 +460,67 @@ function save_form_settings_logic(\WPAICG\AIForms\Storage\AIPKit_AI_Form_Storage
     // --- Save OpenRouter Web Search Sub-Settings ---
     if (isset($settings['openrouter_web_search_engine'])) {
         $engine = sanitize_key((string) $settings['openrouter_web_search_engine']);
-        if (!in_array($engine, ['auto', 'native', 'exa'], true)) {
+        if (!in_array($engine, ['auto', 'native', 'exa', 'firecrawl', 'parallel', 'perplexity'], true)) {
             $engine = 'auto';
         }
         update_post_meta($form_id, '_aipkit_ai_form_openrouter_web_search_engine', $engine);
     }
     if (isset($settings['openrouter_web_search_max_results'])) {
         $max_results = absint($settings['openrouter_web_search_max_results']);
-        $max_results = max(1, min($max_results, 10));
+        $max_results = max(1, min($max_results, 25));
         update_post_meta($form_id, '_aipkit_ai_form_openrouter_web_search_max_results', $max_results);
     }
-    if (isset($settings['openrouter_web_search_search_prompt'])) {
-        update_post_meta($form_id, '_aipkit_ai_form_openrouter_web_search_search_prompt', AIPKit_Prompt_Sanitizer::sanitize($settings['openrouter_web_search_search_prompt']));
+    if (isset($settings['openrouter_web_search_max_uses'])) {
+        update_post_meta($form_id, '_aipkit_ai_form_openrouter_web_search_max_uses', max(1, min(absint($settings['openrouter_web_search_max_uses']), 10)));
     }
+    if (isset($settings['openrouter_web_search_max_total_results'])) {
+        update_post_meta($form_id, '_aipkit_ai_form_openrouter_web_search_max_total_results', max(1, min(absint($settings['openrouter_web_search_max_total_results']), 100)));
+    }
+    if (isset($settings['openrouter_web_search_context_size'])) {
+        $context_size = sanitize_key((string) $settings['openrouter_web_search_context_size']);
+        update_post_meta(
+            $form_id,
+            '_aipkit_ai_form_openrouter_web_search_context_size',
+            in_array($context_size, ['auto', 'low', 'medium', 'high'], true) ? $context_size : 'auto'
+        );
+    }
+    $normalize_openrouter_domains = static function ($value): string {
+        if (!is_string($value)) {
+            return '';
+        }
+        $parts = preg_split('/[\r\n,]+/', $value);
+        if (!is_array($parts)) {
+            return '';
+        }
+        $domains = [];
+        foreach ($parts as $part) {
+            $domain = strtolower(trim((string) $part));
+            $domain = preg_replace('/^https?:\/\//', '', $domain);
+            $domain = trim((string) $domain, " \t\n\r\0\x0B/");
+            if ($domain !== '' && preg_match('/^[a-z0-9.-]+\.[a-z]{2,}$/i', $domain)) {
+                $domains[] = $domain;
+            }
+        }
+        return implode("\n", array_values(array_unique($domains)));
+    };
+    $openrouter_allowed_domains = isset($settings['openrouter_web_search_allowed_domains'])
+        ? $normalize_openrouter_domains($settings['openrouter_web_search_allowed_domains'])
+        : null;
+    $openrouter_excluded_domains = isset($settings['openrouter_web_search_excluded_domains'])
+        ? $normalize_openrouter_domains($settings['openrouter_web_search_excluded_domains'])
+        : null;
+    if ($openrouter_allowed_domains !== null || $openrouter_excluded_domains !== null) {
+        if (!empty($openrouter_allowed_domains)) {
+            $openrouter_excluded_domains = '';
+        }
+        if ($openrouter_allowed_domains !== null) {
+            update_post_meta($form_id, '_aipkit_ai_form_openrouter_web_search_allowed_domains', $openrouter_allowed_domains);
+        }
+        if ($openrouter_excluded_domains !== null) {
+            update_post_meta($form_id, '_aipkit_ai_form_openrouter_web_search_excluded_domains', $openrouter_excluded_domains);
+        }
+    }
+    delete_post_meta($form_id, '_aipkit_ai_form_openrouter_web_search_search_prompt');
     
     // --- Save Labels ---
     if (isset($settings['labels']) && is_array($settings['labels'])) {

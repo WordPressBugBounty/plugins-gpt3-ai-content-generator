@@ -775,6 +775,8 @@ class ChatbotAjaxHandler extends BaseAjaxHandler {
         // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Reason: Nonce verification is handled in check_module_access_permissions method.
         $google_conversation_state_enabled = ( isset( $_POST['google_conversation_state_enabled'] ) && wp_unslash( $_POST['google_conversation_state_enabled'] ) === '1' ? '1' : '0' );
         // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Reason: Nonce verification is handled in check_module_access_permissions method.
+        $openrouter_session_stickiness = ( isset( $_POST['openrouter_session_stickiness'] ) && wp_unslash( $_POST['openrouter_session_stickiness'] ) === '1' ? '1' : '0' );
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Reason: Nonce verification is handled in check_module_access_permissions method.
         $provider = ( isset( $_POST['provider'] ) ? sanitize_text_field( wp_unslash( $_POST['provider'] ) ) : '' );
         // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Reason: Nonce verification is handled in check_module_access_permissions method.
         $reasoning_effort = AIPKit_OpenAI_Reasoning::sanitize_effort( ( isset( $_POST['reasoning_effort'] ) ? wp_unslash( $_POST['reasoning_effort'] ) : '' ) );
@@ -783,6 +785,7 @@ class ChatbotAjaxHandler extends BaseAjaxHandler {
         }
         update_post_meta( $bot_id, '_aipkit_openai_conversation_state_enabled', $openai_conversation_state_enabled );
         update_post_meta( $bot_id, '_aipkit_google_conversation_state_enabled', $google_conversation_state_enabled );
+        update_post_meta( $bot_id, '_aipkit_openrouter_session_stickiness', $openrouter_session_stickiness );
         update_post_meta( $bot_id, '_aipkit_reasoning_effort', $reasoning_effort );
         $state_enabled = $provider === 'OpenAI' && $openai_conversation_state_enabled === '1' || $provider === 'Google' && $google_conversation_state_enabled === '1';
         if ( $state_enabled && class_exists( AIPKit_Providers::class ) ) {
@@ -1085,14 +1088,42 @@ class ChatbotAjaxHandler extends BaseAjaxHandler {
         $openrouter_web_search_enabled = ( isset( $_POST['openrouter_web_search_enabled'] ) && wp_unslash( $_POST['openrouter_web_search_enabled'] ) === '1' ? '1' : '0' );
         // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Reason: Nonce verification is handled in check_module_access_permissions method.
         $openrouter_web_search_engine = ( isset( $_POST['openrouter_web_search_engine'] ) ? sanitize_key( wp_unslash( $_POST['openrouter_web_search_engine'] ) ) : BotSettingsManager::DEFAULT_OPENROUTER_WEB_SEARCH_ENGINE );
-        if ( !in_array( $openrouter_web_search_engine, ['auto', 'native', 'exa'], true ) ) {
+        if ( !in_array( $openrouter_web_search_engine, [
+            'auto',
+            'native',
+            'exa',
+            'firecrawl',
+            'parallel',
+            'perplexity'
+        ], true ) ) {
             $openrouter_web_search_engine = BotSettingsManager::DEFAULT_OPENROUTER_WEB_SEARCH_ENGINE;
         }
         // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Reason: Nonce verification is handled in check_module_access_permissions method.
         $openrouter_web_search_max_results = ( isset( $_POST['openrouter_web_search_max_results'] ) ? absint( wp_unslash( $_POST['openrouter_web_search_max_results'] ) ) : BotSettingsManager::DEFAULT_OPENROUTER_WEB_SEARCH_MAX_RESULTS );
-        $openrouter_web_search_max_results = max( 1, min( $openrouter_web_search_max_results, 10 ) );
+        $openrouter_web_search_max_results = max( 1, min( $openrouter_web_search_max_results, 25 ) );
         // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Reason: Nonce verification is handled in check_module_access_permissions method.
-        $openrouter_web_search_search_prompt = ( isset( $_POST['openrouter_web_search_search_prompt'] ) ? AIPKit_Prompt_Sanitizer::sanitize( wp_unslash( $_POST['openrouter_web_search_search_prompt'] ) ) : BotSettingsManager::DEFAULT_OPENROUTER_WEB_SEARCH_SEARCH_PROMPT );
+        $openrouter_web_search_max_uses = ( isset( $_POST['openrouter_web_search_max_uses'] ) ? absint( wp_unslash( $_POST['openrouter_web_search_max_uses'] ) ) : BotSettingsManager::DEFAULT_OPENROUTER_WEB_SEARCH_MAX_USES );
+        $openrouter_web_search_max_uses = max( 1, min( $openrouter_web_search_max_uses, 10 ) );
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Reason: Nonce verification is handled in check_module_access_permissions method.
+        $openrouter_web_search_max_total_results = ( isset( $_POST['openrouter_web_search_max_total_results'] ) ? absint( wp_unslash( $_POST['openrouter_web_search_max_total_results'] ) ) : BotSettingsManager::DEFAULT_OPENROUTER_WEB_SEARCH_MAX_TOTAL_RESULTS );
+        $openrouter_web_search_max_total_results = max( 1, min( $openrouter_web_search_max_total_results, 100 ) );
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Reason: Nonce verification is handled in check_module_access_permissions method.
+        $openrouter_web_search_context_size = ( isset( $_POST['openrouter_web_search_context_size'] ) ? sanitize_key( wp_unslash( $_POST['openrouter_web_search_context_size'] ) ) : BotSettingsManager::DEFAULT_OPENROUTER_WEB_SEARCH_CONTEXT_SIZE );
+        if ( !in_array( $openrouter_web_search_context_size, [
+            'auto',
+            'low',
+            'medium',
+            'high'
+        ], true ) ) {
+            $openrouter_web_search_context_size = BotSettingsManager::DEFAULT_OPENROUTER_WEB_SEARCH_CONTEXT_SIZE;
+        }
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Reason: Nonce verification is handled in check_module_access_permissions method.
+        $openrouter_web_search_allowed_domains = ( isset( $_POST['openrouter_web_search_allowed_domains'] ) ? $normalize_domains( (string) wp_unslash( $_POST['openrouter_web_search_allowed_domains'] ) ) : BotSettingsManager::DEFAULT_OPENROUTER_WEB_SEARCH_ALLOWED_DOMAINS );
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Reason: Nonce verification is handled in check_module_access_permissions method.
+        $openrouter_web_search_excluded_domains = ( isset( $_POST['openrouter_web_search_excluded_domains'] ) ? $normalize_domains( (string) wp_unslash( $_POST['openrouter_web_search_excluded_domains'] ) ) : BotSettingsManager::DEFAULT_OPENROUTER_WEB_SEARCH_EXCLUDED_DOMAINS );
+        if ( $openrouter_web_search_allowed_domains !== '' ) {
+            $openrouter_web_search_excluded_domains = '';
+        }
         // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Reason: Nonce verification is handled in check_module_access_permissions method.
         $xai_web_search_enabled = ( isset( $_POST['xai_web_search_enabled'] ) && wp_unslash( $_POST['xai_web_search_enabled'] ) === '1' ? '1' : '0' );
         // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Reason: Nonce verification is handled in check_module_access_permissions method.
@@ -1136,7 +1167,12 @@ class ChatbotAjaxHandler extends BaseAjaxHandler {
         update_post_meta( $bot_id, '_aipkit_openrouter_web_search_enabled', $openrouter_web_search_enabled );
         update_post_meta( $bot_id, '_aipkit_openrouter_web_search_engine', $openrouter_web_search_engine );
         update_post_meta( $bot_id, '_aipkit_openrouter_web_search_max_results', (string) $openrouter_web_search_max_results );
-        update_post_meta( $bot_id, '_aipkit_openrouter_web_search_search_prompt', $openrouter_web_search_search_prompt );
+        update_post_meta( $bot_id, '_aipkit_openrouter_web_search_max_uses', (string) $openrouter_web_search_max_uses );
+        update_post_meta( $bot_id, '_aipkit_openrouter_web_search_max_total_results', (string) $openrouter_web_search_max_total_results );
+        update_post_meta( $bot_id, '_aipkit_openrouter_web_search_context_size', $openrouter_web_search_context_size );
+        update_post_meta( $bot_id, '_aipkit_openrouter_web_search_allowed_domains', $openrouter_web_search_allowed_domains );
+        update_post_meta( $bot_id, '_aipkit_openrouter_web_search_excluded_domains', $openrouter_web_search_excluded_domains );
+        delete_post_meta( $bot_id, '_aipkit_openrouter_web_search_search_prompt' );
         update_post_meta( $bot_id, '_aipkit_xai_web_search_enabled', $xai_web_search_enabled );
         update_post_meta( $bot_id, '_aipkit_google_search_grounding_enabled', $google_search_grounding_enabled );
         update_post_meta( $bot_id, '_aipkit_web_toggle_default_on', $web_toggle_default_on );

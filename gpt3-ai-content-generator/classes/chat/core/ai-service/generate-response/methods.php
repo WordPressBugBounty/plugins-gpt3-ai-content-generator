@@ -310,6 +310,11 @@ function prepare_final_ai_params_logic(
             $bot_settings,
             $frontend_openai_web_search_active
         );
+        AiParams\apply_openrouter_reasoning_logic(
+            $final_ai_params,
+            $bot_settings,
+            $model
+        );
     } elseif ($main_provider === 'xAI') {
         AiParams\apply_xai_web_search_logic(
             $final_ai_params,

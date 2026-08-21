@@ -385,6 +385,15 @@ class SettingsAjaxHandler extends BaseDashboardAjaxHandler
                         $sanitized_value = esc_url_raw($value_from_post);
                     } elseif ($provider_name === 'OpenAI' && $key === 'api_mode') {
                         $sanitized_value = AIPKit_Providers::normalize_openai_api_mode($value_from_post);
+                    } elseif (
+                        $provider_name === 'OpenRouter'
+                        && function_exists('WPAICG\\Core\\Providers\\OpenRouter\\Methods\\sanitize_routing_settings_logic')
+                        && in_array($key, ['allow_fallbacks', 'require_parameters', 'data_collection', 'zdr', 'fallback_model_1', 'fallback_model_2', 'fallback_model_3'], true)
+                    ) {
+                        $routing_settings = \WPAICG\Core\Providers\OpenRouter\Methods\sanitize_routing_settings_logic([
+                            $key => $value_from_post,
+                        ]);
+                        $sanitized_value = $routing_settings[$key];
                     } elseif ($key === 'store_conversation') {
                         $sanitized_value = ($value_from_post === '1' ? '1' : '0');
                     } elseif ($key === 'expiration_policy') {
@@ -1156,6 +1165,16 @@ class SettingsAjaxHandler extends BaseDashboardAjaxHandler
                 $provider_data[$provider_key] = $this->sanitize_provider_value_by_key($provider_key, $raw_value, $default_value);
             }
 
+            if (
+                $provider_name === 'OpenRouter'
+                && function_exists('WPAICG\\Core\\Providers\\OpenRouter\\Methods\\sanitize_routing_settings_logic')
+            ) {
+                $provider_data = array_merge(
+                    $provider_data,
+                    \WPAICG\Core\Providers\OpenRouter\Methods\sanitize_routing_settings_logic($provider_data)
+                );
+            }
+
             $sanitized['providers'][$provider_name] = $provider_data;
         }
 
@@ -1267,6 +1286,16 @@ class SettingsAjaxHandler extends BaseDashboardAjaxHandler
 
         if ($provider_key === 'store_conversation') {
             return ((string) $raw_value === '1') ? '1' : '0';
+        }
+
+        if (
+            function_exists('WPAICG\\Core\\Providers\\OpenRouter\\Methods\\sanitize_routing_settings_logic')
+            && in_array($provider_key, ['allow_fallbacks', 'require_parameters', 'data_collection', 'zdr', 'fallback_model_1', 'fallback_model_2', 'fallback_model_3'], true)
+        ) {
+            $routing_settings = \WPAICG\Core\Providers\OpenRouter\Methods\sanitize_routing_settings_logic([
+                $provider_key => $raw_value,
+            ]);
+            return $routing_settings[$provider_key];
         }
 
         if ($provider_key === 'expiration_policy') {

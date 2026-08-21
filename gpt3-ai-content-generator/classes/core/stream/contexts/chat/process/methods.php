@@ -13,6 +13,7 @@ use WPAICG\Core\AIPKit_Payload_Sanitizer;
 use WPAICG\Core\AIPKit_Event_Webhooks;
 use WPAICG\Core\AIPKit_AI_Caller;
 use WPAICG\Core\AIPKit_OpenAI_Reasoning;
+use WPAICG\Core\AIPKit_OpenRouter_Reasoning;
 use WPAICG\Vector\AIPKit_Vector_Store_Manager;
 use WPAICG\Core\AIPKit_Instruction_Manager;
 use WPAICG\AIPKit_Providers;
@@ -922,27 +923,43 @@ function build_ai_request_data_for_stream_logic(
             $ai_params_for_payload['claude_file_ids'] = [$claude_file_id];
         }
     } elseif ($main_provider_for_ai === 'OpenRouter') {
+        $reasoning_effort = AIPKit_OpenRouter_Reasoning::normalize_effort_for_model(
+            (string) $model_id_for_ai,
+            $bot_settings['reasoning_effort'] ?? ''
+        );
+        if ($reasoning_effort !== '') {
+            $ai_params_for_payload['reasoning'] = ['effort' => $reasoning_effort];
+        }
         if (($bot_settings['openrouter_web_search_enabled'] ?? '0') === '1') {
             $web_search_config = ['enabled' => true];
 
             $openrouter_engine = isset($bot_settings['openrouter_web_search_engine'])
                 ? sanitize_key((string) $bot_settings['openrouter_web_search_engine'])
                 : BotSettingsManager::DEFAULT_OPENROUTER_WEB_SEARCH_ENGINE;
-            if (in_array($openrouter_engine, ['native', 'exa'], true)) {
+            if (in_array($openrouter_engine, ['native', 'exa', 'firecrawl', 'parallel', 'perplexity'], true)) {
                 $web_search_config['engine'] = $openrouter_engine;
             }
 
             $openrouter_max_results = isset($bot_settings['openrouter_web_search_max_results'])
                 ? absint($bot_settings['openrouter_web_search_max_results'])
                 : BotSettingsManager::DEFAULT_OPENROUTER_WEB_SEARCH_MAX_RESULTS;
-            $web_search_config['max_results'] = max(1, min($openrouter_max_results, 10));
-
-            $openrouter_search_prompt = isset($bot_settings['openrouter_web_search_search_prompt'])
-                ? AIPKit_Prompt_Sanitizer::sanitize($bot_settings['openrouter_web_search_search_prompt'])
-                : BotSettingsManager::DEFAULT_OPENROUTER_WEB_SEARCH_SEARCH_PROMPT;
-            if ($openrouter_search_prompt !== '') {
-                $web_search_config['search_prompt'] = $openrouter_search_prompt;
+            $web_search_config['max_results'] = max(1, min($openrouter_max_results, 25));
+            $openrouter_max_uses = isset($bot_settings['openrouter_web_search_max_uses'])
+                ? absint($bot_settings['openrouter_web_search_max_uses'])
+                : BotSettingsManager::DEFAULT_OPENROUTER_WEB_SEARCH_MAX_USES;
+            $web_search_config['max_uses'] = max(1, min($openrouter_max_uses, 10));
+            $openrouter_max_total_results = isset($bot_settings['openrouter_web_search_max_total_results'])
+                ? absint($bot_settings['openrouter_web_search_max_total_results'])
+                : BotSettingsManager::DEFAULT_OPENROUTER_WEB_SEARCH_MAX_TOTAL_RESULTS;
+            $web_search_config['max_total_results'] = max(1, min($openrouter_max_total_results, 100));
+            $openrouter_context_size = isset($bot_settings['openrouter_web_search_context_size'])
+                ? sanitize_key((string) $bot_settings['openrouter_web_search_context_size'])
+                : BotSettingsManager::DEFAULT_OPENROUTER_WEB_SEARCH_CONTEXT_SIZE;
+            if (in_array($openrouter_context_size, ['low', 'medium', 'high'], true)) {
+                $web_search_config['search_context_size'] = $openrouter_context_size;
             }
+            $web_search_config['allowed_domains'] = $bot_settings['openrouter_web_search_allowed_domains'] ?? '';
+            $web_search_config['excluded_domains'] = $bot_settings['openrouter_web_search_excluded_domains'] ?? '';
 
             $ai_params_for_payload['web_search_tool_config'] = $web_search_config;
             $ai_params_for_payload['frontend_web_search_active'] = $frontend_openai_web_search_active;

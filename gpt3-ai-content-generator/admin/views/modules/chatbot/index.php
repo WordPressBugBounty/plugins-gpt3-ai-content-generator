@@ -499,12 +499,33 @@ $claude_web_search_blocked_domains_val = $active_bot_settings['claude_web_search
 $claude_web_search_cache_ttl_val = $active_bot_settings['claude_web_search_cache_ttl'] ?? BotSettingsManager::DEFAULT_CLAUDE_WEB_SEARCH_CACHE_TTL;
 $openrouter_web_search_enabled_val = $active_bot_settings['openrouter_web_search_enabled'] ?? BotSettingsManager::DEFAULT_OPENROUTER_WEB_SEARCH_ENABLED;
 $openrouter_web_search_engine_val = $active_bot_settings['openrouter_web_search_engine'] ?? BotSettingsManager::DEFAULT_OPENROUTER_WEB_SEARCH_ENGINE;
-if ( !in_array( $openrouter_web_search_engine_val, ['auto', 'native', 'exa'], true ) ) {
+if ( !in_array( $openrouter_web_search_engine_val, [
+    'auto',
+    'native',
+    'exa',
+    'firecrawl',
+    'parallel',
+    'perplexity'
+], true ) ) {
     $openrouter_web_search_engine_val = BotSettingsManager::DEFAULT_OPENROUTER_WEB_SEARCH_ENGINE;
 }
 $openrouter_web_search_max_results_val = ( isset( $active_bot_settings['openrouter_web_search_max_results'] ) ? absint( $active_bot_settings['openrouter_web_search_max_results'] ) : BotSettingsManager::DEFAULT_OPENROUTER_WEB_SEARCH_MAX_RESULTS );
-$openrouter_web_search_max_results_val = max( 1, min( $openrouter_web_search_max_results_val, 10 ) );
-$openrouter_web_search_search_prompt_val = $active_bot_settings['openrouter_web_search_search_prompt'] ?? BotSettingsManager::DEFAULT_OPENROUTER_WEB_SEARCH_SEARCH_PROMPT;
+$openrouter_web_search_max_results_val = max( 1, min( $openrouter_web_search_max_results_val, 25 ) );
+$openrouter_web_search_max_uses_val = ( isset( $active_bot_settings['openrouter_web_search_max_uses'] ) ? absint( $active_bot_settings['openrouter_web_search_max_uses'] ) : BotSettingsManager::DEFAULT_OPENROUTER_WEB_SEARCH_MAX_USES );
+$openrouter_web_search_max_uses_val = max( 1, min( $openrouter_web_search_max_uses_val, 10 ) );
+$openrouter_web_search_max_total_results_val = ( isset( $active_bot_settings['openrouter_web_search_max_total_results'] ) ? absint( $active_bot_settings['openrouter_web_search_max_total_results'] ) : BotSettingsManager::DEFAULT_OPENROUTER_WEB_SEARCH_MAX_TOTAL_RESULTS );
+$openrouter_web_search_max_total_results_val = max( 1, min( $openrouter_web_search_max_total_results_val, 100 ) );
+$openrouter_web_search_context_size_val = $active_bot_settings['openrouter_web_search_context_size'] ?? BotSettingsManager::DEFAULT_OPENROUTER_WEB_SEARCH_CONTEXT_SIZE;
+if ( !in_array( $openrouter_web_search_context_size_val, [
+    'auto',
+    'low',
+    'medium',
+    'high'
+], true ) ) {
+    $openrouter_web_search_context_size_val = BotSettingsManager::DEFAULT_OPENROUTER_WEB_SEARCH_CONTEXT_SIZE;
+}
+$openrouter_web_search_allowed_domains_val = $active_bot_settings['openrouter_web_search_allowed_domains'] ?? BotSettingsManager::DEFAULT_OPENROUTER_WEB_SEARCH_ALLOWED_DOMAINS;
+$openrouter_web_search_excluded_domains_val = $active_bot_settings['openrouter_web_search_excluded_domains'] ?? BotSettingsManager::DEFAULT_OPENROUTER_WEB_SEARCH_EXCLUDED_DOMAINS;
 $xai_web_search_enabled_val = $active_bot_settings['xai_web_search_enabled'] ?? BotSettingsManager::DEFAULT_XAI_WEB_SEARCH_ENABLED;
 $web_toggle_default_on_val = $active_bot_settings['web_toggle_default_on'] ?? BotSettingsManager::DEFAULT_WEB_TOGGLE_DEFAULT_ON;
 $show_sources_val = $active_bot_settings['show_sources'] ?? BotSettingsManager::DEFAULT_SHOW_SOURCES;
@@ -517,6 +538,8 @@ $openai_conversation_state_enabled_val = $active_bot_settings['openai_conversati
 $openai_conversation_state_enabled_val = ( in_array( $openai_conversation_state_enabled_val, ['0', '1'], true ) ? $openai_conversation_state_enabled_val : BotSettingsManager::DEFAULT_OPENAI_CONVERSATION_STATE_ENABLED );
 $google_conversation_state_enabled_val = $active_bot_settings['google_conversation_state_enabled'] ?? BotSettingsManager::DEFAULT_GOOGLE_CONVERSATION_STATE_ENABLED;
 $google_conversation_state_enabled_val = ( in_array( $google_conversation_state_enabled_val, ['0', '1'], true ) ? $google_conversation_state_enabled_val : BotSettingsManager::DEFAULT_GOOGLE_CONVERSATION_STATE_ENABLED );
+$openrouter_session_stickiness_val = $active_bot_settings['openrouter_session_stickiness'] ?? BotSettingsManager::DEFAULT_OPENROUTER_SESSION_STICKINESS;
+$openrouter_session_stickiness_val = ( in_array( $openrouter_session_stickiness_val, ['0', '1'], true ) ? $openrouter_session_stickiness_val : BotSettingsManager::DEFAULT_OPENROUTER_SESSION_STICKINESS );
 $saved_max_messages = ( isset( $active_bot_settings['max_messages'] ) ? absint( $active_bot_settings['max_messages'] ) : BotSettingsManager::DEFAULT_MAX_MESSAGES );
 $saved_max_messages = max( 1, min( $saved_max_messages, 1024 ) );
 $enable_image_upload = $active_bot_settings['enable_image_upload'] ?? BotSettingsManager::DEFAULT_ENABLE_IMAGE_UPLOAD;

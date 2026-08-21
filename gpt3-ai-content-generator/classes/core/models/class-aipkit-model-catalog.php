@@ -196,6 +196,14 @@ final class AIPKit_Model_Catalog
                     ['id' => 'anthropic/claude-sonnet-5', 'name' => 'Claude Sonnet 5'],
                 ]
             ),
+            'OpenRouterImage' => self::model_definition(
+                'OpenRouter',
+                'image',
+                'image_generation',
+                '',
+                '',
+                []
+            ),
             'OpenRouterEmbedding' => self::model_definition(
                 'OpenRouter',
                 'embedding',
@@ -502,6 +510,8 @@ final class AIPKit_Model_Catalog
             'openai_image' => 'OpenAIImage',
             'openai-image' => 'OpenAIImage',
             'openai_embedding' => 'OpenAIEmbedding',
+            'openrouter_image' => 'OpenRouterImage',
+            'openrouter-image' => 'OpenRouterImage',
             'openrouter_embedding' => 'OpenRouterEmbedding',
             'google_embedding' => 'GoogleEmbedding',
             'google_image' => 'GoogleImage',
@@ -781,6 +791,7 @@ final class AIPKit_Model_Catalog
             case 'OpenAIRealtime':
                 return self::family('realtime', __('Realtime', 'gpt3-ai-content-generator'), 10);
             case 'OpenRouter':
+            case 'OpenRouterImage':
             case 'OpenRouterEmbedding':
                 return self::classify_publisher_family($model_id, 'OpenRouter');
             case 'Google':

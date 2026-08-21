@@ -423,6 +423,9 @@ $supports_web_toggle_default = in_array($current_provider_for_this_bot, ['OpenAI
                             <option value="auto" <?php selected($openrouter_web_search_engine_val, 'auto'); ?>><?php esc_html_e('Auto', 'gpt3-ai-content-generator'); ?></option>
                             <option value="native" <?php selected($openrouter_web_search_engine_val, 'native'); ?>><?php esc_html_e('Native', 'gpt3-ai-content-generator'); ?></option>
                             <option value="exa" <?php selected($openrouter_web_search_engine_val, 'exa'); ?>><?php esc_html_e('Exa', 'gpt3-ai-content-generator'); ?></option>
+                            <option value="firecrawl" <?php selected($openrouter_web_search_engine_val, 'firecrawl'); ?>><?php esc_html_e('Firecrawl', 'gpt3-ai-content-generator'); ?></option>
+                            <option value="parallel" <?php selected($openrouter_web_search_engine_val, 'parallel'); ?>><?php esc_html_e('Parallel', 'gpt3-ai-content-generator'); ?></option>
+                            <option value="perplexity" <?php selected($openrouter_web_search_engine_val, 'perplexity'); ?>><?php esc_html_e('Perplexity', 'gpt3-ai-content-generator'); ?></option>
                         </select>
                     </div>
                 </div>
@@ -441,32 +444,105 @@ $supports_web_toggle_default = in_array($current_provider_for_this_bot, ['OpenAI
                             name="openrouter_web_search_max_results"
                             class="aipkit_popover_option_input aipkit_popover_option_input--framed"
                             min="1"
-                            max="10"
+                            max="25"
                             step="1"
                             value="<?php echo esc_attr($openrouter_web_search_max_results_val); ?>"
                         />
                     </div>
                 </div>
 
-                <div class="aipkit_popover_option_row aipkit_web_settings_field aipkit_web_settings_field--wide">
+                <div class="aipkit_popover_option_row aipkit_web_settings_field">
                     <div class="aipkit_popover_option_main">
                         <label
                             class="aipkit_popover_option_label"
-                            for="aipkit_bot_<?php echo esc_attr($bot_id); ?>_openrouter_web_search_search_prompt_modal"
+                            for="aipkit_bot_<?php echo esc_attr($bot_id); ?>_openrouter_web_search_max_uses_modal"
                         >
-                            <?php esc_html_e('Search instructions', 'gpt3-ai-content-generator'); ?>
+                            <?php esc_html_e('Max searches', 'gpt3-ai-content-generator'); ?>
+                        </label>
+                        <input
+                            type="number"
+                            id="aipkit_bot_<?php echo esc_attr($bot_id); ?>_openrouter_web_search_max_uses_modal"
+                            name="openrouter_web_search_max_uses"
+                            class="aipkit_popover_option_input aipkit_popover_option_input--framed"
+                            min="1"
+                            max="10"
+                            step="1"
+                            value="<?php echo esc_attr($openrouter_web_search_max_uses_val); ?>"
+                        />
+                    </div>
+                </div>
+
+                <div class="aipkit_popover_option_row aipkit_web_settings_field">
+                    <div class="aipkit_popover_option_main">
+                        <label class="aipkit_popover_option_label" for="aipkit_bot_<?php echo esc_attr($bot_id); ?>_openrouter_web_search_max_total_results_modal">
+                            <?php esc_html_e('Total results', 'gpt3-ai-content-generator'); ?>
+                        </label>
+                        <input
+                            type="number"
+                            id="aipkit_bot_<?php echo esc_attr($bot_id); ?>_openrouter_web_search_max_total_results_modal"
+                            name="openrouter_web_search_max_total_results"
+                            class="aipkit_popover_option_input aipkit_popover_option_input--framed"
+                            min="1"
+                            max="100"
+                            step="1"
+                            value="<?php echo esc_attr($openrouter_web_search_max_total_results_val); ?>"
+                        />
+                    </div>
+                </div>
+
+                <div class="aipkit_popover_option_row aipkit_web_settings_field">
+                    <div class="aipkit_popover_option_main">
+                        <label class="aipkit_popover_option_label" for="aipkit_bot_<?php echo esc_attr($bot_id); ?>_openrouter_web_search_context_size_modal">
+                            <?php esc_html_e('Search depth', 'gpt3-ai-content-generator'); ?>
+                        </label>
+                        <select
+                            id="aipkit_bot_<?php echo esc_attr($bot_id); ?>_openrouter_web_search_context_size_modal"
+                            name="openrouter_web_search_context_size"
+                            class="aipkit_popover_option_select"
+                        >
+                            <option value="auto" <?php selected($openrouter_web_search_context_size_val, 'auto'); ?>><?php esc_html_e('Auto', 'gpt3-ai-content-generator'); ?></option>
+                            <option value="low" <?php selected($openrouter_web_search_context_size_val, 'low'); ?>><?php esc_html_e('Low', 'gpt3-ai-content-generator'); ?></option>
+                            <option value="medium" <?php selected($openrouter_web_search_context_size_val, 'medium'); ?>><?php esc_html_e('Medium', 'gpt3-ai-content-generator'); ?></option>
+                            <option value="high" <?php selected($openrouter_web_search_context_size_val, 'high'); ?>><?php esc_html_e('High', 'gpt3-ai-content-generator'); ?></option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="aipkit_popover_option_row aipkit_web_settings_field aipkit_web_settings_field--wide">
+                    <div class="aipkit_popover_option_main">
+                        <label class="aipkit_popover_option_label" for="aipkit_bot_<?php echo esc_attr($bot_id); ?>_openrouter_web_search_allowed_domains_modal">
+                            <?php esc_html_e('Allowed domains', 'gpt3-ai-content-generator'); ?>
                         </label>
                         <input
                             type="text"
-                            id="aipkit_bot_<?php echo esc_attr($bot_id); ?>_openrouter_web_search_search_prompt_modal"
-                            name="openrouter_web_search_search_prompt"
+                            id="aipkit_bot_<?php echo esc_attr($bot_id); ?>_openrouter_web_search_allowed_domains_modal"
+                            name="openrouter_web_search_allowed_domains"
                             class="aipkit_popover_option_input aipkit_popover_option_input--framed"
-                            value="<?php echo esc_attr($openrouter_web_search_search_prompt_val); ?>"
-                            placeholder="<?php esc_attr_e('Optional guidance for searches', 'gpt3-ai-content-generator'); ?>"
+                            value="<?php echo esc_attr($openrouter_web_search_allowed_domains_val); ?>"
+                            placeholder="<?php esc_attr_e('example.com, docs.example.com', 'gpt3-ai-content-generator'); ?>"
+                        />
+                    </div>
+                </div>
+
+                <div class="aipkit_popover_option_row aipkit_web_settings_field aipkit_web_settings_field--wide">
+                    <div class="aipkit_popover_option_main">
+                        <label class="aipkit_popover_option_label" for="aipkit_bot_<?php echo esc_attr($bot_id); ?>_openrouter_web_search_excluded_domains_modal">
+                            <?php esc_html_e('Excluded domains', 'gpt3-ai-content-generator'); ?>
+                        </label>
+                        <input
+                            type="text"
+                            id="aipkit_bot_<?php echo esc_attr($bot_id); ?>_openrouter_web_search_excluded_domains_modal"
+                            name="openrouter_web_search_excluded_domains"
+                            class="aipkit_popover_option_input aipkit_popover_option_input--framed"
+                            value="<?php echo esc_attr($openrouter_web_search_excluded_domains_val); ?>"
+                            placeholder="<?php esc_attr_e('spam.example, lowquality.example', 'gpt3-ai-content-generator'); ?>"
                         />
                     </div>
                 </div>
             </div>
+            <p class="aipkit_web_settings_note">
+                <?php esc_html_e('Use comma-separated domains. If allowed domains are set, excluded domains are ignored.', 'gpt3-ai-content-generator'); ?>
+            </p>
         </div>
     </div>
 

@@ -262,7 +262,7 @@ function get_web_search_flag_logic(
             }
             if (function_exists($resolver_fn)) {
                 $capabilities = resolve_model_capabilities_logic($model);
-                $allow_web_search_tool = !empty($capabilities['web_search_plugin']);
+                $allow_web_search_tool = !empty($capabilities['web_search_tool']);
             }
         }
     } elseif ($provider === 'xAI') {

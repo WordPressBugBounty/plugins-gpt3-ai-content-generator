@@ -90,13 +90,35 @@ class AIPKit_Content_Writer_Image_Provider_Options
                 'aliases' => ['openrouter_aspect_ratio'],
                 'default' => '',
                 'type' => 'text_choice',
-                'allowed' => ['', '1:1', '2:3', '3:2', '3:4', '4:3', '4:5', '5:4', '9:16', '16:9', '21:9', '1:4', '4:1', '1:8', '8:1'],
+                'allowed' => ['', 'auto', '1:1', '1:2', '2:1', '2:3', '3:2', '3:4', '4:3', '4:5', '5:4', '9:16', '16:9', '9:19.5', '19.5:9', '9:20', '20:9', '9:21', '21:9', '1:4', '4:1', '1:8', '8:1'],
             ],
             'image_size' => [
                 'aliases' => ['openrouter_image_size'],
                 'default' => '',
                 'type' => 'text_choice',
-                'allowed' => ['', '1k', '2k', '4k', '0.5k'],
+                'allowed' => ['', '512', '1k', '2k', '4k', '0.5k'],
+            ],
+            'quality' => [
+                'aliases' => ['openrouter_quality'],
+                'default' => '',
+                'allowed' => ['', 'auto', 'low', 'medium', 'high'],
+            ],
+            'output_format' => [
+                'aliases' => ['openrouter_output_format'],
+                'default' => '',
+                'allowed' => ['', 'png', 'jpeg', 'webp'],
+            ],
+            'output_compression' => [
+                'aliases' => ['openrouter_output_compression'],
+                'default' => '',
+                'type' => 'int_optional',
+                'min' => 0,
+                'max' => 100,
+            ],
+            'background' => [
+                'aliases' => ['openrouter_background'],
+                'default' => '',
+                'allowed' => ['', 'auto', 'transparent', 'opaque'],
             ],
         ],
         'xai' => [

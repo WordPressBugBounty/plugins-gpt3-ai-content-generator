@@ -116,6 +116,29 @@ $aipkit_build_model_field = static function (string $provider, string $slug) use
     ];
 };
 
+$aipkit_openrouter_fallback_options = [
+    '' => __('No fallback', 'gpt3-ai-content-generator'),
+];
+foreach (\WPAICG\AIPKit_Providers::get_openrouter_models() as $aipkit_openrouter_model) {
+    if (!is_array($aipkit_openrouter_model)) {
+        continue;
+    }
+    $aipkit_openrouter_model_id = sanitize_text_field((string) ($aipkit_openrouter_model['id'] ?? ''));
+    if ($aipkit_openrouter_model_id === '') {
+        continue;
+    }
+    $aipkit_openrouter_model_name = sanitize_text_field((string) ($aipkit_openrouter_model['name'] ?? ''));
+    $aipkit_openrouter_fallback_options[$aipkit_openrouter_model_id] = $aipkit_openrouter_model_name !== ''
+        ? $aipkit_openrouter_model_name
+        : $aipkit_openrouter_model_id;
+}
+for ($aipkit_fallback_position = 1; $aipkit_fallback_position <= 3; $aipkit_fallback_position++) {
+    $aipkit_saved_fallback_model = sanitize_text_field((string) ($openrouter_data['fallback_model_' . $aipkit_fallback_position] ?? ''));
+    if ($aipkit_saved_fallback_model !== '' && !isset($aipkit_openrouter_fallback_options[$aipkit_saved_fallback_model])) {
+        $aipkit_openrouter_fallback_options[$aipkit_saved_fallback_model] = $aipkit_saved_fallback_model;
+    }
+}
+
 $aipkit_provider_configs = [
     'OpenAI' => [
         'slug' => 'openai',
@@ -240,7 +263,75 @@ $aipkit_provider_configs = [
         'key_link' => __('Get your OpenRouter API key', 'gpt3-ai-content-generator'),
         'fields' => array_merge(
             [$aipkit_build_model_field('OpenRouter', 'openrouter')],
-            $aipkit_endpoint_fields('OpenRouter', 'openrouter')
+            $aipkit_endpoint_fields('OpenRouter', 'openrouter'),
+            [
+                [
+                    'id' => 'allow_fallbacks',
+                    'type' => 'toggle',
+                    'name' => 'openrouter_allow_fallbacks',
+                    'label' => __('Provider failover', 'gpt3-ai-content-generator'),
+                    'description' => __('Allow another endpoint provider to serve the same text or image model when the preferred endpoint fails.', 'gpt3-ai-content-generator'),
+                    'value' => (string) ($openrouter_data['allow_fallbacks'] ?? '1'),
+                ],
+                [
+                    'id' => 'require_parameters',
+                    'type' => 'toggle',
+                    'name' => 'openrouter_require_parameters',
+                    'label' => __('Strict parameter support', 'gpt3-ai-content-generator'),
+                    'description' => __('For text requests, use only provider endpoints that support every parameter sent. This improves consistency but may reduce availability.', 'gpt3-ai-content-generator'),
+                    'value' => (string) ($openrouter_data['require_parameters'] ?? '0'),
+                ],
+                [
+                    'id' => 'data_collection',
+                    'type' => 'select',
+                    'name' => 'openrouter_data_collection',
+                    'label' => __('Provider data collection', 'gpt3-ai-content-generator'),
+                    'description' => __('For text requests, Deny routes only to providers that do not collect request data.', 'gpt3-ai-content-generator'),
+                    'value' => (string) ($openrouter_data['data_collection'] ?? 'allow'),
+                    'options' => [
+                        'allow' => __('Allow', 'gpt3-ai-content-generator'),
+                        'deny' => __('Deny', 'gpt3-ai-content-generator'),
+                    ],
+                ],
+                [
+                    'id' => 'zdr',
+                    'type' => 'toggle',
+                    'name' => 'openrouter_zdr',
+                    'label' => __('Zero data retention (ZDR)', 'gpt3-ai-content-generator'),
+                    'description' => __('For text requests, use only inference endpoints that retain no prompt data. Web search and other tools have separate data policies.', 'gpt3-ai-content-generator'),
+                    'value' => (string) ($openrouter_data['zdr'] ?? '0'),
+                ],
+                [
+                    'id' => 'fallback_model_1',
+                    'type' => 'select',
+                    'name' => 'openrouter_fallback_model_1',
+                    'label' => __('Fallback model 1', 'gpt3-ai-content-generator'),
+                    'description' => __('First text model to try when the selected model fails. The model ultimately used determines the price.', 'gpt3-ai-content-generator'),
+                    'value' => (string) ($openrouter_data['fallback_model_1'] ?? ''),
+                    'options' => $aipkit_openrouter_fallback_options,
+                    'model_picker' => true,
+                ],
+                [
+                    'id' => 'fallback_model_2',
+                    'type' => 'select',
+                    'name' => 'openrouter_fallback_model_2',
+                    'label' => __('Fallback model 2', 'gpt3-ai-content-generator'),
+                    'description' => __('Second model to try if the selected model and first fallback fail.', 'gpt3-ai-content-generator'),
+                    'value' => (string) ($openrouter_data['fallback_model_2'] ?? ''),
+                    'options' => $aipkit_openrouter_fallback_options,
+                    'model_picker' => true,
+                ],
+                [
+                    'id' => 'fallback_model_3',
+                    'type' => 'select',
+                    'name' => 'openrouter_fallback_model_3',
+                    'label' => __('Fallback model 3', 'gpt3-ai-content-generator'),
+                    'description' => __('Final model to try before returning the upstream error.', 'gpt3-ai-content-generator'),
+                    'value' => (string) ($openrouter_data['fallback_model_3'] ?? ''),
+                    'options' => $aipkit_openrouter_fallback_options,
+                    'model_picker' => true,
+                ],
+            ]
         ),
     ],
     'Azure' => [
@@ -722,6 +813,7 @@ $aipkit_get_advanced_fields = static function (array $config) use ($aipkit_commo
         'generation' => __('Generation', 'gpt3-ai-content-generator'),
         'endpoint' => __('Endpoint', 'gpt3-ai-content-generator'),
         'retention' => __('Retention and privacy', 'gpt3-ai-content-generator'),
+        'routing' => __('Routing and fallbacks', 'gpt3-ai-content-generator'),
         'general' => __('Settings', 'gpt3-ai-content-generator'),
     ];
     $aipkit_grouped_fields = [];
@@ -737,6 +829,12 @@ $aipkit_get_advanced_fields = static function (array $config) use ($aipkit_commo
         } elseif (
             in_array($aipkit_config_field_id, ['expiration_policy', 'store_conversation', 'moderation', 'moderation_message'], true)
         ) {
+            $aipkit_section_key = 'retention';
+        } elseif (
+            in_array($aipkit_config_field_id, ['allow_fallbacks', 'require_parameters', 'fallback_model_1', 'fallback_model_2', 'fallback_model_3'], true)
+        ) {
+            $aipkit_section_key = 'routing';
+        } elseif (in_array($aipkit_config_field_id, ['data_collection', 'zdr'], true)) {
             $aipkit_section_key = 'retention';
         } else {
             $aipkit_section_key = 'general';
@@ -792,7 +890,52 @@ $aipkit_get_advanced_fields = static function (array $config) use ($aipkit_commo
                                 <span class="aipkit_settings_provider_modal_helper"><?php echo esc_html((string) $aipkit_field['description']); ?></span>
                             </div>
                             <div class="aipkit_settings_provider_modal_control">
-                                <?php if ($aipkit_field_type === 'select') : ?>
+                                <?php if ($aipkit_field_type === 'select' && !empty($aipkit_field['model_picker'])) :
+                                    $aipkit_picker_value = (string) ($aipkit_field['value'] ?? '');
+                                    $aipkit_picker_options = (array) ($aipkit_field['options'] ?? []);
+                                    $aipkit_picker_label = isset($aipkit_picker_options[$aipkit_picker_value])
+                                        ? (string) $aipkit_picker_options[$aipkit_picker_value]
+                                        : ($aipkit_picker_value !== '' ? $aipkit_picker_value : __('No fallback', 'gpt3-ai-content-generator'));
+                                    ?>
+                                    <div class="aipkit_settings_provider_modal_input_wrap aipkit_settings_provider_modal_model_picker">
+                                        <select
+                                            id="<?php echo esc_attr($aipkit_field_id); ?>"
+                                            name="<?php echo esc_attr((string) $aipkit_field['name']); ?>"
+                                            class="aipkit_form-input aipkit_autosave_trigger"
+                                            data-aipkit-settings-provider-model="OpenRouter"
+                                            hidden
+                                            aria-hidden="true"
+                                            tabindex="-1"
+                                        >
+                                            <?php foreach ($aipkit_picker_options as $aipkit_option_value => $aipkit_option_label) : ?>
+                                                <option value="<?php echo esc_attr((string) $aipkit_option_value); ?>" <?php selected($aipkit_picker_value, (string) $aipkit_option_value); ?>><?php echo esc_html((string) $aipkit_option_label); ?></option>
+                                            <?php endforeach; ?>
+                                        </select>
+                                        <?php
+                                        $aipkit_unified_model_selector_config = [
+                                            'trigger_id' => $aipkit_field_id . '_trigger',
+                                            'initial_label' => $aipkit_picker_label,
+                                            'source_id' => $aipkit_field_id,
+                                            'class_name' => 'aipkit_settings_provider_unified_model_selector',
+                                            'trigger_aria_label' => __('Choose an OpenRouter fallback model', 'gpt3-ai-content-generator'),
+                                            'show_provider_diagnostics' => false,
+                                            'show_manage_link' => false,
+                                        ];
+                                        include dirname(__DIR__, 2) . '/shared/unified-model-selector.php';
+                                        unset($aipkit_unified_model_selector_config);
+                                        ?>
+                                        <button
+                                            type="button"
+                                            class="aipkit_settings_icon_button aipkit_settings_provider_reset"
+                                            data-aipkit-reset-target="<?php echo esc_attr($aipkit_field_id); ?>"
+                                            data-default-value=""
+                                            aria-label="<?php esc_attr_e('Clear fallback model', 'gpt3-ai-content-generator'); ?>"
+                                            title="<?php esc_attr_e('Clear fallback model', 'gpt3-ai-content-generator'); ?>"
+                                        >
+                                            <span class="dashicons dashicons-no-alt" aria-hidden="true"></span>
+                                        </button>
+                                    </div>
+                                <?php elseif ($aipkit_field_type === 'select') : ?>
                                     <select id="<?php echo esc_attr($aipkit_field_id); ?>" name="<?php echo esc_attr((string) $aipkit_field['name']); ?>" class="aipkit_form-input aipkit_autosave_trigger">
                                         <?php foreach ((array) ($aipkit_field['options'] ?? []) as $aipkit_option_value => $aipkit_option_label) : ?>
                                             <option value="<?php echo esc_attr((string) $aipkit_option_value); ?>" <?php selected((string) $aipkit_field['value'], (string) $aipkit_option_value); ?>><?php echo esc_html((string) $aipkit_option_label); ?></option>

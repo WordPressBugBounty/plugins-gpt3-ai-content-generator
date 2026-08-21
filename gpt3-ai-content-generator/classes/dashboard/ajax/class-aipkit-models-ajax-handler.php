@@ -437,7 +437,8 @@ class ModelsAjaxHandler extends BaseDashboardAjaxHandler
             } elseif ($provider === 'OpenRouter') {
                 $existing_embedding_models = AIPKit_Model_Registry::get_legacy_model_list('OpenRouterEmbedding');
                 $openrouter_embedding_models = is_array($existing_embedding_models) ? $existing_embedding_models : [];
-                $openrouter_image_models = [];
+                $existing_image_models = AIPKit_Model_Registry::get_legacy_model_list('OpenRouterImage');
+                $openrouter_image_models = is_array($existing_image_models) ? $existing_image_models : [];
 
                 $openrouter_strategy = ProviderStrategyFactory::get_strategy('OpenRouter');
                 if (is_wp_error($openrouter_strategy)) {
@@ -456,6 +457,7 @@ class ModelsAjaxHandler extends BaseDashboardAjaxHandler
                     $image_models_result = $openrouter_strategy->get_image_models($api_params);
                     if (!is_wp_error($image_models_result) && is_array($image_models_result)) {
                         $openrouter_image_models = $image_models_result;
+                        $catalog_updates['OpenRouterImage'] = $openrouter_image_models;
                         $value_to_save = AIPKit_Providers::merge_model_rows($value_to_save, $openrouter_image_models);
                         $secondary_sync_successes[] = 'OpenRouterImage';
                     } elseif (is_wp_error($image_models_result)) {

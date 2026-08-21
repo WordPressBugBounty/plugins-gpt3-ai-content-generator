@@ -6,6 +6,7 @@ namespace WPAICG\ContentWriter;
 use WPAICG\Images\AIPKit_Image_Manager;
 use WPAICG\Core\AIPKit_AI_Caller;
 use WPAICG\Core\AIPKit_OpenAI_Reasoning;
+use WPAICG\Core\AIPKit_OpenRouter_Reasoning;
 use WPAICG\AIPKit_Providers;
 use WPAICG\AIPKIT_AI_Settings;
 use WPAICG\Utils\AIPKit_Prompt_Sanitizer;
@@ -197,7 +198,7 @@ class AIPKit_Content_Writer_Image_Handler
         }
 
         if ($provider === 'openrouter') {
-            return $this->apply_openrouter_generation_options($generation_options, $provider_options, $model);
+            return $this->apply_openrouter_generation_options($generation_options, $provider_options);
         }
 
         if ($provider === 'azure') {
@@ -299,13 +300,16 @@ class AIPKit_Content_Writer_Image_Handler
         return $generation_options;
     }
 
-    private function apply_openrouter_generation_options(array $generation_options, array $provider_options, string $model): array
+    private function apply_openrouter_generation_options(array $generation_options, array $provider_options): array
     {
-        unset($generation_options['aspect_ratio'], $generation_options['image_size']);
-
-        if (!$this->openrouter_model_supports_image_config($model)) {
-            return $generation_options;
-        }
+        unset(
+            $generation_options['aspect_ratio'],
+            $generation_options['image_size'],
+            $generation_options['resolution'],
+            $generation_options['output_format'],
+            $generation_options['output_compression'],
+            $generation_options['background']
+        );
 
         $openrouter_options = isset($provider_options['openrouter']) && is_array($provider_options['openrouter'])
             ? $provider_options['openrouter']
@@ -315,13 +319,39 @@ class AIPKit_Content_Writer_Image_Handler
         }
 
         $aspect_ratio = sanitize_text_field((string) ($openrouter_options['aspect_ratio'] ?? ''));
-        if ($aspect_ratio !== '' && $this->is_openrouter_aspect_ratio_supported($model, $aspect_ratio)) {
+        $allowed_aspect_ratios = ['auto', '1:1', '1:2', '2:1', '2:3', '3:2', '3:4', '4:3', '4:5', '5:4', '9:16', '16:9', '9:19.5', '19.5:9', '9:20', '20:9', '9:21', '21:9', '1:4', '4:1', '1:8', '8:1'];
+        if ($aspect_ratio !== '' && in_array($aspect_ratio, $allowed_aspect_ratios, true)) {
             $generation_options['aspect_ratio'] = $aspect_ratio;
         }
 
-        $image_size = strtolower(sanitize_text_field((string) ($openrouter_options['image_size'] ?? '')));
-        if ($image_size !== '' && $this->is_openrouter_image_size_supported($model, $image_size)) {
-            $generation_options['image_size'] = $this->normalize_openrouter_image_size($image_size);
+        $resolution = strtolower(sanitize_text_field((string) ($openrouter_options['image_size'] ?? '')));
+        if ($resolution === '0.5k') {
+            $resolution = '512';
+        }
+        if (in_array($resolution, ['512', '1k', '2k', '4k'], true)) {
+            $generation_options['resolution'] = $resolution === '512' ? '512' : strtoupper($resolution);
+        }
+
+        $quality = sanitize_key((string) ($openrouter_options['quality'] ?? ''));
+        if (in_array($quality, ['auto', 'low', 'medium', 'high'], true)) {
+            $generation_options['quality'] = $quality;
+        } else {
+            unset($generation_options['quality']);
+        }
+
+        $output_format = sanitize_key((string) ($openrouter_options['output_format'] ?? ''));
+        if (in_array($output_format, ['png', 'jpeg', 'webp'], true)) {
+            $generation_options['output_format'] = $output_format;
+        }
+
+        $background = sanitize_key((string) ($openrouter_options['background'] ?? ''));
+        if (in_array($background, ['auto', 'transparent', 'opaque'], true)) {
+            $generation_options['background'] = $background;
+        }
+
+        $compression = $openrouter_options['output_compression'] ?? '';
+        if (in_array($output_format, ['jpeg', 'webp'], true) && $compression !== '') {
+            $generation_options['output_compression'] = max(0, min(absint($compression), 100));
         }
 
         return $generation_options;
@@ -639,7 +669,7 @@ class AIPKit_Content_Writer_Image_Handler
     private function prepare_native_image_prompt(string $prompt, string $provider, string $model): string
     {
         $provider = strtolower($provider);
-        if (!in_array($provider, ['google', 'openrouter'], true) || !$this->is_gemini_native_image_model($model)) {
+        if ($provider !== 'google' || !$this->is_gemini_native_image_model($model)) {
             return $prompt;
         }
 
@@ -654,48 +684,6 @@ class AIPKit_Content_Writer_Image_Handler
         }
 
         return $prompt . "\n\n" . $directive;
-    }
-
-    private function openrouter_model_supports_image_config(string $model): bool
-    {
-        $resolver_fn = '\WPAICG\Core\Providers\OpenRouter\Methods\model_supports_image_config_logic';
-        if (!function_exists($resolver_fn)) {
-            $capability_file = WPAICG_PLUGIN_DIR . 'classes/core/providers/openrouter/methods.php';
-            if (file_exists($capability_file)) {
-                require_once $capability_file;
-            }
-        }
-
-        if (function_exists($resolver_fn)) {
-            return (bool) call_user_func($resolver_fn, $model);
-        }
-
-        return false;
-    }
-
-    private function is_openrouter_aspect_ratio_supported(string $model, string $aspect_ratio): bool
-    {
-        $ratios = ['1:1', '2:3', '3:2', '3:4', '4:3', '4:5', '5:4', '9:16', '16:9', '21:9'];
-        if (strpos(strtolower($model), 'google/gemini-3.1-flash-image') !== false) {
-            $ratios = array_merge($ratios, ['1:4', '4:1', '1:8', '8:1']);
-        }
-
-        return in_array($aspect_ratio, $ratios, true);
-    }
-
-    private function is_openrouter_image_size_supported(string $model, string $image_size): bool
-    {
-        $sizes = ['1k', '2k', '4k'];
-        if (strpos(strtolower($model), 'google/gemini-3.1-flash-image') !== false) {
-            $sizes[] = '0.5k';
-        }
-
-        return in_array($image_size, $sizes, true);
-    }
-
-    private function normalize_openrouter_image_size(string $image_size): string
-    {
-        return strtoupper($image_size);
     }
 
     private function maybe_generate_image_metadata(
@@ -760,6 +748,11 @@ class AIPKit_Content_Writer_Image_Handler
         $reasoning_effort = '';
         if ($provider === 'OpenAI') {
             $reasoning_effort = AIPKit_OpenAI_Reasoning::normalize_effort_for_model(
+                (string) $model,
+                $settings['reasoning_effort'] ?? ''
+            );
+        } elseif ($provider === 'OpenRouter') {
+            $reasoning_effort = AIPKit_OpenRouter_Reasoning::normalize_effort_for_model(
                 (string) $model,
                 $settings['reasoning_effort'] ?? ''
             );
