@@ -50,6 +50,7 @@ function get_cw_base_template_config(int $user_id): array
         'post_type' => 'post',
         'post_author' => $user_id ?: 1,
         'post_status' => 'draft',
+        'post_content_format' => 'gutenberg',
         'post_schedule_date' => '',
         'post_schedule_time' => '',
         'schedule_mode' => 'immediate',
@@ -762,6 +763,8 @@ function sanitize_config_logic(\WPAICG\ContentWriter\AIPKit_Content_Writer_Templ
             } elseif ($key === 'ai_temperature') {
                 $value = round((float) $config[$key], 1);
                 $sanitized[$key] = (string) max(0, min($value, 2));
+            } elseif ($key === 'post_content_format') {
+                $sanitized[$key] = \WPAICG\ContentWriter\AIPKit_Content_Writer_Block_Converter::normalize_format($config[$key]);
             } elseif ($key === 'content_length') {
                 $value = sanitize_key($config[$key]);
                 $sanitized[$key] = in_array($value, ['short', 'medium', 'long'], true) ? $value : 'medium';

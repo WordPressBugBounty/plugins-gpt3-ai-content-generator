@@ -8,6 +8,23 @@ if (!defined('ABSPATH')) {
 
 <div class="aipkit_cw_publishing_rows">
         <div class="aipkit_cw_publishing_row">
+            <label class="aipkit_cw_panel_label" for="aipkit_content_writer_post_content_format">
+                <?php esc_html_e('Content format', 'gpt3-ai-content-generator'); ?>
+            </label>
+            <div class="aipkit_cw_publishing_row_actions">
+                <select
+                    id="aipkit_content_writer_post_content_format"
+                    name="post_content_format"
+                    class="aipkit_post_settings_select aipkit_form-input aipkit_cw_publishing_select aipkit_cw_blended_chevron_select aipkit_autosave_trigger"
+                    data-aipkit-cw-fit-selected
+                >
+                    <option value="gutenberg"><?php esc_html_e('Gutenberg', 'gpt3-ai-content-generator'); ?></option>
+                    <option value="html"><?php esc_html_e('Classic', 'gpt3-ai-content-generator'); ?></option>
+                </select>
+            </div>
+        </div>
+
+        <div class="aipkit_cw_publishing_row">
             <label class="aipkit_cw_panel_label" for="aipkit_content_writer_post_type">
                 <?php esc_html_e('Post type', 'gpt3-ai-content-generator'); ?>
             </label>

@@ -21,6 +21,24 @@ $cw_current_user_id = isset($cw_current_user_id) ? (int) $cw_current_user_id : 0
 >
     <div class="aipkit_cw_publishing_row aipkit_autogpt_question_row aipkit_task_post_setting_row">
         <div class="aipkit_cw_panel_label_wrap">
+            <label class="aipkit_cw_panel_label aipkit_autogpt_question" for="aipkit_task_cw_post_content_format">
+                <?php esc_html_e('Content format', 'gpt3-ai-content-generator'); ?>
+            </label>
+        </div>
+        <div class="aipkit_cw_publishing_row_actions">
+            <select
+                id="aipkit_task_cw_post_content_format"
+                name="post_content_format"
+                class="aipkit_post_settings_select aipkit_form-input aipkit_autosave_trigger aipkit_cw_publishing_select aipkit_cw_blended_chevron_select"
+            >
+                <option value="gutenberg"><?php esc_html_e('Gutenberg', 'gpt3-ai-content-generator'); ?></option>
+                <option value="html"><?php esc_html_e('Classic', 'gpt3-ai-content-generator'); ?></option>
+            </select>
+        </div>
+    </div>
+
+    <div class="aipkit_cw_publishing_row aipkit_autogpt_question_row aipkit_task_post_setting_row">
+        <div class="aipkit_cw_panel_label_wrap">
             <label class="aipkit_cw_panel_label aipkit_autogpt_question" for="aipkit_task_cw_post_type">
                 <?php esc_html_e('Post Type', 'gpt3-ai-content-generator'); ?>
             </label>

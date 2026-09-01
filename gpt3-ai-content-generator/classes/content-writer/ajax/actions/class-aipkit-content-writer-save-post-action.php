@@ -102,6 +102,7 @@ class AIPKit_Content_Writer_Save_Post_Action extends AIPKit_Content_Writer_Base_
         $postarr = [
             'post_title'   => $post_data['post_title'],
             'post_content' => $post_data['post_content'],
+            'post_content_format' => $post_data['post_content_format'],
             'post_type'    => $post_data['post_type'],
             'post_author'  => $post_data['post_author'],
             'post_status'  => $post_data['post_status'],

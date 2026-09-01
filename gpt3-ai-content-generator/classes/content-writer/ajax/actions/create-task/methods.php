@@ -81,6 +81,7 @@ function build_content_writer_config_logic(array $settings, string $task_frequen
             'ai_provider', 'ai_model', 'content_title_bulk', 'content_keywords',
             'ai_temperature', 'content_length', 'post_type', 'post_author',
             'post_status', 'post_schedule_date', 'post_schedule_time',
+            'post_content_format',
             'schedule_mode', 'smart_schedule_start_datetime', 'smart_schedule_interval_value', 'smart_schedule_interval_unit',
             'post_categories',
             'prompt_mode', 'custom_title_prompt', 'custom_content_prompt',
@@ -176,6 +177,8 @@ function build_content_writer_config_logic(array $settings, string $task_frequen
                     $content_writer_config[$key] = max(0, min($raw, 100));
                 } elseif ($key === 'ai_temperature') {
                     $content_writer_config[$key] = (string)floatval($settings[$key]);
+                } elseif ($key === 'post_content_format') {
+                    $content_writer_config[$key] = \WPAICG\ContentWriter\AIPKit_Content_Writer_Block_Converter::normalize_format($settings[$key]);
                 } elseif ($key === 'content_length') {
                     $value = sanitize_key($settings[$key]);
                     $content_writer_config[$key] = in_array($value, ['short', 'medium', 'long'], true) ? $value : 'medium';

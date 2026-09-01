@@ -28,6 +28,7 @@ class AIPKit_Content_Writer_Template_Manager
         'content_keywords',
         'ai_temperature', 'content_length', 'content_max_tokens',
         'post_type', 'post_author', 'post_status',
+        'post_content_format',
         'post_schedule_date', 'post_schedule_time',
         'schedule_mode', 'smart_schedule_start_datetime',
         'smart_schedule_interval_value', 'smart_schedule_interval_unit',

@@ -306,6 +306,7 @@ function build_task_config_writing_logic(array $post_data)
             'ai_temperature', 'post_type', 'post_author',
             'content_length',
             'post_status',
+            'post_content_format',
             'schedule_mode', 'smart_schedule_start_datetime', 'smart_schedule_interval_value', 'smart_schedule_interval_unit',
             'post_categories',
             'prompt_mode', 'custom_title_prompt', 'custom_content_prompt',
@@ -355,6 +356,8 @@ function build_task_config_writing_logic(array $post_data)
                     } else {
                         $content_writer_config[$key] = null;
                     }
+                } elseif ($key === 'post_content_format') {
+                    $content_writer_config[$key] = \WPAICG\ContentWriter\AIPKit_Content_Writer_Block_Converter::normalize_format($post_data[$key]);
                 } elseif ($key === 'image_provider_options') {
                     $content_writer_config[$key] = class_exists(AIPKit_Content_Writer_Image_Provider_Options::class)
                         ? AIPKit_Content_Writer_Image_Provider_Options::sanitize_options_json($post_data[$key], $post_data)

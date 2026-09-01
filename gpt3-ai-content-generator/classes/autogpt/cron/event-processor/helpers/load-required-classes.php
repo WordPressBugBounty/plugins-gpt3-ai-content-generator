@@ -32,6 +32,7 @@ function load_required_classes_logic(): void
         ChromaPostProcessor::class => WPAICG_PLUGIN_DIR . 'classes/vector/post-processor/chroma/class-chroma-post-processor.php',
         AIPKit_AI_Caller::class => WPAICG_PLUGIN_DIR . 'classes/core/class-aipkit_ai_caller.php',
         AIPKit_Content_Writer_Output_Cleaner::class => WPAICG_PLUGIN_DIR . 'classes/content-writer/class-aipkit-content-writer-output-cleaner.php',
+        \WPAICG\ContentWriter\AIPKit_Content_Writer_Block_Converter::class => WPAICG_PLUGIN_DIR . 'classes/content-writer/class-aipkit-content-writer-block-converter.php',
         AIPKit_Content_Writer_System_Instruction_Builder::class => WPAICG_PLUGIN_DIR . 'classes/content-writer/prompt/class-aipkit-content-writer-system-instruction-builder.php',
         AIPKit_Content_Writer_User_Prompt_Builder::class => WPAICG_PLUGIN_DIR . 'classes/content-writer/prompt/class-aipkit-content-writer-user-prompt-builder.php',
     ];

@@ -461,6 +461,10 @@ function insert_post_logic(string $final_title, string $generated_content, array
         $postarr['post_category'] = $category_ids;
     }
 
+    if (($cw_config['post_content_format'] ?? 'html') === 'gutenberg') {
+        $postarr['post_content'] = wp_slash(\WPAICG\ContentWriter\AIPKit_Content_Writer_Block_Converter::convert($html_content));
+    }
+
     $new_post_id = wp_insert_post($postarr, true);
 
     if (is_wp_error($new_post_id)) {

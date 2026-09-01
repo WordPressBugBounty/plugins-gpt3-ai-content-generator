@@ -39,6 +39,7 @@ function extract_post_data_logic(): array
     $sanitized = [];
     $sanitized['post_title']   = isset($raw_data['post_title']) ? sanitize_text_field($raw_data['post_title']) : 'AI Generated Content';
     $sanitized['post_content'] = isset($raw_data['post_content']) ? wp_kses_post($raw_data['post_content']) : '';
+    $sanitized['post_content_format'] = \WPAICG\ContentWriter\AIPKit_Content_Writer_Block_Converter::normalize_format($raw_data['post_content_format'] ?? 'html');
     $sanitized['excerpt'] = isset($raw_data['generated_excerpt']) ? wp_kses_post($raw_data['generated_excerpt']) : ''; // ADDED
     $sanitized['tags'] = isset($raw_data['generated_tags']) ? sanitize_text_field($raw_data['generated_tags']) : '';
     $sanitized['meta_description'] = isset($raw_data['meta_description']) ? sanitize_textarea_field($raw_data['meta_description']) : '';
@@ -364,6 +365,12 @@ function insert_post_logic(array $postarr, ?string $excerpt = null, ?array $imag
     if (!empty($excerpt)) {
         $postarr['post_excerpt'] = $excerpt;
     }
+
+    if (($postarr['post_content_format'] ?? 'html') === 'gutenberg') {
+        // wp_insert_post expects slashed data, including escaped JSON block attributes.
+        $postarr['post_content'] = wp_slash(\WPAICG\ContentWriter\AIPKit_Content_Writer_Block_Converter::convert($postarr['post_content']));
+    }
+    unset($postarr['post_content_format']);
 
     $post_id_or_error = wp_insert_post($postarr, true);
 
