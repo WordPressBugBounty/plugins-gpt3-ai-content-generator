@@ -4,7 +4,7 @@ Tags: ai, chatbot, openai, ai writer, automation
 Requires at least: 6.0
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 2.4.73
+Stable tag: 2.4.75
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -125,6 +125,18 @@ Yes. AIP supports GPT-5, GPT-4o, GPT-4 Turbo, Google Gemini 1.5, Imagen 4.0, and
 ---
 
 == Changelog ==
+
+= 2.4.75 =
+
+- Added RSS article quantity controls in Content Writer and Automations, selecting the newest matching articles across all feeds without the previous per-feed cap.
+- Fixed Knowledge Base indexing so page-builder shortcode markup is removed while preserving its readable content during background and admin indexing.
+- Improved indexing progress across post lists, Knowledge Base, chatbots, and Automations so submitted content remains processing until confirmed ready, with automatic status refresh.
+- Fixed WooCommerce product saves being blocked by an invalid hidden credit amount after the AI Puffer credit-package option was turned off.
+
+= 2.4.74 =
+
+- Improved Knowledge Base indexing to automatically capture richer public content from common page builders without technical setup.
+- Added background reindex status and updating for knowledge sources when extraction rules change.
 
 = 2.4.73 =
 

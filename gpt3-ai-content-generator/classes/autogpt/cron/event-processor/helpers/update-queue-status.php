@@ -223,6 +223,8 @@ function update_queue_status_logic(int $itemId, string $status, ?string $errorMe
         if ($status === 'processing') {
             $update_data['last_attempt_time'] = current_time('mysql', 1);
             $formats[] = '%s';
+            $update_data['error_message'] = $errorMessage;
+            $formats[] = '%s';
         } elseif ($status === 'failed' || $status === 'error') {
             $update_data['error_message'] = $errorMessage;
             // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Reason: Direct update to a custom table. Caches will be invalidated.

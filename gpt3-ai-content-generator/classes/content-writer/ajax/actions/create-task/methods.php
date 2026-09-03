@@ -74,6 +74,12 @@ if (!class_exists(AIPKit_Content_Writer_Image_Provider_Options::class)) {
 */
 function build_content_writer_config_logic(array $settings, string $task_frequency, string $task_status)
 {
+    if (class_exists('\WPAICG\Lib\ContentWriter\AIPKit_Rss_Item_Selector')) {
+        $rss_validation = \WPAICG\Lib\ContentWriter\AIPKit_Rss_Item_Selector::validate_config($settings);
+        if (is_wp_error($rss_validation)) {
+            return $rss_validation;
+        }
+    }
     $content_writer_config = [];
     if (class_exists(AIPKit_Content_Writer_Template_Manager::class)) {
         // This list should ideally mirror the one in AIPKit_Content_Writer_Template_Manager for consistency.
@@ -108,7 +114,7 @@ function build_content_writer_config_logic(array $settings, string $task_frequen
             'pinecone_index_name', 'qdrant_collection_name', 'chroma_collection_name', 'vector_embedding_provider',
             'vector_embedding_model', 'vector_store_top_k',
             'vector_store_confidence_threshold',
-            'rss_include_keywords', 'rss_exclude_keywords',
+            'rss_include_keywords', 'rss_exclude_keywords', 'rss_item_limit',
             'reasoning_effort', // ADDED
         ];
         $prompt_template_keys = [

@@ -85,6 +85,9 @@ final class GoogleFileSearchIngestionService
         $source_type = isset($log_data['source_type'])
             ? sanitize_key((string) $log_data['source_type'])
             : 'text_entry_global_form';
+        $extraction_fingerprint = self::sanitize_extraction_fingerprint(
+            $log_data['extraction_fingerprint'] ?? ''
+        );
         $row = $this->prepare_log_row($store_name, $store_display_name, $log_data, $source_type);
         // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Durable job state is stored in the plugin's custom table.
         $inserted = $this->wpdb->insert($this->table_name, $row);
@@ -97,6 +100,7 @@ final class GoogleFileSearchIngestionService
         }
 
         $job_id = (int) $this->wpdb->insert_id;
+        do_action('aipkit_vector_source_log_changed', $job_id, $row, $extraction_fingerprint);
         $pending_file_id = self::PENDING_FILE_PREFIX . $job_id;
         $this->update_job($job_id, ['file_id' => $pending_file_id]);
 
@@ -502,7 +506,26 @@ final class GoogleFileSearchIngestionService
     private function update_job(int $job_id, array $updates): bool
     {
         // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Durable job state is stored in the plugin's custom table.
-        return $this->wpdb->update($this->table_name, $updates, ['id' => $job_id], null, ['%d']) !== false;
+        $updated = $this->wpdb->update($this->table_name, $updates, ['id' => $job_id], null, ['%d']) !== false;
+        if ($updated) {
+            $job = $this->get_job($job_id);
+            if (is_array($job)) {
+                do_action('aipkit_vector_source_log_changed', $job_id, $job, '');
+            }
+        }
+
+        return $updated;
+    }
+
+    private static function sanitize_extraction_fingerprint($fingerprint): string
+    {
+        if (!is_scalar($fingerprint)) {
+            return '';
+        }
+
+        $fingerprint = strtolower(trim((string) $fingerprint));
+
+        return preg_match('/^[a-f0-9]{64}$/', $fingerprint) ? $fingerprint : '';
     }
 
     private function mark_failed(int $job_id, string $message): void

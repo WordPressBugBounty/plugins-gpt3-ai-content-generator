@@ -26,15 +26,16 @@ function process_task_queue_event_logic(bool $schedule_follow_up = true, string 
     Helpers\load_required_classes_logic();
     $policy = Helpers\get_automatic_worker_policy_logic($source);
     $started_at = microtime(true);
+    $indexing_results = Helpers\reconcile_indexing_queue_items_logic();
     $recovered_items = recover_stale_queue_items_logic(
         $wpdb,
         $queue_table_name,
         $policy['stale_processing_seconds'],
         $policy['recovery_limit']
     );
-    $processed_task_ids = [];
+    $processed_task_ids = $indexing_results['task_ids'];
     $processed_items = 0;
-    $failed_items = 0;
+    $failed_items = $indexing_results['failed'];
     $processed_expensive_items = 0;
     $expensive_processing_seconds = 0.0;
     $task_cursor_option = 'aipkit_automation_queue_task_cursor_v1';
@@ -84,10 +85,19 @@ function process_task_queue_event_logic(bool $schedule_follow_up = true, string 
             $result['status'] = $result_status;
         }
 
+        if ($result_status === 'success' && !empty($result['processing']) && ($item['task_type'] ?? '') === 'content_indexing') {
+            if (Helpers\defer_indexing_queue_item_logic($item, $result)) {
+                $result_status = 'processing';
+            } else {
+                $result_status = 'error';
+                $result['message'] = __('Could not save indexing progress. Check Sources before retrying.', 'gpt3-ai-content-generator');
+            }
+        }
+
         Helpers\update_queue_status_logic($item['id'], $result_status, $result['message'] ?? null);
         ++$processed_items;
 
-        if ($result_status !== 'success') {
+        if (in_array($result_status, ['error', 'failed'], true)) {
             ++$failed_items;
             Helpers\log_cron_error_logic(
                 sprintf(
@@ -138,9 +148,9 @@ function process_task_queue_event_logic(bool $schedule_follow_up = true, string 
     );
 
     return [
-        'processed_items' => $processed_items,
+        'processed_items' => $processed_items + $indexing_results['completed'] + $indexing_results['failed'],
         'failed_items' => $failed_items,
-        'has_remaining_items' => $has_remaining_items,
+        'has_remaining_items' => $has_remaining_items || Helpers\has_waiting_indexing_queue_items_logic(),
         'recovered_items' => $recovered_items,
     ];
 }
@@ -218,10 +228,12 @@ function recover_stale_queue_items_logic(
     // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Bounded recovery update in a plugin-owned queue table.
     $recovered = $wpdb->query(
         $wpdb->prepare(
-            "UPDATE " . esc_sql($queue_table_name) . " SET status = %s, sort_priority = %d WHERE status = %s AND ((last_attempt_time IS NOT NULL AND last_attempt_time < %s) OR (last_attempt_time IS NULL AND added_at < %s)) LIMIT %d",
+            "UPDATE " . esc_sql($queue_table_name) . " SET status = %s, sort_priority = %d WHERE status = %s AND NOT (task_type = %s AND COALESCE(item_config, '') LIKE %s) AND ((last_attempt_time IS NOT NULL AND last_attempt_time < %s) OR (last_attempt_time IS NULL AND added_at < %s)) LIMIT %d",
             'pending',
             1,
             'processing',
+            'content_indexing',
+            '%' . $wpdb->esc_like('"_aipkit_indexing_job":') . '%',
             $cutoff,
             $cutoff,
             max(1, $recovery_limit)

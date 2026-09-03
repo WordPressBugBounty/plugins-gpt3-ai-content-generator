@@ -16,6 +16,7 @@ require_once __DIR__ . '/event-processor/trigger/trigger-content-writing-task.ph
 require_once __DIR__ . '/event-processor/processor/process-queue-item.php';
 require_once __DIR__ . '/event-processor/helpers/load-required-classes.php';
 require_once __DIR__ . '/event-processor/helpers/update-queue-status.php';
+require_once __DIR__ . '/event-processor/helpers/indexing-completion.php';
 require_once __DIR__ . '/event-processor/helpers/maybe-reschedule-queue.php';
 require_once __DIR__ . '/event-processor/helpers/log-cron-error.php';
 require_once __DIR__ . '/event-processor/helpers/worker-policy.php';

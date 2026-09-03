@@ -50,6 +50,42 @@ class AIPKit_Vector_Post_Processor_Ajax_Handler
     }
 
     /**
+     * Read submitted WordPress source jobs without repeating provider work.
+     */
+    public function ajax_get_post_indexing_status(): void
+    {
+        if (!AIPKit_Role_Manager::user_can_access_module('vector_content_indexer')) {
+            wp_send_json_error(['message' => __('You do not have permission to perform this action.', 'gpt3-ai-content-generator')], 403);
+            return;
+        }
+        if (!check_ajax_referer('aipkit_index_posts_to_vector_store_nonce', '_ajax_nonce', false)) {
+            wp_send_json_error(['message' => __('Security check failed (nonce).', 'gpt3-ai-content-generator')], 403);
+            return;
+        }
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce verified immediately above.
+        $ids = isset($_POST['job_ids']) && is_array($_POST['job_ids']) ? array_map('absint', wp_unslash($_POST['job_ids'])) : [];
+        $ids = array_values(array_unique(array_filter($ids)));
+        if (!$ids || count($ids) > 20) {
+            wp_send_json_error(['message' => __('Select up to 20 indexing jobs.', 'gpt3-ai-content-generator')], 400);
+            return;
+        }
+        global $wpdb;
+        $jobs = [];
+        foreach ($ids as $id) {
+            // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Bounded exact-ID lookup; each source requires edit access to its WordPress post.
+            $job = $wpdb->get_row($wpdb->prepare(
+                'SELECT post_id, status, message FROM ' . esc_sql($wpdb->prefix . 'aipkit_vector_data_source') . ' WHERE id = %d AND post_id > 0', $id
+            ), ARRAY_A);
+            if (!$job || !current_user_can('edit_post', (int) $job['post_id'])) {
+                wp_send_json_error(['message' => __('The indexing job is unavailable or you do not have permission to view it.', 'gpt3-ai-content-generator')], 403);
+                return;
+            }
+            $jobs[] = ['job_id' => $id, 'post_id' => (int) $job['post_id'], 'status' => $job['status'], 'message' => $job['message']];
+        }
+        wp_send_json_success(['jobs' => $jobs]);
+    }
+
+    /**
      * AJAX handler for indexing selected posts to the chosen vector store.
      */
     public function ajax_index_posts_to_vector_store()
@@ -89,6 +125,7 @@ class AIPKit_Vector_Post_Processor_Ajax_Handler
         $processed_count = 0;
         $successful_posts = [];
         $failed_posts_log = [];
+        $jobs = [];
         $store_identifier_for_msg = '';
         $new_store_id = null; // This is specific to OpenAI when creating a new store, not used by vector DB providers here
 
@@ -103,6 +140,9 @@ class AIPKit_Vector_Post_Processor_Ajax_Handler
             foreach ($post_ids as $post_id) {
                 $result = $this->openai_processor->index_single_post_to_store($post_id, $target_store_id);
                 if ($result['status'] === 'success') {
+                    if (!empty($result['job_id'])) {
+                        $jobs[] = ['job_id' => (int) $result['job_id'], 'post_id' => $post_id, 'status' => !empty($result['processing']) ? 'processing' : 'indexed'];
+                    }
                     $successful_posts[] = $post_id;
                     $processed_count++;
                 } else {
@@ -205,6 +245,7 @@ class AIPKit_Vector_Post_Processor_Ajax_Handler
             'message' => $response_message,
             'processed_count' => $processed_count,
             'total_count' => count($post_ids),
+            'jobs' => $jobs,
             'new_store_id' => $new_store_id, // This will be null unless OpenAI created a new store (not applicable in this flow)
             'failed_posts_summary' => array_keys($failed_posts_log)
         ]);

@@ -95,6 +95,7 @@ class AIPKit_Automation_Runner
             'has_remaining_items' => false,
             'recovered_items' => 0,
         ];
+        $additional_queue_results = [];
 
         try {
             if ($process_due_tasks) {
@@ -127,6 +128,18 @@ class AIPKit_Automation_Runner
                     $schedule_follow_up,
                     $source
                 );
+                $additional_queue_results = apply_filters(
+                    'aipkit_automation_runner_additional_queue_results',
+                    [],
+                    $source,
+                    $schedule_follow_up
+                );
+                foreach ((array) $additional_queue_results as $additional_queue_result) {
+                    if (is_array($additional_queue_result) && !empty($additional_queue_result['has_remaining_items'])) {
+                        $queue_result['has_remaining_items'] = true;
+                        break;
+                    }
+                }
             }
         } finally {
             self::release_lock($lock_token);
@@ -141,7 +154,8 @@ class AIPKit_Automation_Runner
             !empty($queue_result['has_remaining_items']),
             $started_at,
             absint($queue_result['failed_items'] ?? 0),
-            absint($queue_result['recovered_items'] ?? 0)
+            absint($queue_result['recovered_items'] ?? 0),
+            is_array($additional_queue_results) ? $additional_queue_results : []
         );
     }
 
@@ -211,7 +225,8 @@ class AIPKit_Automation_Runner
         bool $has_remaining_items,
         float $started_at,
         int $failed_items = 0,
-        int $recovered_items = 0
+        int $recovered_items = 0,
+        array $additional_queue_results = []
     ): array {
         return [
             'status' => $busy ? 'busy' : 'success',
@@ -222,6 +237,7 @@ class AIPKit_Automation_Runner
             'processed_items' => $processed_items,
             'failed_items' => $failed_items,
             'recovered_items' => $recovered_items,
+            'additional_queues' => $additional_queue_results,
             'has_remaining_items' => $has_remaining_items,
             'timestamp' => time(),
             'duration_ms' => (int) round((microtime(true) - $started_at) * 1000),

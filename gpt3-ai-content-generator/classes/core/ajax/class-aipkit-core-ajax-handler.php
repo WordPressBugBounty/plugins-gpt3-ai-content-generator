@@ -189,6 +189,7 @@ class AIPKit_Core_Ajax_Handler extends BaseDashboardAjaxHandler
         $log_entry = $wpdb->get_row($wpdb->prepare("SELECT id, provider, vector_store_id, file_id, post_id, status FROM {$data_source_table_identifier} WHERE id = %d LIMIT 1", $log_entry_id), ARRAY_A);
 
         if (!$log_entry) {
+            do_action('aipkit_vector_source_log_deleted', $log_entry_id);
             wp_send_json_success(['message' => __('Log entry was not found, it might have been already deleted.', 'gpt3-ai-content-generator')]);
             return;
         }
@@ -282,9 +283,12 @@ class AIPKit_Core_Ajax_Handler extends BaseDashboardAjaxHandler
         }
         if ($deleted_rows === 0) {
             // This could mean it was already deleted, which is a success state for the user.
+            do_action('aipkit_vector_source_log_deleted', $log_entry_id);
             wp_send_json_success(['message' => __('Log entry was not found, it might have been already deleted.', 'gpt3-ai-content-generator')]);
             return;
         }
+
+        do_action('aipkit_vector_source_log_deleted', $log_entry_id);
 
         wp_send_json_success(['message' => __('Vector record and log entry deleted successfully.', 'gpt3-ai-content-generator')]);
     }
@@ -354,7 +358,7 @@ class AIPKit_Core_Ajax_Handler extends BaseDashboardAjaxHandler
             return;
         }
 
-        // Step 1: Delete the existing vector and log entry
+        // OpenAI owns safe replacement and keeps the previous file/log until ready.
         $provider_config = AIPKit_Providers::get_provider_data($provider);
         if ($provider === 'Chroma') {
             if (empty($provider_config['url'])) {
@@ -377,7 +381,7 @@ class AIPKit_Core_Ajax_Handler extends BaseDashboardAjaxHandler
                     return;
                 }
             }
-        } else {
+        } elseif ($provider !== 'OpenAI') {
             if (!$this->vector_store_manager) {
                 $this->send_wp_error(new WP_Error('vsm_missing_reindex', __('Vector processing components are not available.', 'gpt3-ai-content-generator')));
                 return;
@@ -391,8 +395,13 @@ class AIPKit_Core_Ajax_Handler extends BaseDashboardAjaxHandler
 
         global $wpdb;
         $data_source_table_name = $wpdb->prefix . 'aipkit_vector_data_source';
-        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Custom table delete for admin action.
-        $wpdb->delete($data_source_table_name, ['id' => $log_id], ['%d']);
+        if ($provider !== 'OpenAI') {
+            // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Other providers retain their existing synchronous replacement flow.
+            $deleted_source_log = $wpdb->delete($data_source_table_name, ['id' => $log_id], ['%d']);
+            if ($deleted_source_log !== false) {
+                do_action('aipkit_vector_source_log_deleted', $log_id);
+            }
+        }
 
         // Step 2: Re-index the post
         $reindex_result = null;
@@ -418,7 +427,14 @@ class AIPKit_Core_Ajax_Handler extends BaseDashboardAjaxHandler
         }
 
         if (isset($reindex_result['status']) && $reindex_result['status'] === 'success') {
-            wp_send_json_success(['message' => __('Content successfully re-indexed.', 'gpt3-ai-content-generator')]);
+            $processing = !empty($reindex_result['processing']);
+            wp_send_json_success([
+                'processing' => $processing,
+                'job_id' => (int) ($reindex_result['job_id'] ?? 0),
+                'message' => $processing
+                    ? __('Submitted — processing in background', 'gpt3-ai-content-generator')
+                    : __('Content successfully re-indexed.', 'gpt3-ai-content-generator'),
+            ]);
         } else {
             $error_message = $reindex_result['message'] ?? __('An unknown error occurred during re-indexing.', 'gpt3-ai-content-generator');
             $this->send_wp_error(new WP_Error('reindex_failed', 'Re-indexing failed: ' . $error_message));

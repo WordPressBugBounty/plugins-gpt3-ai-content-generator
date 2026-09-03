@@ -5,6 +5,7 @@ namespace WPAICG\Vector\PostProcessor\OpenAI;
 
 use WPAICG\Vector\PostProcessor\Base\AIPKit_Vector_Post_Processor_Base;
 use WPAICG\Vector\AIPKit_Vector_Provider_Strategy_Factory; // Corrected Factory namespace
+use WPAICG\AutoGPT\Cron\AIPKit_Option_Lock;
 use WP_Error;
 
 if (!defined('ABSPATH')) {
@@ -25,6 +26,9 @@ if (!class_exists(AIPKit_Vector_Post_Processor_Base::class)) {
  */
 class OpenAIPostProcessor extends AIPKit_Vector_Post_Processor_Base
 {
+    public const RECONCILE_HOOK = 'aipkit_openai_post_reconcile';
+    private const RECONCILE_CURSOR = 'aipkit_openai_post_reconcile_cursor';
+    private static $hooks_registered = false;
     private $vector_store_manager;
     private $config_handler;
 
@@ -61,7 +65,26 @@ class OpenAIPostProcessor extends AIPKit_Vector_Post_Processor_Base
      * @return array ['status' => 'success'|'error', 'message' => string, 'file_id' => string|null, 'batch_id' => string|null]
      */
     public function index_single_post_to_store(int $post_id, string $vector_store_id, ?string $vector_store_name_for_log = null): array
-    {        
+    {
+        $lock_name = self::lock_name($post_id, $vector_store_id);
+        $token = self::acquire_lock($lock_name);
+        if ($token === '') {
+            return ['status' => 'error', 'message' => __('This source is already being updated. Please try again shortly.', 'gpt3-ai-content-generator')];
+        }
+        try {
+            $pending = $this->find_pending_job($post_id, $vector_store_id);
+            if ($pending) {
+                self::schedule_reconciliation();
+                return $this->pending_result($pending);
+            }
+            return $this->start_indexing($post_id, $vector_store_id, $vector_store_name_for_log);
+        } finally {
+            AIPKit_Option_Lock::release($lock_name, $token);
+        }
+    }
+
+    private function start_indexing(int $post_id, string $vector_store_id, ?string $vector_store_name_for_log): array
+    {
         $post_obj = get_post($post_id);
         $post_title_for_log = $post_obj ? $post_obj->post_title : 'N/A';
         
@@ -111,18 +134,6 @@ class OpenAIPostProcessor extends AIPKit_Vector_Post_Processor_Base
             return $return_error('Connection error: ' . $error_msg);
         }
 
-        $old_file_id_meta_key = '_aipkit_openai_file_id_for_vs_' . sanitize_key($vector_store_id);
-        $old_file_ids = $this->get_existing_file_ids_for_post($post_id, $vector_store_id, $old_file_id_meta_key);
-
-        if (!empty($old_file_ids)) {
-            $delete_existing_result = $this->delete_existing_openai_files($old_file_ids, $vector_store_id, $openai_config, $strategy);
-            if (is_wp_error($delete_existing_result)) {
-                return $return_error('Existing file cleanup error: ' . $delete_existing_result->get_error_message());
-            }
-            delete_post_meta($post_id, $old_file_id_meta_key);
-            $this->delete_existing_log_entries_for_post($post_id, $vector_store_id, $old_file_ids);
-        }
-
         $content_string_or_error = $this->get_post_content_as_string($post_id);
         if (is_wp_error($content_string_or_error) || empty(trim($content_string_or_error))) {
             $error_msg = is_wp_error($content_string_or_error) ? 'Content retrieval error: ' . $content_string_or_error->get_error_message() : __('Post content is empty.', 'gpt3-ai-content-generator');
@@ -137,8 +148,11 @@ class OpenAIPostProcessor extends AIPKit_Vector_Post_Processor_Base
             return $return_error($error_msg);
         }
 
-        $upload_result = $strategy->upload_file_for_vector_store($temp_file_result, basename($temp_file_result), 'user_data'); // Call strategy method
-        wp_delete_file($temp_file_result);
+        try {
+            $upload_result = $strategy->upload_file_for_vector_store($temp_file_result, basename($temp_file_result), 'user_data');
+        } finally {
+            wp_delete_file($temp_file_result);
+        }
 
         if (is_wp_error($upload_result) || !isset($upload_result['id'])) {
             $err_msg = is_wp_error($upload_result) ? $upload_result->get_error_message() : 'Missing file ID in response.';
@@ -148,16 +162,259 @@ class OpenAIPostProcessor extends AIPKit_Vector_Post_Processor_Base
 
         $batch_result = $this->vector_store_manager->upsert_vectors('OpenAI', $vector_store_id, ['file_ids' => [$uploaded_file_id]], $openai_config);
         if (is_wp_error($batch_result)) {
+            $strategy->delete_openai_file_object($uploaded_file_id);
             $error_msg = 'Batch add error: ' . $batch_result->get_error_message();
             return $return_error($error_msg, $uploaded_file_id);
         }
-        $batch_id = $batch_result['id'] ?? null;
-        $this->log_event(array_merge($log_entry_base, ['status' => 'indexed', 'message' => 'WordPress post content submitted for indexing.', 'file_id' => $uploaded_file_id, 'batch_id' => $batch_id]));
+        $batch_id = (string) ($batch_result['id'] ?? '');
+        if ($batch_id === '') {
+            $this->delete_existing_openai_files([$uploaded_file_id], $vector_store_id, $openai_config, $strategy);
+            return $return_error(__('OpenAI did not return an indexing batch ID. The previous source was kept.', 'gpt3-ai-content-generator'));
+        }
+        $job = array_merge($log_entry_base, [
+            'status' => 'processing',
+            'message' => __('OpenAI is processing this source. Any previous version remains available until the replacement is ready.', 'gpt3-ai-content-generator'),
+            'file_id' => $uploaded_file_id,
+            'batch_id' => $batch_id,
+        ]);
+        $job_id = $this->log_event($job);
+        if ($job_id < 1) {
+            $this->delete_existing_openai_files([$uploaded_file_id], $vector_store_id, $openai_config, $strategy);
+            return ['status' => 'error', 'message' => __('Could not save indexing progress. The previous source was kept.', 'gpt3-ai-content-generator')];
+        }
+        self::schedule_reconciliation();
+        $job['id'] = $job_id;
+        return $this->pending_result($job);
+    }
 
-        update_post_meta($post_id, $old_file_id_meta_key, $uploaded_file_id);
-        update_post_meta($post_id, '_aipkit_indexed_to_vs_' . sanitize_key($vector_store_id), '1');
+    public static function register_hooks(): void
+    {
+        if (self::$hooks_registered) {
+            return;
+        }
+        self::$hooks_registered = true;
+        add_action(self::RECONCILE_HOOK, [self::class, 'reconcile_pending_jobs']);
+        add_action('aipkit_deactivate_background_workers', [self::class, 'deactivate']);
+        // Resume durable jobs after a plugin reactivation, without a permanent cron job.
+        add_action('admin_init', [self::class, 'resume_pending_jobs']);
+        add_filter('aipkit_automation_runner_additional_queue_results', [self::class, 'run_from_automation'], 20);
+    }
 
-        return ['status' => 'success', 'message' => 'Submitted to batch.', 'file_id' => $uploaded_file_id, 'batch_id' => $batch_id];
+    public static function deactivate(): void
+    {
+        wp_clear_scheduled_hook(self::RECONCILE_HOOK);
+        delete_option(self::RECONCILE_CURSOR);
+    }
+
+    public static function resume_pending_jobs(): void
+    {
+        if (!wp_next_scheduled(self::RECONCILE_HOOK) && (new self())->pending_jobs()) {
+            self::schedule_reconciliation();
+        }
+    }
+
+    private static function schedule_reconciliation(): void
+    {
+        if (!wp_next_scheduled(self::RECONCILE_HOOK)) {
+            wp_schedule_single_event(time() + 30, self::RECONCILE_HOOK);
+        }
+    }
+
+    public static function reconcile_pending_jobs(): void
+    {
+        $processor = new self();
+        $jobs = $processor->pending_jobs((int) get_option(self::RECONCILE_CURSOR, 0));
+        if (!$jobs) {
+            $jobs = $processor->pending_jobs();
+        }
+        if (!$jobs) {
+            delete_option(self::RECONCILE_CURSOR);
+            return;
+        }
+        // Schedule before remote calls so a killed PHP worker does not strand jobs.
+        self::schedule_reconciliation();
+        $started = microtime(true);
+        foreach ($jobs as $job) {
+            // Advance before remote work so one stalled source cannot starve later jobs.
+            update_option(self::RECONCILE_CURSOR, (int) $job['id'], false);
+            try {
+                $processor->refresh_job((int) $job['id']);
+            } catch (\Throwable $error) {
+                // The durable row and scheduled follow-up retain recovery state.
+                break;
+            }
+            if (microtime(true) - $started >= 20) {
+                break;
+            }
+        }
+    }
+
+    public static function run_from_automation(array $results): array
+    {
+        self::reconcile_pending_jobs();
+        $results['openai_indexing'] = ['has_remaining_items' => !empty((new self())->pending_jobs())];
+        return $results;
+    }
+
+    /** Reconcile a durable source row; safe to call from cron or admin polling. */
+    public function refresh_job(int $job_id, ?array $known_batch = null): void
+    {
+        $job = $this->get_job($job_id);
+        if (!$job || $job['status'] !== 'processing') {
+            return;
+        }
+        $lock_name = self::lock_name((int) $job['post_id'], (string) $job['vector_store_id']);
+        $token = self::acquire_lock($lock_name);
+        if ($token === '') {
+            return;
+        }
+        try {
+            $job = $this->get_job($job_id);
+            if (!$job || $job['status'] !== 'processing') {
+                return;
+            }
+            $config = $this->config_handler ? $this->config_handler->get_config() : null;
+            $strategy = AIPKit_Vector_Provider_Strategy_Factory::get_strategy('OpenAI');
+            if (!$config || is_wp_error($config) || is_wp_error($strategy)) {
+                return;
+            }
+            $connected = $strategy->connect($config);
+            if (is_wp_error($connected) || $connected === false) {
+                return;
+            }
+            $meta_key = '_aipkit_openai_file_id_for_vs_' . sanitize_key($job['vector_store_id']);
+            $cleanup_key = self::cleanup_meta_key((int) $job['id']);
+            $old_ids = get_post_meta((int) $job['post_id'], $cleanup_key, true);
+            if (!is_array($old_ids)) {
+                $batch = $known_batch ?: $strategy->retrieve_file_batch($job['vector_store_id'], $job['batch_id']);
+                if (is_wp_error($batch)) {
+                    // A temporary provider error must never delete the working source.
+                    return;
+                }
+                $status = (string) ($batch['status'] ?? '');
+                $counts = (array) ($batch['file_counts'] ?? []);
+                $ready = $status === 'completed' && (int) ($counts['completed'] ?? 0) === 1
+                    && (int) ($counts['failed'] ?? 0) === 0 && (int) ($counts['cancelled'] ?? 0) === 0
+                    && (int) ($counts['in_progress'] ?? 0) === 0;
+                if (!$ready) {
+                    $created = strtotime($job['timestamp'] . ' UTC');
+                    if (in_array($status, ['failed', 'cancelled', 'completed'], true)
+                        || ($created && time() - $created > DAY_IN_SECONDS)) {
+                        $cleanup = $this->delete_existing_openai_files([$job['file_id']], $job['vector_store_id'], $config, $strategy);
+                        if (is_wp_error($cleanup)) {
+                            return;
+                        }
+                        $this->finish_job($job, 'failed', __('OpenAI could not finish indexing. The previous source was kept; you can retry this update.', 'gpt3-ai-content-generator'));
+                    }
+                    return;
+                }
+                $old_ids = array_values(array_diff(
+                    $this->get_existing_file_ids_for_post((int) $job['post_id'], $job['vector_store_id'], $meta_key),
+                    [$job['file_id']]
+                ));
+                // Legacy sources may have only a meta pointer and no source log.
+                // Persist confirmed readiness and cleanup identities before replacing that pointer.
+                update_post_meta((int) $job['post_id'], $cleanup_key, $old_ids);
+                if (get_post_meta((int) $job['post_id'], $cleanup_key, true) !== $old_ids) {
+                    return;
+                }
+            }
+            // Persist the ready replacement before touching the previous files.
+            update_post_meta((int) $job['post_id'], $meta_key, $job['file_id']);
+            if (get_post_meta((int) $job['post_id'], $meta_key, true) !== $job['file_id']) {
+                return;
+            }
+            update_post_meta((int) $job['post_id'], '_aipkit_indexed_to_vs_' . sanitize_key($job['vector_store_id']), '1');
+            $cleanup_ids = array_slice($old_ids, 0, 5);
+            $cleanup = $this->delete_existing_openai_files($cleanup_ids, $job['vector_store_id'], $config, $strategy);
+            if (is_wp_error($cleanup)) {
+                // Keep the durable job pending so cleanup is retried without a new upload.
+                return;
+            }
+            $this->delete_existing_log_entries_for_post((int) $job['post_id'], $job['vector_store_id'], $cleanup_ids);
+            if (count($old_ids) > count($cleanup_ids)) {
+                update_post_meta((int) $job['post_id'], $cleanup_key, array_slice($old_ids, count($cleanup_ids)));
+                return;
+            }
+            $this->finish_job($job, 'indexed', __('OpenAI indexing completed.', 'gpt3-ai-content-generator'));
+        } finally {
+            AIPKit_Option_Lock::release($lock_name, $token);
+        }
+    }
+
+    private static function lock_name(int $post_id, string $store_id): string
+    {
+        return 'aipkit_openai_index_lock_' . md5($post_id . '|' . $store_id);
+    }
+
+    private static function cleanup_meta_key(int $job_id): string
+    {
+        return '_aipkit_openai_replacement_cleanup_' . $job_id;
+    }
+
+    /** Use the authenticated admin batch poll to finish the same persisted job. */
+    public function refresh_batch(string $store_id, string $batch_id, array $batch): ?array
+    {
+        global $wpdb;
+        $table = self::get_validated_table_identifier($this->data_source_table_name);
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter -- Exact job lookup using validated table and authenticated provider batch identifiers.
+        $job_id = (int) $wpdb->get_var($wpdb->prepare("SELECT id FROM {$table} WHERE provider = %s AND status = %s AND vector_store_id = %s AND batch_id = %s AND post_id > 0 LIMIT 1", 'OpenAI', 'processing', $store_id, $batch_id));
+        if ($job_id > 0) {
+            $this->refresh_job($job_id, $batch);
+            return $this->get_job($job_id);
+        }
+        return null;
+    }
+
+    private static function acquire_lock(string $name): string
+    {
+        require_once WPAICG_PLUGIN_DIR . 'classes/autogpt/cron/class-aipkit-option-lock.php';
+        return AIPKit_Option_Lock::acquire($name, 15 * MINUTE_IN_SECONDS);
+    }
+
+    private function pending_result(array $job): array
+    {
+        return ['status' => 'success', 'processing' => true, 'job_id' => (int) $job['id'], 'message' => __('Source submitted; OpenAI indexing is still processing.', 'gpt3-ai-content-generator'), 'file_id' => $job['file_id'], 'batch_id' => $job['batch_id']];
+    }
+
+    /** @return array<int,array<string,mixed>> */
+    private function pending_jobs(int $after_id = 0): array
+    {
+        global $wpdb;
+        $table = self::get_validated_table_identifier($this->data_source_table_name);
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter -- Bounded query against a validated plugin-owned identifier for WordPress 6.0 compatibility.
+        return $wpdb->get_results($wpdb->prepare("SELECT id FROM {$table} WHERE provider = %s AND status = %s AND post_id > 0 AND id > %d ORDER BY id ASC LIMIT 5", 'OpenAI', 'processing', $after_id), ARRAY_A) ?: [];
+    }
+
+    private function find_pending_job(int $post_id, string $store_id): ?array
+    {
+        global $wpdb;
+        $table = self::get_validated_table_identifier($this->data_source_table_name);
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter -- Exact pending-source query against a validated plugin-owned identifier.
+        return $wpdb->get_row($wpdb->prepare("SELECT * FROM {$table} WHERE provider = %s AND status = %s AND post_id = %d AND vector_store_id = %s ORDER BY id DESC LIMIT 1", 'OpenAI', 'processing', $post_id, $store_id), ARRAY_A) ?: null;
+    }
+
+    private function get_job(int $job_id): ?array
+    {
+        global $wpdb;
+        $table = self::get_validated_table_identifier($this->data_source_table_name);
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter -- Exact durable-job read against a validated plugin-owned identifier.
+        return $wpdb->get_row($wpdb->prepare("SELECT * FROM {$table} WHERE id = %d AND provider = %s AND post_id > 0", $job_id, 'OpenAI'), ARRAY_A) ?: null;
+    }
+
+    private function finish_job(array $job, string $status, string $message): void
+    {
+        global $wpdb;
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Update a durable plugin-owned source job only while it is processing.
+        $updated = $wpdb->update($this->data_source_table_name, ['status' => $status, 'message' => $message], ['id' => (int) $job['id'], 'status' => 'processing']);
+        if ($updated !== 1) {
+            return;
+        }
+        $job['status'] = $status;
+        $job['message'] = $message;
+        delete_post_meta((int) $job['post_id'], self::cleanup_meta_key((int) $job['id']));
+        do_action('aipkit_vector_source_log_changed', (int) $job['id'], $job, '');
+        $this->emit_source_indexed_event((int) $job['id'], $job);
     }
 
     /**
@@ -220,7 +477,7 @@ class OpenAIPostProcessor extends AIPKit_Vector_Post_Processor_Base
     }
 
     /**
-     * Detaches and deletes prior OpenAI files before replacement.
+     * Detaches and deletes files only after replacement readiness or a failed new upload.
      *
      * @param string[] $file_ids OpenAI file IDs.
      * @param string $vector_store_id OpenAI vector store ID.
@@ -253,7 +510,7 @@ class OpenAIPostProcessor extends AIPKit_Vector_Post_Processor_Base
                 $deleted = true;
             }
 
-            if (!$detached && !$deleted) {
+            if (!$detached || !$deleted) {
                 $error_messages = [];
                 if (is_wp_error($detach_result)) {
                     $error_messages[] = $detach_result->get_error_message();
@@ -326,6 +583,11 @@ class OpenAIPostProcessor extends AIPKit_Vector_Post_Processor_Base
      */
     private function is_not_found_error($result): bool
     {
-        return is_wp_error($result) && strpos($result->get_error_message(), '(404)') !== false;
+        if (!is_wp_error($result)) {
+            return false;
+        }
+        $data = $result->get_error_data();
+        return (is_array($data) && (int) ($data['status'] ?? 0) === 404)
+            || strpos($result->get_error_message(), '(404)') !== false;
     }
 }

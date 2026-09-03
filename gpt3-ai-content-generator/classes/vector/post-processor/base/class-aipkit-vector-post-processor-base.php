@@ -7,6 +7,7 @@ use WPAICG\Core\AIPKit_Event_Webhooks;
 use WPAICG\Vector\AIPKit_Vector_Embedding_Batch_Policy;
 use WPAICG\Vector\AIPKit_Vector_Text_Chunker;
 use WPAICG\Vector\AIPKit_Vector_Store_Manager;
+use WPAICG\Vector\Extraction\AIPKit_Knowledge_Content_Extractor;
 use WP_Error;
 
 if (!defined('ABSPATH')) {
@@ -22,6 +23,9 @@ if (!defined('ABSPATH')) {
 abstract class AIPKit_Vector_Post_Processor_Base
 {
     protected $data_source_table_name;
+
+    /** @var array<int,string> */
+    private $last_extraction_fingerprints = [];
 
     public function __construct()
     {
@@ -119,7 +123,7 @@ abstract class AIPKit_Vector_Post_Processor_Base
      *
      * @param array $log_data Data for the log entry.
      */
-    protected function log_event(array $log_data): void
+    protected function log_event(array $log_data): int
     {
         global $wpdb;
         $defaults = [
@@ -141,6 +145,19 @@ abstract class AIPKit_Vector_Post_Processor_Base
         ];
         $data_to_insert = wp_parse_args($log_data, $defaults);
 
+        $post_id = isset($data_to_insert['post_id']) ? absint($data_to_insert['post_id']) : 0;
+        $extraction_fingerprint = isset($data_to_insert['extraction_fingerprint'])
+            ? self::sanitize_extraction_fingerprint($data_to_insert['extraction_fingerprint'])
+            : $this->get_last_extraction_fingerprint($post_id);
+        if ($extraction_fingerprint === '' && $post_id > 0) {
+            $post = get_post($post_id);
+            if ($post instanceof \WP_Post) {
+                $extraction_fingerprint = self::sanitize_extraction_fingerprint(
+                    apply_filters('aipkit_knowledge_base_extraction_fingerprint', '', $post)
+                );
+            }
+        }
+
         $source_type = $data_to_insert['source_type_for_log'] ?? ($data_to_insert['post_id'] ? 'wordpress_post' : 'unknown');
         $should_truncate = true;
         if (in_array($source_type, ['text_entry_global_form', 'file_upload_global_form', 'text_entry_pinecone_direct', 'file_upload_pinecone_direct', 'text_entry_qdrant_direct', 'file_upload_qdrant_direct', 'chatbot_training_text', 'chatbot_training_qa'], true)) {
@@ -150,11 +167,36 @@ abstract class AIPKit_Vector_Post_Processor_Base
         if ($should_truncate && is_string($data_to_insert['indexed_content']) && mb_strlen($data_to_insert['indexed_content']) > 1000) {
             $data_to_insert['indexed_content'] = mb_substr($data_to_insert['indexed_content'], 0, 997) . '...';
         }
-        unset($data_to_insert['source_type_for_log']);
+        unset($data_to_insert['source_type_for_log'], $data_to_insert['extraction_fingerprint']);
         // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Reason: Direct insert to a custom table for logging. Cache is invalidated.
         $result = $wpdb->insert($this->data_source_table_name, $data_to_insert);
         $log_id = (int) $wpdb->insert_id;
 
+        if ($result !== false && $log_id > 0) {
+            /**
+             * Fires after a vector source log row is created.
+             *
+             * @param int    $log_id                 Source log row ID.
+             * @param array  $data_to_insert         Stored source data without raw extraction-only fields.
+             * @param string $extraction_fingerprint Optional extension-provided extraction fingerprint.
+             */
+            do_action(
+                'aipkit_vector_source_log_changed',
+                $log_id,
+                $data_to_insert,
+                $extraction_fingerprint
+            );
+        }
+
+        if ($result !== false) {
+            $this->emit_source_indexed_event($log_id, $data_to_insert);
+        }
+        return $result !== false ? $log_id : 0;
+    }
+
+    /** Emits completion only after a source is confirmed indexed. */
+    protected function emit_source_indexed_event(int $log_id, array $data_to_insert): void
+    {
         if (
             class_exists(AIPKit_Event_Webhooks::class)
             && (string) ($data_to_insert['status'] ?? '') === 'indexed'
@@ -214,6 +256,20 @@ abstract class AIPKit_Vector_Post_Processor_Base
     }
 
     /**
+     * Ignore numeric traffic counters only in automatic field selection.
+     * Explicit Content Rules remain authoritative, including custom counters.
+     *
+     * @param mixed $value Stored field value.
+     */
+    private static function is_automatic_metadata_noise(string $key, $value): bool
+    {
+        return is_numeric($value) && (bool) preg_match(
+            '/(?:^|[_-])(?:views?|page[_-]?views?|visits?|hits?)(?:[_-](?:count|counter|total))?$/i',
+            $key
+        );
+    }
+
+    /**
      * Gets the post content as a formatted string.
      * @param int $post_id The ID of the post.
      * @return string|WP_Error The formatted content string or WP_Error on failure.
@@ -255,11 +311,9 @@ abstract class AIPKit_Vector_Post_Processor_Base
             $cpt_settings = $indexing_settings[$post_type];
             if (!empty($cpt_settings['fields'])) {
                 $custom_fields_string = "";
-                $enabled_fields_count = 0;
                 foreach ($cpt_settings['fields'] as $meta_key => $field_config) {
                     // Check if field is enabled (should be boolean true after our fix)
                     if (!empty($field_config['enabled'])) {
-                        $enabled_fields_count++;
                         $value = get_post_meta($post->ID, $meta_key, true);
                         
                         if (empty($value) || is_serialized($value) || is_array($value) || is_object($value) || mb_strlen($value) > 1000) {
@@ -275,10 +329,8 @@ abstract class AIPKit_Vector_Post_Processor_Base
                 $product = wc_get_product($post_id);
                 if ($product) {
                     $woo_data_string = "";
-                    $enabled_woo_count = 0;
                     foreach ($cpt_settings['woo_attributes'] as $attr_key => $attr_config) {
                         if (!empty($attr_config['enabled'])) {
-                            $enabled_woo_count++;
                             $label = !empty($attr_config['label']) ? $attr_config['label'] : ucwords(str_replace('_', ' ', $attr_key));
                             $value = '';
                             switch ($attr_key) {
@@ -350,7 +402,7 @@ abstract class AIPKit_Vector_Post_Processor_Base
             if (!empty($all_meta)) {
                 $custom_fields_string = "";
                 foreach ($all_meta as $meta_key => $meta_values) {
-                    if (substr($meta_key, 0, 1) === '_' || empty($meta_values[0])) continue;
+                    if (substr($meta_key, 0, 1) === '_' || empty($meta_values[0]) || self::is_automatic_metadata_noise($meta_key, $meta_values[0])) continue;
                     $value = $meta_values[0];
                     if (is_serialized($value) || is_array($value) || is_object($value) || mb_strlen($value) > 1000) continue;
                     $label = ucwords(str_replace(['_', '-'], ' ', $meta_key));
@@ -411,15 +463,21 @@ abstract class AIPKit_Vector_Post_Processor_Base
             $content_body .= $excerpt_label . ": " . wp_strip_all_tags(get_the_excerpt($post)) . "\n\n";
         }
 
-        $main_content = $post->post_content;
-        $should_execute_shortcodes = (bool) apply_filters('aipkit_knowledge_base_index_execute_shortcodes', false, $post);
-        if (!$should_execute_shortcodes) {
-            $main_content = strip_shortcodes($main_content);
+        if (!$this->ensure_plugin_class(
+            AIPKit_Knowledge_Content_Extractor::class,
+            'classes/vector/extraction/class-aipkit-knowledge-content-extractor.php'
+        )) {
+            return new WP_Error(
+                'aipkit_knowledge_content_extractor_unavailable',
+                __('Knowledge content extractor is not available.', 'gpt3-ai-content-generator')
+            );
         }
-        $main_content = apply_filters('the_content', $main_content);
-        $main_content = wp_strip_all_tags($main_content, true);
-        $main_content = strip_shortcodes($main_content);
-        $main_content = preg_replace('/\s+/', ' ', $main_content);
+
+        $extraction_result = AIPKit_Knowledge_Content_Extractor::extract($post);
+        $this->last_extraction_fingerprints[$post_id] = self::sanitize_extraction_fingerprint(
+            apply_filters('aipkit_knowledge_base_extraction_fingerprint', '', $post)
+        );
+        $main_content = (string) ($extraction_result['content'] ?? '');
 
         $content_body .= $content_label . ": " . trim($main_content);
 
@@ -427,6 +485,24 @@ abstract class AIPKit_Vector_Post_Processor_Base
         $final_content = trim($metadata_header . "\n---\n\n" . $content_body);
         
         return $final_content;
+    }
+
+    protected function get_last_extraction_fingerprint(int $post_id): string
+    {
+        return $post_id > 0 && isset($this->last_extraction_fingerprints[$post_id])
+            ? $this->last_extraction_fingerprints[$post_id]
+            : '';
+    }
+
+    private static function sanitize_extraction_fingerprint($fingerprint): string
+    {
+        if (!is_scalar($fingerprint)) {
+            return '';
+        }
+
+        $fingerprint = strtolower(trim((string) $fingerprint));
+
+        return preg_match('/^[a-f0-9]{64}$/', $fingerprint) ? $fingerprint : '';
     }
 
 

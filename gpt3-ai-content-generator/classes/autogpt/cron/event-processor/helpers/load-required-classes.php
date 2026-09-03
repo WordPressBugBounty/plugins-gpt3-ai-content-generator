@@ -4,10 +4,12 @@
 namespace WPAICG\AutoGPT\Cron\EventProcessor\Helpers;
 
 use WPAICG\Vector\PostProcessor\OpenAI\OpenAIPostProcessor;
+use WPAICG\Vector\PostProcessor\Google\GooglePostProcessor;
 use WPAICG\Vector\PostProcessor\Pinecone\PineconePostProcessor;
 use WPAICG\Vector\PostProcessor\Qdrant\QdrantPostProcessor;
 use WPAICG\Vector\PostProcessor\Chroma\ChromaPostProcessor;
 use WPAICG\Vector\PostProcessor\Base\AIPKit_Vector_Post_Processor_Base;
+use WPAICG\Vector\Extraction\AIPKit_Knowledge_Content_Extractor;
 use WPAICG\Core\AIPKit_AI_Caller;
 use WPAICG\ContentWriter\AIPKit_Content_Writer_Output_Cleaner;
 use WPAICG\ContentWriter\Prompt\AIPKit_Content_Writer_System_Instruction_Builder;
@@ -25,8 +27,10 @@ if (!defined('ABSPATH')) {
 function load_required_classes_logic(): void
 {
     $classes_to_load = [
+        AIPKit_Knowledge_Content_Extractor::class => WPAICG_PLUGIN_DIR . 'classes/vector/extraction/class-aipkit-knowledge-content-extractor.php',
         AIPKit_Vector_Post_Processor_Base::class => WPAICG_PLUGIN_DIR . 'classes/vector/post-processor/base/class-aipkit-vector-post-processor-base.php',
         OpenAIPostProcessor::class => WPAICG_PLUGIN_DIR . 'classes/vector/post-processor/openai/class-openai-post-processor.php',
+        GooglePostProcessor::class => WPAICG_PLUGIN_DIR . 'classes/vector/post-processor/google/class-google-post-processor.php',
         PineconePostProcessor::class => WPAICG_PLUGIN_DIR . 'classes/vector/post-processor/pinecone/class-pinecone-post-processor.php',
         QdrantPostProcessor::class => WPAICG_PLUGIN_DIR . 'classes/vector/post-processor/qdrant/class-qdrant-post-processor.php',
         ChromaPostProcessor::class => WPAICG_PLUGIN_DIR . 'classes/vector/post-processor/chroma/class-chroma-post-processor.php',

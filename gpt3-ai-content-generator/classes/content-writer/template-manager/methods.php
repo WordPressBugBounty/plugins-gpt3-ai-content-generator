@@ -81,6 +81,7 @@ function get_cw_base_template_config(int $user_id): array
         'rss_feeds' => '',
         'rss_include_keywords' => '',
         'rss_exclude_keywords' => '',
+        'rss_item_limit' => '0',
         'gsheets_sheet_id' => '',
         'gsheets_credentials' => '',
         'url_list' => '',
@@ -867,6 +868,12 @@ function calculate_schedule_datetime_logic(string $date_str, string $time_str): 
 */
 function create_template_logic(\WPAICG\ContentWriter\AIPKit_Content_Writer_Template_Manager $managerInstance, string $template_name, array $config, string $template_type = 'content_writer')
 {
+    if (class_exists('\WPAICG\Lib\ContentWriter\AIPKit_Rss_Item_Selector')) {
+        $rss_validation = \WPAICG\Lib\ContentWriter\AIPKit_Rss_Item_Selector::validate_config($config);
+        if (is_wp_error($rss_validation)) {
+            return $rss_validation;
+        }
+    }
     $wpdb = $managerInstance->get_wpdb();
     $table_name = $managerInstance->get_table_name();
 
@@ -930,6 +937,12 @@ function create_template_logic(\WPAICG\ContentWriter\AIPKit_Content_Writer_Templ
 */
 function update_template_logic(\WPAICG\ContentWriter\AIPKit_Content_Writer_Template_Manager $managerInstance, int $template_id, string $template_name, array $config)
 {
+    if (class_exists('\WPAICG\Lib\ContentWriter\AIPKit_Rss_Item_Selector')) {
+        $rss_validation = \WPAICG\Lib\ContentWriter\AIPKit_Rss_Item_Selector::validate_config($config);
+        if (is_wp_error($rss_validation)) {
+            return $rss_validation;
+        }
+    }
     $wpdb = $managerInstance->get_wpdb();
     $table_name = $managerInstance->get_table_name();
 

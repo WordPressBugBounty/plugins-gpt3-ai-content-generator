@@ -86,6 +86,7 @@ final class GooglePostProcessor extends AIPKit_Vector_Post_Processor_Base
                 'post_id' => $post_id,
                 'post_title' => (string) $post->post_title,
                 'indexed_content' => (string) $contents,
+                'extraction_fingerprint' => $this->get_last_extraction_fingerprint($post_id),
                 'message' => __('WordPress post content submitted for indexing.', 'gpt3-ai-content-generator'),
             ],
             [
@@ -101,9 +102,18 @@ final class GooglePostProcessor extends AIPKit_Vector_Post_Processor_Base
                 'message' => $result->get_error_message(),
             ];
         }
+        if (sanitize_key((string) ($result['status'] ?? 'processing')) === 'failed') {
+            return [
+                'status' => 'error',
+                'message' => sanitize_text_field((string) (
+                    $result['message'] ?? __('Google File Search indexing failed.', 'gpt3-ai-content-generator')
+                )),
+            ];
+        }
 
         return [
             'status' => 'success',
+            'processing' => (string) ($result['status'] ?? 'processing') !== 'indexed',
             'message' => __('WordPress content was submitted to Google File Search.', 'gpt3-ai-content-generator'),
             'job_id' => (int) ($result['job_id'] ?? 0),
             'operation_name' => (string) ($result['operation_name'] ?? ''),

@@ -123,21 +123,21 @@ $kb_render_pro_gate = static function ($title, $description, $icon) use ($kb_upg
                     <div class="aipkit_form-group aipkit_settings_simple_row">
                         <label class="aipkit_form-label" for="aipkit_chunk_avg_chars_per_token">
                             <span><?php esc_html_e('Avg chars per token', 'gpt3-ai-content-generator'); ?></span>
-                            <span class="aipkit_form-label-helper"><?php esc_html_e('Applies to Pinecone/Qdrant only.', 'gpt3-ai-content-generator'); ?></span>
+                            <span class="aipkit_form-label-helper"><?php esc_html_e('Applies to Pinecone, Qdrant, and Chroma.', 'gpt3-ai-content-generator'); ?></span>
                         </label>
                         <input type="number" min="2" max="4" step="1" id="aipkit_chunk_avg_chars_per_token" name="chunk_avg_chars_per_token" class="aipkit_form-input" value="<?php echo esc_attr($kb_chunk_avg_chars); ?>">
                     </div>
                     <div class="aipkit_form-group aipkit_settings_simple_row">
                         <label class="aipkit_form-label" for="aipkit_chunk_max_tokens_per_chunk">
                             <span><?php esc_html_e('Max tokens per chunk', 'gpt3-ai-content-generator'); ?></span>
-                            <span class="aipkit_form-label-helper"><?php esc_html_e('Applies to Pinecone/Qdrant only.', 'gpt3-ai-content-generator'); ?></span>
+                            <span class="aipkit_form-label-helper"><?php esc_html_e('Applies to Pinecone, Qdrant, and Chroma.', 'gpt3-ai-content-generator'); ?></span>
                         </label>
                         <input type="number" min="256" max="6000" step="1" id="aipkit_chunk_max_tokens_per_chunk" name="chunk_max_tokens_per_chunk" class="aipkit_form-input" value="<?php echo esc_attr($kb_chunk_max_tokens); ?>">
                     </div>
                     <div class="aipkit_form-group aipkit_settings_simple_row">
                         <label class="aipkit_form-label" for="aipkit_chunk_overlap_tokens">
                             <span><?php esc_html_e('Overlap tokens', 'gpt3-ai-content-generator'); ?></span>
-                            <span class="aipkit_form-label-helper"><?php esc_html_e('Applies to Pinecone/Qdrant only.', 'gpt3-ai-content-generator'); ?></span>
+                            <span class="aipkit_form-label-helper"><?php esc_html_e('Applies to Pinecone, Qdrant, and Chroma.', 'gpt3-ai-content-generator'); ?></span>
                         </label>
                         <input type="number" min="0" max="1000" step="1" id="aipkit_chunk_overlap_tokens" name="chunk_overlap_tokens" class="aipkit_form-input" value="<?php echo esc_attr($kb_chunk_overlap_tokens); ?>">
                     </div>
@@ -225,30 +225,14 @@ $kb_render_pro_gate = static function ($title, $description, $icon) use ($kb_upg
                 'dashicons-filter'
             ); ?>
         <?php else : ?>
-            <div class="aipkit_settings_kb_card aipkit_settings_kb_card--content-rules">
-                <div class="aipkit_settings_kb_section_intro">
-                    <h2><?php esc_html_e('Content rules', 'gpt3-ai-content-generator'); ?></h2>
-                    <p><?php esc_html_e('Choose which fields get embedded as knowledge, per content type.', 'gpt3-ai-content-generator'); ?></p>
-                </div>
-                <div id="indexing-settings-tab-content" data-initialized="false">
-                    <label class="aipkit_settings_kb_content_type_search" for="aipkit_settings_kb_content_type_search">
-                        <span class="dashicons dashicons-search" aria-hidden="true"></span>
-                        <span class="screen-reader-text"><?php esc_html_e('Search content types', 'gpt3-ai-content-generator'); ?></span>
-                        <input
-                            type="search"
-                            id="aipkit_settings_kb_content_type_search"
-                            class="aipkit_form-input"
-                            placeholder="<?php esc_attr_e('Search content types', 'gpt3-ai-content-generator'); ?>"
-                            autocomplete="off"
-                            aria-controls="aipkit_indexing_settings_form_container"
-                        >
-                    </label>
-                    <form id="aipkit_indexing_settings_form" onsubmit="return false;">
-                        <div id="aipkit_indexing_settings_form_container"></div>
-                    </form>
-                    <p class="aipkit_settings_kb_content_type_count" id="aipkit_settings_kb_content_type_count" aria-live="polite"></p>
-                </div>
-            </div>
+            <?php
+            $kb_content_rules_partial = defined('WPAICG_LIB_DIR')
+                ? WPAICG_LIB_DIR . 'views/modules/settings/partials/content-rules.php'
+                : '';
+            if ($kb_content_rules_partial && file_exists($kb_content_rules_partial)) {
+                include $kb_content_rules_partial;
+            }
+            ?>
         <?php endif; ?>
     </section>
 

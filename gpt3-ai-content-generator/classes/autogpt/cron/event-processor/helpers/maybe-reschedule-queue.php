@@ -23,7 +23,7 @@ function maybe_reschedule_queue_logic(): void
     // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Reason: Direct query to a custom table. Caches will be invalidated.
     $remaining_items = $wpdb->get_var($wpdb->prepare("SELECT 1 FROM " . esc_sql($queue_table_name) . " WHERE status = %s LIMIT 1", 'pending'));
 
-    if ($remaining_items > 0) {
+    if ($remaining_items > 0 || has_waiting_indexing_queue_items_logic()) {
         wp_schedule_single_event(time() + 30, $main_cron_hook);
     }
 }

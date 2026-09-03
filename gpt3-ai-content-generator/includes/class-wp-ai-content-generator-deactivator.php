@@ -72,5 +72,7 @@ class WP_AI_Content_Generator_Deactivator
         if (class_exists('\WPAICG\AutoGPT\Cron\AIPKit_Automation_Runner')) {
             AIPKit_Automation_Runner::clear_lock();
         }
+
+        do_action('aipkit_deactivate_background_workers');
     }
 }

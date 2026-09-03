@@ -429,6 +429,7 @@ class Vector_Store_Dependencies_Loader
             $vector_base_path . 'class-aipkit-vector-provider-strategy-factory.php',
             $vector_base_path . 'class-aipkit-vector-store-manager.php', // This class now loads its own method files
             $vector_base_path . 'class-aipkit-vector-store-registry.php',
+            $vector_base_path . 'post-processor/openai/class-openai-post-processor.php',
         ];
 
         foreach ($core_paths as $path) {
@@ -438,6 +439,9 @@ class Vector_Store_Dependencies_Loader
         }
         if (class_exists(\WPAICG\Vector\GoogleFileSearch\GoogleFileSearchIngestionService::class)) {
             \WPAICG\Vector\GoogleFileSearch\GoogleFileSearchIngestionService::register_hooks();
+        }
+        if (class_exists(\WPAICG\Vector\PostProcessor\OpenAI\OpenAIPostProcessor::class)) {
+            \WPAICG\Vector\PostProcessor\OpenAI\OpenAIPostProcessor::register_hooks();
         }
 
         // Provider-specific strategy bootstrap files
@@ -515,6 +519,12 @@ class Vector_Post_Processor_Classes_Loader
     public static function load()
     {
         $vpp_base_path = WPAICG_PLUGIN_DIR . 'classes/vector/post-processor/';
+
+        // Load the shared primary-content extractor before post processors.
+        $content_extractor_path = WPAICG_PLUGIN_DIR . 'classes/vector/extraction/class-aipkit-knowledge-content-extractor.php';
+        if (file_exists($content_extractor_path) && !class_exists(\WPAICG\Vector\Extraction\AIPKit_Knowledge_Content_Extractor::class)) {
+            require_once $content_extractor_path;
+        }
 
         // Load the Base Class first
         $base_class_path = $vpp_base_path . 'base/class-aipkit-vector-post-processor-base.php';

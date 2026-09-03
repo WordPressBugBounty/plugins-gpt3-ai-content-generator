@@ -58,6 +58,10 @@ function do_ajax_get_openai_file_batch_status_logic(AIPKit_OpenAI_Vector_Store_F
         return;
     }
 
+    $source = is_array($batch)
+        ? (new \WPAICG\Vector\PostProcessor\OpenAI\OpenAIPostProcessor())->refresh_batch($store_id, $batch_id, $batch)
+        : null;
+
     $status = '';
     if (is_array($batch) && isset($batch['status'])) {
         $status = sanitize_key($batch['status']);
@@ -65,6 +69,7 @@ function do_ajax_get_openai_file_batch_status_logic(AIPKit_OpenAI_Vector_Store_F
 
     wp_send_json_success([
         'status' => $status,
+        'indexing_status' => $source['status'] ?? '',
         'batch' => $batch,
     ]);
 }

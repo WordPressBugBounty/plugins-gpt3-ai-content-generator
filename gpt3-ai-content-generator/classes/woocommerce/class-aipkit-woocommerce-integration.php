@@ -296,7 +296,7 @@ class AIPKit_WooCommerce_Integration
 
         echo '<div id="aipkit_tokens_amount_wrapper" style="display:' . ($is_token_package === 'yes' ? 'block' : 'none') . ';">';
         echo '<p style="margin-bottom:8px;"><label for="aipkit_tokens_amount" style="display:block; font-weight:600; margin-bottom:4px;">' . esc_html__('Credits Granted Per Quantity:', 'gpt3-ai-content-generator') . '</label>';
-        echo '<input type="number" id="aipkit_tokens_amount" name="_aipkit_tokens_amount" value="' . esc_attr($tokens_amount) . '" class="short" min="1" step="1" placeholder="e.g., 100000" style="width:100%;" />';
+        echo '<input type="number" id="aipkit_tokens_amount" name="_aipkit_tokens_amount" value="' . esc_attr($tokens_amount) . '" class="short" min="1" step="1" placeholder="e.g., 100000" style="width:100%;" ' . disabled($is_token_package !== 'yes', true, false) . ' />';
         echo '<span class="description" style="display:block; margin-top:6px;">' . esc_html__('Granted once per purchased quantity. Example: quantity 3 grants this amount three times.', 'gpt3-ai-content-generator') . '</span>';
         echo '</p>';
         echo '<p style="margin:0 0 12px; color:#1d2327;"><strong>' . esc_html__('Current package value:', 'gpt3-ai-content-generator') . '</strong> <span id="aipkit_credit_package_value">' . esc_html(number_format_i18n($credits_amount)) . ' ' . esc_html__('credits', 'gpt3-ai-content-generator') . '</span></p>';
@@ -363,6 +363,7 @@ class AIPKit_WooCommerce_Integration
                 var checked = !!checkbox.checked;
                 wrapper.style.display = checked ? 'block' : 'none';
                 if (amountField) {
+                    amountField.disabled = !checked;
                     amountField.required = checked;
                 }
             };

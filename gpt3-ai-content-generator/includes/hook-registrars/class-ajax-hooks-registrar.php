@@ -157,6 +157,7 @@ class Ajax_Hooks_Registrar
 
         if (method_exists($vector_post_processor_ajax_handler, 'ajax_index_posts_to_vector_store')) {
             add_action('wp_ajax_aipkit_index_posts_to_vector_store', [$vector_post_processor_ajax_handler, 'ajax_index_posts_to_vector_store']);
+            add_action('wp_ajax_aipkit_get_post_indexing_status', [$vector_post_processor_ajax_handler, 'ajax_get_post_indexing_status']);
         }
 
         add_action('wp_ajax_aipkit_list_vector_stores_openai', [$openai_vs_stores_ajax_handler, 'ajax_list_vector_stores_openai']);

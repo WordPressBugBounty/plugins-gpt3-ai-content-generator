@@ -133,6 +133,10 @@ function evaluate_status_flags_logic(\wpdb $wpdb, string $tasks_table_name): arr
     // Also check for pending items in the queue - these need processing even if no tasks are active
     // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter -- Direct query to a custom table; table identifier is plugin-owned, validated, and backticked above.
     $pending_queue_count = (int) $wpdb->get_var($wpdb->prepare("SELECT 1 FROM {$queue_table_identifier} WHERE status = %s LIMIT 1", 'pending'));
+    if (!$pending_queue_count) {
+        require_once __DIR__ . '/../event-processor/helpers/indexing-completion.php';
+        $pending_queue_count = (int) \WPAICG\AutoGPT\Cron\EventProcessor\Helpers\has_waiting_indexing_queue_items_logic();
+    }
     
     $did_active_tasks_exist = (bool) get_option($option_key_tasks_exist, false);
 

@@ -101,12 +101,16 @@ function do_ajax_index_selected_wp_content_logic(AIPKit_OpenAI_WP_Content_Indexi
     $processed_count = 0;
     $successful_posts = [];
     $failed_posts_log = [];
+    $jobs = [];
 
     foreach ($post_ids as $post_id) {
         // --- FIXED: Changed 4th argument from $openai_config (array) to true (bool) ---
         $result = $openai_post_processor->index_single_post_to_store($post_id, $actual_store_id, $actual_store_name);
         // --- END FIX ---
         if ($result['status'] === 'success') {
+            if (!empty($result['job_id'])) {
+                $jobs[] = ['job_id' => (int) $result['job_id'], 'post_id' => $post_id, 'status' => !empty($result['processing']) ? 'processing' : 'indexed'];
+            }
             $successful_posts[] = $post_id;
             $processed_count++;
         } else {
@@ -121,6 +125,11 @@ function do_ajax_index_selected_wp_content_logic(AIPKit_OpenAI_WP_Content_Indexi
         }
     }
 
+    if (!$processed_count && $failed_posts_log) {
+        wp_send_json_error(['message' => reset($failed_posts_log), 'failed_posts_summary' => array_keys($failed_posts_log)], 400);
+        return;
+    }
+
     /* translators: %1$d: The number of posts processed, %2$s: The name of the vector store. */
     $response_message = sprintf(_n('%1$d post processed and submitted to vector store "%2$s".', '%1$d posts processed and submitted to vector store "%2$s".', $processed_count, 'gpt3-ai-content-generator'), $processed_count, esc_html($actual_store_name ?: $actual_store_id));
 
@@ -132,6 +141,7 @@ function do_ajax_index_selected_wp_content_logic(AIPKit_OpenAI_WP_Content_Indexi
     wp_send_json_success([
         'message' => $response_message,
         'processed_count' => $processed_count,
+        'jobs' => $jobs,
         'total_count' => count($post_ids),
         'new_store_id' => ($is_new_store_created ? $actual_store_id : null),
         'failed_posts_summary' => array_keys($failed_posts_log)

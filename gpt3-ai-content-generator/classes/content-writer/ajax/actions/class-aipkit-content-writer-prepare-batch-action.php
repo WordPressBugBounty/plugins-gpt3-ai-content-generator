@@ -123,6 +123,10 @@ class AIPKit_Content_Writer_Prepare_Batch_Action extends AIPKit_Content_Writer_B
         $prepared = [];
         $item_index = 0;
         $limit = 100;
+        if ($generation_mode === 'rss' && class_exists('\WPAICG\Lib\ContentWriter\AIPKit_Rss_Item_Selector') && !\WPAICG\Lib\ContentWriter\AIPKit_Rss_Item_Selector::uses_legacy_selection($task_config)) {
+            // The paid selector has already applied the user's chosen quantity.
+            $limit = count($items);
+        }
 
         foreach ($items as $item_data) {
             if (count($prepared) >= $limit) {
