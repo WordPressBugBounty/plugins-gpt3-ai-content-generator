@@ -161,6 +161,8 @@ class ConversationAjaxHandler extends BaseAjaxHandler {
         $session_id = isset($_POST['session_id']) ? sanitize_text_field(wp_unslash($_POST['session_id'])) : null;
         $bot_id = isset($_POST['bot_id']) ? absint(wp_unslash($_POST['bot_id'])) : 0;
         $conversation_uuid = isset($_POST['conversation_uuid']) ? sanitize_key(wp_unslash($_POST['conversation_uuid'])) : '';
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce is checked in check_frontend_permissions().
+        $pending_form_only = isset($_POST['pending_form_only']) && rest_sanitize_boolean(wp_unslash($_POST['pending_form_only']));
 
         if (empty($bot_id) || empty($conversation_uuid)) {
             wp_send_json_error(['message' => __('Bot ID and Conversation ID are required.', 'gpt3-ai-content-generator')], 400); return;
@@ -169,16 +171,36 @@ class ConversationAjaxHandler extends BaseAjaxHandler {
              wp_send_json_error(['message' => __('Session ID is required for guest history.', 'gpt3-ai-content-generator')], 400); return;
         }
 
-        // The get_conversation_thread_history method in ConversationReader
-        // already includes openai_response_id and used_previous_response_id if present in the JSON.
-        $history = $this->log_storage->get_conversation_thread_history(
-            $user_id ?: null,
-            $session_id,
-            $bot_id,
-            $conversation_uuid
-        );
+        $pending_form = null;
+        $form_state_store_class = '\\WPAICG\\Lib\\Chat\\Triggers\\State\\AIPKit_Conversation_Form_State_Store';
+        if (class_exists($form_state_store_class)) {
+            $form_state_store = new $form_state_store_class();
+            $pending_form_state = $form_state_store->get_pending_form(
+                $bot_id,
+                $user_id ?: null,
+                $session_id,
+                $conversation_uuid
+            );
+            if (is_array($pending_form_state) && !empty($pending_form_state['form_definition']) && is_array($pending_form_state['form_definition'])) {
+                $pending_form = $pending_form_state['form_definition'];
+            }
+        }
 
-        wp_send_json_success(['history' => $history]);
+        $history = [];
+        if (!$pending_form_only) {
+            // The reader already includes provider conversation IDs and filters internal trigger logs.
+            $history = $this->log_storage->get_conversation_thread_history(
+                $user_id ?: null,
+                $session_id,
+                $bot_id,
+                $conversation_uuid
+            );
+        }
+
+        wp_send_json_success([
+            'history' => $history,
+            'pending_form' => $pending_form,
+        ]);
         // phpcs:enable
     }
 

@@ -32,6 +32,7 @@ function aipkit_create_logs_table()
         is_guest tinyint(1) NOT NULL DEFAULT 0,
         module varchar(50) NULL DEFAULT NULL,
         messages longtext NOT NULL,
+        form_state longtext DEFAULT NULL,
         message_count int unsigned NOT NULL DEFAULT 0,
         first_message_ts bigint(20) unsigned DEFAULT NULL,
         last_message_ts bigint(20) unsigned DEFAULT NULL,

@@ -41,6 +41,8 @@ class WP_AI_Content_Generator
     public const PERFORMANCE_SCHEMA_VERSION = '3';
     public const MODEL_REGISTRY_SCHEMA_VERSION_OPTION = 'aipkit_model_registry_schema_version';
     public const MODEL_REGISTRY_SCHEMA_VERSION = '1';
+    public const CONVERSATION_STATE_SCHEMA_VERSION_OPTION = 'aipkit_conversation_state_schema_version';
+    public const CONVERSATION_STATE_SCHEMA_VERSION = '1';
     private const INSTALL_INTEGRITY_TRANSIENT = 'aipkit_install_integrity_checked';
 
     public static function get_instance(): WP_AI_Content_Generator
@@ -103,6 +105,7 @@ class WP_AI_Content_Generator
         $saved_token_manager_schema_version = get_option(self::TOKEN_MANAGER_SCHEMA_VERSION_OPTION);
         $saved_performance_schema_version = get_option(self::PERFORMANCE_SCHEMA_VERSION_OPTION);
         $saved_model_registry_schema_version = get_option(self::MODEL_REGISTRY_SCHEMA_VERSION_OPTION);
+        $saved_conversation_state_schema_version = get_option(self::CONVERSATION_STATE_SCHEMA_VERSION_OPTION);
 
         $version_needs_update = version_compare((string) $saved_version, $current_version, '<');
         $token_manager_schema_needs_update = version_compare(
@@ -120,16 +123,23 @@ class WP_AI_Content_Generator
             self::MODEL_REGISTRY_SCHEMA_VERSION,
             '<'
         );
+        $conversation_state_schema_needs_update = version_compare(
+            (string) $saved_conversation_state_schema_version,
+            self::CONVERSATION_STATE_SCHEMA_VERSION,
+            '<'
+        );
 
         $tables_are_missing = false;
         $performance_schema_missing = false;
+        $conversation_state_schema_missing = false;
 
-        if ($version_needs_update || $token_manager_schema_needs_update || $performance_schema_needs_update || $model_registry_schema_needs_update || $this->should_run_install_integrity_check()) {
+        if ($version_needs_update || $token_manager_schema_needs_update || $performance_schema_needs_update || $model_registry_schema_needs_update || $conversation_state_schema_needs_update || $this->should_run_install_integrity_check()) {
             $tables_are_missing = $this->are_plugin_tables_missing();
             $performance_schema_missing = self::is_performance_schema_missing();
+            $conversation_state_schema_missing = self::is_conversation_state_schema_missing();
         }
 
-        if (!$version_needs_update && !$tables_are_missing && !$performance_schema_missing && !$token_manager_schema_needs_update && !$performance_schema_needs_update && !$model_registry_schema_needs_update) {
+        if (!$version_needs_update && !$tables_are_missing && !$performance_schema_missing && !$conversation_state_schema_missing && !$token_manager_schema_needs_update && !$performance_schema_needs_update && !$model_registry_schema_needs_update && !$conversation_state_schema_needs_update) {
             set_transient(self::INSTALL_INTEGRITY_TRANSIENT, '1', DAY_IN_SECONDS);
             return;
         }
@@ -142,6 +152,7 @@ class WP_AI_Content_Generator
         WP_AI_Content_Generator_Activator::setup_tables_for_blog();
         $tables_are_missing = $this->are_plugin_tables_missing();
         $performance_schema_missing = self::is_performance_schema_missing();
+        $conversation_state_schema_missing = self::is_conversation_state_schema_missing();
         $this->cleanup_legacy_chatbot_pricing_overrides();
 
         $model_registry_migrated = true;
@@ -185,7 +196,10 @@ class WP_AI_Content_Generator
         if ($model_registry_migrated) {
             update_option(self::MODEL_REGISTRY_SCHEMA_VERSION_OPTION, self::MODEL_REGISTRY_SCHEMA_VERSION, 'no');
         }
-        if (!$tables_are_missing && !$performance_schema_missing && $model_registry_migrated) {
+        if (!$conversation_state_schema_missing) {
+            update_option(self::CONVERSATION_STATE_SCHEMA_VERSION_OPTION, self::CONVERSATION_STATE_SCHEMA_VERSION, 'no');
+        }
+        if (!$tables_are_missing && !$performance_schema_missing && !$conversation_state_schema_missing && $model_registry_migrated) {
             set_transient(self::INSTALL_INTEGRITY_TRANSIENT, '1', DAY_IN_SECONDS);
         }
     }
@@ -308,6 +322,28 @@ class WP_AI_Content_Generator
         }, (array) $queue_index_rows));
 
         return count(array_intersect($required_queue_indexes, $existing_queue_indexes)) !== count($required_queue_indexes);
+    }
+
+    /**
+     * Checks whether durable per-conversation state can be stored.
+     *
+     * @return bool True when the conversation state column is missing.
+     */
+    public static function is_conversation_state_schema_missing(): bool
+    {
+        global $wpdb;
+
+        $chat_logs_table_name = $wpdb->prefix . 'aipkit_chat_logs';
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Metadata check on a plugin-owned table.
+        $chat_logs_table_exists = $wpdb->get_var($wpdb->prepare('SHOW TABLES LIKE %s', $chat_logs_table_name));
+        if ($chat_logs_table_exists !== $chat_logs_table_name) {
+            return true;
+        }
+
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter -- Table identifier is derived from $wpdb->prefix and the column name is prepared.
+        $form_state_column = $wpdb->get_var($wpdb->prepare("SHOW COLUMNS FROM {$chat_logs_table_name} LIKE %s", 'form_state'));
+
+        return $form_state_column !== 'form_state';
     }
 
     /**

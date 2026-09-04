@@ -409,6 +409,7 @@ function build_config_array_logic(int $bot_id, \WP_Post $bot_post, array $settin
         'enableCopyButton' => $feature_flags['enable_copy_button'],
         'enableFeedback' => $feature_flags['feedback_ui_enabled'],
         'enableSidebar' => $feature_flags['sidebar_ui_enabled'],
+        'formGateEnabled' => (bool) apply_filters('aipkit_chat_form_gate_enabled', false, $bot_id),
         'pdfDownloadActive' => $feature_flags['pdf_ui_enabled'],
         'headerName' => $bot_post->post_title ?: '',
         'enableStarters' => $feature_flags['starters_ui_enabled'],

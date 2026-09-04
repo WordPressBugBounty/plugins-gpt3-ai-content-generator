@@ -50,6 +50,8 @@ class ChatFormSubmissionAjaxHandler {
         $form_id = isset($post_data['form_id']) ? sanitize_text_field($post_data['form_id']) : '';
         $form_title = isset($post_data['form_title']) ? sanitize_text_field($post_data['form_title']) : '';
         // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce is checked in check_frontend_permissions().
+        $trigger_id = isset($post_data['trigger_id']) ? sanitize_key($post_data['trigger_id']) : '';
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce is checked in check_frontend_permissions().
         $submitted_data_json = isset($post_data['submitted_data']) ? wp_kses_post($post_data['submitted_data']) : '{}';
         // Optional compatibility payloads from newer frontend bundles.
         $submitted_data_display_json = isset($post_data['submitted_data_display']) ? wp_kses_post($post_data['submitted_data_display']) : '{}';
@@ -136,6 +138,69 @@ class ChatFormSubmissionAjaxHandler {
              return;
         }
 
+        $form_state_store = null;
+        if (class_exists('\\WPAICG\\Lib\\Chat\\Triggers\\State\\AIPKit_Conversation_Form_State_Store')) {
+            $form_state_store = new \WPAICG\Lib\Chat\Triggers\State\AIPKit_Conversation_Form_State_Store();
+            if ($trigger_id === '') {
+                $trigger_form_state = $form_state_store->get_form_state_by_form_id(
+                    $bot_id,
+                    $user_id ?: null,
+                    $final_session_id,
+                    $conversation_uuid,
+                    $form_id
+                );
+                $trigger_id = is_array($trigger_form_state)
+                    ? sanitize_key((string) ($trigger_form_state['trigger_id'] ?? ''))
+                    : '';
+            }
+        }
+        if ($trigger_id !== '' && $form_state_store) {
+            $trigger_form_state = $form_state_store->get_trigger_state(
+                $bot_id,
+                $user_id ?: null,
+                $final_session_id,
+                $conversation_uuid,
+                $trigger_id
+            );
+            if (
+                is_array($trigger_form_state)
+                && ($trigger_form_state['status'] ?? '') === 'completed'
+                && ($trigger_form_state['form_id'] ?? '') === $form_id
+            ) {
+                wp_send_json_success([
+                    'message' => __('Form already submitted.', 'gpt3-ai-content-generator'),
+                    'form_gate_completed' => true,
+                    'already_completed' => true,
+                ]);
+                return;
+            }
+            if (
+                !is_array($trigger_form_state)
+                || ($trigger_form_state['status'] ?? '') !== 'pending'
+                || ($trigger_form_state['form_id'] ?? '') !== $form_id
+                || empty($trigger_form_state['form_definition'])
+                || !is_array($trigger_form_state['form_definition'])
+            ) {
+                $this->send_wp_error(new WP_Error(
+                    'invalid_pending_form',
+                    __('This form is no longer active. Please start a new conversation.', 'gpt3-ai-content-generator'),
+                    ['status' => 409]
+                ));
+                return;
+            }
+
+            $required_fields_error = $this->validate_required_fields(
+                $trigger_form_state['form_definition'],
+                $submitted_data
+            );
+            if (is_wp_error($required_fields_error)) {
+                $this->send_wp_error($required_fields_error);
+                return;
+            }
+        } else {
+            $form_state_store = null;
+        }
+
 
         $triggers_enabled = false;
         if (class_exists(\WPAICG\aipkit_dashboard::class)) {
@@ -213,6 +278,22 @@ class ChatFormSubmissionAjaxHandler {
             $trigger_storage_instance = new $trigger_storage_class();
             $trigger_manager_instance = new $trigger_manager_class($trigger_storage_instance, $log_storage_instance);
             $result = $trigger_manager_instance->process_event($bot_id, 'form_submitted', $trigger_context);
+            $result_status = $result['status'] ?? 'processed';
+
+            if (
+                !in_array($result_status, ['blocked', 'error'], true)
+                && $form_state_store
+                && !$form_state_store->mark_completed(
+                    $bot_id,
+                    $user_id ?: null,
+                    $final_session_id,
+                    $conversation_uuid,
+                    $trigger_id,
+                    $form_id
+                )
+            ) {
+                throw new \RuntimeException('Could not persist completed chatbot form state.');
+            }
 
             $this->emit_chatbot_form_submitted_event(
                 $bot_id,
@@ -227,7 +308,7 @@ class ChatFormSubmissionAjaxHandler {
 
             $has_message_to_user = isset($result['message_to_user']) && is_string($result['message_to_user']) && trim($result['message_to_user']) !== '';
             $resume_token = '';
-            if (!$has_message_to_user && ($result['status'] ?? 'processed') !== 'blocked') {
+            if (!$has_message_to_user && !in_array($result_status, ['blocked', 'error'], true)) {
                 $resume_token = $this->create_form_resume_token(
                     $bot_id,
                     $form_id,
@@ -248,11 +329,12 @@ class ChatFormSubmissionAjaxHandler {
                 'resume_token' => $resume_token,
                 'actions_executed' => $result['actions_executed'] ?? [],
                 'message_id' => $result['message_id'] ?? null,
-                'status' => $result['status'] ?? 'processed',
+                'status' => $result_status,
+                'form_gate_completed' => (bool) $form_state_store && !in_array($result_status, ['blocked', 'error'], true),
             ];
 
-            if ($result['status'] === 'blocked') {
-                wp_send_json_error($response_data, 400);
+            if (in_array($result_status, ['blocked', 'error'], true)) {
+                wp_send_json_error($response_data, $result_status === 'blocked' ? 400 : 500);
             } else {
                 wp_send_json_success($response_data);
             }
@@ -260,6 +342,54 @@ class ChatFormSubmissionAjaxHandler {
         } catch (\Exception $e) {
             $this->send_wp_error(new WP_Error('trigger_processing_error', __('Error processing form submission triggers.', 'gpt3-ai-content-generator'), ['status' => 500]));
         }
+    }
+
+    /**
+     * Validates required fields against the exact pending form definition.
+     *
+     * @param array<string, mixed> $form_definition
+     * @param array<string, mixed> $submitted_data
+     * @return true|WP_Error
+     */
+    private function validate_required_fields(array $form_definition, array $submitted_data) {
+        $elements = isset($form_definition['elements']) && is_array($form_definition['elements'])
+            ? $form_definition['elements']
+            : [];
+        foreach ($elements as $element) {
+            if (!is_array($element) || empty($element['required'])) {
+                continue;
+            }
+            $field_id = isset($element['id']) ? (string) $element['id'] : '';
+            if ($field_id === '' || !array_key_exists($field_id, $submitted_data)) {
+                return new WP_Error(
+                    'required_form_field_missing',
+                    __('Please complete all required fields.', 'gpt3-ai-content-generator'),
+                    ['status' => 400]
+                );
+            }
+
+            $value = $submitted_data[$field_id];
+            if (is_array($value)) {
+                $value = array_filter($value, static function ($item): bool {
+                    return trim((string) $item) !== '';
+                });
+                if (empty($value)) {
+                    return new WP_Error(
+                        'required_form_field_missing',
+                        __('Please complete all required fields.', 'gpt3-ai-content-generator'),
+                        ['status' => 400]
+                    );
+                }
+            } elseif (trim((string) $value) === '') {
+                return new WP_Error(
+                    'required_form_field_missing',
+                    __('Please complete all required fields.', 'gpt3-ai-content-generator'),
+                    ['status' => 400]
+                );
+            }
+        }
+
+        return true;
     }
 
     /**

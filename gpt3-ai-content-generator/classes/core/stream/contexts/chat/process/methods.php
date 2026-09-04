@@ -588,12 +588,18 @@ function process_user_message_trigger_logic(array $context)
 
     // Data to pass to the global trigger processor `process_chat_triggers`
     // This uses specific keys that `process_chat_triggers` expects for 'user_message_received'
-    $message_count_for_trigger = count($context['final_history_for_ai']);
+    $message_count_for_trigger = isset($context['user_message_count'])
+        ? absint($context['user_message_count'])
+        : count(array_filter($context['final_history_for_ai'], static function ($message): bool {
+            return is_array($message) && sanitize_key((string) ($message['role'] ?? '')) === 'user';
+        })) + 1;
     $user_message_trigger_context_data = [
         'event_type'        => 'user_message_received',
         'user_id'           => $context['user_id'],
         'session_id'        => $context['session_id'],
         'bot_id'            => $context['bot_id'],
+        'conversation_uuid' => $context['conversation_uuid'] ?? ($context['base_log_data']['conversation_uuid'] ?? ''),
+        'module'            => 'chat',
         'bot_settings'      => $context['bot_settings'],
         'user_message_text' => $context['user_message_text'],
         'current_history'   => $context['final_history_for_ai'], // Use final_history_for_ai

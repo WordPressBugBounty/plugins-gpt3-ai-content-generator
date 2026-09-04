@@ -140,6 +140,33 @@ function process_chat_logic(
         }
     }
 
+    if (
+        !$is_resume_after_form_submission
+        && class_exists('\\WPAICG\\Lib\\Chat\\Triggers\\State\\AIPKit_Conversation_Form_State_Store')
+    ) {
+        $form_state_store = new \WPAICG\Lib\Chat\Triggers\State\AIPKit_Conversation_Form_State_Store();
+        $pending_form_state = $form_state_store->get_pending_form(
+            (int) $params['bot_id'],
+            $params['user_id'] ? (int) $params['user_id'] : null,
+            $params['user_id'] ? null : (string) $params['session_id'],
+            (string) $params['conversation_uuid']
+        );
+        if (is_array($pending_form_state) && !empty($pending_form_state['form_definition'])) {
+            return new WP_Error(
+                'trigger_display_form',
+                __('Please complete the required form before continuing.', 'gpt3-ai-content-generator'),
+                [
+                    'status' => 200,
+                    'display_form_event_data' => [
+                        'type' => 'display_form',
+                        'form_definition' => $pending_form_state['form_definition'],
+                        'discarded_message_id' => sanitize_key((string) ($params['client_user_message_id'] ?? '')),
+                    ],
+                ]
+            );
+        }
+    }
+
     // 3. Token Check
     $token_manager = $handlerInstance->get_token_manager();
     if (!$token_manager) {
@@ -221,6 +248,7 @@ function process_chat_logic(
 
     $trigger_context = [
         'bot_id' => $params['bot_id'], 'bot_settings' => $bot_settings, 'user_id' => $params['user_id'], 'session_id' => $params['session_id'],
+        'conversation_uuid' => $params['conversation_uuid'], 'module' => 'chat',
         'client_ip' => $params['client_ip'], 'post_id' => $params['post_id'],
         'user_message_text' => $params['user_message_text'],
         'system_instruction_for_ai' => $bot_settings['instructions'] ?? '',
@@ -255,6 +283,13 @@ function process_chat_logic(
     }
 
     $history_for_triggers = $handlerInstance->get_log_storage()->get_conversation_thread_history($params['user_id'] ?: null, $params['session_id'], $params['bot_id'], $params['conversation_uuid']);
+    $user_message_count = 0;
+    foreach ($history_for_triggers as $history_item) {
+        if (is_array($history_item) && sanitize_key((string) ($history_item['role'] ?? '')) === 'user') {
+            $user_message_count++;
+        }
+    }
+    $trigger_context['user_message_count'] = $user_message_count;
     if (count($history_for_triggers) > 0 && end($history_for_triggers)['role'] === 'user') {
         array_pop($history_for_triggers);
     }

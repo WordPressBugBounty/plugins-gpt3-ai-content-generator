@@ -41,6 +41,9 @@ class WP_AI_Content_Generator_Activator
         if (!WP_AI_Content_Generator::is_performance_schema_missing()) {
             update_option(WP_AI_Content_Generator::PERFORMANCE_SCHEMA_VERSION_OPTION, WP_AI_Content_Generator::PERFORMANCE_SCHEMA_VERSION, 'no');
         }
+        if (!WP_AI_Content_Generator::is_conversation_state_schema_missing()) {
+            update_option(WP_AI_Content_Generator::CONVERSATION_STATE_SCHEMA_VERSION_OPTION, WP_AI_Content_Generator::CONVERSATION_STATE_SCHEMA_VERSION, 'no');
+        }
 
         // --- MODIFICATION: Consolidate all one-time/update tasks here ---
         // This ensures that fresh installs and reactivations get all necessary setup routines.
