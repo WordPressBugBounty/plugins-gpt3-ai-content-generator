@@ -11,6 +11,7 @@ $reasoning_options = [
     'medium' => __('Medium', 'gpt3-ai-content-generator'),
     'high' => __('High', 'gpt3-ai-content-generator'),
     'xhigh' => __('XHigh', 'gpt3-ai-content-generator'),
+    'max' => __('Max', 'gpt3-ai-content-generator'),
 ];
 ?>
 

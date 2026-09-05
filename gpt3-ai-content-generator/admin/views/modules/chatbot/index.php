@@ -668,18 +668,6 @@ if ( isset( $xai_image_model_list ) && is_array( $xai_image_model_list ) && !emp
 if ( isset( $replicate_model_list ) && is_array( $replicate_model_list ) && !empty( $replicate_model_list ) ) {
     $available_image_models['Replicate'] = $replicate_model_list;
 }
-$reasoning_effort_val = $active_bot_settings['reasoning_effort'] ?? BotSettingsManager::DEFAULT_REASONING_EFFORT;
-$reasoning_effort_val = \WPAICG\Core\AIPKit_OpenAI_Reasoning::sanitize_effort( $reasoning_effort_val );
-$allowed_reasoning_effort = [
-    'none',
-    'low',
-    'medium',
-    'high',
-    'xhigh'
-];
-if ( !in_array( $reasoning_effort_val, $allowed_reasoning_effort, true ) ) {
-    $reasoning_effort_val = BotSettingsManager::DEFAULT_REASONING_EFFORT;
-}
 // Audio settings values (used in audio settings panel).
 $enable_voice_input = $active_bot_settings['enable_voice_input'] ?? BotSettingsManager::DEFAULT_ENABLE_VOICE_INPUT;
 $enable_voice_input = ( in_array( $enable_voice_input, ['0', '1'], true ) ? $enable_voice_input : BotSettingsManager::DEFAULT_ENABLE_VOICE_INPUT );

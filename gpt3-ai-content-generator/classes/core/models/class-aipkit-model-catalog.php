@@ -219,6 +219,7 @@ final class AIPKit_Model_Catalog
                 'aipkit_google_model_list',
                 'gemini-3.7-flash',
                 [
+                    ['id' => 'gemini-3.8-flash', 'name' => 'Gemini 3.8 Flash'],
                     ['id' => 'gemini-3.7-flash', 'name' => 'Gemini 3.7 Flash'],
                     ['id' => 'gemini-3.5-flash-lite', 'name' => 'Gemini 3.5 Flash-Lite'],
                 ],
@@ -907,11 +908,17 @@ final class AIPKit_Model_Catalog
         if (strpos($model_id, 'ft:') === 0 || strpos($model_id, ':ft-') !== false || strpos($model_id, ':ft_') !== false) {
             return self::family('fine-tuned', __('Fine-tuned', 'gpt3-ai-content-generator'), 90, true);
         }
+        if (preg_match('/^gpt-6(?:[.\-_]|$)/', $model_id)) {
+            return self::family('gpt-6', 'GPT-6', 5);
+        }
         if (strpos($model_id, 'gpt-5') !== false) {
             return self::family('gpt-5', 'GPT-5', 10);
         }
         if (strpos($model_id, 'gpt-4') !== false) {
             return self::family('gpt-4', 'GPT-4', 20);
+        }
+        if ($model_id === 'chat-latest') {
+            return self::family('chatgpt', 'ChatGPT', 25);
         }
         if (preg_match('/^o[1-9](?:[.\-_]|$)/', $model_id)) {
             return self::family('o-series', __('o-series', 'gpt3-ai-content-generator'), 30);

@@ -2,6 +2,7 @@
 
 namespace WPAICG\Core\Providers\OpenAI;
 
+use WPAICG\Core\AIPKit_OpenAI_Reasoning;
 use WPAICG\Core\Providers\Traits\ChatCompletionsPayloadTrait;
 use WPAICG\Core\Providers\Traits\ChatCompletionsResponseParserTrait;
 
@@ -34,7 +35,7 @@ final class OpenAIChatCompletionsAdapter
             true
         );
 
-        return $this->apply_compatible_extensions($payload, $ai_params);
+        return $this->apply_compatible_extensions($payload, $ai_params, $model);
     }
 
     public function format_sse(
@@ -52,7 +53,7 @@ final class OpenAIChatCompletionsAdapter
             false
         );
 
-        $payload = $this->apply_compatible_extensions($payload, $ai_params);
+        $payload = $this->apply_compatible_extensions($payload, $ai_params, $model);
         $payload['stream_options'] = ['include_usage' => true];
 
         return $payload;
@@ -66,14 +67,17 @@ final class OpenAIChatCompletionsAdapter
         return $this->parse_chat_response($decoded_response, $request_data);
     }
 
-    private function apply_compatible_extensions(array $payload, array $ai_params): array
+    private function apply_compatible_extensions(array $payload, array $ai_params, string $model): array
     {
         if (isset($payload['max_tokens'])) {
             $payload['max_completion_tokens'] = $payload['max_tokens'];
             unset($payload['max_tokens']);
         }
 
-        if (!empty($ai_params['reasoning']['effort']) && $ai_params['reasoning']['effort'] !== 'none') {
+        if (
+            !empty($ai_params['reasoning']['effort'])
+            && ($ai_params['reasoning']['effort'] !== 'none' || AIPKit_OpenAI_Reasoning::is_gpt_6_astra($model))
+        ) {
             $payload['reasoning_effort'] = sanitize_key((string) $ai_params['reasoning']['effort']);
         }
 
@@ -81,7 +85,7 @@ final class OpenAIChatCompletionsAdapter
             $payload = $this->attach_image_inputs($payload, $ai_params['image_inputs']);
         }
 
-        return $payload;
+        return AIPKit_OpenAI_Reasoning::normalize_payload_for_model($payload, $model, true);
     }
 
     private function attach_image_inputs(array $payload, array $image_inputs): array

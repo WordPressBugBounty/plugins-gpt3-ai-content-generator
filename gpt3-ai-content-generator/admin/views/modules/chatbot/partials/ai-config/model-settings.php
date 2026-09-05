@@ -23,13 +23,14 @@ $reasoning_effort = isset($bot_settings['reasoning_effort'])
     ? sanitize_text_field($bot_settings['reasoning_effort'])
     : BotSettingsManager::DEFAULT_REASONING_EFFORT;
 $reasoning_effort = AIPKit_OpenAI_Reasoning::sanitize_effort($reasoning_effort);
-$reasoning_options = ['none', 'low', 'medium', 'high', 'xhigh'];
+$reasoning_options = ['none', 'low', 'medium', 'high', 'xhigh', 'max'];
 $reasoning_labels = [
     __('none', 'gpt3-ai-content-generator'),
     __('low', 'gpt3-ai-content-generator'),
     __('med', 'gpt3-ai-content-generator'),
     __('high', 'gpt3-ai-content-generator'),
     __('xhigh', 'gpt3-ai-content-generator'),
+    __('max', 'gpt3-ai-content-generator'),
 ];
 if (!in_array($reasoning_effort, $reasoning_options, true)) {
     $reasoning_effort = BotSettingsManager::DEFAULT_REASONING_EFFORT;

@@ -248,6 +248,17 @@ function sanitize_settings_logic(array $raw_settings, int $bot_id): array
     $sanitized['max_completion_tokens'] = isset($raw_settings['max_completion_tokens']) ? absint($raw_settings['max_completion_tokens']) : BotSettingsManager::DEFAULT_MAX_COMPLETION_TOKENS;
     $sanitized['max_messages'] = isset($raw_settings['max_messages']) ? absint($raw_settings['max_messages']) : BotSettingsManager::DEFAULT_MAX_MESSAGES;
     $reasoning_effort = AIPKit_OpenAI_Reasoning::sanitize_effort($raw_settings['reasoning_effort'] ?? '');
+    $reasoning_model = sanitize_text_field((string) ($raw_settings['model'] ?? ''));
+    if ($sanitized['provider'] === 'OpenAI' && AIPKit_OpenAI_Reasoning::is_gpt_6_astra($reasoning_model)) {
+        $reasoning_effort = AIPKit_OpenAI_Reasoning::normalize_effort_for_model(
+            $reasoning_model,
+            $reasoning_effort !== '' ? $reasoning_effort : BotSettingsManager::DEFAULT_REASONING_EFFORT
+        );
+    } elseif ($reasoning_effort === 'max') {
+        $reasoning_effort = $sanitized['provider'] === 'OpenAI'
+            ? AIPKit_OpenAI_Reasoning::get_default_effort_for_model($reasoning_model)
+            : '';
+    }
     $sanitized['reasoning_effort'] = $reasoning_effort !== '' ? $reasoning_effort : BotSettingsManager::DEFAULT_REASONING_EFFORT;
     $sanitized['enable_conversation_starters'] = (isset($raw_settings['enable_conversation_starters']) && $raw_settings['enable_conversation_starters'] === '1') ? '1' : '0';
     $starters_raw = $raw_settings['conversation_starters'] ?? '';

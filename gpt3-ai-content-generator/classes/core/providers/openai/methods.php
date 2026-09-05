@@ -890,12 +890,7 @@ function format_chat_logic_for_payload_formatter(
     if (isset($ai_params['reasoning']) && is_array($ai_params['reasoning'])) {
         $body_data['reasoning'] = $ai_params['reasoning'];
     }
-    $model_lower = strtolower($model);
-    if (!AIPKit_OpenAI_Reasoning::supports_sampling_controls($model_lower)) {
-        unset($body_data['temperature'], $body_data['top_p'], $body_data['frequency_penalty'], $body_data['presence_penalty']);
-    }
-
-    return $body_data;
+    return AIPKit_OpenAI_Reasoning::normalize_payload_for_model($body_data, $model);
 }
 
 // --- format-embeddings.php ---
@@ -1113,12 +1108,7 @@ function format_sse_logic_for_payload_formatter(
     if (isset($ai_params['reasoning']) && is_array($ai_params['reasoning'])) {
         $body_data['reasoning'] = $ai_params['reasoning'];
     }
-    $model_lower = strtolower($model);
-    if (!AIPKit_OpenAI_Reasoning::supports_sampling_controls($model_lower)) {
-        unset($body_data['temperature'], $body_data['top_p'], $body_data['frequency_penalty'], $body_data['presence_penalty']);
-    }
-    
-    return $body_data;
+    return AIPKit_OpenAI_Reasoning::normalize_payload_for_model($body_data, $model);
 }
 
 // --- generate-embeddings.php ---

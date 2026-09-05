@@ -73,6 +73,7 @@ $aipkit_autogpt_setup_reasoning_options = [
     'medium' => __('Medium', 'gpt3-ai-content-generator'),
     'high' => __('High', 'gpt3-ai-content-generator'),
     'xhigh' => __('Extra high', 'gpt3-ai-content-generator'),
+    'max' => __('Max', 'gpt3-ai-content-generator'),
 ];
 
 $aipkit_autogpt_setup_base = 'aipkit_task_' . $aipkit_autogpt_setup_scope;

@@ -560,6 +560,14 @@ $aipkit_get_advanced_fields = static function (array $config) use ($aipkit_commo
     />
     <?php foreach ($aipkit_provider_configs as $aipkit_provider => $aipkit_config) :
         $aipkit_slug = (string) $aipkit_config['slug'];
+        $aipkit_icon_relative_path = 'admin/images/providers/' . $aipkit_config['icon'];
+        $aipkit_icon_path = WPAICG_PLUGIN_DIR . $aipkit_icon_relative_path;
+        $aipkit_icon_version = file_exists($aipkit_icon_path) ? filemtime($aipkit_icon_path) : false;
+        $aipkit_icon_url = add_query_arg(
+            'ver',
+            (string) ($aipkit_icon_version ?: WPAICG_VERSION),
+            WPAICG_PLUGIN_URL . $aipkit_icon_relative_path
+        );
         $aipkit_data = $aipkit_provider_data[$aipkit_provider] ?? [];
         $aipkit_credential = (string) ($aipkit_data[$aipkit_config['credential_key']] ?? '');
         $aipkit_connected = $aipkit_credential !== '';
@@ -590,7 +598,7 @@ $aipkit_get_advanced_fields = static function (array $config) use ($aipkit_commo
             <?php if ($aipkit_locked) : ?>
                 <div class="aipkit_settings_provider_upgrade_header">
                     <span class="aipkit_settings_provider_upgrade_logo" aria-hidden="true">
-                        <img src="<?php echo esc_url(WPAICG_PLUGIN_URL . 'admin/images/providers/' . $aipkit_config['icon']); ?>" alt="" />
+                        <img src="<?php echo esc_url($aipkit_icon_url); ?>" alt="" />
                         <span class="aipkit_settings_provider_upgrade_lock">
                             <span class="dashicons dashicons-lock" aria-hidden="true"></span>
                         </span>
@@ -612,7 +620,7 @@ $aipkit_get_advanced_fields = static function (array $config) use ($aipkit_commo
             <?php else : ?>
             <div class="aipkit_settings_provider_card_header">
                 <span class="aipkit_settings_provider_logo" aria-hidden="true">
-                    <img src="<?php echo esc_url(WPAICG_PLUGIN_URL . 'admin/images/providers/' . $aipkit_config['icon']); ?>" alt="" />
+                    <img src="<?php echo esc_url($aipkit_icon_url); ?>" alt="" />
                 </span>
                 <h4 class="aipkit_settings_provider_name"><?php echo esc_html((string) $aipkit_config['display_name']); ?></h4>
                 <span class="aipkit_settings_provider_status aipkit_settings_provider_status--connected" <?php echo $aipkit_connected ? '' : 'hidden'; ?>><?php esc_html_e('Connected', 'gpt3-ai-content-generator'); ?></span>

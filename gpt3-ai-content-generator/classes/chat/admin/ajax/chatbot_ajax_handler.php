@@ -722,6 +722,18 @@ class ChatbotAjaxHandler extends BaseAjaxHandler {
         } else {
             delete_post_meta( $bot_id, '_aipkit_model' );
         }
+        $saved_reasoning_effort = AIPKit_OpenAI_Reasoning::sanitize_effort( get_post_meta( $bot_id, '_aipkit_reasoning_effort', true ) );
+        if ( $provider === 'OpenAI' && AIPKit_OpenAI_Reasoning::is_gpt_6_astra( $model ) ) {
+            $next_reasoning_effort = AIPKit_OpenAI_Reasoning::normalize_effort_for_model( $model, ( $saved_reasoning_effort !== '' ? $saved_reasoning_effort : BotSettingsManager::DEFAULT_REASONING_EFFORT ) );
+            update_post_meta( $bot_id, '_aipkit_reasoning_effort', $next_reasoning_effort );
+        } elseif ( $saved_reasoning_effort === 'max' ) {
+            // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce is verified by get_validated_chatbot_id_from_request().
+            $next_reasoning_effort = AIPKit_OpenAI_Reasoning::sanitize_effort( ( isset( $_POST['reasoning_effort'] ) ? sanitize_text_field( wp_unslash( $_POST['reasoning_effort'] ) ) : '' ) );
+            if ( $next_reasoning_effort === '' || $next_reasoning_effort === 'max' ) {
+                $next_reasoning_effort = ( $provider === 'OpenAI' ? AIPKit_OpenAI_Reasoning::get_default_effort_for_model( $model ) : '' );
+            }
+            update_post_meta( $bot_id, '_aipkit_reasoning_effort', ( $next_reasoning_effort !== '' ? $next_reasoning_effort : BotSettingsManager::DEFAULT_REASONING_EFFORT ) );
+        }
         $this->send_saved_bot_state_success( $bot_id, __( 'Saved', 'gpt3-ai-content-generator' ) );
     }
 
@@ -780,6 +792,13 @@ class ChatbotAjaxHandler extends BaseAjaxHandler {
         $provider = ( isset( $_POST['provider'] ) ? sanitize_text_field( wp_unslash( $_POST['provider'] ) ) : '' );
         // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Reason: Nonce verification is handled in check_module_access_permissions method.
         $reasoning_effort = AIPKit_OpenAI_Reasoning::sanitize_effort( ( isset( $_POST['reasoning_effort'] ) ? wp_unslash( $_POST['reasoning_effort'] ) : '' ) );
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce is verified by get_validated_chatbot_id_from_request().
+        $reasoning_model = ( isset( $_POST['model'] ) ? sanitize_text_field( wp_unslash( $_POST['model'] ) ) : (string) get_post_meta( $bot_id, '_aipkit_model', true ) );
+        if ( $provider === 'OpenAI' && AIPKit_OpenAI_Reasoning::is_gpt_6_astra( $reasoning_model ) ) {
+            $reasoning_effort = AIPKit_OpenAI_Reasoning::normalize_effort_for_model( $reasoning_model, ( $reasoning_effort !== '' ? $reasoning_effort : BotSettingsManager::DEFAULT_REASONING_EFFORT ) );
+        } elseif ( $reasoning_effort === 'max' ) {
+            $reasoning_effort = ( $provider === 'OpenAI' ? AIPKit_OpenAI_Reasoning::get_default_effort_for_model( $reasoning_model ) : '' );
+        }
         if ( $reasoning_effort === '' ) {
             $reasoning_effort = BotSettingsManager::DEFAULT_REASONING_EFFORT;
         }

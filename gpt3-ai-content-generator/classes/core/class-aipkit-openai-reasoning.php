@@ -16,7 +16,8 @@ class AIPKit_OpenAI_Reasoning
 {
     /**
      * Sanitize a raw reasoning effort value.
-     * Maps "minimal" -> "low" and only allows supported strings.
+     * Maps "minimal" -> "low" and retains known effort strings for storage.
+     * Model-specific support is enforced by normalize_effort_for_model().
      *
      * @param mixed $effort Raw effort value.
      * @return string Sanitized effort or empty string if invalid.
@@ -30,8 +31,16 @@ class AIPKit_OpenAI_Reasoning
         if ($value === 'minimal') {
             $value = 'low';
         }
-        $allowed = ['none', 'low', 'medium', 'high', 'xhigh'];
+        $allowed = ['none', 'low', 'medium', 'high', 'xhigh', 'max'];
         return in_array($value, $allowed, true) ? $value : '';
+    }
+
+    /**
+     * Match the documented Astra model and its dated snapshots only.
+     */
+    public static function is_gpt_6_astra(string $model): bool
+    {
+        return (bool) preg_match('/^gpt-6-astra(?:-\d{4}-\d{2}-\d{2})?$/', strtolower($model));
     }
 
     /**
@@ -43,7 +52,8 @@ class AIPKit_OpenAI_Reasoning
         if (self::is_chat_variant($model_lower)) {
             return false;
         }
-        return strpos($model_lower, 'gpt-5') !== false
+        return self::is_gpt_6_astra($model_lower)
+            || strpos($model_lower, 'gpt-5') !== false
             || strpos($model_lower, 'o1') !== false
             || strpos($model_lower, 'o3') !== false
             || strpos($model_lower, 'o4') !== false;
@@ -89,6 +99,9 @@ class AIPKit_OpenAI_Reasoning
         if ($effort === '') {
             return '';
         }
+        if (self::is_gpt_6_astra($model_lower) && $effort === 'none') {
+            $effort = 'low';
+        }
 
         $allowed = self::get_allowed_efforts($model_lower);
         if (!in_array($effort, $allowed, true)) {
@@ -96,6 +109,59 @@ class AIPKit_OpenAI_Reasoning
         }
 
         return $effort;
+    }
+
+    /**
+     * Return the plugin's fallback selection for a supported reasoning model.
+     */
+    public static function get_default_effort_for_model(string $model): string
+    {
+        if (!self::supports_reasoning($model)) {
+            return '';
+        }
+
+        return self::get_reasoning_rule(strtolower($model))['default'];
+    }
+
+    /**
+     * Apply model rules to the final payload, including direct REST overrides.
+     * Unknown OpenAI-compatible models keep their existing request contract.
+     */
+    public static function normalize_payload_for_model(array $payload, string $model, bool $chat_completions = false): array
+    {
+        $is_astra = self::is_gpt_6_astra($model);
+        if ($is_astra || (!$chat_completions && !self::supports_sampling_controls($model))) {
+            unset($payload['temperature'], $payload['top_p'], $payload['frequency_penalty'], $payload['presence_penalty']);
+        }
+
+        if (!$is_astra) {
+            return $payload;
+        }
+
+        unset($payload['logprobs'], $payload['top_logprobs']);
+
+        if ($chat_completions) {
+            if (array_key_exists('reasoning_effort', $payload)) {
+                $effort = self::normalize_effort_for_model($model, $payload['reasoning_effort']);
+                if ($effort === '') {
+                    unset($payload['reasoning_effort']);
+                } else {
+                    $payload['reasoning_effort'] = $effort;
+                }
+            }
+        } elseif (isset($payload['reasoning']) && is_array($payload['reasoning']) && array_key_exists('effort', $payload['reasoning'])) {
+            $effort = self::normalize_effort_for_model($model, $payload['reasoning']['effort']);
+            if ($effort === '') {
+                unset($payload['reasoning']['effort']);
+                if (empty($payload['reasoning'])) {
+                    unset($payload['reasoning']);
+                }
+            } else {
+                $payload['reasoning']['effort'] = $effort;
+            }
+        }
+
+        return $payload;
     }
 
     /**
@@ -118,6 +184,13 @@ class AIPKit_OpenAI_Reasoning
      */
     private static function get_reasoning_rule(string $model_lower): array
     {
+        if (self::is_gpt_6_astra($model_lower)) {
+            return [
+                'allowed' => ['low', 'medium', 'high', 'xhigh', 'max'],
+                'default' => 'low',
+            ];
+        }
+
         if (self::is_gpt_5_pro($model_lower)) {
             if (self::is_post_gpt_5_1_pro($model_lower)) {
                 return [

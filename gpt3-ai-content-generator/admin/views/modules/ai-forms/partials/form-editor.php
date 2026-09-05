@@ -519,6 +519,7 @@ $render_ai_form_connected_apps_cards = static function (array $connected_apps_pa
                             <option value="medium"><?php esc_html_e('Medium', 'gpt3-ai-content-generator'); ?></option>
                             <option value="high"><?php esc_html_e('High', 'gpt3-ai-content-generator'); ?></option>
                             <option value="xhigh"><?php esc_html_e('XHigh', 'gpt3-ai-content-generator'); ?></option>
+                            <option value="max"><?php esc_html_e('Max', 'gpt3-ai-content-generator'); ?></option>
                         </select>
                     </div>
                 </div>

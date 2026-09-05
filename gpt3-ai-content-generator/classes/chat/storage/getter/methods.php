@@ -897,6 +897,18 @@ function get_openai_specific_config_logic(int $bot_id, callable $get_meta_fn): a
     $default_reasoning_effort = defined('WPAICG\Chat\Storage\BotSettingsManager::DEFAULT_REASONING_EFFORT') ? BotSettingsManager::DEFAULT_REASONING_EFFORT : 'none';
     $settings['reasoning_effort'] = $get_meta_fn('_aipkit_reasoning_effort', $default_reasoning_effort);
     $reasoning_effort = AIPKit_OpenAI_Reasoning::sanitize_effort($settings['reasoning_effort']);
+    $reasoning_model = (string) $get_meta_fn('_aipkit_model', '');
+    $reasoning_provider = (string) $get_meta_fn('_aipkit_provider', 'OpenAI');
+    if ($reasoning_provider === 'OpenAI' && AIPKit_OpenAI_Reasoning::is_gpt_6_astra($reasoning_model)) {
+        $reasoning_effort = AIPKit_OpenAI_Reasoning::normalize_effort_for_model(
+            $reasoning_model,
+            $reasoning_effort !== '' ? $reasoning_effort : $default_reasoning_effort
+        );
+    } elseif ($reasoning_effort === 'max') {
+        $reasoning_effort = $reasoning_provider === 'OpenAI'
+            ? AIPKit_OpenAI_Reasoning::get_default_effort_for_model($reasoning_model)
+            : '';
+    }
     $settings['reasoning_effort'] = $reasoning_effort !== '' ? $reasoning_effort : $default_reasoning_effort;
 
 
