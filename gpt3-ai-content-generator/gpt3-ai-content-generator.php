@@ -10,7 +10,7 @@
  * @wordpress-plugin
  * Plugin Name:       AI Puffer – Chat. Create. Automate. (formerly AI Power)
  * Description:       Chat. Create. Automate. All your AI tools in one workspace.
- * Version:           2.4.78
+ * Version:           2.4.79
  * Author:            Senol Sahin
  * Author URI:        https://aipower.org
  * License:           GPL-2.0+
@@ -23,14 +23,15 @@
 if ( !defined( 'WPINC' ) ) {
     die;
 }
-define( 'WPAICG_VERSION', '2.4.78' );
-define( 'WPAICG_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
-define( 'WPAICG_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
-define( 'WPAICG_LIB_DIR', WPAICG_PLUGIN_DIR . 'lib/' );
 // Freemius SDK Integration
 if ( function_exists( 'wpaicg_gacg_fs' ) ) {
     wpaicg_gacg_fs()->set_basename( false, __FILE__ );
 } else {
+    // Only the first edition loaded in this request owns the plugin runtime.
+    define( 'WPAICG_VERSION', '2.4.79' );
+    define( 'WPAICG_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
+    define( 'WPAICG_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
+    define( 'WPAICG_LIB_DIR', WPAICG_PLUGIN_DIR . 'lib/' );
     // DO NOT REMOVE THIS IF — it ensures `function_exists()` is reliable
     if ( !function_exists( 'wpaicg_gacg_fs' ) ) {
         // Create a helper function for easy SDK access.
@@ -70,41 +71,39 @@ if ( function_exists( 'wpaicg_gacg_fs' ) ) {
         // Signal that SDK was initiated.
         do_action( 'wpaicg_gacg_fs_loaded' );
     }
+    // --- Load Core Dashboard Class (needed by Pro loader) ---
+    $aipkit_dashboard_class_path = WPAICG_PLUGIN_DIR . 'classes/admin/dashboard.php';
+    if ( file_exists( $aipkit_dashboard_class_path ) ) {
+        require_once $aipkit_dashboard_class_path;
+    }
+    // --- End Load Core Dashboard Class ---
+    // --- Load Pro Features ---
+    // We always load the Pro library loader. The logic within that file handles the Freemius checks.
+    $pro_loader_path = WPAICG_LIB_DIR . 'wpaicg__premium_only.php';
+    if ( file_exists( $pro_loader_path ) ) {
+        require_once $pro_loader_path;
+    }
+    // --- Core Plugin Includes ---
+    require_once WPAICG_PLUGIN_DIR . 'includes/plugin.php';
+    // --- Activation / Deactivation Hooks ---
+    register_activation_hook( __FILE__, ['WPAICG\\WP_AI_Content_Generator_Activator', 'activate'] );
+    register_deactivation_hook( __FILE__, ['WPAICG\\WP_AI_Content_Generator_Deactivator', 'deactivate'] );
+    // --- Multisite Setup ---
+    if ( function_exists( 'wp_initialize_site' ) ) {
+        add_action(
+            'wp_initialize_site',
+            ['WPAICG\\WP_AI_Content_Generator_Activator', 'setup_new_blog'],
+            10,
+            2
+        );
+    } else {
+        add_action(
+            'wpmu_new_blog',
+            ['WPAICG\\WP_AI_Content_Generator_Activator', 'setup_new_blog'],
+            10,
+            2
+        );
+    }
+    // --- Run Plugin ---
+    \WPAICG\WP_AI_Content_Generator::get_instance()->run();
 }
-// --- Load Core Dashboard Class (needed by Pro loader) ---
-$aipkit_dashboard_class_path = WPAICG_PLUGIN_DIR . 'classes/dashboard/class-aipkit_dashboard.php';
-if ( file_exists( $aipkit_dashboard_class_path ) ) {
-    require_once $aipkit_dashboard_class_path;
-}
-// --- End Load Core Dashboard Class ---
-// --- Load Pro Features ---
-// We always load the Pro library loader. The logic within that file handles the Freemius checks.
-$pro_loader_path = WPAICG_LIB_DIR . 'wpaicg__premium_only.php';
-if ( file_exists( $pro_loader_path ) ) {
-    require_once $pro_loader_path;
-}
-// --- Core Plugin Includes ---
-require_once WPAICG_PLUGIN_DIR . 'includes/class-wp-ai-content-generator.php';
-require_once WPAICG_PLUGIN_DIR . 'includes/class-wp-ai-content-generator-activator.php';
-require_once WPAICG_PLUGIN_DIR . 'includes/class-wp-ai-content-generator-deactivator.php';
-// --- Activation / Deactivation Hooks ---
-register_activation_hook( __FILE__, ['WPAICG\\WP_AI_Content_Generator_Activator', 'activate'] );
-register_deactivation_hook( __FILE__, ['WPAICG\\WP_AI_Content_Generator_Deactivator', 'deactivate'] );
-// --- Multisite Setup ---
-if ( function_exists( 'wp_initialize_site' ) ) {
-    add_action(
-        'wp_initialize_site',
-        ['WPAICG\\WP_AI_Content_Generator_Activator', 'setup_new_blog'],
-        10,
-        2
-    );
-} else {
-    add_action(
-        'wpmu_new_blog',
-        ['WPAICG\\WP_AI_Content_Generator_Activator', 'setup_new_blog'],
-        10,
-        2
-    );
-}
-// --- Run Plugin ---
-\WPAICG\WP_AI_Content_Generator::get_instance()->run();

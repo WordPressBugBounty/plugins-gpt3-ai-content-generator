@@ -4,7 +4,7 @@ Tags: ai, chatbot, openai, ai writer, automation
 Requires at least: 6.0
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 2.4.78
+Stable tag: 2.4.79
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -111,20 +111,26 @@ Yes. AIP supports GPT-5, GPT-4o, GPT-4 Turbo, Google Gemini 1.5, Imagen 4.0, and
 
 == Screenshots ==
 
-1. Main dashboard with quick access to all modules.
-2. Add-ons page for enabling/disabling features.
-3. Chatbot builder with real-time preview.
-4. Content Writer with single, bulk, and RSS generation.
-5. Automated Tasks scheduler.
-6. Drag-and-drop AI Form builder.
-7. AI Image Generator interface.
-8. AI Training vector store management.
-9. Usage & Billing system.
-10. WooCommerce AI integration.
+1. Customize your chatbot’s appearance, instructions, and AI model with a live preview.
+2. Draft an article from a topic and keywords, with controls for the model, length, and publishing status.
+3. Build an AI form with standard fields, a model, and a prompt that uses your field values.
+4. Create images with your connected AI provider and browse your generated image history.
+5. Prepare a batch of topics and keywords for an automated content task.
+6. Add question-and-answer sources and choose the vector store used by your chatbot.
+7. Display a popup chatbot on your WordPress site with a greeting and conversation starters.
 
 ---
 
 == Changelog ==
+
+= 2.4.79 =
+
+- Reduced plugin download size to improve performance.
+- Reduced the chatbot's default JavaScript and CSS payload while preserving on-demand loading for optional features.
+- Fixed delayed text and image responses updating the chat after stopping generation, clearing messages, or switching conversations.
+- Improved chatbot popup, audio playback, and embedded form reliability when closing, reopening, or switching chats.
+
+Please make sure to clear your site, browser, and CDN caches to ensure the latest scripts and styles are loaded.
 
 = 2.4.78 =
 
