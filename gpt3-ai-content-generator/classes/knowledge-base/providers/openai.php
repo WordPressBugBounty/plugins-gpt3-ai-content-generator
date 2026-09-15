@@ -116,7 +116,7 @@ class AIPKit_Vector_OpenAI_Strategy extends AIPKit_Vector_Base_Provider_Strategy
     /**
      * @return mixed[]|\WP_Error
      */
-    public function upload_file_for_vector_store(string $file_path, string $original_filename, string $purpose = 'assistants_file') {
+    public function upload_file_for_vector_store(string $file_path, string $original_filename, string $purpose = 'user_data') {
         return \WPAICG\Vector\Providers\OpenAI\Methods\upload_file_for_vector_store_logic($this, $file_path, $original_filename, $purpose);
     }
 
@@ -185,7 +185,6 @@ use WPAICG\Core\AIPKit_HTTP_Request;
 use WPAICG\Vector\Providers\AIPKit_Vector_OpenAI_Strategy;
 use WP_Error;
 use WPAICG\Core\Providers\OpenAI\OpenAIUrlBuilder;
-use CURLFile;
 
 /**
  * Logic for the _request method of AIPKit_Vector_OpenAI_Strategy.
@@ -195,9 +194,10 @@ use CURLFile;
  * @param string $url Full request URL.
  * @param array $body Request body for POST requests or multipart data for file uploads.
  * @param bool $is_file_upload True if this is a multipart/form-data file upload.
+ * @param array $files Multipart file descriptors keyed by field name.
  * @return array|WP_Error Decoded JSON response or WP_Error.
  */
-function _request_logic(AIPKit_Vector_OpenAI_Strategy $strategyInstance, string $method, string $url, array $body = [], bool $is_file_upload = false)
+function _request_logic(AIPKit_Vector_OpenAI_Strategy $strategyInstance, string $method, string $url, array $body = [], bool $is_file_upload = false, array $files = [])
 {
     $api_key = $strategyInstance->get_api_key();
     if (empty($api_key)) {
@@ -220,52 +220,22 @@ function _request_logic(AIPKit_Vector_OpenAI_Strategy $strategyInstance, string 
 
     if (!$is_file_upload && !empty($body) && ($method === 'POST' || $method === 'PUT' || $method === 'PATCH')) {
         $request_args['body'] = wp_json_encode($body);
-    } elseif ($is_file_upload && !empty($body)) {
-        $request_args['body'] = $body;
     }
 
-    $response_body = null;
-    $status_code = null;
+    if ($is_file_upload && !class_exists(AIPKit_HTTP_Request::class)) {
+        require_once dirname(__DIR__, 2) . '/ai/http.php';
+    }
 
-    if ($is_file_upload) {
-        // phpcs:ignore WordPress.WP.AlternativeFunctions.curl_curl_init -- Reason: Using cURL for streaming.
-        $ch = curl_init();
-        // phpcs:ignore WordPress.WP.AlternativeFunctions.curl_curl_setopt -- Reason: Using cURL for streaming.
-        curl_setopt($ch, CURLOPT_URL, $url);
-        // phpcs:ignore WordPress.WP.AlternativeFunctions.curl_curl_setopt -- Reason: Using cURL for streaming.
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        // phpcs:ignore WordPress.WP.AlternativeFunctions.curl_curl_setopt -- Reason: Using cURL for streaming.
-        curl_setopt($ch, CURLOPT_CUSTOMREQUEST, strtoupper($method));
-        // phpcs:ignore WordPress.WP.AlternativeFunctions.curl_curl_setopt -- Reason: Using cURL for streaming.
-        curl_setopt($ch, CURLOPT_POSTFIELDS, $body);
-        $curl_headers = [];
-        foreach ($headers as $key => $value) {
-            $curl_headers[] = "{$key}: {$value}";
-        }
-        // phpcs:ignore WordPress.WP.AlternativeFunctions.curl_curl_setopt -- Reason: Using cURL for streaming.
-        curl_setopt($ch, CURLOPT_HTTPHEADER, $curl_headers);
-        // phpcs:ignore WordPress.WP.AlternativeFunctions.curl_curl_setopt -- Reason: Using cURL for streaming.
-        curl_setopt($ch, CURLOPT_TIMEOUT, 120);
-        // phpcs:ignore WordPress.WP.AlternativeFunctions.curl_curl_exec -- Reason: Using cURL for streaming.
-        $response_body = curl_exec($ch);
-        // phpcs:ignore WordPress.WP.AlternativeFunctions.curl_curl_getinfo -- Reason: Using cURL for streaming.
-        $status_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-        // phpcs:ignore WordPress.WP.AlternativeFunctions.curl_curl_error -- Reason: Using cURL for streaming.
-        $curl_error = curl_error($ch);
-        $ch = null;
-        if ($curl_error) {
-            return new WP_Error('openai_vector_curl_error', 'cURL error during request: ' . $curl_error);
-        }
-    } else {
-        $response = class_exists(AIPKit_HTTP_Request::class)
+    $response = $is_file_upload
+        ? AIPKit_HTTP_Request::multipart($url, $body, $files, $request_args, true)
+        : (class_exists(AIPKit_HTTP_Request::class)
             ? AIPKit_HTTP_Request::request($url, $request_args, true)
-            : wp_remote_request($url, $request_args);
-        if (is_wp_error($response)) {
-            return $response;
-        }
-        $status_code = wp_remote_retrieve_response_code($response);
-        $response_body = wp_remote_retrieve_body($response);
+            : wp_remote_request($url, $request_args));
+    if (is_wp_error($response)) {
+        return $response;
     }
+    $status_code = wp_remote_retrieve_response_code($response);
+    $response_body = wp_remote_retrieve_body($response);
 
     // Call public methods on the strategy instance
     $decoded_response = $strategyInstance->decode_json($response_body, 'OpenAI Vector Store');
@@ -707,17 +677,13 @@ function retrieve_file_batch_logic(AIPKit_Vector_OpenAI_Strategy $strategyInstan
  * @param string $purpose Purpose of the file.
  * @return array|WP_Error OpenAI file object or WP_Error.
  */
-function upload_file_for_vector_store_logic(AIPKit_Vector_OpenAI_Strategy $strategyInstance, string $file_path, string $original_filename, string $purpose = 'assistants_file') {
+function upload_file_for_vector_store_logic(AIPKit_Vector_OpenAI_Strategy $strategyInstance, string $file_path, string $original_filename, string $purpose = 'user_data') {
     if (!$strategyInstance->get_is_connected_status()) {
         return new WP_Error('not_connected', __('Not connected to OpenAI.', 'gpt3-ai-content-generator'));
     }
     if (!file_exists($file_path) || !is_readable($file_path)) {
         return new WP_Error('file_not_readable', __('File not found or not readable at path: ', 'gpt3-ai-content-generator') . $file_path);
     }
-    if (!class_exists('CURLFile')) {
-        return new WP_Error('curlfile_missing', __('Server configuration error (CURLFile missing for file upload).', 'gpt3-ai-content-generator'), ['status' => 500]);
-    }
-
     $url_builder_params = [
         'base_url' => $strategyInstance->get_base_url(),
         'api_version' => $strategyInstance->get_api_version()
@@ -730,10 +696,8 @@ function upload_file_for_vector_store_logic(AIPKit_Vector_OpenAI_Strategy $strat
         $mime_type = 'application/octet-stream';
     }
 
-    $cfile = new CURLFile($file_path, $mime_type, $original_filename);
-    $data = ['purpose' => $purpose, 'file' => $cfile];
-
-    return _request_logic($strategyInstance, 'POST', $url, $data, true);
+    $files = ['file' => ['path' => $file_path, 'type' => $mime_type, 'filename' => $original_filename]];
+    return _request_logic($strategyInstance, 'POST', $url, ['purpose' => $purpose], true, $files);
 }
 
 /**

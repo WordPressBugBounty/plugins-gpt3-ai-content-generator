@@ -409,8 +409,11 @@ function ajax_frontend_chat_stream_logic(SSEHandler $handlerInstance): void {
             $processed_data['conversation_uuid'], $base_log_data_with_msg_id
         );
 
-    } catch (\Exception $e) {
-        $error_message_final = $e->getMessage();
+    } catch (\Throwable $e) {
+        require_once dirname(__DIR__) . '/runtime-diagnostics.php';
+        $reference = \WPAICG\RuntimeDiagnostics::report($e, 'chatbot_stream_preparation');
+        /* translators: %s: Reference matching the PHP server error log. */
+        $error_message_final = $e instanceof \Exception ? $e->getMessage() : sprintf(__('The AI request could not be completed. Please contact the site administrator. Reference: %s', 'gpt3-ai-content-generator'), $reference);
         if (!$response_formatter->get_headers_sent_status()) $response_formatter->set_sse_headers();
         $response_formatter->send_sse_error($error_message_final);
 

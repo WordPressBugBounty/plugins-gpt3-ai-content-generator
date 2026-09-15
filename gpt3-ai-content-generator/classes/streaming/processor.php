@@ -10,6 +10,7 @@ use WPAICG\Core\Providers\ProviderStrategyFactory;
 use WPAICG\Core\Providers\OpenAI\OpenAIApiMode;
 use WPAICG\AIPKit_Providers;
 use WPAICG\Core\AIPKit_Payload_Sanitizer;
+use WPAICG\Core\AIPKit_HTTP_Request;
 use WPAICG\Core\AIPKit_Event_Webhooks;
 use WPAICG\Core\TokenManager\Constants\GuestTableConstants;
 use WPAICG\Lib\Streaming\ProcessorTriggers;
@@ -17,6 +18,9 @@ use WPAICG\Lib\Streaming\ProcessorTriggers;
 if (!defined('ABSPATH')) {
     exit; // Exit if accessed directly
 }
+
+require_once dirname(__DIR__) . '/runtime-diagnostics.php';
+require_once dirname(__DIR__) . '/ai/http.php';
 
 /**
  * Handles the actual SSE connection, chunked streaming, and final logging of the bot response.
@@ -329,57 +333,94 @@ function start_stream_logic(
         if ($timeout_base < 0) {
             $timeout_base = 0;
         }
-        // phpcs:ignore WordPress.WP.AlternativeFunctions.curl_curl_init -- Reason: Using cURL for streaming.
-        $ch = curl_init();
-        // phpcs:ignore WordPress.WP.AlternativeFunctions.curl_curl_setopt -- Reason: Using cURL for streaming.
-        curl_setopt($ch, CURLOPT_URL, $endpoint_url);
-        // phpcs:ignore WordPress.WP.AlternativeFunctions.curl_curl_setopt -- Reason: Using cURL for streaming.
-        curl_setopt($ch, CURLOPT_POST, true);
-        // phpcs:ignore WordPress.WP.AlternativeFunctions.curl_curl_setopt -- Reason: Using cURL for streaming.
-        curl_setopt($ch, CURLOPT_POSTFIELDS, $curl_post_json);
-        // phpcs:ignore WordPress.WP.AlternativeFunctions.curl_curl_setopt -- Reason: Using cURL for streaming.
-        curl_setopt($ch, CURLOPT_HTTPHEADER, $curl_headers);
-        // phpcs:ignore WordPress.WP.AlternativeFunctions.curl_curl_setopt -- Reason: Using cURL for streaming.
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, false);
-        // phpcs:ignore WordPress.WP.AlternativeFunctions.curl_curl_setopt -- Reason: Using cURL for streaming.
-        curl_setopt($ch, CURLOPT_WRITEFUNCTION, [$processorInstance, 'curl_stream_callback_public_wrapper']);
-        // phpcs:ignore WordPress.WP.AlternativeFunctions.curl_curl_setopt -- Reason: Using cURL for streaming.
-        curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 15);
-        // phpcs:ignore WordPress.WP.AlternativeFunctions.curl_curl_setopt -- Reason: Using cURL for streaming.
-        curl_setopt($ch, CURLOPT_TIMEOUT, $timeout_base);
-        // phpcs:ignore WordPress.WP.AlternativeFunctions.curl_curl_setopt -- Reason: Using cURL for streaming.
-        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, $curl_options_base['sslverify'] ?? true);
-        // phpcs:ignore WordPress.WP.AlternativeFunctions.curl_curl_setopt -- Reason: Using cURL for streaming.
-        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, ($curl_options_base['sslverify'] ?? true) ? 2 : 0);
-        // phpcs:ignore WordPress.WP.AlternativeFunctions.curl_curl_setopt -- Reason: Using cURL for streaming.
-        curl_setopt($ch, CURLOPT_NOPROGRESS, false);
-        if (!empty($curl_options_base['user-agent'])) {
+        $transport_error = '';
+        $transport_error_code = '';
+        if (AIPKit_HTTP_Request::has_curl()) {
+            // phpcs:ignore WordPress.WP.AlternativeFunctions.curl_curl_init -- Reason: Using cURL for streaming.
+            $ch = curl_init();
+            if ($ch === false) {
+                throw new \RuntimeException(__('Could not initialize the AI connection.', 'gpt3-ai-content-generator'));
+            }
             // phpcs:ignore WordPress.WP.AlternativeFunctions.curl_curl_setopt -- Reason: Using cURL for streaming.
-            curl_setopt($ch, CURLOPT_USERAGENT, $curl_options_base['user-agent']);
+            curl_setopt($ch, CURLOPT_URL, $endpoint_url);
+            // phpcs:ignore WordPress.WP.AlternativeFunctions.curl_curl_setopt -- Reason: Using cURL for streaming.
+            curl_setopt($ch, CURLOPT_POST, true);
+            // phpcs:ignore WordPress.WP.AlternativeFunctions.curl_curl_setopt -- Reason: Using cURL for streaming.
+            curl_setopt($ch, CURLOPT_POSTFIELDS, $curl_post_json);
+            // phpcs:ignore WordPress.WP.AlternativeFunctions.curl_curl_setopt -- Reason: Using cURL for streaming.
+            curl_setopt($ch, CURLOPT_HTTPHEADER, $curl_headers);
+            // phpcs:ignore WordPress.WP.AlternativeFunctions.curl_curl_setopt -- Reason: Using cURL for streaming.
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, false);
+            // phpcs:ignore WordPress.WP.AlternativeFunctions.curl_curl_setopt -- Reason: Using cURL for streaming.
+            curl_setopt($ch, CURLOPT_WRITEFUNCTION, [$processorInstance, 'curl_stream_callback_public_wrapper']);
+            // phpcs:ignore WordPress.WP.AlternativeFunctions.curl_curl_setopt -- Reason: Using cURL for streaming.
+            curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 15);
+            // phpcs:ignore WordPress.WP.AlternativeFunctions.curl_curl_setopt -- Reason: Using cURL for streaming.
+            curl_setopt($ch, CURLOPT_TIMEOUT, $timeout_base);
+            // phpcs:ignore WordPress.WP.AlternativeFunctions.curl_curl_setopt -- Reason: Using cURL for streaming.
+            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, $curl_options_base['sslverify'] ?? true);
+            // phpcs:ignore WordPress.WP.AlternativeFunctions.curl_curl_setopt -- Reason: Using cURL for streaming.
+            curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, ($curl_options_base['sslverify'] ?? true) ? 2 : 0);
+            // phpcs:ignore WordPress.WP.AlternativeFunctions.curl_curl_setopt -- Reason: Using cURL for streaming.
+            curl_setopt($ch, CURLOPT_NOPROGRESS, false);
+            if (!empty($curl_options_base['user-agent'])) {
+                // phpcs:ignore WordPress.WP.AlternativeFunctions.curl_curl_setopt -- Reason: Using cURL for streaming.
+                curl_setopt($ch, CURLOPT_USERAGENT, $curl_options_base['user-agent']);
+            }
+            // phpcs:ignore WordPress.WP.AlternativeFunctions.curl_curl_exec -- Reason: Using cURL for streaming.
+            curl_exec($ch);
+            // phpcs:ignore WordPress.WP.AlternativeFunctions.curl_curl_getinfo -- Reason: Using cURL for streaming.
+            $final_http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+            // phpcs:ignore WordPress.WP.AlternativeFunctions.curl_curl_errno -- Reason: Using cURL for streaming.
+            $curl_error_num  = curl_errno($ch);
+            // phpcs:ignore WordPress.WP.AlternativeFunctions.curl_curl_error -- Reason: Using cURL for streaming.
+            $curl_error_msg  = curl_error($ch);
+            $ch = null;
+
+        } else {
+            // Keep the same provider payload, parser, logging and usage accounting. The
+            // socket transport returns the answer when complete; no second AI request.
+            $response = AIPKit_HTTP_Request::request($endpoint_url, [
+                'method' => 'POST',
+                'headers' => $headers,
+                'body' => $curl_post_json,
+                'timeout' => $timeout_base,
+                'redirection' => 0,
+                'sslverify' => $curl_options_base['sslverify'] ?? true,
+                'user-agent' => $curl_options_base['user-agent'] ?? 'AI Puffer',
+            ], true);
+            $final_http_code = is_wp_error($response) ? 0 : (int) wp_remote_retrieve_response_code($response);
+            $curl_error_num = 0;
+            $curl_error_msg = '';
+            if (is_wp_error($response)) {
+                $transport_error = $response->get_error_message();
+                $transport_error_code = 'http_request_failed';
+            } else {
+                $parse_error = null;
+                if (process_stream_chunk_logic($processorInstance, (string) wp_remote_retrieve_body($response), $final_http_code, $parse_error) < 0) {
+                    $transport_error = $parse_error ?? __('The AI response was interrupted.', 'gpt3-ai-content-generator');
+                    $transport_error_code = 'stream_response_error';
+                }
+            }
         }
-        // phpcs:ignore WordPress.WP.AlternativeFunctions.curl_curl_exec -- Reason: Using cURL for streaming.
-        curl_exec($ch);
-        // phpcs:ignore WordPress.WP.AlternativeFunctions.curl_curl_getinfo -- Reason: Using cURL for streaming.
-        $final_http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-        // phpcs:ignore WordPress.WP.AlternativeFunctions.curl_curl_errno -- Reason: Using cURL for streaming.
-        $curl_error_num  = curl_errno($ch);
-        // phpcs:ignore WordPress.WP.AlternativeFunctions.curl_curl_error -- Reason: Using cURL for streaming.
-        $curl_error_msg  = curl_error($ch);
-        $ch = null;
+        if ($curl_error_num) {
+            $transport_error = $curl_error_msg;
+            $transport_error_code = 'curl_error_' . $curl_error_num;
+        }
 
         if (!$processorInstance->get_error_occurred_status() && !empty($processorInstance->get_full_bot_response())) {
             log_bot_response_logic($processorInstance);
         }
 
-        if ($curl_error_num) {
-            $error_message = "Connection Error: {$curl_error_msg}";
+        if ($transport_error !== '') {
+            $error_message = "Connection Error: {$transport_error}";
             if (!$processorInstance->get_error_occurred_status()) {
                 $formatter->send_sse_error($error_message, false);
                 $processorInstance->set_error_occurred_status(true);
             }
             log_bot_error_logic($processorInstance, $error_message);
             if ($triggers) {
-                $triggers->error('curl_error_' . $curl_error_num, $curl_error_msg, 'stream_curl_execution', $final_http_code);
+                $triggers->error($transport_error_code, $transport_error, $curl_error_num ? 'stream_curl_execution' : 'stream_http_execution', $final_http_code);
             }
         } elseif ($final_http_code >= 400 && !$processorInstance->get_data_sent_to_frontend_status() && !$processorInstance->get_error_occurred_status()) {
             $api_error_message = $strategy->parse_error_response(trim($processorInstance->get_incomplete_sse_buffer()), $final_http_code);
@@ -410,8 +451,11 @@ function start_stream_logic(
             $formatter->send_sse_done();
         }
 
-    } catch (\Exception $e) {
-        $error_message_final = $e->getMessage();
+    } catch (\Throwable $e) {
+        $processorInstance->set_error_occurred_status(true);
+        $reference = \WPAICG\RuntimeDiagnostics::report($e, 'ai_stream');
+        /* translators: %s: Reference matching the PHP server error log. */
+        $error_message_final = $e instanceof \Exception ? $e->getMessage() : sprintf(__('The AI request could not be completed. Please contact the site administrator. Reference: %s', 'gpt3-ai-content-generator'), $reference);
         $error_code_final = is_int($e->getCode()) && $e->getCode() !== 0 ? $e->getCode() : 500;
         $formatter->set_sse_headers();
         $formatter->send_sse_error($error_message_final);
@@ -438,11 +482,15 @@ function start_stream_logic(
  * @return int Length of the processed chunk.
  */
 function curl_stream_callback_logic(\WPAICG\Core\Stream\Processor\SSEStreamProcessor $processorInstance, $ch, string $chunk): int {
+    // phpcs:ignore WordPress.WP.AlternativeFunctions.curl_curl_getinfo -- Native callback supplies the HTTP status to the common parser.
+    return process_stream_chunk_logic($processorInstance, $chunk, (int) curl_getinfo($ch, CURLINFO_HTTP_CODE));
+}
+
+/** Parses provider events independently of the HTTP transport. */
+function process_stream_chunk_logic(\WPAICG\Core\Stream\Processor\SSEStreamProcessor $processorInstance, string $chunk, int $http_code, ?string &$parse_error = null): int {
     $chunk_len = strlen($chunk);
     if ($chunk_len === 0 || !$processorInstance->get_strategy()) return 0;
 
-    // phpcs:ignore WordPress.WP.AlternativeFunctions.curl_curl_getinfo -- Reason: Using cURL for streaming.
-    $http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
     $data_sent_to_frontend = $processorInstance->get_data_sent_to_frontend_status();
     $incomplete_sse_buffer_ref = $processorInstance->get_incomplete_sse_buffer(); // Get initial value
     $formatter = $processorInstance->get_formatter();
@@ -496,6 +544,7 @@ function curl_stream_callback_logic(\WPAICG\Core\Stream\Processor\SSEStreamProce
     }
 
     if ($parsed['is_error'] && $parsed['delta']) {
+         $parse_error = $parsed['delta'];
          if (!$processorInstance->get_error_occurred_status()) {
             $formatter->send_sse_error($parsed['delta'], false);
             $processorInstance->set_error_occurred_status(true);

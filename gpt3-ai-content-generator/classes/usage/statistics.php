@@ -325,7 +325,9 @@ class AIPKit_Stats
             "SELECT
                 COALESCE(SUM(CASE WHEN credits_delta > 0 THEN credits_delta ELSE 0 END), 0) AS credits_added,
                 COALESCE(ABS(SUM(CASE WHEN credits_delta < 0 THEN credits_delta ELSE 0 END)), 0) AS credits_spent,
-                COALESCE(SUM(CASE WHEN entry_type = 'usage' AND credits_delta = 0 AND usage_total_units > 0 THEN 1 ELSE 0 END), 0) AS quota_only_usage_count,
+                COALESCE(SUM(CASE WHEN entry_type = 'usage' AND credits_delta = 0 AND usage_total_units > 0
+                    AND (operation <> 'live_voice' OR meta REGEXP '\"quota_recorded\"[[:space:]]*:[[:space:]]*true')
+                    THEN 1 ELSE 0 END), 0) AS quota_only_usage_count,
                 COALESCE(SUM(CASE WHEN entry_type = 'usage' THEN 1 ELSE 0 END), 0) AS usage_entry_count,
                 COUNT(*) AS total_entries
              FROM {$this->ledger_table_name}
@@ -405,6 +407,7 @@ class AIPKit_Stats
             }
 
             $created_at = isset($row['created_at']) ? (string) $row['created_at'] : '';
+            $meta = json_decode((string) ($row['meta'] ?? ''), true);
             $activity[] = [
                 'id' => isset($row['id']) ? (int) $row['id'] : 0,
                 'actor_label' => $actor_label,
@@ -415,6 +418,7 @@ class AIPKit_Stats
                 'model' => isset($row['model']) ? (string) $row['model'] : '',
                 'credits_delta' => isset($row['credits_delta']) ? (int) $row['credits_delta'] : 0,
                 'usage_total_units' => isset($row['usage_total_units']) ? (int) $row['usage_total_units'] : 0,
+                'billing_method' => is_array($meta) ? (string) ($meta['billing_method'] ?? '') : '',
                 'reference_type' => isset($row['reference_type']) ? (string) $row['reference_type'] : '',
                 'reference_id' => isset($row['reference_id']) ? (string) $row['reference_id'] : '',
                 'created_at' => $created_at,

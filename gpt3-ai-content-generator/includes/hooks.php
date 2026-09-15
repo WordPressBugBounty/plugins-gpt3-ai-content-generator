@@ -803,6 +803,8 @@ class Ajax_Hooks_Registrar
         if ($realtime_session_ajax_handler && method_exists($realtime_session_ajax_handler, 'ajax_create_session')) {
             add_action('wp_ajax_aipkit_create_realtime_session', [$realtime_session_ajax_handler, 'ajax_create_session']);
             add_action('wp_ajax_nopriv_aipkit_create_realtime_session', [$realtime_session_ajax_handler, 'ajax_create_session']);
+            add_action('wp_ajax_aipkit_sync_live_session', [$realtime_session_ajax_handler, 'ajax_sync_live_session']);
+            add_action('wp_ajax_nopriv_aipkit_sync_live_session', [$realtime_session_ajax_handler, 'ajax_sync_live_session']);
         }
 
         if ($realtime_session_ajax_handler && method_exists($realtime_session_ajax_handler, 'ajax_log_session_turn')) {

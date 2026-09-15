@@ -69,6 +69,13 @@ class AIPKit_Pricing_Ajax_Handler extends AIPKit_Usage_Ajax_Handler
         $billing_method = isset($post_data['billing_method']) ? sanitize_key($post_data['billing_method']) : '';
         $enabled = isset($post_data['enabled']) ? ($post_data['enabled'] === '1' || $post_data['enabled'] === 1) : true;
 
+        if ($operation === 'live_voice' && (strcasecmp($provider, 'OpenAI') !== 0 || $model !== 'gpt-live-1'
+            || !isset($post_data['unit_rate']) || !is_numeric($post_data['unit_rate'])
+            || !is_finite((float) $post_data['unit_rate']) || (float) $post_data['unit_rate'] < 0)) {
+            $this->send_wp_error(new WP_Error('invalid_live_pricing', __('Choose GPT Live and enter a non-negative credit rate per minute.', 'gpt3-ai-content-generator')));
+            return;
+        }
+
         $allowed_modules = $this->get_allowed_pricing_modules();
         if (!in_array($module, $allowed_modules, true)) {
             $this->send_wp_error(new WP_Error('invalid_pricing_module', __('Invalid pricing module.', 'gpt3-ai-content-generator')));
@@ -168,7 +175,7 @@ class AIPKit_Pricing_Ajax_Handler extends AIPKit_Usage_Ajax_Handler
     {
         switch ($module) {
             case 'chat':
-                return ['chat'];
+                return ['chat', 'live_voice'];
             case 'ai_forms':
                 return ['form_submit'];
             case 'image_generator':
@@ -184,6 +191,8 @@ class AIPKit_Pricing_Ajax_Handler extends AIPKit_Usage_Ajax_Handler
     private function get_allowed_billing_methods(string $operation): array
     {
         switch ($operation) {
+            case 'live_voice':
+                return ['per_minute'];
             case 'chat':
             case 'form_submit':
                 return ['per_1k_tokens', 'flat'];

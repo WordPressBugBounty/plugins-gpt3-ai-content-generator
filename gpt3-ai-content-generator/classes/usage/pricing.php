@@ -394,6 +394,18 @@ class AIPKit_Usage_Normalizer
             ? $usage_context['usage_data']
             : [];
 
+        // Duration has its own meter; it must never fall back to one credit per token.
+        if (isset($usage_data['duration_seconds'])) {
+            $seconds = $this->extract_first_int($usage_data, ['duration_seconds']);
+            $previous = min($seconds, $this->extract_first_int($usage_data, ['previous_duration_seconds']));
+            return [
+                'input_units' => 0, 'output_units' => 0, 'total_units' => $seconds - $previous,
+                'unit_count' => $seconds - $previous, 'usage_unit' => 'seconds',
+                'duration_seconds' => $seconds, 'previous_duration_seconds' => $previous,
+                'fallback_units' => 0, 'raw_usage_data' => $usage_data,
+            ];
+        }
+
         $input_units = $this->extract_first_int($usage_data, ['input_tokens', 'prompt_tokens', 'input_units']);
         $output_units = $this->extract_first_int($usage_data, ['output_tokens', 'completion_tokens', 'output_units']);
         $total_units = $this->extract_first_int($usage_data, ['total_tokens', 'total_units', 'billable_units']);
@@ -499,15 +511,16 @@ class AIPKit_Charge_Calculator
         $fallback_units = max(0, $fallback_units);
 
         if (!is_array($resolved_rule) || empty($resolved_rule)) {
-            $required_units = max(0, (int) ($normalized_usage['total_units'] ?? $fallback_units));
+            $duration = ($normalized_usage['usage_unit'] ?? '') === 'seconds';
+            $required_units = $duration ? 0 : max(0, (int) ($normalized_usage['total_units'] ?? $fallback_units));
 
             return [
                 'resolved_rule' => null,
-                'billing_method' => 'legacy_fallback',
+                'billing_method' => $duration ? 'unpriced' : 'legacy_fallback',
                 'required_units' => $required_units,
                 'billed_credits' => $required_units,
                 'raw_charge' => (float) $required_units,
-                'used_legacy_fallback' => true,
+                'used_legacy_fallback' => !$duration,
                 'normalized_usage' => $normalized_usage,
             ];
         }
@@ -521,6 +534,15 @@ class AIPKit_Charge_Calculator
         $raw_charge = 0.0;
 
         switch ($billing_method) {
+            case 'per_minute':
+                $rate = max(0, (float) ($resolved_rule['unit_rate'] ?? 0));
+                $current_charge = max(0, (int) ($normalized_usage['duration_seconds'] ?? 0)) * $rate / 60;
+                $previous_charge = max(0, (int) ($normalized_usage['previous_duration_seconds'] ?? 0)) * $rate / 60;
+                $raw_charge = max(0, $current_charge - $previous_charge);
+                // Round the session total, not each heartbeat. Subtract already billed credits.
+                $duration_credits = max(0, (int) ceil(round($current_charge, 9)) - (int) ceil(round($previous_charge, 9)));
+                break;
+
             case 'per_1k_tokens':
                 if ($input_units === 0 && $output_units === 0 && $total_units > 0) {
                     $input_units = $total_units;
@@ -549,7 +571,7 @@ class AIPKit_Charge_Calculator
                 break;
         }
 
-        $required_units = max(0, (int) ceil($raw_charge));
+        $required_units = isset($duration_credits) ? $duration_credits : max(0, (int) ceil($raw_charge));
 
         return [
             'resolved_rule' => $resolved_rule,

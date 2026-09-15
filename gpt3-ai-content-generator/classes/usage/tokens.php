@@ -749,7 +749,13 @@ function RecordTokenUsageLogic(
 ): void {
     global $wpdb;
 
-    if ($tokens_used <= 0) {
+    if ($tokens_used <= 0 && empty($usage_context['usage_data']['duration_seconds'])) {
+        return;
+    }
+
+    $ledger_repository = $managerInstance->get_ledger_repository();
+    $idempotency_key = sanitize_text_field((string) ($usage_context['idempotency_key'] ?? ''));
+    if ($idempotency_key !== '' && $ledger_repository && $ledger_repository->find_by_idempotency_key($idempotency_key)) {
         return;
     }
 
@@ -777,7 +783,6 @@ function RecordTokenUsageLogic(
     $deducted_from_balance = 0;
     $balance_before = 0;
     $balance_after = 0;
-    $ledger_repository = $managerInstance->get_ledger_repository();
     $balance_service = $managerInstance->get_balance_service();
 
     if ($user_id) {
@@ -965,6 +970,7 @@ function RecordTokenUsageLogic(
             'entry_type' => 'usage',
             'reference_type' => $reference_type,
             'reference_id' => $reference_id,
+            'idempotency_key' => $idempotency_key !== '' ? $idempotency_key : null,
             'meta' => [
                 'legacy_total_units' => $tokens_used,
                 'billed_credits' => $billed_units,
@@ -1177,9 +1183,10 @@ class AIPKit_Token_Manager {
             $pricing_module = sanitize_key($module_context);
         }
 
-        $resolved_rule = $this->price_resolver
-            ? $this->price_resolver->resolve_rule($pricing_module, $usage_context)
-            : null;
+        // Internal callers may freeze a rule for a metered session, including an unpriced session.
+        $resolved_rule = array_key_exists('pricing_rule_snapshot', $usage_context)
+            ? $usage_context['pricing_rule_snapshot']
+            : ($this->price_resolver ? $this->price_resolver->resolve_rule($pricing_module, $usage_context) : null);
 
         if (!$this->charge_calculator) {
             return [

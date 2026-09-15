@@ -10,6 +10,24 @@ if (!defined('ABSPATH')) {
 
 class AIPKit_HTTP_Request
 {
+    /** Whether the complete native transport used by our streams/uploads is available. */
+    public static function has_curl(): bool
+    {
+        foreach (['curl_init', 'curl_setopt', 'curl_setopt_array', 'curl_exec', 'curl_getinfo', 'curl_errno', 'curl_error'] as $function) {
+            if (!function_exists($function)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    /** @return array|WP_Error */
+    public static function multipart(string $url, array $fields, array $files, array $args = [], bool $bypass_wp_ai_connector_approval = false)
+    {
+        require_once __DIR__ . '/multipart.php';
+        return AIPKit_HTTP_Multipart::request($url, $fields, $files, $args, $bypass_wp_ai_connector_approval);
+    }
+
     /**
      * Runs an HTTP request for AI Puffer-owned provider calls.
      *

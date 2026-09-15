@@ -3,6 +3,7 @@
 namespace WPAICG\STT;
 
 use WP_Error;
+use WPAICG\Core\AIPKit_HTTP_Request;
 use WPAICG\AIPKit_Providers;
 use WPAICG\Chat\Storage\BotStorage;
 use WPAICG\Utils\AIPKit_CORS_Manager;
@@ -471,7 +472,7 @@ class AIPKit_STT_Provider_Strategy_Factory {
  * OpenAI Speech-to-Text Provider Strategy.
  * Implements transcription using OpenAI API.
  * Allows specifying the transcription model via options.
- * USES NATIVE cURL for multipart request reliability.
+ * Uses the shared multipart HTTP transport.
  */
 class AIPKit_STT_OpenAI_Provider_Strategy extends AIPKit_STT_Base_Provider_Strategy
 {
@@ -489,7 +490,7 @@ class AIPKit_STT_OpenAI_Provider_Strategy extends AIPKit_STT_Base_Provider_Strat
     }
 
     /**
-     * Transcribe audio data to text using OpenAI API via native cURL.
+     * Transcribe audio data to text using OpenAI API via the shared multipart transport.
      *
      * @param string $audio_data Binary audio data string.
      * @param string $audio_format The format/extension of the audio (e.g., 'wav', 'mp3', 'webm').
@@ -533,11 +534,11 @@ class AIPKit_STT_OpenAI_Provider_Strategy extends AIPKit_STT_Base_Provider_Strat
 
         $effective_filename = 'audio.' . strtolower($audio_format);
 
-        if (!class_exists('\CURLFile')) {
-            wp_delete_file($tmp_filename);
-            return new WP_Error('stt_curlfile_missing', __('Server configuration error (CURLFile missing).', 'gpt3-ai-content-generator'), ['status' => 500]);
-        }
-        $cfile = new \CURLFile($tmp_filename, mime_content_type($tmp_filename) ?: 'application/octet-stream', $effective_filename);
+        $file = [
+            'path' => $tmp_filename,
+            'filename' => $effective_filename,
+            'type' => function_exists('mime_content_type') ? (mime_content_type($tmp_filename) ?: 'application/octet-stream') : 'application/octet-stream',
+        ];
         // --- End temporary file ---
 
         $stt_model = !empty($options['stt_model'])
@@ -545,54 +546,26 @@ class AIPKit_STT_OpenAI_Provider_Strategy extends AIPKit_STT_Base_Provider_Strat
             : AIPKit_Model_Catalog::get_default_id('OpenAISTT');
         $stt_model = AIPKit_Model_Catalog::sanitize_openai_file_transcription_model($stt_model);
 
-        // --- Prepare cURL Request ---
+        // --- Prepare multipart fields ---
         $post_fields = [
-            'file' => $cfile,
             'model' => $stt_model, // *** Use dynamic model ***
         ];
         if (!empty($options['language'])) {
             $post_fields['language'] = sanitize_text_field($options['language']);
         }
 
-        $headers_array = $this->get_api_headers($api_key, 'transcribe'); // Get base headers (Authorization)
-        // *** Call the format method ***
-        $curl_headers = $this->format_headers_for_curl($headers_array); // Format for cURL
-
-        $request_options = $this->get_request_options('transcribe'); // Get base options
-        // phpcs:ignore WordPress.WP.AlternativeFunctions.curl_curl_init -- Reason: Using cURL for streaming.
-        $ch = curl_init();
-        // phpcs:ignore WordPress.WP.AlternativeFunctions.curl_curl_setopt_array -- Reason: Using cURL for streaming.
-        curl_setopt_array($ch, [
-            CURLOPT_URL => $url,
-            CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_POST => true,
-            CURLOPT_POSTFIELDS => $post_fields,
-            CURLOPT_HTTPHEADER => $curl_headers, // Use formatted headers
-            CURLOPT_TIMEOUT => $request_options['timeout'] ?? 60,
-            CURLOPT_CONNECTTIMEOUT => 15,
-            CURLOPT_USERAGENT => $request_options['user-agent'] ?? 'AIPKit STT',
-            CURLOPT_SSL_VERIFYPEER => $request_options['sslverify'] ?? true,
-            CURLOPT_SSL_VERIFYHOST => ($request_options['sslverify'] ?? true) ? 2 : 0,
-        ]);
-        // --- End Prepare cURL Request ---
-
-        // Execute cURL request
-        // phpcs:ignore WordPress.WP.AlternativeFunctions.curl_curl_exec -- Reason: Using cURL for streaming.
-        $body = curl_exec($ch);
-        // phpcs:ignore WordPress.WP.AlternativeFunctions.curl_curl_errno -- Reason: Using cURL for streaming.
-        $curl_errno = curl_errno($ch);
-        // phpcs:ignore WordPress.WP.AlternativeFunctions.curl_curl_error -- Reason: Using cURL for streaming.
-        $curl_error = curl_error($ch);
-        // phpcs:ignore WordPress.WP.AlternativeFunctions.curl_curl_getinfo -- Reason: Using cURL for streaming.
-        $status_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-        $ch = null;
-        wp_delete_file($tmp_filename); // Clean up temporary file
-
-        // Handle cURL errors
-        if ($curl_errno) {
-            /* translators: %s: cURL error message. */
-            return new WP_Error('openai_stt_curl_error', sprintf(__('Network error during transcription: %s', 'gpt3-ai-content-generator'), $curl_error), ['status' => 503]);
+        $request_options = $this->get_request_options('transcribe');
+        $request_options['headers'] = $this->get_api_headers($api_key, 'transcribe');
+        try {
+            $response = AIPKit_HTTP_Request::multipart($url, $post_fields, ['file' => $file], $request_options, true);
+        } finally {
+            wp_delete_file($tmp_filename);
         }
+        if (is_wp_error($response)) {
+            return $response;
+        }
+        $body = wp_remote_retrieve_body($response);
+        $status_code = wp_remote_retrieve_response_code($response);
 
         // Handle API errors (non-200 status)
         if ($status_code !== 200) {
@@ -625,7 +598,7 @@ class AIPKit_STT_OpenAI_Provider_Strategy extends AIPKit_STT_Base_Provider_Strat
 
     /**
      * Get API headers required for OpenAI STT requests.
-     * Content-Type is handled by cURL for multipart.
+     * Content-Type is supplied by the multipart transport.
      */
     public function get_api_headers(string $api_key, string $operation): array
     {
@@ -634,22 +607,6 @@ class AIPKit_STT_OpenAI_Provider_Strategy extends AIPKit_STT_Base_Provider_Strat
         ];
     }
 
-    /**
-     * Format headers array into the ['Header: Value', ...] format needed by cURL.
-     * This method is inherited from the base class, but we explicitly define it here
-     * to ensure it's present in this specific strategy class.
-     *
-     * @param array $headers Associative array of headers.
-     * @return array Indexed array of header strings.
-     */
-    public function format_headers_for_curl(array $headers): array
-    {
-        $result = [];
-        foreach ($headers as $k => $v) {
-            $result[] = $k . ': ' . $v;
-        }
-        return $result;
-    }
 }
 
 /**
@@ -704,7 +661,7 @@ class AIPKit_STT_Google_Provider_Strategy extends AIPKit_STT_Base_Provider_Strat
 class AIPKit_STT_Azure_Provider_Strategy extends AIPKit_STT_Base_Provider_Strategy
 {
     /**
-     * Transcribe audio data to text using Azure Speech Service API via native cURL.
+     * Transcribe audio data to text using Azure Speech Service API via the shared multipart transport.
      * API Reference: https://learn.microsoft.com/en-us/azure/ai-services/speech-service/rest-speech-to-text#speech-to-text-rest-api-v31
      * Endpoint Example: {endpoint}/speechtotext/transcriptions:transcribe?api-version=...
      *
@@ -730,11 +687,7 @@ class AIPKit_STT_Azure_Provider_Strategy extends AIPKit_STT_Base_Provider_Strate
             /* translators: %s is the audio format */
             return new WP_Error('azure_stt_unsupported_format', sprintf(__('Audio format "%s" is not supported by Azure STT.', 'gpt3-ai-content-generator'), $audio_format));
         }
-        if (!class_exists('\CURLFile')) {
-            return new WP_Error('stt_curlfile_missing', __('Server configuration error (CURLFile missing).', 'gpt3-ai-content-generator'), ['status' => 500]);
-        }
-
-        // --- Prepare temporary file for cURL ---
+        // --- Prepare temporary upload file ---
         $tmp_filename = wp_tempnam('azure_stt_upload');
         if ($tmp_filename === false) {
             return new WP_Error('stt_tmp_file_error', __('Could not create temporary file for audio upload.', 'gpt3-ai-content-generator'), ['status' => 500]);
@@ -744,8 +697,11 @@ class AIPKit_STT_Azure_Provider_Strategy extends AIPKit_STT_Base_Provider_Strate
             return new WP_Error('stt_tmp_write_error', __('Could not write audio data to temporary file.', 'gpt3-ai-content-generator'), ['status' => 500]);
         }
         $effective_filename = 'audio.' . strtolower($audio_format);
-        $file_mime_type = mime_content_type($tmp_filename) ?: 'application/octet-stream';
-        $cfile = new \CURLFile($tmp_filename, $file_mime_type, $effective_filename);
+        $file = [
+            'path' => $tmp_filename,
+            'filename' => $effective_filename,
+            'type' => function_exists('mime_content_type') ? (mime_content_type($tmp_filename) ?: 'application/octet-stream') : 'application/octet-stream',
+        ];
         // --- End temporary file ---
 
         // --- Build URL ---
@@ -777,52 +733,24 @@ class AIPKit_STT_Azure_Provider_Strategy extends AIPKit_STT_Base_Provider_Strate
         }
         $definition_json = wp_json_encode($definition);
 
-        // --- Prepare cURL POST fields ---
+        // --- Prepare multipart fields ---
         $post_fields = [
-            'audio' => $cfile,
             'definition' => $definition_json,
         ];
 
-        // --- Prepare cURL Request ---
-        $headers_array = $this->get_api_headers($api_key, 'transcribe');
-        $curl_headers = $this->format_headers_for_curl($headers_array); // Format for cURL
-        // Note: Content-Type for multipart/form-data is set automatically by cURL
-
         $request_options = $this->get_request_options('transcribe');
-        // phpcs:ignore WordPress.WP.AlternativeFunctions.curl_curl_init -- Reason: Using cURL for streaming.
-        $ch = curl_init();
-        // phpcs:ignore WordPress.WP.AlternativeFunctions.curl_curl_setopt_array -- Reason: Using cURL for streaming.
-        curl_setopt_array($ch, [
-            CURLOPT_URL => $url,
-            CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_POST => true,
-            CURLOPT_POSTFIELDS => $post_fields, // cURL handles multipart encoding
-            CURLOPT_HTTPHEADER => $curl_headers,
-            CURLOPT_TIMEOUT => $request_options['timeout'] ?? 90, // Longer timeout might be needed
-            CURLOPT_CONNECTTIMEOUT => 20,
-            CURLOPT_USERAGENT => $request_options['user-agent'] ?? 'AIPKit STT',
-            CURLOPT_SSL_VERIFYPEER => $request_options['sslverify'] ?? true,
-            CURLOPT_SSL_VERIFYHOST => ($request_options['sslverify'] ?? true) ? 2 : 0,
-        ]);
-        // --- End Prepare cURL Request ---
-
-        // Execute cURL request
-        // phpcs:ignore WordPress.WP.AlternativeFunctions.curl_curl_exec -- Reason: Using cURL for streaming.
-        $body = curl_exec($ch);
-        // phpcs:ignore WordPress.WP.AlternativeFunctions.curl_curl_errno -- Reason: Using cURL for streaming.
-        $curl_errno = curl_errno($ch);
-        // phpcs:ignore WordPress.WP.AlternativeFunctions.curl_curl_error -- Reason: Using cURL for streaming.
-        $curl_error = curl_error($ch);
-        // phpcs:ignore WordPress.WP.AlternativeFunctions.curl_curl_getinfo -- Reason: Using cURL for streaming.
-        $status_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-        $ch = null;
-        wp_delete_file($tmp_filename); // Clean up temporary file
-
-        // Handle cURL errors
-        if ($curl_errno) {
-            /* translators: %s: cURL error message. */
-            return new WP_Error('azure_stt_curl_error', sprintf(__('Network error during transcription: %s', 'gpt3-ai-content-generator'), $curl_error), ['status' => 503]);
+        $request_options['headers'] = $this->get_api_headers($api_key, 'transcribe');
+        $request_options['connect_timeout'] = 20;
+        try {
+            $response = AIPKit_HTTP_Request::multipart($url, $post_fields, ['audio' => $file], $request_options, true);
+        } finally {
+            wp_delete_file($tmp_filename);
         }
+        if (is_wp_error($response)) {
+            return $response;
+        }
+        $body = wp_remote_retrieve_body($response);
+        $status_code = wp_remote_retrieve_response_code($response);
 
         // Handle API errors (non-200/202 status)
         if ($status_code < 200 || $status_code >= 300) {
@@ -858,25 +786,13 @@ class AIPKit_STT_Azure_Provider_Strategy extends AIPKit_STT_Base_Provider_Strate
 
     /**
      * Get API headers required for Azure STT requests.
-     * Content-Type is set automatically by cURL for multipart/form-data.
+     * Content-Type is supplied by the multipart transport.
      */
     public function get_api_headers(string $api_key, string $operation): array
     {
         return [
             'Ocp-Apim-Subscription-Key' => $api_key,
-            // 'Content-Type: multipart/form-data' is handled by cURL when using CURLOPT_POSTFIELDS with an array.
         ];
     }
 
-    /**
-     * Override base method to ensure correct format for cURL headers.
-     */
-    public function format_headers_for_curl(array $headers): array
-    {
-        $result = [];
-        foreach ($headers as $k => $v) {
-            $result[] = $k . ': ' . $v;
-        }
-        return $result;
-    }
 }

@@ -412,6 +412,7 @@ function build_config_array_logic(int $bot_id, \WP_Post $bot_post, array $settin
         'enableVoiceInputUI' => $feature_flags['enable_voice_input_ui'] ?? false,
         'enableRealtimeVoiceUI' => $feature_flags['enable_realtime_voice_ui'] ?? false,
         'directVoiceMode' => $direct_voice_mode_flag,
+        'voiceEngine' => !empty($feature_flags['enable_realtime_voice_ui']) && ($settings['voice_engine'] ?? 'realtime') === 'live' ? 'live' : 'realtime',
         'realtimeModel' => $settings['realtime_model'] ?? AIPKit_Model_Catalog::get_default_id('OpenAIRealtime'),
         'sttProvider' => $settings['stt_provider'] ?? (class_exists(BotSettingsManager::class) ? BotSettingsManager::DEFAULT_STT_PROVIDER : 'OpenAI'),
         'imageTriggers' => $image_triggers,

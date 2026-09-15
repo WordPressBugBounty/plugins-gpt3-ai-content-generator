@@ -19,6 +19,8 @@ if (!defined('ABSPATH')) {
     exit; // Exit if accessed directly
 }
 
+require_once dirname(__DIR__) . '/runtime-diagnostics.php';
+
 /**
  * Handles AJAX requests for Chatbot CRUD operations and settings.
  * Uses the BotStorage facade.
@@ -628,17 +630,21 @@ class ChatbotAjaxHandler extends BaseAjaxHandler
                 wp_send_json_error(['message' => __('Error generating shortcode HTML (non-string result).', 'gpt3-ai-content-generator')], 500);
                 return;
             }
-            // Basic UTF-8 check (optional but good practice)
-            if (!mb_check_encoding($shortcode_html, 'UTF-8')) {
-                $shortcode_html = mb_convert_encoding($shortcode_html, 'UTF-8', mb_detect_encoding($shortcode_html));
-                if (!$shortcode_html) {
+            // Shortcode HTML is UTF-8. WordPress supplies cleanup without requiring mbstring.
+            if (preg_match('//u', $shortcode_html) !== 1) {
+                $shortcode_html = wp_check_invalid_utf8($shortcode_html, true);
+                if ($shortcode_html === '' || preg_match('//u', $shortcode_html) !== 1) {
                     wp_send_json_error(['message' => __('Error generating shortcode HTML (encoding issue).', 'gpt3-ai-content-generator')], 500);
                     return;
                 }
             }
             wp_send_json_success(['html' => $shortcode_html]);
         } catch (\Throwable $e) {
-            wp_send_json_error(['message' => __('Internal server error generating preview.', 'gpt3-ai-content-generator')], 500);
+            $reference = \WPAICG\RuntimeDiagnostics::report($e, 'chatbot_preview');
+            wp_send_json_error([
+                /* translators: %s: Reference matching the PHP server error log. */
+                'message' => sprintf(__('Unable to generate the preview. Please check the server error log. Reference: %s', 'gpt3-ai-content-generator'), $reference),
+            ], 500);
         }
     }
 
@@ -2015,6 +2021,11 @@ class ChatbotAjaxHandler extends BaseAjaxHandler
                 $output_audio_format = BotSettingsManager::DEFAULT_OUTPUT_AUDIO_FORMAT;
             }
             update_post_meta($bot_id, '_aipkit_output_audio_format', $output_audio_format);
+        }
+
+        if ($this->is_pro_plan_active() && class_exists('\\WPAICG\\Lib\\Chat\\LiveSettings')) {
+            // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Module access and nonce checked above.
+            \WPAICG\Lib\Chat\LiveSettings::save($bot_id, wp_unslash($_POST));
         }
 
         $this->send_saved_bot_state_success(

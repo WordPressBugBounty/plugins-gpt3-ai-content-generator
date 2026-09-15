@@ -98,6 +98,7 @@ class AIPKit_WooCommerce_Integration
 
         $slots = [
             ['module' => 'chat', 'operation' => 'chat'],
+            ['module' => 'chat', 'operation' => 'live_voice'],
             ['module' => 'ai_forms', 'operation' => 'form_submit'],
             ['module' => 'image_generator', 'operation' => 'generate'],
             ['module' => 'image_generator', 'operation' => 'video_generate'],
@@ -152,6 +153,14 @@ class AIPKit_WooCommerce_Integration
         $label_suffix = '';
 
         switch ($operation) {
+            case 'live_voice':
+                $usage_context = ['usage_data' => ['duration_seconds' => 60]];
+                $unit_singular = __('voice minute', 'gpt3-ai-content-generator');
+                $unit_plural = __('voice minutes', 'gpt3-ai-content-generator');
+                $label_suffix = __('voice', 'gpt3-ai-content-generator');
+                $assumption = __('Voice time only; reasoning and tools are billed separately. Each session has a 15-second minimum and rounds up to whole credits.', 'gpt3-ai-content-generator');
+                break;
+
             case 'chat':
                 $fallback_units = self::PREVIEW_TEXT_INPUT_UNITS + self::PREVIEW_TEXT_OUTPUT_UNITS;
                 $usage_context = [
@@ -212,7 +221,9 @@ class AIPKit_WooCommerce_Integration
 
         $normalized_usage = $usage_normalizer->normalize($usage_context, $fallback_units);
         $charge = $charge_calculator->calculate($rule, $normalized_usage, $fallback_units);
-        $credits_per_unit = max(0, (int) ($charge['required_units'] ?? 0));
+        $credits_per_unit = $operation === 'live_voice'
+            ? max(0, (float) ($charge['raw_charge'] ?? 0))
+            : max(0, (int) ($charge['required_units'] ?? 0));
         if ($credits_per_unit <= 0) {
             return null;
         }
@@ -231,7 +242,7 @@ class AIPKit_WooCommerce_Integration
      */
     private function format_credit_preview_count_text(int $credits_amount, array $item): string
     {
-        $credits_per_unit = max(0, (int) ($item['credits_per_unit'] ?? 0));
+        $credits_per_unit = max(0, (float) ($item['credits_per_unit'] ?? 0));
         $unit_singular = (string) ($item['unit_singular'] ?? __('unit', 'gpt3-ai-content-generator'));
         $unit_plural = (string) ($item['unit_plural'] ?? __('units', 'gpt3-ai-content-generator'));
 
@@ -384,7 +395,7 @@ class AIPKit_WooCommerce_Integration
                         return;
                     }
 
-                    var creditsPerUnit = Math.max(0, parseInt(item.credits_per_unit || 0, 10) || 0);
+                    var creditsPerUnit = Math.max(0, parseFloat(item.credits_per_unit || 0) || 0);
                     var singular = item.unit_singular || '<?php echo esc_js(__('unit', 'gpt3-ai-content-generator')); ?>';
                     var plural = item.unit_plural || '<?php echo esc_js(__('units', 'gpt3-ai-content-generator')); ?>';
 
