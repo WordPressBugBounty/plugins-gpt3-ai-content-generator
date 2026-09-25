@@ -85,6 +85,18 @@ function aipkit_render_automation_indexing_settings(array $aipkit_view_data): vo
                     <?php endforeach; ?>
                 </select>
             </section>
+            <section class="aipkit_ci_card aipkit_ci_card--scope aipkit_ci_filter_row aipkit_ci_categories_row">
+                <div class="aipkit_ci_card_header">
+                    <label class="aipkit_ci_target_label" for="aipkit_task_content_indexing_categories"><?php esc_html_e('Categories', 'gpt3-ai-content-generator'); ?></label>
+                </div>
+                <select id="aipkit_task_content_indexing_categories" name="indexing_categories[]" class="aipkit_form-input aipkit_ci_multi_select" data-aipkit-checklist-style="inline-checkboxes" data-aipkit-checklist-disclosure="dropdown" multiple size="5">
+                    <?php
+                    $indexing_categories = get_categories(['hide_empty' => false]);
+                    foreach ($indexing_categories as $category): ?>
+                        <option value="<?php echo esc_attr($category->term_id); ?>"><?php echo esc_html($category->name); ?></option>
+                    <?php endforeach; ?>
+                </select>
+            </section>
         </div>
 
         <section class="aipkit_ci_card aipkit_ci_card--behavior">

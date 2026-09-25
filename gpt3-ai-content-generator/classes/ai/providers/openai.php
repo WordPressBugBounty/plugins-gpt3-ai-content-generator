@@ -102,7 +102,9 @@ final class OpenAIChatCompletionsAdapter
 
         if (
             !empty($ai_params['reasoning']['effort'])
-            && ($ai_params['reasoning']['effort'] !== 'none' || AIPKit_OpenAI_Reasoning::is_gpt_6_astra($model))
+            && ($ai_params['reasoning']['effort'] !== 'none'
+                || AIPKit_OpenAI_Reasoning::is_gpt_6_astra($model)
+                || AIPKit_OpenAI_Reasoning::is_gpt_6_sol_or_luna($model))
         ) {
             $payload['reasoning_effort'] = sanitize_key((string) $ai_params['reasoning']['effort']);
         }

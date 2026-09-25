@@ -923,6 +923,9 @@ function build_task_config_indexing_logic(array $post_data)
 {
     $task_config = [];
     $task_config['post_types'] = isset($post_data['post_types']) && is_array($post_data['post_types']) ? array_map('sanitize_key', $post_data['post_types']) : [];
+    $task_config['indexing_categories'] = isset($post_data['indexing_categories']) && is_array($post_data['indexing_categories'])
+        ? array_values(array_unique(array_filter(array_map('absint', $post_data['indexing_categories']))))
+        : [];
     $task_config['specific_post_ids'] = isset($post_data['specific_post_ids']) && is_array($post_data['specific_post_ids'])
         ? array_values(array_filter(array_map('absint', $post_data['specific_post_ids'])))
         : [];

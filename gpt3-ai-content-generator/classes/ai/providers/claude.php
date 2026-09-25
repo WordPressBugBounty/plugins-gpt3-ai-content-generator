@@ -211,22 +211,27 @@ function build_claude_payload_shared(
         $payload['system'] = $instructions;
     }
 
-    $temperature = isset($ai_params['temperature']) && is_numeric($ai_params['temperature'])
-        ? floatval($ai_params['temperature'])
-        : null;
-    $top_p = isset($ai_params['top_p']) && is_numeric($ai_params['top_p'])
-        ? max(0.0, min(1.0, floatval($ai_params['top_p'])))
-        : null;
-    $temperature_is_default = $temperature !== null && abs($temperature - 1.0) < 0.00001;
-    $top_p_is_non_default = $top_p !== null && abs($top_p - 1.0) >= 0.00001;
+    // These model families reject custom sampling controls; omit saved values from their requests.
+    $fixed_sampling = preg_match('/^claude-(?:sonnet-5|opus-4-[78])(?:-\d{8})?$/iD', $model) === 1;
+    if (!$fixed_sampling) {
+        $temperature = isset($ai_params['temperature']) && is_numeric($ai_params['temperature'])
+            ? floatval($ai_params['temperature'])
+            : null;
+        $top_p = isset($ai_params['top_p']) && is_numeric($ai_params['top_p'])
+            ? max(0.0, min(1.0, floatval($ai_params['top_p'])))
+            : null;
+        $temperature_is_default = $temperature !== null && abs($temperature - 1.0) < 0.00001;
+        $top_p_is_non_default = $top_p !== null && abs($top_p - 1.0) >= 0.00001;
 
-    // Anthropic rejects payloads that include both temperature and top_p.
-    if ($top_p_is_non_default && ($temperature === null || $temperature_is_default)) {
-        $payload['top_p'] = $top_p;
-    } elseif ($temperature !== null) {
-        $payload['temperature'] = $temperature;
-    } elseif ($top_p !== null) {
-        $payload['top_p'] = $top_p;
+        // Anthropic rejects payloads that include both temperature and top_p.
+        if ($top_p_is_non_default && ($temperature === null || $temperature_is_default)) {
+            $payload['top_p'] = $top_p;
+        } elseif ($temperature !== null) {
+            $payload['temperature'] = $temperature;
+        } elseif ($top_p !== null) {
+            $payload['top_p'] = $top_p;
+        }
+
     }
 
     if (!empty($ai_params['stop'])) {

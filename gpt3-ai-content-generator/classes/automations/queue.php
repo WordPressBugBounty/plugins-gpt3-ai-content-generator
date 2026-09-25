@@ -91,6 +91,28 @@ class AIPKit_Automated_Task_Content_Queuer
 
 namespace WPAICG\AutoGPT\Cron\Queuer\Helpers;
 
+/** Filters a scan batch without changing its pagination cursor. */
+function filter_indexing_category_posts_logic(array $post_ids, array $task_config): array
+{
+    $categories = array_values(array_filter(array_map('absint', (array) ($task_config['indexing_categories'] ?? []))));
+    if (!$categories || !$post_ids) {
+        return $post_ids;
+    }
+    $allowed = $categories;
+    foreach ($categories as $category) {
+        $children = get_term_children($category, 'category');
+        if (!is_wp_error($children)) {
+            $allowed = array_merge($allowed, $children);
+        }
+    }
+    $allowed = array_unique(array_map('absint', $allowed));
+    _prime_post_caches(array_map('absint', $post_ids), false, true);
+    return array_values(array_filter($post_ids, static function ($post_id) use ($allowed) {
+        $post_type = get_post_type($post_id);
+        return $post_type && (!is_object_in_taxonomy($post_type, 'category') || has_term($allowed, 'category', $post_id));
+    }));
+}
+
 /**
  * Constructs the item_config array for a content indexing task.
  *
@@ -286,7 +308,7 @@ function maybe_queue_initial_indexing_content_logic(int $task_id, array $task_co
                 'orderby' => 'post__in',
                 'no_found_rows' => true,
             ]);
-            foreach ((array) $query->posts as $post_id) {
+            foreach (Helpers\filter_indexing_category_posts_logic((array) $query->posts, $task_config) as $post_id) {
                 Helpers\insert_item_into_queue_logic($wpdb, $queue_table_name, $task_id, absint($post_id), 'content_indexing', $item_config);
             }
             $specific_offset += count($specific_batch);
@@ -320,7 +342,7 @@ function maybe_queue_initial_indexing_content_logic(int $task_id, array $task_co
     // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQL.NotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter -- Bounded keyset scan of WordPress post IDs with prepared post types.
     $post_ids = $wpdb->get_col($wpdb->prepare($posts_query, $query_args));
 
-    foreach ((array) $post_ids as $post_id) {
+    foreach (Helpers\filter_indexing_category_posts_logic((array) $post_ids, $task_config) as $post_id) {
         Helpers\insert_item_into_queue_logic($wpdb, $queue_table_name, $task_id, absint($post_id), 'content_indexing', $item_config);
     }
 
@@ -400,8 +422,9 @@ function queue_new_or_updated_indexing_content_logic(int $task_id, array $task_c
     // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQL.NotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter -- Bounded keyset scan of WordPress posts with prepared post types and watermarks.
     $posts = $wpdb->get_results($wpdb->prepare($posts_query, $query_args), ARRAY_A);
     $item_config = Helpers\build_index_item_config_logic($task_config);
-    foreach ((array) $posts as $post) {
-        Helpers\insert_item_into_queue_logic($wpdb, $queue_table_name, $task_id, absint($post['ID'] ?? 0), 'content_indexing', $item_config);
+    $matching_ids = Helpers\filter_indexing_category_posts_logic(array_column((array) $posts, 'ID'), $task_config);
+    foreach ($matching_ids as $post_id) {
+        Helpers\insert_item_into_queue_logic($wpdb, $queue_table_name, $task_id, absint($post_id), 'content_indexing', $item_config);
     }
 
     if (count((array) $posts) >= $batch_size) {
