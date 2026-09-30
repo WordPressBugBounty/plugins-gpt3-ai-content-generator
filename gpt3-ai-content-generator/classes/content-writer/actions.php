@@ -171,7 +171,7 @@ abstract class AIPKit_Content_Writer_Base_Ajax_Action extends BaseDashboardAjaxH
         string $system_instruction,
         array $ai_params,
         ?array $form_data = null
-    ): array {
+    ) {
         if (!function_exists('WPAICG\\Core\\Stream\\Vector\\prepare_vector_standard_call')) {
             $helper_path = WPAICG_PLUGIN_DIR . 'classes/knowledge-base/retrieval-context.php';
             if (file_exists($helper_path)) {
@@ -192,6 +192,7 @@ abstract class AIPKit_Content_Writer_Base_Ajax_Action extends BaseDashboardAjaxH
                 $system_instruction,
                 $ai_params
             );
+            if (is_wp_error($prep)) { return $prep; }
             $system_instruction = $prep['system_instruction'] ?? $system_instruction;
             $ai_params = $prep['ai_params'] ?? $ai_params;
             $instruction_context = $prep['instruction_context'] ?? [];
@@ -448,7 +449,7 @@ function validate_and_normalize_input_logic(AIPKit_Content_Writer_Base_Ajax_Acti
     $validated_params['source_url'] = $source_url;
 
     $vector_provider = sanitize_key((string) ($settings['vector_store_provider'] ?? 'openai'));
-    if (!in_array($vector_provider, ['openai', 'google', 'pinecone', 'qdrant', 'chroma'], true)) {
+    if (!in_array($vector_provider, ['local', 'openai', 'google', 'pinecone', 'qdrant', 'chroma'], true)) {
         $vector_provider = 'openai';
     }
     if (($settings['enable_vector_store'] ?? '0') === '1' && $vector_provider === 'google' && $provider !== 'Google') {
@@ -558,6 +559,11 @@ function prepare_ai_params_logic(array $settings): array
             (string) ($settings['ai_model'] ?? ''),
             $settings['reasoning_effort'] ?? ''
         );
+        if ($reasoning_effort !== '') {
+            $ai_params_override['reasoning'] = ['effort' => $reasoning_effort];
+        }
+    } elseif (($settings['provider'] ?? '') === 'AIPufferCloud') {
+        $reasoning_effort = \WPAICG\Cloud\Connection::reasoning_effort((string) ($settings['ai_model'] ?? ''), $settings['reasoning_effort'] ?? '');
         if ($reasoning_effort !== '') {
             $ai_params_override['reasoning'] = ['effort' => $reasoning_effort];
         }
@@ -826,6 +832,7 @@ function build_cache_payload_logic(
     'pinecone_index_name'           => $settings['pinecone_index_name'] ?? '',
     'qdrant_collection_name'        => $settings['qdrant_collection_name'] ?? '',
     'chroma_collection_name'        => $settings['chroma_collection_name'] ?? '',
+    'local_store_id'                => sanitize_text_field((string) ($settings['local_store_id'] ?? '')),
     'vector_embedding_provider'     => $settings['vector_embedding_provider'] ?? 'openai',
     'vector_embedding_model'        => $settings['vector_embedding_model'] ?? '',
     'vector_store_top_k'            => isset($settings['vector_store_top_k']) ? absint($settings['vector_store_top_k']) : 3,
@@ -868,6 +875,7 @@ use function WPAICG\ContentWriter\Ajax\Actions\Shared\smart_seo_keyword_resoluti
  * @param array $messages The message payload for the API.
  * @param array $ai_params_override AI parameters to override globals.
  * @param string $system_instruction The system instruction for the AI.
+ * @param array $form_data Validated settings for knowledge retrieval.
  * @return array|WP_Error The result from the AI Caller.
  */
 function call_ai_provider_logic(
@@ -876,15 +884,28 @@ function call_ai_provider_logic(
     string $model,
     array $messages,
     array $ai_params_override,
-    string $system_instruction
+    string $system_instruction,
+    array $form_data = []
 ) {
+    $vector_preparation = $handler->prepare_content_writer_vector_context(
+        $messages[0]['content'] ?? '',
+        $provider,
+        $system_instruction,
+        $ai_params_override,
+        $form_data
+    );
+    if (is_wp_error($vector_preparation)) {
+        return $vector_preparation;
+    }
+    [$system_instruction, $ai_params_override, $instruction_context] = $vector_preparation;
+
     return $handler->get_ai_caller()->make_standard_call(
         $provider,
         $model,
         $messages,
         $ai_params_override,
         $system_instruction,
-        []
+        $instruction_context
     );
 }
 
@@ -942,6 +963,22 @@ function handle_success_response_logic(AIPKit_Content_Writer_Standard_Generation
         ? $validated_params['smart_seo_keyword_resolution']
         : [];
 
+    $stop_on_refusal = static function ($response) use ($handler, $content, $usage, $conversation_uuid, &$meta_description, &$focus_keyword, &$excerpt, &$tags): void {
+        if (!is_wp_error($response)) {
+            return;
+        }
+        $data = $response->get_error_data();
+        if (is_array($data) && !empty($data['stop_batch'])) {
+            $data['generation_result'] = [
+                'content' => $content, 'usage' => $usage, 'conversation_uuid' => $conversation_uuid,
+                'meta_description' => $meta_description, 'focus_keyword' => $focus_keyword,
+                'excerpt' => $excerpt, 'tags' => $tags,
+            ];
+            $response->add_data($data);
+            $handler->send_wp_error($response);
+        }
+    };
+
     // Log main content generation
     if ($handler->log_storage) {
         $handler->log_storage->log_message(array_merge($handler->build_content_writer_log_base(
@@ -974,6 +1011,7 @@ function handle_success_response_logic(AIPKit_Content_Writer_Standard_Generation
             $keyword_ai_params,
             'You are an SEO expert. Your task is to provide the single best focus keyword for a piece of content.'
         );
+        $stop_on_refusal($keyword_result);
         if (!is_wp_error($keyword_result) && !empty($keyword_result['content'])) {
             $focus_keyword = trim(str_replace(['"', "'", '.'], '', $keyword_result['content']));
             $keywords_for_prompts = $focus_keyword; // Use this new keyword for other SEO prompts
@@ -1031,6 +1069,7 @@ function handle_success_response_logic(AIPKit_Content_Writer_Standard_Generation
         $excerpt_user_prompt = \WPAICG\ContentWriter\Prompt\AIPKit_Content_Writer_Excerpt_Prompt_Builder::build($final_title, $content_summary, $keywords_for_prompts, 'custom', $validated_params['custom_excerpt_prompt']);
         $excerpt_ai_params = ['temperature' => 1, 'top_p' => null];
         $excerpt_result = $handler->get_ai_caller()->make_standard_call($validated_params['provider'], $validated_params['model'], [['role' => 'user', 'content' => $excerpt_user_prompt]], $excerpt_ai_params);
+        $stop_on_refusal($excerpt_result);
         if (!is_wp_error($excerpt_result) && !empty($excerpt_result['content'])) {
             $excerpt = trim(str_replace(['"', "'"], '', $excerpt_result['content']));
             if ($handler->log_storage) {
@@ -1064,6 +1103,7 @@ function handle_success_response_logic(AIPKit_Content_Writer_Standard_Generation
         $tags_user_prompt = \WPAICG\ContentWriter\Prompt\AIPKit_Content_Writer_Tags_Prompt_Builder::build($final_title, $content_summary, $keywords_for_prompts, 'custom', $validated_params['custom_tags_prompt']);
         $tags_ai_params = ['temperature' => 0.5, 'top_p' => null];
         $tags_result = $handler->get_ai_caller()->make_standard_call($validated_params['provider'], $validated_params['model'], [['role' => 'user', 'content' => $tags_user_prompt]], $tags_ai_params);
+        $stop_on_refusal($tags_result);
         if (!is_wp_error($tags_result) && !empty($tags_result['content'])) {
             $tags = trim(str_replace(['"', "'"], '', $tags_result['content']));
             if ($handler->log_storage) {
@@ -1097,6 +1137,7 @@ function handle_success_response_logic(AIPKit_Content_Writer_Standard_Generation
         $meta_user_prompt = \WPAICG\ContentWriter\Prompt\AIPKit_Content_Writer_Meta_Prompt_Builder::build($final_title, $content_summary, $keywords_for_prompts, 'custom', $validated_params['custom_meta_prompt']);
         $meta_ai_params = ['temperature' => 1, 'top_p' => null];
         $meta_result = $handler->get_ai_caller()->make_standard_call($validated_params['provider'], $validated_params['model'], [['role' => 'user', 'content' => $meta_user_prompt]], $meta_ai_params);
+        $stop_on_refusal($meta_result);
         if (!is_wp_error($meta_result) && !empty($meta_result['content'])) {
             $meta_description = AIPKit_Content_Writer_Output_Cleaner::clean_meta_description((string) $meta_result['content']);
             if ($handler->log_storage) {
@@ -1332,6 +1373,11 @@ function prepare_ai_params_logic(array $validated_params): array
         if ($reasoning_effort !== '') {
             $ai_params_override['reasoning'] = ['effort' => $reasoning_effort];
         }
+    } elseif (($validated_params['provider'] ?? '') === 'AIPufferCloud') {
+        $reasoning_effort = \WPAICG\Cloud\Connection::reasoning_effort((string) ($validated_params['ai_model'] ?? ''), $validated_params['reasoning_effort'] ?? '');
+        if ($reasoning_effort !== '') {
+            $ai_params_override['reasoning'] = ['effort' => $reasoning_effort];
+        }
     } elseif (($validated_params['provider'] ?? '') === 'OpenRouter') {
         $reasoning_effort = AIPKit_OpenRouter_Reasoning::normalize_effort_for_model(
             (string) ($validated_params['ai_model'] ?? ''),
@@ -1374,13 +1420,15 @@ function call_title_generator_logic(
     array $form_data = []
 ) {
     $user_message = $messages[0]['content'] ?? '';
-    [$system_instruction, $ai_params_override, $instruction_context] = $handler->prepare_content_writer_vector_context(
+    $vector_preparation = $handler->prepare_content_writer_vector_context(
         $user_message,
         $provider,
         $system_instruction,
         $ai_params_override,
         $form_data
     );
+    if (is_wp_error($vector_preparation)) { return $vector_preparation; }
+    [$system_instruction, $ai_params_override, $instruction_context] = $vector_preparation;
 
     return $handler->get_ai_caller()->make_standard_call(
         $provider,
@@ -2037,7 +2085,7 @@ function build_content_writer_config_logic(array $settings, string $task_frequen
             'pexels_orientation', 'pexels_size', 'pexels_color',
             'pixabay_orientation', 'pixabay_image_type', 'pixabay_category',
             'enable_vector_store', 'vector_store_provider', 'openai_vector_store_ids', 'google_file_search_store_names',
-            'pinecone_index_name', 'qdrant_collection_name', 'chroma_collection_name', 'vector_embedding_provider',
+            'pinecone_index_name', 'qdrant_collection_name', 'chroma_collection_name', 'local_store_id', 'vector_embedding_provider',
             'vector_embedding_model', 'vector_store_top_k',
             'vector_store_confidence_threshold',
             'rss_include_keywords', 'rss_exclude_keywords', 'rss_item_limit',
@@ -2087,7 +2135,7 @@ function build_content_writer_config_logic(array $settings, string $task_frequen
                         'ollama' => 'Ollama',
                         'xai' => 'xAI',
                     ];
-                    $content_writer_config[$key] = $provider_map[$provider_key] ?? ucfirst($provider_key);
+                    $content_writer_config[$key] = $provider_map[$provider_key] ?? \WPAICG\AIPKit_Providers::normalize_provider_label($provider_raw);
                 } elseif (in_array($key, ['generate_meta_description', 'generate_focus_keyword', 'generate_excerpt', 'generate_tags', 'generate_toc', 'generate_seo_slug', 'seo_score_improvement_enabled', 'seo_score_continue_until_target', 'generate_images_enabled', 'generate_featured_image', 'generate_image_title', 'generate_image_alt_text', 'generate_image_caption', 'generate_image_description', 'enable_vector_store'], true)) {
                     $content_writer_config[$key] = ($settings[$key] === '1' || $settings[$key] === true || $settings[$key] === 1) ? '1' : '0';
                 } elseif ($key === 'post_categories' && is_array($settings[$key])) {
@@ -2503,7 +2551,8 @@ class AIPKit_Content_Writer_Standard_Generation_Action extends AIPKit_Content_Wr
             $validated_params['model'],
             [['role' => 'user', 'content' => $final_user_prompt]], // Use the final prompt
             $ai_params_override,
-            $prompts['system_instruction']
+            $prompts['system_instruction'],
+            $validated_params
         );
 
         $batch_run_check = $this->validate_content_writer_batch_run_request();
@@ -3069,12 +3118,14 @@ class AIPKit_Content_Writer_Generate_Meta_Action extends AIPKit_Content_Writer_B
         $meta_system_instruction = 'You are an SEO expert specializing in writing meta descriptions.';
         $meta_ai_params = [];
 
-        [$meta_system_instruction, $meta_ai_params, $meta_instruction_context] = $this->prepare_content_writer_vector_context(
+        $vector_preparation = $this->prepare_content_writer_vector_context(
             $meta_user_prompt,
             $provider,
             $meta_system_instruction,
             $meta_ai_params
         );
+        if (is_wp_error($vector_preparation)) { $this->send_wp_error($vector_preparation); return; }
+        [$meta_system_instruction, $meta_ai_params, $meta_instruction_context] = $vector_preparation;
         $meta_ai_params['top_p'] = null;
 
         $meta_result = $this->get_ai_caller()->make_standard_call(
@@ -3160,12 +3211,14 @@ class AIPKit_Content_Writer_Generate_Keyword_Action extends AIPKit_Content_Write
         $keyword_system_instruction = 'You are an SEO expert. Your task is to provide the single best focus keyword for a piece of content.';
         $keyword_ai_params = [];
 
-        [$keyword_system_instruction, $keyword_ai_params, $keyword_instruction_context] = $this->prepare_content_writer_vector_context(
+        $vector_preparation = $this->prepare_content_writer_vector_context(
             $keyword_user_prompt,
             $provider,
             $keyword_system_instruction,
             $keyword_ai_params
         );
+        if (is_wp_error($vector_preparation)) { $this->send_wp_error($vector_preparation); return; }
+        [$keyword_system_instruction, $keyword_ai_params, $keyword_instruction_context] = $vector_preparation;
         $keyword_ai_params['top_p'] = null;
 
         $keyword_result = $this->get_ai_caller()->make_standard_call(
@@ -3302,12 +3355,14 @@ class AIPKit_Content_Writer_Generate_Excerpt_Action extends AIPKit_Content_Write
 
         $excerpt_ai_params = [];
 
-        [$excerpt_system_instruction, $excerpt_ai_params, $excerpt_instruction_context] = $this->prepare_content_writer_vector_context(
+        $vector_preparation = $this->prepare_content_writer_vector_context(
             $excerpt_user_prompt,
             $provider,
             $excerpt_system_instruction,
             $excerpt_ai_params
         );
+        if (is_wp_error($vector_preparation)) { $this->send_wp_error($vector_preparation); return; }
+        [$excerpt_system_instruction, $excerpt_ai_params, $excerpt_instruction_context] = $vector_preparation;
         $excerpt_ai_params['top_p'] = null;
 
         $excerpt_result = $this->get_ai_caller()->make_standard_call(
@@ -3395,12 +3450,14 @@ class AIPKit_Content_Writer_Generate_Tags_Action extends AIPKit_Content_Writer_B
         $tags_system_instruction = 'You are an SEO expert. Your task is to provide a comma-separated list of relevant tags for a piece of content.';
         $tags_ai_params = [];
 
-        [$tags_system_instruction, $tags_ai_params, $tags_instruction_context] = $this->prepare_content_writer_vector_context(
+        $vector_preparation = $this->prepare_content_writer_vector_context(
             $tags_user_prompt,
             $provider,
             $tags_system_instruction,
             $tags_ai_params
         );
+        if (is_wp_error($vector_preparation)) { $this->send_wp_error($vector_preparation); return; }
+        [$tags_system_instruction, $tags_ai_params, $tags_instruction_context] = $vector_preparation;
         $tags_ai_params['top_p'] = null;
 
         $tags_result = $this->get_ai_caller()->make_standard_call(
@@ -3568,12 +3625,11 @@ class AIPKit_Content_Writer_Generate_Images_Action extends AIPKit_Content_Writer
             $message = isset($record['message']) && is_string($record['message'])
                 ? $record['message']
                 : __('Image generation failed.', 'gpt3-ai-content-generator');
-            wp_send_json_error([
-                'message' => $message,
-                'code' => 'image_request_failed',
-                'image_status' => 'failed',
-                'image_request_id' => $request_id,
-            ], 500);
+            $error_data = is_array($record['error_data'] ?? null) ? $record['error_data'] : ['status' => 500];
+            $error_data['image_status'] = 'failed';
+            $error_data['image_request_id'] = $request_id;
+            $this->send_wp_error(new WP_Error($record['error_code'] ?? 'image_request_failed', $message, $error_data));
+            return;
         }
 
         wp_send_json_success([
@@ -3700,6 +3756,8 @@ class AIPKit_Content_Writer_Generate_Images_Action extends AIPKit_Content_Writer
                     'status' => 'failed',
                     'request_hash' => $image_request_hash,
                     'message' => $image_result->get_error_message(),
+                    'error_code' => $image_result->get_error_code(),
+                    'error_data' => $image_result->get_error_data(),
                     'started_at' => time(),
                     'updated_at' => time(),
                     'completed_at' => time(),

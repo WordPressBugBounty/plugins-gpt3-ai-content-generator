@@ -4,7 +4,7 @@ Tags: ai, chatbot, openai, ai writer, automation
 Requires at least: 6.0
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 2.4.82
+Stable tag: 2.4.86
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -16,6 +16,8 @@ Chat. Create. Automate.
 
 Our **"Bring Your Own API Key"** model lets you connect to top AI providers (OpenAI, Google Gemini, Microsoft Azure, OpenRouter, DeepSeek, xAI and Ollama). No hidden credits — you use your own account and control your costs.
 
+You can also connect **AI Puffer Cloud**, an optional provider with monthly free credits and credit top-ups. Use Cloud models for text, images, speech, transcription, and embeddings, or keep using your own provider accounts.
+
 [📖 Documentation & Guides](https://docs.aipower.org/)  
 
 ### Why Choose AIP?
@@ -25,7 +27,7 @@ Our **"Bring Your Own API Key"** model lets you connect to top AI providers (Ope
 * **Voice + Chat** – Real-time voice agents and voice input for interactive AI experiences.
 * **WooCommerce AI** – Generate product descriptions, titles, SEO tags, and sell AI credits to customers.
 * **Fast & Flexible** – Works with OpenAI GPT-5/4o, Google Gemini & Imagen, Azure, Replicate, and others.
-* **Secure** – 100% hosted on your WordPress site. Your data stays with you.
+* **Flexible** – Keep your content in WordPress and choose an AI provider or AI Puffer Cloud to process requests.
 
 ---
 
@@ -57,7 +59,7 @@ Our **"Bring Your Own API Key"** model lets you connect to top AI providers (Ope
 
 #### 📚 AI Training / Vector Database
 - Build a **knowledge base** from your posts, products, PDFs, or uploaded files.
-- Supports **OpenAI Vector Stores**, **Pinecone**, **Qdrant** and **Chroma**.
+- Store your knowledge in **Local** (your WordPress database), **OpenAI Vector Stores**, **Pinecone**, **Qdrant** or **Chroma**.
 - Long content is chunked before embedding for safer external vector indexing.
 - Use in Chatbot or Forms for **context-aware AI answers**.
 
@@ -78,7 +80,7 @@ Our **"Bring Your Own API Key"** model lets you connect to top AI providers (Ope
 
 1. Install via Plugins → Add New, or upload to `/wp-content/plugins/gpt3-ai-content-generator`.
 2. Activate via the **Plugins** menu.
-3. Go to **AIP → Dashboard** and enter your API key for at least one provider (e.g., OpenAI).
+3. Go to **AI Puffer → Dashboard** and connect AI Puffer Cloud or enter your own provider API key.
 4. Click **Sync Models** to load available AI models.
 5. Explore modules (Chat, Write, Automate, etc.) and start using AI features.
 
@@ -87,7 +89,7 @@ Our **"Bring Your Own API Key"** model lets you connect to top AI providers (Ope
 == Frequently Asked Questions ==
 
 = Do I need to buy credits from you? =  
-No. AIP works with your **own API key** from AI providers like OpenAI, Google Gemini, etc. You pay them directly for usage.
+No. AIP works with your **own API key** from AI providers like OpenAI, Google Gemini, etc. You pay them directly for usage. If you prefer not to manage API keys, you can optionally connect AI Puffer Cloud instead: it includes a monthly free allowance after you confirm your email. Your existing features never require the hosted service.
 
 = Which AI providers and models are supported? =  
 We support **OpenAI** (GPT-5, GPT-4o, GPT-3.5, GPT Image, etc.), **Google** (Gemini, Imagen), **Microsoft Azure OpenAI**, **OpenRouter**, **DeepSeek**, **Ollama** and **Replicate**.
@@ -122,6 +124,34 @@ Yes. AIP supports GPT-5, GPT-4o, GPT-4 Turbo, Google Gemini 1.5, Imagen 4.0, and
 ---
 
 == Changelog ==
+
+= 2.4.86 =
+
+- Improved recovery and error handling for failed or unavailable Cloud image requests.
+- Fixed Image Generator model availability and default selection when frontend model restrictions are configured.
+- Fixed Image Generator model lists not updating after provider model synchronization.
+- Added AI Puffer Cloud as an optional provider for text, image generation and analysis, speech, transcription, and embeddings along with other existing providers.
+- Added Local knowledge storage in your WordPress database, with configurable dimensions and support for compatible embedding providers.
+- Improved provider and model consistency across chatbots, content writing, automations, forms, media, editor tools, and the REST API.
+- Fixed Settings autosave when switching tabs and included Visitor billing and connector settings in backups.
+- Strengthened public-request protection and fixed IPv6 and Unicode blocklist matching.
+
+= 2.4.85 =
+
+- Fixed Image Generator model availability and default selection when frontend model restrictions are configured.
+- Fixed Image Generator model lists not updating after provider model synchronization.
+
+= 2.4.84 =
+
+- Added AI Puffer Cloud as an optional provider for text, image generation and analysis, speech, transcription, and embeddings along with other existing providers.
+- Added Local knowledge storage in your WordPress database, with configurable dimensions and support for compatible embedding providers.
+- Improved provider and model consistency across chatbots, content writing, automations, forms, media, editor tools, and the REST API.
+- Fixed Settings autosave when switching tabs and included Visitor billing and connector settings in backups.
+- Strengthened public-request protection and fixed IPv6 and Unicode blocklist matching.
+
+= 2.4.83 =
+
+- Fixed a conflict with WP Gridbuilder filters, maps, and other frontend AJAX requests.
 
 = 2.4.82 =
 

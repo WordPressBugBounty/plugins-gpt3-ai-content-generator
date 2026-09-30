@@ -102,30 +102,12 @@ class AIPKit_Vector_Text_Ingestion_Service
             $delete_selector['namespace'] = $namespace;
         }
 
-        $delete_existing_result = $this->vector_store_manager->delete_vectors(
-            $provider_label,
-            $target_id,
-            $delete_selector,
-            $provider_config
-        );
-        if (is_wp_error($delete_existing_result)) {
-            if ($provider_label === 'Pinecone' && self::is_missing_pinecone_namespace_error($delete_existing_result)) {
-                $delete_existing_result = true;
-            } else {
-                return new WP_Error(
-                    'vector_text_delete_existing_failed',
-                    sprintf(
-                        /* translators: %s: Error message returned by the vector database. */
-                        __('Deleting existing text chunks failed: %s', 'gpt3-ai-content-generator'),
-                        $delete_existing_result->get_error_message()
-                    ),
-                    ['status' => 500]
-                );
-            }
-        }
+        $embedding_options = $this->vector_store_manager->embedding_options($embedding_provider_normalized, $embedding_model, $provider_label, [$target_id], $provider_config);
+        if (is_wp_error($embedding_options)) { return $embedding_options; }
 
         $total_chunks = count($chunks);
         $total_upserted = 0;
+        $prepared_records = [];
         $first_record_id = null;
         $last_upsert_result = [];
         if (!class_exists(AIPKit_Vector_Embedding_Batch_Policy::class)) {
@@ -161,20 +143,21 @@ class AIPKit_Vector_Text_Ingestion_Service
                 return (string) ($chunk['text'] ?? '');
             }, $chunk_batch);
 
-            $embedding_result = $this->generate_embeddings($chunk_texts, $embedding_provider_normalized, $embedding_model);
+            $embedding_result = $this->generate_embeddings($chunk_texts, $embedding_provider_normalized, $embedding_options);
             if (is_wp_error($embedding_result)) {
-                $this->cleanup_parent($provider_label, $target_id, $parent_vector_id, $provider_config, $total_upserted);
                 return $embedding_result;
             }
 
             $embedding_vectors = $embedding_result['embeddings'] ?? [];
             if (!is_array($embedding_vectors) || count($embedding_vectors) !== count($chunk_batch)) {
-                $this->cleanup_parent($provider_label, $target_id, $parent_vector_id, $provider_config, $total_upserted);
                 return new WP_Error('vector_text_embedding_count_mismatch', __('Embedding result count did not match chunk count.', 'gpt3-ai-content-generator'), ['status' => 500]);
             }
 
-            $records = [];
             foreach ($chunk_batch as $offset => $chunk) {
+                $vector = $embedding_vectors[$offset];
+                if (!is_array($vector) || !$vector || count(array_filter($vector, static function ($value): bool { return is_numeric($value) && is_finite((float) $value); })) !== count($vector)) {
+                    return new WP_Error('vector_text_embedding_invalid', __('The provider returned an invalid embedding vector.', 'gpt3-ai-content-generator'));
+                }
                 $record = self::build_record(
                     $provider_label,
                     $parent_vector_id,
@@ -186,23 +169,61 @@ class AIPKit_Vector_Text_Ingestion_Service
                 if ($first_record_id === null) {
                     $first_record_id = (string) ($record['id'] ?? '');
                 }
-                $records[] = $record;
+                $prepared_records[] = $record;
             }
 
-            $upsert_payload = $provider_label === 'Pinecone'
-                ? ['vectors' => $records]
-                : ['points' => $records];
-            if ($provider_label === 'Pinecone' && $namespace !== '') {
-                $upsert_payload['namespace'] = $namespace;
-            }
-            $upsert_result = $this->vector_store_manager->upsert_vectors($provider_label, $target_id, $upsert_payload, $provider_config);
-            if (is_wp_error($upsert_result)) {
-                $this->cleanup_parent($provider_label, $target_id, $parent_vector_id, $provider_config, $total_upserted);
-                return $upsert_result;
-            }
+        }
 
-            $last_upsert_result = is_array($upsert_result) ? $upsert_result : [];
-            $total_upserted += count($records);
+        // Embed the entire replacement before changing existing searchable content.
+        if ($provider_label === 'Local') {
+            $last_upsert_result = $this->vector_store_manager->upsert_vectors($provider_label, $target_id, [
+                'points' => $prepared_records,
+                'replace_parent_id' => $parent_vector_id,
+            ], $provider_config);
+            if (is_wp_error($last_upsert_result)) { return $last_upsert_result; }
+            $total_upserted = count($prepared_records);
+        } else {
+            require_once WPAICG_PLUGIN_DIR . 'classes/automations/lock.php';
+            $lock_name = 'aipkit_vector_replace_' . md5($provider_label . '|' . $target_id . '|' . $namespace . '|' . $parent_vector_id);
+            $lock_token = \WPAICG\AutoGPT\Cron\AIPKit_Option_Lock::acquire($lock_name, 30 * MINUTE_IN_SECONDS);
+            if ($lock_token === '') {
+                return new WP_Error('vector_text_update_busy', __('This source is already being updated. Please retry indexing.', 'gpt3-ai-content-generator'));
+            }
+            try {
+                $attempted_ids = [];
+                foreach (array_chunk($prepared_records, $batch_size) as $records) {
+                    $attempted_ids = array_merge($attempted_ids, array_column($records, 'id'));
+                    $upsert_payload = $provider_label === 'Pinecone' ? ['vectors' => $records] : ['points' => $records];
+                    if ($provider_label === 'Pinecone' && $namespace !== '') { $upsert_payload['namespace'] = $namespace; }
+                    $upsert_result = $this->vector_store_manager->upsert_vectors($provider_label, $target_id, $upsert_payload, $provider_config);
+                    if (is_wp_error($upsert_result)) {
+                        // Only this attempt's IDs are removed, including a possibly partial failed batch.
+                        $selector = $provider_label === 'Qdrant' ? ['points' => $attempted_ids] : ['ids' => $attempted_ids];
+                        if ($provider_label === 'Pinecone' && $namespace !== '') { $selector['namespace'] = $namespace; }
+                        $this->vector_store_manager->delete_vectors($provider_label, $target_id, $selector, $provider_config);
+                        return $upsert_result;
+                    }
+                    $last_upsert_result = is_array($upsert_result) ? $upsert_result : [];
+                    $total_upserted += count($records);
+                }
+                $lock = get_option($lock_name, []);
+                if (!is_array($lock) || ($lock['token'] ?? '') !== $lock_token) {
+                    return new WP_Error('vector_text_update_lock_lost', __('The source is being updated by another request. Please retry indexing.', 'gpt3-ai-content-generator'));
+                }
+                // New records have distinct IDs. Remove older chunks only after all writes succeeded.
+                if ($provider_label === 'Pinecone') {
+                    $delete_selector['filter'] = ['$and' => [$delete_selector['filter'], ['vector_id' => ['$nin' => $attempted_ids]]]];
+                } elseif ($provider_label === 'Qdrant') {
+                    $delete_selector['filter']['must_not'] = [['has_id' => $attempted_ids]];
+                } else {
+                    $delete_selector['where'] = ['$and' => [$delete_selector['where'], ['vector_id' => ['$nin' => $attempted_ids]]]];
+                }
+                $deleted = $this->vector_store_manager->delete_vectors($provider_label, $target_id, $delete_selector, $provider_config);
+                if (is_wp_error($deleted)) { return $deleted; }
+                if ($deleted === false) { return new WP_Error('vector_text_cleanup_failed', __('Replacement chunks were saved, but older chunks could not be removed. Retry indexing this source.', 'gpt3-ai-content-generator')); }
+            } finally {
+                \WPAICG\AutoGPT\Cron\AIPKit_Option_Lock::release($lock_name, $lock_token);
+            }
         }
 
         return [
@@ -223,7 +244,7 @@ class AIPKit_Vector_Text_Ingestion_Service
      * @param array<int,string> $content_strings
      * @return array<string,mixed>|WP_Error
      */
-    private function generate_embeddings(array $content_strings, string $embedding_provider, string $embedding_model)
+    private function generate_embeddings(array $content_strings, string $embedding_provider, array $embedding_options)
     {
         $content_strings = array_values(array_filter($content_strings, static function (string $content): bool {
             return $content !== '';
@@ -232,11 +253,12 @@ class AIPKit_Vector_Text_Ingestion_Service
             return new WP_Error('vector_text_empty_embedding_batch', __('No text chunks were available for embedding.', 'gpt3-ai-content-generator'), ['status' => 400]);
         }
 
-        $embedding_options = ['model' => $embedding_model];
         $embedding_result = $this->ai_caller->generate_embeddings($embedding_provider, $content_strings, $embedding_options);
         if (!is_wp_error($embedding_result) && isset($embedding_result['embeddings']) && is_array($embedding_result['embeddings']) && count($embedding_result['embeddings']) === count($content_strings)) {
             return $embedding_result;
         }
+
+        if (is_wp_error($embedding_result) && AIPKit_AI_Caller::batch_error_data($embedding_result)['stop_batch']) { return $embedding_result; }
 
         if (count($content_strings) === 1) {
             return is_wp_error($embedding_result)
@@ -338,7 +360,7 @@ class AIPKit_Vector_Text_Ingestion_Service
     ): array {
         $chunk_index = (int) ($chunk['index'] ?? 0);
         $chunk_text = (string) ($chunk['text'] ?? '');
-        $record_id = self::build_record_id($provider_label, $parent_vector_id, $chunk_index, $total_chunks);
+        $record_id = wp_generate_uuid4();
         $metadata = array_merge($base_metadata, [
             'vector_id' => $record_id,
             'parent_vector_id' => $parent_vector_id,
@@ -375,15 +397,6 @@ class AIPKit_Vector_Text_Ingestion_Service
         return $record;
     }
 
-    private static function build_record_id(string $provider_label, string $parent_vector_id, int $chunk_index, int $total_chunks): string
-    {
-        if ($provider_label === 'Qdrant') {
-            return wp_generate_uuid4();
-        }
-
-        return $total_chunks === 1 ? $parent_vector_id : $parent_vector_id . '_chunk_' . $chunk_index;
-    }
-
     /**
      * @return array<string,mixed>
      */
@@ -396,7 +409,7 @@ class AIPKit_Vector_Text_Ingestion_Service
             ]]];
         }
 
-        if ($provider_label === 'Qdrant') {
+        if ($provider_label === 'Qdrant' || $provider_label === 'Local') {
             return ['filter' => ['should' => [
                 ['key' => 'parent_vector_id', 'match' => ['value' => $parent_vector_id]],
                 ['key' => 'vector_id', 'match' => ['value' => $parent_vector_id]],
@@ -407,29 +420,6 @@ class AIPKit_Vector_Text_Ingestion_Service
             ['parent_vector_id' => $parent_vector_id],
             ['vector_id' => $parent_vector_id],
         ]]];
-    }
-
-    private static function is_missing_pinecone_namespace_error(WP_Error $error): bool
-    {
-        $message = strtolower($error->get_error_message());
-        return strpos($message, 'namespace not found') !== false;
-    }
-
-    /**
-     * @param array<string,mixed> $provider_config
-     */
-    private function cleanup_parent(string $provider_label, string $target_id, string $parent_vector_id, array $provider_config, int $upserted_count): void
-    {
-        if ($upserted_count <= 0 || !$this->vector_store_manager) {
-            return;
-        }
-
-        $this->vector_store_manager->delete_vectors(
-            $provider_label,
-            $target_id,
-            self::build_parent_delete_selector($provider_label, $parent_vector_id),
-            $provider_config
-        );
     }
 
     private static function normalize_provider_label(string $provider): string
@@ -443,6 +433,9 @@ class AIPKit_Vector_Text_Ingestion_Service
         }
         if ($provider === 'chroma') {
             return 'Chroma';
+        }
+        if ($provider === 'local') {
+            return 'Local';
         }
 
         return '';

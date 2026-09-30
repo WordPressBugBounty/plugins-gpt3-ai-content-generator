@@ -23,6 +23,7 @@ if (!class_exists(OpenAIApiMode::class)) {
 class AIPKit_Providers
 {
     private static $provider_defaults = [
+        'AIPufferCloud' => ['model' => ''],
         'OpenAI' => [
             'api_key' => '', 'model' => '', 'embedding_model' => '',
             // phpcs:ignore PluginCheck.CodeAnalysis.AIProvider.DirectIntegration -- Configurable provider endpoint.
@@ -166,6 +167,7 @@ class AIPKit_Providers
             return '';
         }
 
+        if ($provider === 'AIPufferCloud') { return __('AI Puffer Cloud', 'gpt3-ai-content-generator'); }
         $provider_lower = strtolower($provider);
         if ($provider_lower === 'claude') {
             return __('Anthropic', 'gpt3-ai-content-generator');
@@ -180,10 +182,49 @@ class AIPKit_Providers
         return self::normalize_provider_label($provider);
     }
 
+    /** The selected model determines whether image input is available. */
+    public static function model_supports_image_input(string $provider, string $model): bool
+    {
+        $provider = self::normalize_provider_label($provider);
+        if ($model === '') { return false; }
+        if ($provider === 'AIPufferCloud') {
+            if (!class_exists('\\WPAICG\\Cloud\\Connection')) { return false; }
+            foreach (\WPAICG\Cloud\Connection::models() as $entry) {
+                if ($entry['id'] === $model) { return !empty($entry['capabilities']['image_input']); }
+            }
+            return false;
+        }
+        if ($provider === 'xAI') { return self::xai_model_supports_image_input($model); }
+        if (class_exists('\\WPAICG\\Core\\Models\\AIPKit_Model_Registry')) {
+            foreach (\WPAICG\Core\Models\AIPKit_Model_Registry::get_catalog_records($provider) as $entry) {
+                if (($entry['id'] ?? '') === $model || ($entry['raw_id'] ?? '') === $model) {
+                    foreach (['image_input', 'vision'] as $key) {
+                        if (array_key_exists($key, $entry['capabilities'] ?? [])) { return (bool) $entry['capabilities'][$key]; }
+                    }
+                }
+            }
+        }
+        // These providers already expose image input; explicit model metadata above takes precedence.
+        return in_array($provider, ['OpenAI', 'Google', 'Claude'], true);
+    }
+
     public static function get_provider_capabilities(string $provider): array
     {
         $normalized_provider = self::normalize_provider_label($provider);
         $default_capabilities = self::$provider_capabilities[$normalized_provider] ?? [];
+        if ($normalized_provider === 'AIPufferCloud') {
+            $default_capabilities = [
+                'text_generation' => true, 'streaming' => true, 'chat_completions' => true,
+                'embeddings' => class_exists('\\WPAICG\\Cloud\\Connection') && (bool) \WPAICG\Cloud\Connection::embedding_models(), 'vector_stores' => false, 'hosted_knowledge' => false,
+                'file_search' => false, 'image_input' => class_exists('\\WPAICG\\Cloud\\Connection') && (bool) array_filter(\WPAICG\Cloud\Connection::models(), static function ($m) { return !empty($m['capabilities']['image_input']); }), 'web_search' => false,
+                'image_generation' => class_exists('\\WPAICG\\Cloud\\Connection') && (bool) \WPAICG\Cloud\Connection::media_models('image_generate'),
+                'image_editing' => class_exists('\\WPAICG\\Cloud\\Connection') && (bool) \WPAICG\Cloud\Connection::media_models('image_edit'),
+                'video_generation' => false,
+                'tts' => class_exists('\\WPAICG\\Cloud\\Connection') && (bool) \WPAICG\Cloud\Connection::media_models('speech_generate'),
+                'stt' => class_exists('\\WPAICG\\Cloud\\Connection') && (bool) \WPAICG\Cloud\Connection::media_models('transcribe'),
+                'realtime' => false, 'legacy_completions' => false,
+            ];
+        }
         $filtered_capabilities = apply_filters(
             'aipkit_provider_capabilities',
             $default_capabilities,
@@ -226,6 +267,9 @@ class AIPKit_Providers
             return (bool) $capabilities[$capability_key];
         }
 
+        if (self::normalize_provider_label($provider) === 'AIPufferCloud') {
+            return false;
+        }
         return $default_for_unlisted;
     }
 
@@ -237,9 +281,30 @@ class AIPKit_Providers
      *
      * @return array<int, string>
      */
+    /**
+     * Text-generation providers offered in module selectors (Content Writer, Automations, AI Forms,
+     * Content Assistant, REST). Cloud appears when its connection and model catalog are ready.
+     *
+     * @param bool $include_ollama Whether the (Pro) local Ollama provider belongs in this list.
+     * @return array<int, string>
+     */
+    public static function get_text_generation_providers(bool $include_ollama = true, bool $include_cloud = true): array
+    {
+        $providers = ['OpenAI', 'Google', 'Claude', 'OpenRouter', 'Azure', 'Ollama', 'DeepSeek', 'xAI'];
+        if (!$include_ollama) {
+            $providers = array_values(array_diff($providers, ['Ollama']));
+        }
+        if ($include_cloud && class_exists('\\WPAICG\\Cloud\\Connection') && \WPAICG\Cloud\Connection::generation_ready()) {
+            array_unshift($providers, 'AIPufferCloud');
+        }
+        return $providers;
+    }
+
     public static function get_main_provider_allowlist(): array
     {
         $default_allowlist = ['OpenAI', 'Google', 'Claude', 'OpenRouter', 'Azure', 'DeepSeek', 'xAI'];
+        // AI Puffer comes first in every provider picker, and only while it is connected.
+        if (class_exists('\\WPAICG\\Cloud\\Connection') && \WPAICG\Cloud\Connection::generation_ready()) { array_unshift($default_allowlist, 'AIPufferCloud'); }
         $filtered_allowlist = apply_filters('aipkit_main_provider_allowlist', $default_allowlist);
         if (!is_array($filtered_allowlist)) {
             $filtered_allowlist = $default_allowlist;
@@ -314,6 +379,11 @@ class AIPKit_Providers
     public static function normalize_main_provider(string $provider, string $fallback = 'OpenAI'): string
     {
         $provider = sanitize_text_field(trim($provider));
+        // A disconnected Cloud account must keep its saved provider choice. Replacing it with
+        // OpenAI here would silently route later requests through an unrelated API key.
+        if ($provider === 'AIPufferCloud') {
+            return $provider;
+        }
         $allowed_providers = self::get_main_provider_allowlist();
 
         if (in_array($provider, $allowed_providers, true)) {
@@ -334,12 +404,16 @@ class AIPKit_Providers
      */
     public static function get_default_embedding_provider_map(): array
     {
-        return [
+        $map = [
             'openai' => 'OpenAI',
             'google' => 'Google',
             'azure' => 'Azure',
             'openrouter' => 'OpenRouter',
         ];
+        if (class_exists('\\WPAICG\\Cloud\\Connection') && \WPAICG\Cloud\Connection::embedding_models()) {
+            return ['aipuffercloud' => 'AIPufferCloud'] + $map;
+        }
+        return $map;
     }
 
     /**
@@ -430,6 +504,45 @@ class AIPKit_Providers
         return $resolved_name !== null ? $resolved_name : ucfirst($provider_lookup);
     }
 
+    /** Known output-size capabilities. Unknown models retain their provider defaults. */
+    public static function embedding_dimension_policy(string $provider, string $model): ?array
+    {
+        $provider = strtolower($provider);
+        $identity = $model;
+        if ($provider === 'aipuffercloud') {
+            foreach (\WPAICG\Cloud\Connection::embedding_models() as $row) {
+                if ($row['id'] === $model) { return ['parameter' => 'dimensions', 'default' => $row['dimensions'], 'sizes' => $row['supportedDimensions'] ?? [$row['dimensions']]]; }
+            }
+            return null;
+        }
+        if ($provider === 'azure') {
+            $identity = '';
+            foreach (self::get_azure_embedding_models() as $row) {
+                if (($row['id'] ?? '') === $model) { $identity = (string) ($row['model'] ?? ''); break; }
+            }
+        }
+        if ($provider === 'openrouter') {
+            if (strpos($model, 'openai/') !== 0) { return null; }
+            $identity = substr($model, strlen('openai/'));
+        }
+        if (in_array($provider, ['openai', 'azure', 'openrouter'], true)) {
+            if ($identity === 'text-embedding-3-small' || $identity === 'text-embedding-3-large') {
+                $maximum = $identity === 'text-embedding-3-small' ? 1536 : 3072;
+                return ['parameter' => 'dimensions', 'default' => $maximum, 'min' => 1, 'max' => $maximum];
+            }
+            if ($identity === 'text-embedding-ada-002') { return ['parameter' => null, 'default' => 1536, 'sizes' => [1536]]; }
+        }
+        if ($provider === 'google') {
+            $identity = preg_replace('#^models/#', '', $model);
+            if (in_array($identity, ['gemini-embedding-001', 'gemini-embedding-2', 'gemini-embedding-2-preview'], true)) {
+                return ['parameter' => 'outputDimensionality', 'default' => 3072, 'min' => $identity === 'gemini-embedding-001' ? 1 : 128, 'max' => 3072];
+            }
+            if ($identity === 'text-embedding-004') { return ['parameter' => 'outputDimensionality', 'default' => 768, 'min' => 1, 'max' => 768]; }
+            if ($identity === 'embedding-001') { return ['parameter' => null, 'default' => 768, 'sizes' => [768]]; }
+        }
+        return null;
+    }
+
     /**
      * Returns default embedding model rows grouped by provider key.
      *
@@ -437,7 +550,10 @@ class AIPKit_Providers
      */
     public static function get_default_embedding_models_by_provider(): array
     {
-        return [
+        $cloud = class_exists('\\WPAICG\\Cloud\\Connection') ? \WPAICG\Cloud\Connection::embedding_models() : [];
+        return ($cloud ? ['aipuffercloud' => self::normalize_embedding_model_rows(array_map(static function ($model) {
+            return ['id' => $model['id'], 'dimensions' => (int) $model['dimensions'], 'supportedDimensions' => $model['supportedDimensions'] ?? [$model['dimensions']], 'name' => $model['name']];
+        }, $cloud))] : []) + [
             'openai' => self::normalize_embedding_model_rows(self::get_openai_embedding_models()),
             'google' => self::normalize_embedding_model_rows(self::get_google_embedding_models()),
             'openrouter' => self::normalize_embedding_model_rows(self::get_openrouter_embedding_models()),
@@ -730,8 +846,15 @@ class AIPKit_Providers
             }
         }
 
+        // AI Puffer knowledge bases live in this site's database, so the list is always current.
+        if (!class_exists(\WPAICG\Vector\Providers\AIPKit_Vector_Local_Strategy::class) && defined('WPAICG_PLUGIN_DIR') && file_exists(WPAICG_PLUGIN_DIR . 'classes/knowledge-base/providers/local.php')) {
+            require_once WPAICG_PLUGIN_DIR . 'classes/knowledge-base/providers/local.php';
+        }
+        $local_stores = class_exists(\WPAICG\Vector\Providers\AIPKit_Vector_Local_Strategy::class) ? \WPAICG\Vector\Providers\AIPKit_Vector_Local_Strategy::stores() : [];
+
         $payload = [
             'vectorStores' => [
+                'local' => $local_stores,
                 'openai' => $openai_vector_stores,
                 'pinecone' => $pinecone_indexes,
                 'qdrant' => $qdrant_collections,
@@ -748,6 +871,8 @@ class AIPKit_Providers
             'qdrant_collections' => $qdrant_collections,
             'chroma_collections' => $chroma_collections,
             'google_file_search_stores' => $google_file_search_stores,
+            'localVectorStores' => $local_stores,
+            'local_stores' => $local_stores,
         ];
 
         $filtered_payload = apply_filters('aipkit_vector_store_localization_payload', $payload, $context);
@@ -942,13 +1067,22 @@ class AIPKit_Providers
             return is_scalar($value) && trim((string) $value) !== '';
         };
 
+        $ollama_state = AIPKit_Model_Registry::get_provider_states($providers)['ollama'] ?? [];
+        $ollama_connected = $has_value('Ollama', 'base_url')
+            && class_exists(aipkit_dashboard::class)
+            && aipkit_dashboard::is_pro_plan()
+            && !empty($ollama_state['last_success'])
+            && empty($ollama_state['connection_changed'])
+            && in_array($ollama_state['status'] ?? '', ['ready', 'stale'], true);
+
         return [
+            'aipuffercloud' => class_exists('\\WPAICG\\Cloud\\Connection') && \WPAICG\Cloud\Connection::generation_ready(),
             'openai' => $has_value('OpenAI', 'api_key'),
             'google' => $has_value('Google', 'api_key'),
             'claude' => $has_value('Claude', 'api_key'),
             'openrouter' => $has_value('OpenRouter', 'api_key'),
             'azure' => $has_value('Azure', 'api_key') && $has_value('Azure', 'endpoint'),
-            'ollama' => $has_value('Ollama', 'base_url'),
+            'ollama' => $ollama_connected,
             'deepseek' => $has_value('DeepSeek', 'api_key'),
             'xai' => $has_value('xAI', 'api_key'),
             'replicate' => $has_value('Replicate', 'api_key'),
@@ -1036,6 +1170,11 @@ class AIPKit_Providers
 
     public static function get_provider_data($provider)
     {
+        if ($provider === 'AIPufferCloud') {
+            $ready = class_exists('\\WPAICG\\Cloud\\Connection') && \WPAICG\Cloud\Connection::generation_ready();
+            $all = self::get_all_providers();
+            return ['api_key' => $ready ? 'cloud-site-connection' : '', 'model' => (string) ($all['AIPufferCloud']['model'] ?? '')];
+        }
         $all = self::get_all_providers();
         $provider_defaults = self::get_hydrated_provider_defaults_all();
         $defaults = $provider_defaults[$provider] ?? [];
@@ -1087,22 +1226,126 @@ class AIPKit_Providers
 
     /**
      * Resolve the provider/model used only for a newly created text-generation
-     * configuration. Saved provider model preferences are intentionally not
-     * treated as new-item defaults.
+     * configuration. A valid model saved in Settings takes precedence over the
+     * catalog recommendation. Existing items bypass this initialization path.
      *
      * @param array<int, string> $allowed_providers
+     * @param bool $include_cloud Whether Cloud may be used when the site owner selected it as the main provider.
      * @return array<string, mixed>
      */
-    public static function get_new_text_generation_selection(array $allowed_providers = []): array
+    public static function get_new_text_generation_selection(array $allowed_providers = [], bool $include_cloud = true): array
     {
+        $current_provider = self::get_current_provider();
+        if ($include_cloud && $current_provider === 'AIPufferCloud'
+            && (!class_exists('\\WPAICG\\Cloud\\Connection') || !\WPAICG\Cloud\Connection::generation_ready())) {
+            return ['provider' => 'AIPufferCloud', 'provider_key' => 'aipuffercloud', 'model' => ''];
+        }
         if (empty($allowed_providers)) {
             $allowed_providers = self::get_main_provider_allowlist();
         }
+        // A connection alone never chooses a billable provider for a new item.
+        if (!$include_cloud || $current_provider !== 'AIPufferCloud') {
+            $allowed_providers = array_values(array_diff($allowed_providers, ['AIPufferCloud']));
+        }
         return AIPKit_Model_Registry::resolve_new_model_selection('text_generation', [
             'allowed_providers' => $allowed_providers,
-            'preferred_provider' => self::get_current_provider(),
+            'preferred_provider' => $current_provider,
             'provider_configs' => self::get_all_providers(),
         ]);
+    }
+
+    /** Resolve a feature from cached catalogs, keeping Cloud billing an explicit choice. */
+    private static function resolve_new_feature_selection(string $capability, string $provider, array $configs): array
+    {
+        $allowed = AIPKit_Model_Catalog::get_provider_priority($capability);
+        if ($provider !== 'AIPufferCloud') {
+            $allowed = array_values(array_diff($allowed, ['AIPufferCloud']));
+        } elseif (!class_exists('\\WPAICG\\Cloud\\Connection') || !\WPAICG\Cloud\Connection::generation_ready()) {
+            return ['provider' => 'AIPufferCloud', 'provider_key' => 'aipuffercloud', 'model' => ''];
+        }
+        $allowed = array_values(array_filter($allowed, static function ($candidate) use ($capability): bool {
+            return self::provider_supports_capability($candidate, $capability);
+        }));
+        return $allowed ? AIPKit_Model_Registry::resolve_new_model_selection($capability, [
+            'allowed_providers' => $allowed, 'preferred_provider' => $provider,
+            'provider_configs' => $configs, 'configured_only' => true,
+        ]) : ['provider' => '', 'provider_key' => '', 'model' => ''];
+    }
+
+    /** Add source defaults for persistent knowledge, indexed by the chatbot's text provider. */
+    public static function get_chatbot_source_defaults(): array
+    {
+        $configs = self::get_all_providers();
+        $defaults = [];
+        foreach (AIPKit_Model_Catalog::get_provider_priority('text_generation') as $provider) {
+            $selection = self::resolve_new_feature_selection('embeddings', $provider, $configs);
+            $defaults[strtolower($provider)] = [
+                'vector_store_provider' => ['OpenAI' => 'openai', 'Google' => 'google'][$provider] ?? 'local',
+                'vector_embedding_provider' => $selection['provider_key'],
+                'vector_embedding_model' => $selection['model'],
+            ];
+        }
+        return $defaults;
+    }
+
+    /** Defaults for optional features on NEW configurations only. Never binds a store or enables a feature. */
+    public static function get_new_feature_defaults(string $context = 'content', string $provider = ''): array
+    {
+        $provider = $provider !== '' ? self::normalize_provider_label($provider)
+            : (string) (self::get_new_text_generation_selection()['provider'] ?? self::get_current_provider());
+        $configs = self::get_all_providers();
+        $selections = [];
+        foreach (['embeddings', 'image_generation', 'tts', 'stt'] as $capability) {
+            $selections[$capability] = self::resolve_new_feature_selection($capability, $provider, $configs);
+        }
+        // Google transcribes with audio-capable Gemini text models, not a separate STT catalog.
+        $google_state = AIPKit_Model_Registry::get_provider_states($configs)['google'] ?? [];
+        if (($provider === 'Google' || $selections['stt']['provider'] === '')
+            && !empty($google_state['configured']) && empty($google_state['locked'])) {
+            $ids = array_column(self::get_google_stt_models(), 'id');
+            $preferred = (string) ($configs['Google']['model'] ?? '');
+            $model = in_array($preferred, $ids, true) ? $preferred : self::normalize_google_stt_model('');
+            if (!in_array($model, $ids, true)) { $model = (string) ($ids[0] ?? ''); }
+            if ($model !== '') { $selections['stt'] = ['provider' => 'Google', 'provider_key' => 'google', 'model' => $model]; }
+        }
+        $knowledge = ['OpenAI' => 'openai', 'Google' => 'google'];
+        if ($context === 'chatbot') { $knowledge['Claude'] = 'claude_files'; }
+        $tts = $selections['tts'];
+        $voice = '';
+        if ($tts['model'] !== '') {
+            $voice_catalogs = ['OpenAI' => 'OpenAIVoices', 'Google' => 'GoogleTTSVoices', 'ElevenLabs' => 'ElevenLabs'];
+            if ($tts['provider'] === 'AIPufferCloud') {
+                $voices = \WPAICG\Cloud\Connection::media_capabilities('speech_generate', $tts['model'])['voices'] ?? [];
+                $voice = (string) ($voices[0] ?? '');
+            } elseif (isset($voice_catalogs[$tts['provider']])) {
+                $voice_catalog = $voice_catalogs[$tts['provider']];
+                $voices = AIPKit_Model_Registry::get_catalog_records($voice_catalog);
+                $ids = array_column($voices, 'id');
+                $preferred_voice = $tts['provider'] === 'ElevenLabs' ? ($configs['ElevenLabs']['voice_id'] ?? '')
+                    : AIPKit_Model_Catalog::get_default_id($voice_catalog);
+                $voice = in_array($preferred_voice, $ids, true) ? $preferred_voice : (string) ($ids[0] ?? '');
+            }
+        }
+        return [
+            'vector_store_provider' => $knowledge[$provider] ?? 'local',
+            'vector_embedding_provider' => $selections['embeddings']['provider_key'],
+            'vector_embedding_model' => $selections['embeddings']['model'],
+            'image_provider' => $selections['image_generation']['provider_key'],
+            'image_model' => $selections['image_generation']['model'],
+            'tts_provider' => $tts['provider'], 'tts_model' => $tts['model'], 'tts_voice' => $voice,
+            'stt_provider' => $selections['stt']['provider'], 'stt_model' => $selections['stt']['model'],
+        ];
+    }
+
+    /** Safe initialization data for admin screens; contains no credentials and makes no HTTP requests. */
+    public static function get_new_configuration_payload(): array
+    {
+        return [
+            'main_provider' => strtolower(self::get_current_provider()),
+            'newAiSelection' => self::get_new_text_generation_selection(),
+            'newFeatureDefaults' => self::get_new_feature_defaults(),
+            'chatbotSourceDefaults' => self::get_chatbot_source_defaults(),
+        ];
     }
 
     public static function get_provider_defaults($provider)

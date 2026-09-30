@@ -48,7 +48,7 @@ class AIPKit_Content_Writer_Template_Manager
         'image_count', 'image_placement', 'image_placement_param_x', 'image_alignment', 'image_size',
         'generate_featured_image', 'featured_image_prompt',
         'featured_image_prompt_update',
-    'enable_vector_store', 'vector_store_provider', 'openai_vector_store_ids', 'google_file_search_store_names', 'pinecone_index_name', 'qdrant_collection_name', 'chroma_collection_name', 'vector_embedding_provider', 'vector_embedding_model', 'vector_store_top_k', 'vector_store_confidence_threshold',
+    'enable_vector_store', 'vector_store_provider', 'openai_vector_store_ids', 'google_file_search_store_names', 'pinecone_index_name', 'qdrant_collection_name', 'chroma_collection_name', 'local_store_id', 'vector_embedding_provider', 'vector_embedding_model', 'vector_store_top_k', 'vector_store_confidence_threshold',
         'rss_include_keywords', 'rss_exclude_keywords', 'rss_item_limit',
         'pexels_orientation', 'pexels_size', 'pexels_color',
         'pixabay_orientation', 'pixabay_image_type', 'pixabay_category',
@@ -205,6 +205,7 @@ function get_cw_base_template_config(int $user_id): array
         return [];
     }
 
+    $feature_defaults = AIPKit_Providers::get_new_feature_defaults();
     $new_ai_selection = AIPKit_Providers::get_new_text_generation_selection();
     $ai_parameters = AIPKIT_AI_Settings::get_ai_parameters();
 
@@ -264,8 +265,8 @@ function get_cw_base_template_config(int $user_id): array
         'seo_score_profile' => 'auto',
         'seo_score_disabled_rules' => class_exists(AIPKit_Content_Writer_SEO_Config::class) ? AIPKit_Content_Writer_SEO_Config::default_disabled_rules() : '[]',
         'generate_images_enabled' => '0',
-        'image_provider' => 'openai',
-        'image_model' => AIPKit_Providers::get_default_openai_image_model(),
+        'image_provider' => $feature_defaults['image_provider'],
+        'image_model' => $feature_defaults['image_model'],
         'image_provider_options' => '{}',
         'image_prompt' => AIPKit_Content_Writer_Prompts::get_default_image_prompt(),
         'image_prompt_update' => '',
@@ -296,14 +297,15 @@ function get_cw_base_template_config(int $user_id): array
         'pixabay_image_type' => 'all',
         'pixabay_category' => '',
         'enable_vector_store' => '0',
-        'vector_store_provider' => 'openai',
+        'vector_store_provider' => $feature_defaults['vector_store_provider'],
         'openai_vector_store_ids' => [],
         'google_file_search_store_names' => [],
         'pinecone_index_name' => '',
         'qdrant_collection_name' => '',
         'chroma_collection_name' => '',
-        'vector_embedding_provider' => 'openai',
-        'vector_embedding_model' => AIPKit_Providers::get_default_model_id('OpenAIEmbedding'),
+        'local_store_id' => '',
+        'vector_embedding_provider' => $feature_defaults['vector_embedding_provider'],
+        'vector_embedding_model' => $feature_defaults['vector_embedding_model'],
         'vector_store_top_k' => '3',
         'vector_store_confidence_threshold' => '20',
     ];

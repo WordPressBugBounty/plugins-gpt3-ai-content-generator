@@ -19,6 +19,45 @@ class ChatImageInputValidator
     private const MAX_IMAGE_COUNT = 4;
     private const ALLOWED_MIME_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
 
+    /** Validate and resize inline images for providers with bounded request bodies. */
+    public static function prepare_inline_images(array $images)
+    {
+        if (!$images || count($images) > self::MAX_IMAGE_COUNT) {
+            return new WP_Error('invalid_image_input', __('Upload between one and four images.', 'gpt3-ai-content-generator'), ['status' => 400]);
+        }
+        $result = [];
+        foreach ($images as $image) {
+            $raw = is_string($image['base64'] ?? null) ? base64_decode($image['base64'], true) : false;
+            $info = $raw !== false && strlen($raw) <= self::MAX_IMAGE_SIZE_BYTES ? @getimagesizefromstring($raw) : false;
+            if (!$info || !in_array($info['mime'], self::ALLOWED_MIME_TYPES, true) || $info['mime'] !== ($image['type'] ?? '') || $info[0] * $info[1] > 40000000) {
+                return new WP_Error('invalid_image_input', __('Upload a valid JPG, PNG, or WebP image of up to 20 MB and 40 megapixels.', 'gpt3-ai-content-generator'), ['status' => 400]);
+            }
+            if (max($info[0], $info[1]) > 1024 || strlen($raw) > 250000) {
+                if (!function_exists('wp_tempnam')) { require_once ABSPATH . 'wp-admin/includes/file.php'; }
+                $temporary = wp_tempnam('aipkit-image-input');
+                $output = $temporary ? $temporary . '.jpg' : '';
+                try {
+                    if (!$temporary || file_put_contents($temporary, $raw) === false) { throw new \RuntimeException(); }
+                    $editor = wp_get_image_editor($temporary);
+                    if (is_wp_error($editor) || (max($info[0], $info[1]) > 1024 && is_wp_error($editor->resize(1024, 1024, false)))) { throw new \RuntimeException(); }
+                    $editor->set_quality(75);
+                    $saved = $editor->save($output, 'image/jpeg');
+                    if (is_wp_error($saved) || !is_readable($output)) { throw new \RuntimeException(); }
+                    $raw = file_get_contents($output);
+                    if ($raw === false || strlen($raw) > 250000) { throw new \RuntimeException(); }
+                    $info['mime'] = 'image/jpeg';
+                } catch (\Throwable $error) {
+                    return new WP_Error('image_resize_failed', __('This image could not be prepared. Upload a smaller JPG, PNG, or WebP image.', 'gpt3-ai-content-generator'), ['status' => 400]);
+                } finally {
+                    if ($temporary && file_exists($temporary)) { wp_delete_file($temporary); }
+                    if ($output && file_exists($output)) { wp_delete_file($output); }
+                }
+            }
+            $result[] = ['type' => $info['mime'], 'base64' => base64_encode($raw)];
+        }
+        return $result;
+    }
+
     /**
      * Parses and validates image payloads received from frontend JSON.
      *

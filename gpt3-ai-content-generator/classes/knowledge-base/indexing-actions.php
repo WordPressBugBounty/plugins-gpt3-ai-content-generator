@@ -26,6 +26,7 @@ class AIPKit_Vector_Post_Processor_Ajax_Handler
     private $pinecone_processor;
     private $qdrant_processor;
     private $chroma_processor;
+    private $local_processor;
 
     public function __construct()
     {
@@ -45,6 +46,11 @@ class AIPKit_Vector_Post_Processor_Ajax_Handler
         if (class_exists(ChromaPostProcessor::class)) {
             $this->chroma_processor = new ChromaPostProcessor();
         }
+
+        if (!class_exists(\WPAICG\Vector\PostProcessor\Local\LocalPostProcessor::class)) {
+            require_once WPAICG_PLUGIN_DIR . 'classes/knowledge-base/indexing-local.php';
+        }
+        $this->local_processor = new \WPAICG\Vector\PostProcessor\Local\LocalPostProcessor();
     }
 
     /**
@@ -120,6 +126,8 @@ class AIPKit_Vector_Post_Processor_Ajax_Handler
             return;
         }
 
+        $first_error_data = [];
+        $stop_error = null;
         $processed_count = 0;
         $successful_posts = [];
         $failed_posts_log = [];
@@ -145,6 +153,12 @@ class AIPKit_Vector_Post_Processor_Ajax_Handler
                     $processed_count++;
                 } else {
                     $failed_posts_log[$post_id] = $result['message'];
+                    $error_data = $result['error_data'] ?? [];
+                    if (count($failed_posts_log) === 1) { $first_error_data = $error_data; }
+                    if (!empty($error_data['stop_batch'])) {
+                        $stop_error = $error_data + ['message' => $result['message']];
+                        break;
+                    }
                 }
             }
         } elseif ($provider === 'pinecone' && $this->pinecone_processor) {
@@ -169,6 +183,12 @@ class AIPKit_Vector_Post_Processor_Ajax_Handler
                     $processed_count++;
                 } else {
                     $failed_posts_log[$post_id] = $result['message'];
+                    $error_data = $result['error_data'] ?? [];
+                    if (count($failed_posts_log) === 1) { $first_error_data = $error_data; }
+                    if (!empty($error_data['stop_batch'])) {
+                        $stop_error = $error_data + ['message' => $result['message']];
+                        break;
+                    }
                 }
             }
         } elseif ($provider === 'qdrant' && $this->qdrant_processor) { // ADDED Qdrant case
@@ -193,6 +213,12 @@ class AIPKit_Vector_Post_Processor_Ajax_Handler
                     $processed_count++;
                 } else {
                     $failed_posts_log[$post_id] = $result['message'];
+                    $error_data = $result['error_data'] ?? [];
+                    if (count($failed_posts_log) === 1) { $first_error_data = $error_data; }
+                    if (!empty($error_data['stop_batch'])) {
+                        $stop_error = $error_data + ['message' => $result['message']];
+                        break;
+                    }
                 }
             }
         } elseif ($provider === 'chroma' && $this->chroma_processor) {
@@ -217,6 +243,36 @@ class AIPKit_Vector_Post_Processor_Ajax_Handler
                     $processed_count++;
                 } else {
                     $failed_posts_log[$post_id] = $result['message'];
+                    $error_data = $result['error_data'] ?? [];
+                    if (count($failed_posts_log) === 1) { $first_error_data = $error_data; }
+                    if (!empty($error_data['stop_batch'])) {
+                        $stop_error = $error_data + ['message' => $result['message']];
+                        break;
+                    }
+                }
+            }
+        } elseif ($provider === 'local' && $this->local_processor) {
+            $target_store = isset($post_data['target_store_id']) ? sanitize_text_field($post_data['target_store_id']) : (isset($post_data['target_collection_name']) ? sanitize_text_field($post_data['target_collection_name']) : '');
+            $embedding_provider_key = isset($post_data['embedding_provider']) ? sanitize_key($post_data['embedding_provider']) : '';
+            $embedding_model = isset($post_data['embedding_model']) ? sanitize_text_field($post_data['embedding_model']) : '';
+            if ($target_store === '') {
+                wp_send_json_error(['message' => __('Please select a knowledge base.', 'gpt3-ai-content-generator')], 400);
+                return;
+            }
+            $store_identifier_for_msg = $target_store;
+            foreach ($post_ids as $post_id) {
+                $result = $this->local_processor->index_single_post_to_store($post_id, $target_store, $embedding_provider_key, $embedding_model);
+                if ($result['status'] === 'success') {
+                    $successful_posts[] = $post_id;
+                    $processed_count++;
+                } else {
+                    $failed_posts_log[$post_id] = $result['message'];
+                    $error_data = $result['error_data'] ?? [];
+                    if (count($failed_posts_log) === 1) { $first_error_data = $error_data; }
+                    if (!empty($error_data['stop_batch'])) {
+                        $stop_error = $error_data + ['message' => $result['message']];
+                        break;
+                    }
                 }
             }
         } else {
@@ -224,12 +280,12 @@ class AIPKit_Vector_Post_Processor_Ajax_Handler
             return;
         }
 
-        if (empty($successful_posts) && !empty($failed_posts_log)) {
-            $first_error = reset($failed_posts_log);
-            wp_send_json_error([
-                'message' => $first_error,
-                'failed_posts_summary' => array_keys($failed_posts_log),
-            ], 400);
+        if ($stop_error || (empty($successful_posts) && !empty($failed_posts_log))) {
+            $error = $stop_error ?? ($first_error_data + ['message' => reset($failed_posts_log)]);
+            $error['failed_posts_summary'] = array_keys($failed_posts_log);
+            $error['successful_posts'] = $successful_posts;
+            $error['unprocessed_posts'] = array_values(array_diff($post_ids, $successful_posts, array_keys($failed_posts_log)));
+            wp_send_json_error($error, $error['status'] ?? 400);
             return;
         }
         /* translators: %1$d is the number of posts processed, %2$s is the vector store identifier */

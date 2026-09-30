@@ -52,6 +52,9 @@ class AIPKit_Semantic_Search_Ajax_Handler extends BaseDashboardAjaxHandler
             return;
         }
 
+        $rate_check = \WPAICG\Core\TokenManager\AIPKit_Token_Manager::check_public_request_rate();
+        if (is_wp_error($rate_check)) { $this->send_wp_error($rate_check); return; }
+
         $opts = get_option('aipkit_options', []);
         $settings = $opts['semantic_search'] ?? [];
 
@@ -68,6 +71,7 @@ class AIPKit_Semantic_Search_Ajax_Handler extends BaseDashboardAjaxHandler
         }
 
         $vector_provider_map = [
+            'local' => 'Local',
             'pinecone' => 'Pinecone',
             'qdrant'  => 'Qdrant',
             'chroma'  => 'Chroma',
@@ -89,7 +93,9 @@ class AIPKit_Semantic_Search_Ajax_Handler extends BaseDashboardAjaxHandler
             return;
         }
 
-        $embedding_options = ['model' => $embedding_model];
+        $vector_store_config = $vector_provider_normalized === 'Local' ? [] : AIPKit_Providers::get_provider_data($vector_provider_normalized);
+        $embedding_options = $this->vector_store_manager->embedding_options($embedding_provider_norm, $embedding_model, $vector_provider_normalized, [$target_id], $vector_store_config);
+        if (is_wp_error($embedding_options)) { $this->send_wp_error($embedding_options); return; }
         $embedding_result = $this->ai_caller->generate_embeddings($embedding_provider_norm, $query, $embedding_options);
 
         if (is_wp_error($embedding_result)) {
@@ -102,7 +108,6 @@ class AIPKit_Semantic_Search_Ajax_Handler extends BaseDashboardAjaxHandler
         }
         $query_vector = $embedding_result['embeddings'][0];
 
-        $vector_store_config = AIPKit_Providers::get_provider_data($vector_provider_normalized);
         $query_vector_param = ['vector' => $query_vector];
         $search_results = $this->vector_store_manager->query_vectors($vector_provider_normalized, $target_id, $query_vector_param, (int)$num_results, [], $vector_store_config);
 

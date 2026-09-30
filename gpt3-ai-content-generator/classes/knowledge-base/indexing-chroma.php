@@ -88,7 +88,7 @@ class ChromaEmbeddingHandler
      * @param array<int,string> $content_strings
      * @return mixed[]|\WP_Error
      */
-    public function generate_embeddings(array $content_strings, string $embedding_provider, string $embedding_model)
+    public function generate_embeddings(array $content_strings, string $embedding_provider, string $embedding_model, array $embedding_options = [])
     {
         if (!$this->ai_caller) {
             return new WP_Error('ai_caller_missing_chroma_embed', 'AI Caller component is not available for Chroma embeddings.');
@@ -99,9 +99,13 @@ class ChromaEmbeddingHandler
             return new WP_Error('embedding_failed_chroma_embed', 'No content provided for Chroma embeddings.');
         }
 
-        $embedding_options = ['model' => $embedding_model];
+        $embedding_options['model'] = $embedding_model;
         $embedding_result = $this->ai_caller->generate_embeddings($embedding_provider, $content_strings, $embedding_options);
         if (!is_wp_error($embedding_result) && isset($embedding_result['embeddings']) && is_array($embedding_result['embeddings']) && count($embedding_result['embeddings']) === count($content_strings)) {
+            return $embedding_result;
+        }
+
+        if (is_wp_error($embedding_result) && \WPAICG\Core\AIPKit_HTTP_Request::batch_error_data($embedding_result)['stop_batch']) {
             return $embedding_result;
         }
 
@@ -191,13 +195,8 @@ class ChromaPostProcessor extends AIPKit_Vector_Post_Processor_Base
             'file_id' => $chroma_record_id,
         ]);
 
-        $return_error = function (string $error_msg) use ($log_entry_base): array {
-            $this->log_event(array_merge($log_entry_base, [
-                'status' => 'failed',
-                'message' => $error_msg,
-            ]));
-
-            return ['status' => 'error', 'message' => $error_msg];
+        $return_error = function ($error, string $message = '') use ($log_entry_base): array {
+            return $this->indexing_error($error, $log_entry_base, $message);
         };
 
         if (!$this->embedding_handler || !$this->vector_store_manager || !$this->config_handler) {
@@ -228,7 +227,7 @@ class ChromaPostProcessor extends AIPKit_Vector_Post_Processor_Base
             'Chroma'
         );
         if (is_wp_error($chunks)) {
-            return $return_error($chunks->get_error_message());
+            return $return_error($chunks);
         }
 
         $embedding_batch_size = $this->resolve_embedding_batch_size(
@@ -243,13 +242,16 @@ class ChromaPostProcessor extends AIPKit_Vector_Post_Processor_Base
         $records_to_upsert = [];
         $chunk_batches = array_chunk($chunks, $embedding_batch_size);
         $total_chunks = count($chunks);
+        $embedding_options = $this->vector_store_manager->embedding_options($embedding_provider_normalized, $embedding_model, 'Chroma', [$collection_name], $chroma_api_config);
+        if (is_wp_error($embedding_options)) { return $return_error($embedding_options); }
+
         foreach ($chunk_batches as $chunk_batch) {
             $chunk_texts = array_map(static function ($chunk): string {
                 return (string) ($chunk['text'] ?? '');
             }, $chunk_batch);
-            $embedding_result = $this->embedding_handler->generate_embeddings($chunk_texts, $embedding_provider_normalized, $embedding_model);
+            $embedding_result = $this->embedding_handler->generate_embeddings($chunk_texts, $embedding_provider_normalized, $embedding_model, $embedding_options);
             if (is_wp_error($embedding_result)) {
-                return $return_error('Embedding failed: ' . $embedding_result->get_error_message());
+                return $return_error($embedding_result, 'Embedding failed: ' . $embedding_result->get_error_message());
             }
 
             $embedding_vectors = $embedding_result['embeddings'] ?? [];

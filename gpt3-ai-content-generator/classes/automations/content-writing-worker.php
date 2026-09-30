@@ -6,6 +6,7 @@ use WPAICG\Core\AIPKit_AI_Caller;
 use WPAICG\ContentWriter\AIPKit_Content_Writer_Prompts;
 use WPAICG\ContentWriter\AIPKit_Content_Writer_Output_Cleaner;
 use WP_Error;
+use WPAICG\AutoGPT\Helpers;
 use WPAICG\ContentWriter\Prompt\AIPKit_Content_Writer_System_Instruction_Builder;
 use WPAICG\ContentWriter\Prompt\AIPKit_Content_Writer_User_Prompt_Builder;
 use WPAICG\Vector\AIPKit_Vector_Store_Manager;
@@ -33,6 +34,8 @@ use WPAICG\Core\AIPKit_Event_Webhooks;
 if (!defined('ABSPATH')) {
     exit; // Exit if accessed directly
 }
+
+require_once __DIR__ . '/task-access.php';
 
 // --- generate-title-helper.php ---
 /**
@@ -86,8 +89,7 @@ function generate_title_logic(array $cw_config, AIPKit_AI_Caller $ai_caller)
     );
 
     if (is_wp_error($title_result)) {
-        $error_msg = $title_result->get_error_message();
-        return new WP_Error('title_generation_failed', $error_msg);
+        return $title_result;
     }
 
     $generated_title_raw = trim($title_result['content'] ?? '');
@@ -126,9 +128,9 @@ if (file_exists($vector_logic_path)) {
  * @param array $cw_config The specific configuration for the content writing item.
  *                         It's expected to have 'content_title' which is the *final* title,
  *                         and potentially 'inline_keywords'.
- * @return array ['system_instruction' => string, 'user_prompt' => string]
+ * @return array|WP_Error ['system_instruction' => string, 'user_prompt' => string]
  */
-function build_content_prompts_logic(array $cw_config): array
+function build_content_prompts_logic(array $cw_config)
 {
     // System instruction is now simpler as it doesn't need to reference guided fields.
     $system_instruction = class_exists(AIPKit_Content_Writer_System_Instruction_Builder::class)
@@ -141,7 +143,7 @@ function build_content_prompts_logic(array $cw_config): array
     $vector_store_enabled = ($cw_config['enable_vector_store'] ?? '0') === '1';
 
     if ($vector_store_enabled) {
-        $ai_caller = class_exists(AIPKit_AI_Caller::class) ? new AIPKit_AI_Caller() : null;
+        $ai_caller = class_exists(AIPKit_AI_Caller::class) ? new AIPKit_AI_Caller(true) : null;
         $vector_store_manager = class_exists(AIPKit_Vector_Store_Manager::class) ? new AIPKit_Vector_Store_Manager() : null;
 
         if ($ai_caller && $vector_store_manager && function_exists('\WPAICG\Core\Stream\Vector\build_vector_search_context_logic')) {
@@ -159,6 +161,7 @@ function build_content_prompts_logic(array $cw_config): array
                 $cw_config['chroma_collection_name'] ?? null,
                 null
             );
+            if (is_wp_error($vector_context)) { return $vector_context; }
             if (!empty($vector_context)) {
                 $system_instruction = "## Relevant information from knowledge base:\n" . trim($vector_context) . "\n##\n\n" . $system_instruction;
             }
@@ -250,6 +253,11 @@ function generate_post_logic(array $prompts, array $cw_config, AIPKit_AI_Caller 
         if ($reasoning_effort !== '') {
             $content_ai_params['reasoning'] = ['effort' => $reasoning_effort];
         }
+    } elseif (($provider ?? '') === 'AIPufferCloud') {
+        $reasoning_effort = \WPAICG\Cloud\Connection::reasoning_effort((string) ($model ?? ''), $cw_config['reasoning_effort'] ?? '');
+        if ($reasoning_effort !== '') {
+            $content_ai_params['reasoning'] = ['effort' => $reasoning_effort];
+        }
     } elseif (($provider ?? '') === 'OpenRouter') {
         $reasoning_effort = AIPKit_OpenRouter_Reasoning::normalize_effort_for_model(
             (string) ($model ?? ''),
@@ -293,7 +301,7 @@ function generate_post_logic(array $prompts, array $cw_config, AIPKit_AI_Caller 
     );
 
     if (is_wp_error($content_result)) {
-        return new WP_Error('content_generation_failed', 'Content generation failed: ' . $content_result->get_error_message());
+        return $content_result;
     }
 
     $generated_content = $content_result['content'] ?? '';
@@ -578,7 +586,7 @@ function process_content_writing_item_logic(array $item_config, array $queue_ite
     }
     $item_config = normalize_content_writing_image_config_logic($item_config);
 
-    $ai_caller = new AIPKit_AI_Caller();
+    $ai_caller = new AIPKit_AI_Caller(true);
     $smart_seo_keyword_resolution = null;
     $smart_seo_keyword_usage = null;
 
@@ -586,6 +594,7 @@ function process_content_writing_item_logic(array $item_config, array $queue_ite
         'topic' => $item_config['content_title'] ?? '',
         'title' => $item_config['content_title'] ?? '',
     ]);
+    if ($ai_caller->get_batch_error()) { return Helpers\provider_error_result($ai_caller->get_batch_error()); }
     $item_config = $resolved_keyword_result['config'];
     if (!empty($resolved_keyword_result['resolution']['changed'])) {
         $smart_seo_keyword_resolution = $resolved_keyword_result['resolution'];
@@ -595,7 +604,7 @@ function process_content_writing_item_logic(array $item_config, array $queue_ite
     // 1. Generate Title (if needed)
     $title_result = generate_title_logic($item_config, $ai_caller);
     if (is_wp_error($title_result)) {
-        return ['status' => 'error', 'message' => $title_result->get_error_message()];
+        return Helpers\provider_error_result($title_result);
     }
     $final_title = $title_result['title'];
     $title_usage = $title_result['usage'] ?? null;
@@ -603,14 +612,24 @@ function process_content_writing_item_logic(array $item_config, array $queue_ite
     // 2. Build Prompts
     $config_for_prompt = array_merge($item_config, ['content_title' => $final_title]);
     $prompts = build_content_prompts_logic($config_for_prompt);
+    if (is_wp_error($prompts)) {
+        return Helpers\provider_error_result($prompts);
+    }
 
     // 3. Generate Post Content
     $content_result = generate_post_logic($prompts, $item_config, $ai_caller);
     if (is_wp_error($content_result)) {
-        return ['status' => 'error', 'message' => $content_result->get_error_message()];
+        return Helpers\provider_error_result($content_result);
     }
     $generated_content = $content_result['content'];
     $content_usage = $content_result['usage'] ?? null;
+
+    $refusal = null;
+    $capture_refusal = static function ($result) use (&$refusal): void {
+        if (is_wp_error($result) && AIPKit_AI_Caller::batch_error_data($result)['stop_batch']) {
+            $refusal = $result;
+        }
+    };
 
     // 4. Generate Images
     $image_data = null;
@@ -643,8 +662,11 @@ function process_content_writing_item_logic(array $item_config, array $queue_ite
             );
         }
 
+        $capture_refusal($image_result);
         if (is_wp_error($image_result)) {
-            // Don't stop the whole process, just log the error and continue without images.
+            $partial_images = $image_result->get_error_data()['image_data'] ?? null;
+            if (is_array($partial_images)) { $image_data = $partial_images; }
+            // Retain partial images; a provider refusal saves the article as a draft below.
             $error_details = normalize_content_writing_image_warning_logic($image_result->get_error_message());
             $image_generation_warning = $error_details;
         } else {
@@ -711,7 +733,7 @@ function process_content_writing_item_logic(array $item_config, array $queue_ite
     $prompt_mode = $item_config['prompt_mode'] ?? 'custom'; // For AutoGPT, we assume prompts are always custom
     $should_generate_seo = ($generate_meta || $generate_keyword || $generate_excerpt || $generate_tags) && !empty($generated_content);
 
-    if ($should_generate_seo) {
+    if ($should_generate_seo && !$refusal) {
         $content_summary = AIPKit_Content_Writer_Summarizer::summarize($generated_content);
         $final_keywords = !empty($item_config['inline_keywords']) ? $item_config['inline_keywords'] : ($item_config['content_keywords'] ?? '');
 
@@ -720,6 +742,7 @@ function process_content_writing_item_logic(array $item_config, array $queue_ite
             $keyword_user_prompt = AIPKit_Content_Writer_Keyword_Prompt_Builder::build($final_title, $content_summary, $prompt_mode, $custom_keyword_prompt);
             $keyword_ai_params = ['temperature' => 0.2, 'top_p' => null];
             $keyword_result = $ai_caller->make_standard_call($item_config['ai_provider'], $item_config['ai_model'], [['role' => 'user', 'content' => $keyword_user_prompt]], $keyword_ai_params, 'You are an SEO expert. Your task is to provide the single best focus keyword for a piece of content.');
+            $capture_refusal($keyword_result);
             if (!is_wp_error($keyword_result) && !empty($keyword_result['content'])) {
                 $focus_keyword = trim(str_replace(['"', "'", '.'], '', $keyword_result['content']));
                 $final_keywords = $focus_keyword; // Use this new keyword for other SEO prompts
@@ -729,13 +752,14 @@ function process_content_writing_item_logic(array $item_config, array $queue_ite
                         $item_config, $ai_caller, $final_title, $content_summary,
                         $focus_keyword, $final_keywords, $keyword_usage, $smart_seo_keyword_resolution
                     );
+                    $capture_refusal($ai_caller->get_batch_error());
                 }
             }
         } elseif (!empty($final_keywords)) {
             $focus_keyword = explode(',', $final_keywords)[0]; // Use first provided keyword as focus keyword
         }
 
-        if ($generate_excerpt && class_exists(AIPKit_Content_Writer_Excerpt_Prompt_Builder::class)) {
+        if (!$refusal && $generate_excerpt && class_exists(AIPKit_Content_Writer_Excerpt_Prompt_Builder::class)) {
             $custom_excerpt_prompt = $item_config['custom_excerpt_prompt'] ?? null;
             $excerpt_user_prompt = AIPKit_Content_Writer_Excerpt_Prompt_Builder::build($final_title, $content_summary, $final_keywords, $prompt_mode, $custom_excerpt_prompt);
             $excerpt_system_instruction = 'You are an expert copywriter. Your task is to provide an engaging excerpt for a piece of content.';
@@ -748,13 +772,14 @@ function process_content_writing_item_logic(array $item_config, array $queue_ite
                 $excerpt_ai_params,
                 $excerpt_system_instruction
             );
+            $capture_refusal($excerpt_result);
             if (!is_wp_error($excerpt_result) && !empty($excerpt_result['content'])) {
                 $excerpt = trim(str_replace(['"', "'"], '', $excerpt_result['content']));
                 $excerpt_usage = $excerpt_result['usage'] ?? null;
             }
         }
 
-        if ($generate_tags && class_exists(AIPKit_Content_Writer_Tags_Prompt_Builder::class)) {
+        if (!$refusal && $generate_tags && class_exists(AIPKit_Content_Writer_Tags_Prompt_Builder::class)) {
             $custom_tags_prompt = $item_config['custom_tags_prompt'] ?? null;
             $tags_user_prompt = AIPKit_Content_Writer_Tags_Prompt_Builder::build($final_title, $content_summary, $final_keywords, $prompt_mode, $custom_tags_prompt);
             $tags_system_instruction = 'You are an SEO expert. Your task is to provide a comma-separated list of relevant tags for a piece of content.';
@@ -767,13 +792,14 @@ function process_content_writing_item_logic(array $item_config, array $queue_ite
                 $tags_ai_params,
                 $tags_system_instruction
             );
+            $capture_refusal($tags_result);
             if (!is_wp_error($tags_result) && !empty($tags_result['content'])) {
                 $tags = trim(str_replace(['"', "'"], '', $tags_result['content']));
                 $tags_usage = $tags_result['usage'] ?? null;
             }
         }
 
-        if ($generate_meta && class_exists(AIPKit_Content_Writer_Meta_Prompt_Builder::class)) {
+        if (!$refusal && $generate_meta && class_exists(AIPKit_Content_Writer_Meta_Prompt_Builder::class)) {
             $custom_meta_prompt = $item_config['custom_meta_prompt'] ?? null;
             $meta_user_prompt = AIPKit_Content_Writer_Meta_Prompt_Builder::build($final_title, $content_summary, $final_keywords, $prompt_mode, $custom_meta_prompt);
             $meta_system_instruction = 'You are an SEO expert specializing in writing meta descriptions.';
@@ -787,6 +813,7 @@ function process_content_writing_item_logic(array $item_config, array $queue_ite
                 $meta_system_instruction
             );
 
+            $capture_refusal($meta_result);
             if (!is_wp_error($meta_result) && !empty($meta_result['content'])) {
                 $meta_description = AIPKit_Content_Writer_Output_Cleaner::clean_meta_description((string) $meta_result['content']);
                 $meta_usage = $meta_result['usage'] ?? null;
@@ -798,7 +825,7 @@ function process_content_writing_item_logic(array $item_config, array $queue_ite
     $smart_seo_result = null;
     $smart_seo_usage = null;
     $smart_seo_warning = null;
-    if (class_exists(\WPAICG\Lib\Automations\ContentWriting::class)) {
+    if (!$refusal && class_exists(\WPAICG\Lib\Automations\ContentWriting::class)) {
         [
             'final_title' => $final_title,
             'generated_content' => $generated_content,
@@ -834,6 +861,12 @@ function process_content_writing_item_logic(array $item_config, array $queue_ite
         if ($rank_math_slug !== '') {
             $item_config['smart_seo_slug'] = $rank_math_slug;
         }
+    }
+
+    $capture_refusal($ai_caller->get_batch_error());
+    if ($refusal) {
+        $item_config['post_status'] = 'draft';
+        unset($item_config['scheduled_gmt_time']);
     }
 
     // 6. Insert Post
@@ -976,6 +1009,16 @@ function process_content_writing_item_logic(array $item_config, array $queue_ite
         );
     }
 
+    if ($refusal) {
+        $result = Helpers\provider_error_result($refusal);
+        $result['post_id'] = $new_post_id;
+        $result['message'] .= ' ' . sprintf(
+            /* translators: %d: saved draft post ID. */
+            __('Partial content saved as draft #%d. Review it before retrying.', 'gpt3-ai-content-generator'), $new_post_id
+        );
+        return $result;
+    }
+
     $success_message = 'Content generated and post created (ID: ' . $new_post_id . ').';
     if (!empty($image_generation_warning)) {
         $success_message .= ' ' . sprintf(
@@ -1056,7 +1099,7 @@ function normalize_content_writing_image_provider_logic(string $provider): strin
         'x_ai' => 'xai',
     ];
     $provider = $aliases[$provider] ?? $provider;
-    $allowed = ['openai', 'openrouter', 'google', 'azure', 'xai', 'replicate', 'pexels', 'pixabay'];
+    $allowed = ['openai', 'aipuffercloud', 'openrouter', 'google', 'azure', 'xai', 'replicate', 'pexels', 'pixabay'];
 
     return in_array($provider, $allowed, true) ? $provider : 'openai';
 }

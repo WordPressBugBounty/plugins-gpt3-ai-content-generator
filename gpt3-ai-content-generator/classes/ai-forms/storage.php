@@ -211,11 +211,14 @@ function get_form_data_logic(\WPAICG\AIForms\Storage\AIPKit_AI_Form_Storage $sto
     $data['pinecone_index_name'] = get_post_meta($form_id, '_aipkit_ai_form_pinecone_index_name', true) ?: '';
     $data['qdrant_collection_name'] = get_post_meta($form_id, '_aipkit_ai_form_qdrant_collection_name', true) ?: '';
     $data['chroma_collection_name'] = get_post_meta($form_id, '_aipkit_ai_form_chroma_collection_name', true) ?: '';
+    $local_store_ids = json_decode((string) (get_post_meta($form_id, '_aipkit_ai_form_local_store_ids', true) ?: '[]'), true);
+    $data['local_store_ids'] = is_array($local_store_ids) ? array_values(array_filter(array_map('strval', $local_store_ids))) : [];
 
     $allowed_embedding_provider_keys = AIPKit_Providers::get_embedding_provider_keys('ai_forms_get_form_data');
 
-    $vector_embedding_provider = get_post_meta($form_id, '_aipkit_ai_form_vector_embedding_provider', true) ?: 'openai';
-    if (!in_array($vector_embedding_provider, $allowed_embedding_provider_keys, true)) {
+    $vector_embedding_provider = metadata_exists('post', $form_id, '_aipkit_ai_form_vector_embedding_provider')
+        ? (string) get_post_meta($form_id, '_aipkit_ai_form_vector_embedding_provider', true) : 'openai';
+    if (!in_array($vector_embedding_provider, ['', 'aipuffercloud'], true) && !in_array($vector_embedding_provider, $allowed_embedding_provider_keys, true)) {
         $vector_embedding_provider = 'openai';
     }
     $data['vector_embedding_provider'] = $vector_embedding_provider;
@@ -436,6 +439,9 @@ function save_form_settings_logic(\WPAICG\AIForms\Storage\AIPKit_AI_Form_Storage
     if (isset($settings['chroma_collection_name'])) {
         update_post_meta($form_id, '_aipkit_ai_form_chroma_collection_name', sanitize_text_field($settings['chroma_collection_name']));
     }
+    if (isset($settings['local_store_ids']) && is_array($settings['local_store_ids'])) {
+        update_post_meta($form_id, '_aipkit_ai_form_local_store_ids', wp_json_encode(array_values(array_filter(array_map('sanitize_text_field', $settings['local_store_ids'])))));
+    }
     if (isset($settings['vector_embedding_provider'])) {
         update_post_meta($form_id, '_aipkit_ai_form_vector_embedding_provider', sanitize_key($settings['vector_embedding_provider']));
     }
@@ -632,6 +638,12 @@ function create_form_logic(\WPAICG\AIForms\Storage\AIPKit_AI_Form_Storage $stora
         return new WP_Error('dependency_missing', 'AI Form Admin Setup class not found for CPT creation.');
     }
 
+    $selection = AIPKit_Providers::get_new_text_generation_selection();
+    $provider = (string) ($settings['ai_provider'] ?? $selection['provider']);
+    // An explicit provider without a model must not inherit another provider's model.
+    $model = $provider === $selection['provider'] ? $selection['model'] : '';
+    $defaults = AIPKit_Providers::get_new_feature_defaults('content', $provider);
+
     $post_data = array(
         'post_title'  => sanitize_text_field($title),
         'post_type'   => AIPKit_AI_Form_Admin_Setup::POST_TYPE,
@@ -648,10 +660,10 @@ function create_form_logic(\WPAICG\AIForms\Storage\AIPKit_AI_Form_Storage $stora
     $default_settings = [
         'prompt_template' => 'Your AI prompt for {user_input}',
         'form_structure' => '[]',
-        'ai_provider' => 'OpenAI',
-        'ai_model' => '',
+        'ai_provider' => $provider,
+        'ai_model' => $model,
         'system_instruction' => '',
-    ];
+    ] + array_intersect_key($defaults, array_flip(['vector_store_provider', 'vector_embedding_provider', 'vector_embedding_model']));
     $final_settings = array_merge($default_settings, $settings);
 
     // Call the logic function via the passed storage instance

@@ -15,12 +15,14 @@ if (!defined('ABSPATH')) {
     exit; // Exit if accessed directly
 }
 
+require_once __DIR__ . '/http.php';
+
 /**
  * AIPKit_AI_Caller
  *
  * Generic service class responsible for making standard (non-streaming) AI calls.
  * It uses the Provider Strategy pattern to handle provider specifics.
- * It does NOT handle module-specific context like chat history formatting or logging.
+ * Module conversation logs remain separate from optional local request receipts.
  * Uses InstructionManager to process system instructions.
  * MODIFIED: Accepts and passes image_inputs via ai_params_override to payload formatters.
  * MODIFIED: Sanitizes image_inputs before logging request payloads using AIPKit_Payload_Sanitizer.
@@ -28,11 +30,61 @@ if (!defined('ABSPATH')) {
  */
 class AIPKit_AI_Caller
 {
+    private bool $stop_after_refusal;
+    private ?WP_Error $batch_error = null;
+    private string $request_module;
+
+    public function __construct(bool $stop_after_refusal = false, string $request_module = '')
+    {
+        $this->stop_after_refusal = $stop_after_refusal;
+        $this->request_module = $request_module;
+    }
+
+    public function get_batch_error(): ?WP_Error
+    {
+        return $this->batch_error;
+    }
+
+    /** Preserve machine-readable refusals, including BYOK authentication and quota errors. */
+    public static function batch_error_data(WP_Error $error): array
+    {
+        return AIPKit_HTTP_Request::batch_error_data($error);
+    }
+
+    private function record_request(string $provider, string $model, ?array $usage, string $operation): void
+    {
+        if ($this->request_module === '') { return; }
+        if (!class_exists('\\WPAICG\\Core\\TokenManager\\Ledger\\AIPKit_Ledger_Repository')) {
+            require_once dirname(__DIR__) . '/usage/ledger.php';
+        }
+        \WPAICG\Core\TokenManager\Ledger\AIPKit_Ledger_Repository::record_provider_request($provider, $model, $usage, $this->request_module, $operation);
+    }
+
+    private function remember_batch_error($result)
+    {
+        if ($this->stop_after_refusal && is_wp_error($result) && self::batch_error_data($result)['stop_batch']) {
+            $this->batch_error = $result;
+        }
+        return $result;
+    }
+
+    public function make_standard_call(string $provider, string $model, array $messages, array $ai_params_override = [], ?string $base_system_instruction = null, array $instruction_context = [])
+    {
+        if ($this->batch_error) { return $this->batch_error; }
+        return $this->remember_batch_error($this->request_standard_call($provider, $model, $messages, $ai_params_override, $base_system_instruction, $instruction_context));
+    }
+
+    public function generate_embeddings(string $provider, $input, array $embedding_options = [])
+    {
+        if ($this->batch_error) { return $this->batch_error; }
+        return $this->remember_batch_error($this->request_embeddings($provider, $input, $embedding_options));
+    }
+
     /**
      * Makes a standard (non-streaming) API call to the specified AI provider.
      * @return mixed[]|\WP_Error
      */
-    public function make_standard_call(
+    protected function request_standard_call(
         string $provider,
         string $model,
         array $messages,
@@ -196,6 +248,10 @@ class AIPKit_AI_Caller
             true
         );
 
+        if (is_wp_error($response) && $provider === 'AIPufferCloud') {
+            return new WP_Error('cloud_outcome_unknown', __('The Cloud response was interrupted. Credit usage may still be processing. Refresh your credits before starting another request.', 'gpt3-ai-content-generator'),
+                ['provider' => $provider, 'model' => $model, 'status_code' => 504, 'stop_batch' => true, 'cloud_operation_id' => $request_body_data['operationId'] ?? '']);
+        }
         if (is_wp_error($response)) {
             /* translators: %s: The specific error message from the failed HTTP request. */
             return new WP_Error('http_request_failed', sprintf(__('HTTP request failed: %s', 'gpt3-ai-content-generator'), $response->get_error_message()), ['request_payload' => $request_payload_log, 'provider' => $provider, 'model' => $model, 'status_code' => 503]);
@@ -207,6 +263,7 @@ class AIPKit_AI_Caller
         if ($status_code >= 400) {
             $parsed_message = $strategy->parse_error_response($response_body_raw, $status_code);
             $http_error_data = $strategy->build_http_error_data_with_retry_after($response, $status_code);
+            if ($provider === 'AIPufferCloud') { $http_error_data['cloud_operation_id'] = $request_body_data['operationId'] ?? ''; }
             $http_error_data = array_merge(
                 $http_error_data,
                 [
@@ -259,6 +316,7 @@ class AIPKit_AI_Caller
             $return_data['vector_search_scores'] = $instruction_context['vector_search_scores'];
         }
 
+        $this->record_request($provider, $model, $return_data['usage'], 'text');
         return $return_data;
     }
 
@@ -266,7 +324,7 @@ class AIPKit_AI_Caller
      * Makes an API call to generate embeddings.
      * @return mixed[]|\WP_Error
      */
-    public function generate_embeddings(
+    protected function request_embeddings(
         string $provider,
         $input,
         array $embedding_options = []
@@ -391,6 +449,7 @@ class AIPKit_AI_Caller
             $error_data_from_strategy['operation'] = 'generate_embeddings_api_call';
             return new WP_Error($result->get_error_code(), $result->get_error_message(), $error_data_from_strategy);
         }
+        $this->record_request($provider, (string) ($embedding_options['model'] ?? ''), $result['usage'] ?? null, 'embed');
         return $result;
     }
 }

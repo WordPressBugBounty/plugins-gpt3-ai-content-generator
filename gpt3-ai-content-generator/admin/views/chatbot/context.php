@@ -115,6 +115,7 @@ $knowledge_config_panel_id = 'aipkit_bot_' . $bot_id . '_knowledge_config_panel'
                     name="vector_store_provider"
                     class="aipkit_popover_option_select aipkit_vector_store_provider_select"
                 >
+                    <option value="local" <?php selected($vector_store_provider, 'local'); ?>><?php esc_html_e('Local', 'gpt3-ai-content-generator'); ?></option>
                     <option value="openai" <?php selected($vector_store_provider, 'openai'); ?>>OpenAI</option>
                     <option value="pinecone" <?php selected($vector_store_provider, 'pinecone'); ?>>Pinecone</option>
                     <option value="qdrant" <?php selected($vector_store_provider, 'qdrant'); ?>>Qdrant</option>
@@ -499,6 +500,47 @@ $knowledge_config_panel_id = 'aipkit_bot_' . $bot_id . '_knowledge_config_panel'
             </div>
         </div>
 
+        <div class="aipkit_popover_option_row aipkit_vector_store_local_field" style="<?php echo ($enable_vector_store === '1' && $vector_store_provider === 'local') ? '' : 'display:none;'; ?>">
+            <div class="aipkit_popover_option_main">
+                <label class="aipkit_popover_option_label" for="aipkit_bot_<?php echo esc_attr($bot_id); ?>_local_store_ids_modal">
+                    <?php esc_html_e('Knowledge bases', 'gpt3-ai-content-generator'); ?>
+                </label>
+                <div class="aipkit_popover_option_actions">
+                    <div
+                        class="aipkit_popover_multiselect"
+                        data-aipkit-local-stores-dropdown
+                        data-placeholder="<?php echo esc_attr__('Select knowledge bases', 'gpt3-ai-content-generator'); ?>"
+                        data-selected-label="<?php echo esc_attr__('selected', 'gpt3-ai-content-generator'); ?>"
+                    >
+                        <button type="button" class="aipkit_popover_multiselect_btn" aria-expanded="false" aria-controls="aipkit_bot_<?php echo esc_attr($bot_id); ?>_local_stores_panel">
+                            <span class="aipkit_popover_multiselect_label"><?php esc_html_e('Select knowledge bases', 'gpt3-ai-content-generator'); ?></span>
+                        </button>
+                        <div id="aipkit_bot_<?php echo esc_attr($bot_id); ?>_local_stores_panel" class="aipkit_popover_multiselect_panel" role="menu" hidden>
+                            <div class="aipkit_popover_multiselect_options"></div>
+                        </div>
+                    </div>
+                </div>
+                <select id="aipkit_bot_<?php echo esc_attr($bot_id); ?>_local_store_ids_modal" name="local_store_ids[]" class="aipkit_popover_multiselect_select" multiple size="3" hidden aria-hidden="true" tabindex="-1">
+                    <?php
+                    $aipkit_local_ids = array_column($local_stores, 'id');
+                    foreach ($local_stores as $aipkit_local_store) {
+                        /* translators: 1: knowledge base name, 2: number of chunks. */
+                        $aipkit_local_label = sprintf(__('%1$s (%2$s chunks)', 'gpt3-ai-content-generator'), $aipkit_local_store['name'], number_format_i18n((int) $aipkit_local_store['chunk_count']));
+                        echo '<option value="' . esc_attr($aipkit_local_store['id']) . '"' . selected(in_array($aipkit_local_store['id'], $local_store_ids, true), true, false) . '>' . esc_html($aipkit_local_label) . '</option>';
+                    }
+                    foreach ($local_store_ids as $aipkit_saved_local) {
+                        if (!in_array($aipkit_saved_local, $aipkit_local_ids, true)) {
+                            echo '<option value="' . esc_attr($aipkit_saved_local) . '" selected disabled="disabled" data-aipkit-preserved-selection="1">' . esc_html($aipkit_saved_local . ' ' . __('(missing)', 'gpt3-ai-content-generator')) . '</option>';
+                        }
+                    }
+                    if (!$local_stores && !$local_store_ids) {
+                        echo '<option value="" disabled>' . esc_html__('-- No knowledge bases yet --', 'gpt3-ai-content-generator') . '</option>';
+                    }
+                    ?>
+                </select>
+            </div>
+        </div>
+
         <div class="aipkit_popover_option_row aipkit_vector_store_chroma_field" style="<?php echo ($enable_vector_store === '1' && $vector_store_provider === 'chroma') ? '' : 'display:none;'; ?>">
             <div class="aipkit_popover_option_main">
                 <label
@@ -641,7 +683,7 @@ $knowledge_config_panel_id = 'aipkit_bot_' . $bot_id . '_knowledge_config_panel'
                                 data-aipkit-universal-model-combined="1"
                             >
                                 <?php
-                                echo '<option value="" hidden></option>';
+                                echo '<option value="" hidden ' . selected($vector_embedding_model, '', false) . '></option>';
                                 echo wp_kses(
                                     \WPAICG\AIPKit_Providers::render_embedding_optgroup_options(
                                         $embedding_provider_options,
@@ -664,6 +706,9 @@ $knowledge_config_panel_id = 'aipkit_bot_' . $bot_id . '_knowledge_config_panel'
                                 aria-hidden="true"
                                 tabindex="-1"
                             >
+                                <?php if (!isset($embedding_provider_options[$vector_embedding_provider])): ?>
+                                    <option value="<?php echo esc_attr($vector_embedding_provider); ?>" selected><?php esc_html_e('Select a provider', 'gpt3-ai-content-generator'); ?></option>
+                                <?php endif; ?>
                                 <?php foreach ($embedding_provider_options as $provider_key => $provider_label): ?>
                                     <option value="<?php echo esc_attr($provider_key); ?>" <?php selected($vector_embedding_provider, $provider_key); ?>>
                                         <?php echo esc_html($provider_label); ?>

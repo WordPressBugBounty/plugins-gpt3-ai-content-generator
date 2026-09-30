@@ -50,7 +50,7 @@ $aipkit_settings_modules = array(
     ),
     'stats_viewer' => array(
         'label'       => __('Usage', 'gpt3-ai-content-generator'),
-        'description' => __('Show usage and activity trends in the utility navigation.', 'gpt3-ai-content-generator'),
+        'description' => __('Show Usage in navigation. Turning this off also hides Visitor billing controls.', 'gpt3-ai-content-generator'),
         'icon'        => 'chart-bar',
         'data_module' => 'stats',
     ),
@@ -72,6 +72,8 @@ $aipkit_training_settings = is_array($aipkit_training_settings) ? $aipkit_traini
 $aipkit_index_button_enabled = !array_key_exists('show_index_button', $aipkit_training_settings)
     || (bool) $aipkit_training_settings['show_index_button'];
 $aipkit_indexing_nonce = wp_create_nonce('aipkit_ai_training_settings_nonce');
+$aipkit_visitor_billing_enabled = class_exists(\WPAICG\Stats\AIPKit_Stats::class)
+    && \WPAICG\Stats\AIPKit_Stats::visitor_billing_enabled();
 
 $aipkit_editor_tools = array(
     'index_button' => array(
@@ -110,6 +112,7 @@ $aipkit_editor_tools = array(
     class="aipkit_settings_modules"
     id="aipkit_settings_modules"
     data-indexing-nonce="<?php echo esc_attr($aipkit_indexing_nonce); ?>"
+    data-visitor-billing-nonce="<?php echo esc_attr(wp_create_nonce('aipkit_visitor_billing')); ?>"
 >
     <section class="aipkit_settings_modules_section" aria-labelledby="aipkit_settings_modules_navigation_title">
         <h4 class="aipkit_settings_modules_section_title" id="aipkit_settings_modules_navigation_title">
@@ -198,4 +201,27 @@ $aipkit_editor_tools = array(
             <?php endforeach; ?>
         </div>
     </section>
+
+    <?php if ($can_manage_modules) : ?>
+        <section class="aipkit_settings_modules_section" aria-labelledby="aipkit_settings_modules_optional_title">
+            <h4 class="aipkit_settings_modules_section_title" id="aipkit_settings_modules_optional_title">
+                <?php esc_html_e('Optional features', 'gpt3-ai-content-generator'); ?>
+            </h4>
+            <div class="aipkit_settings_modules_list">
+                <div class="aipkit_form-group aipkit_settings_simple_row aipkit_settings_module_row" data-aipkit-settings-autosave-exclude="true">
+                    <div class="aipkit_settings_module_identity">
+                        <span class="aipkit_settings_module_icon dashicons dashicons-groups" aria-hidden="true"></span>
+                        <label class="aipkit_form-label aipkit_settings_module_copy" for="aipkit_settings_visitor_billing_toggle">
+                            <span class="aipkit_settings_module_title"><?php esc_html_e('Visitor billing', 'gpt3-ai-content-generator'); ?></span>
+                            <span class="aipkit_form-label-helper"><?php esc_html_e('Show visitor credit controls in Usage. Turning this on also shows Usage; turning it off does not stop existing sales.', 'gpt3-ai-content-generator'); ?></span>
+                        </label>
+                    </div>
+                    <label class="aipkit_switch aipkit_settings_module_control" for="aipkit_settings_visitor_billing_toggle">
+                        <input type="checkbox" id="aipkit_settings_visitor_billing_toggle" class="aipkit_settings_visitor_billing_toggle" aria-label="<?php esc_attr_e('Show visitor billing controls in Usage', 'gpt3-ai-content-generator'); ?>" <?php checked($aipkit_visitor_billing_enabled); ?> />
+                        <span class="aipkit_switch_slider" aria-hidden="true"></span>
+                    </label>
+                </div>
+            </div>
+        </section>
+    <?php endif; ?>
 </div>

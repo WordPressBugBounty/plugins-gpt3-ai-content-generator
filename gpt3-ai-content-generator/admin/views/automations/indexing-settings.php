@@ -21,6 +21,7 @@ function aipkit_render_automation_indexing_settings(array $aipkit_view_data): vo
                             name="target_store_provider"
                             class="aipkit_form-input aipkit_ci_target_select aipkit_autosave_trigger"
                         >
+                            <option value="local"><?php esc_html_e('Local', 'gpt3-ai-content-generator'); ?></option>
                             <option value="openai" selected>OpenAI</option>
                             <option value="google"><?php esc_html_e('Google', 'gpt3-ai-content-generator'); ?></option>
                             <option value="pinecone">Pinecone</option>

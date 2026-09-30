@@ -63,7 +63,10 @@ if (!defined('ABSPATH')) {
             <div id="aipkit_image_generator_preview_panel" class="aipkit_image_generator_workspace_panel is-active" role="tabpanel" aria-label="<?php esc_attr_e('Image Generator preview', 'gpt3-ai-content-generator'); ?>">
                 <div class="aipkit_image_generator_admin_preview_wrapper">
                     <?php
-                    echo do_shortcode('[aipkit_image_generator history="true" mode="both" theme="light"]');
+                    $aipkit_image_defaults = \WPAICG\AIPKit_Providers::get_new_feature_defaults();
+                    // Visitor model restrictions do not limit the admin workspace.
+                    echo do_shortcode(sprintf('[aipkit_image_generator history="true" mode="both" theme="light" allowed_models="" provider="%s" model="%s"]',
+                        esc_attr($aipkit_image_defaults['image_provider']), esc_attr($aipkit_image_defaults['image_model'])));
                     ?>
                 </div>
             </div>

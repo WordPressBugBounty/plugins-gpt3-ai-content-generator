@@ -49,6 +49,7 @@ function aipkit_render_automation_image_settings(): void
                 <select id="aipkit_task_cw_image_provider" name="image_provider" tabindex="-1">
                     <optgroup label="<?php echo esc_attr__('AI Providers', 'gpt3-ai-content-generator'); ?>">
                         <option value="openai" selected>OpenAI</option>
+                        <option value="aipuffercloud"><?php esc_html_e('AI Puffer Cloud', 'gpt3-ai-content-generator'); ?></option>
                         <option value="google">Google</option>
                         <option value="openrouter">OpenRouter</option>
                         <option value="azure">Azure</option>
@@ -211,6 +212,7 @@ function aipkit_render_automation_image_settings(): void
             $aipkit_notice_id = 'aipkit_task_cw_image_provider_notice';
             $aipkit_notice_class = 'aipkit_task_cw_image_provider_notice';
             $aipkit_notice_context = __('generate images for this automation', 'gpt3-ai-content-generator');
+            $aipkit_notice_model_source = 'aipkit_task_cw_image_selection';
             include WPAICG_PLUGIN_DIR . 'admin/views/shared/provider-key-notice.php';
             ?>
 

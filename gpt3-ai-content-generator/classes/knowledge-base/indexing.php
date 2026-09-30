@@ -14,6 +14,8 @@ if (!defined('ABSPATH')) {
     exit; // Exit if accessed directly
 }
 
+require_once dirname(__DIR__) . '/ai/http.php';
+
 // phpcs:disable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- This file intentionally uses core WordPress hook names.
 
 /**
@@ -31,6 +33,18 @@ abstract class AIPKit_Vector_Post_Processor_Base
     {
         global $wpdb;
         $this->data_source_table_name = $wpdb->prefix . 'aipkit_vector_data_source';
+    }
+
+    /** Preserve public request metadata while logging an indexing failure. */
+    protected function indexing_error($error, array $log, string $message = ''): array
+    {
+        $message = $message !== '' ? $message : (is_wp_error($error) ? $error->get_error_message() : (string) $error);
+        $this->log_event(array_merge($log, ['status' => 'failed', 'message' => $message]));
+        return [
+            'status' => 'error',
+            'message' => $message,
+            'error_data' => is_wp_error($error) ? \WPAICG\Core\AIPKit_HTTP_Request::public_error_data($error, 400) : [],
+        ];
     }
 
     protected function create_vector_store_manager(): ?AIPKit_Vector_Store_Manager

@@ -24,6 +24,53 @@ if (!defined('ABSPATH')) {
  */
 class ModelsAjaxHandler extends BaseDashboardAjaxHandler
 {
+    private $connection_candidate = null;
+    private $connection_fields = [];
+
+    /** Render the same provider definitions used by Settings, without exposing keys. */
+    public function ajax_provider_connection()
+    {
+        $permission = $this->check_module_access_permissions('settings');
+        if (is_wp_error($permission)) { $this->send_wp_error($permission); return; }
+        if (!AIPKit_Role_Manager::user_can_manage_settings()) {
+            wp_send_json_error(['message' => __('Ask a site administrator to connect an AI provider.', 'gpt3-ai-content-generator')], 403);
+            return;
+        }
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- check_module_access_permissions() verifies the nonce above.
+        $operation = isset($_POST['operation']) ? sanitize_key(wp_unslash($_POST['operation'])) : 'view';
+        if ($operation === 'view') {
+            $aipkit_connection_dialog_only = true;
+            ob_start();
+            include WPAICG_PLUGIN_DIR . 'admin/views/settings/providers.php';
+            wp_send_json_success(['html' => ob_get_clean()]);
+            return;
+        }
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- check_module_access_permissions() verifies the nonce above.
+        $provider = isset($_POST['provider']) ? sanitize_text_field(wp_unslash($_POST['provider'])) : '';
+        $allowed = ['OpenAI', 'Google', 'Claude', 'OpenRouter', 'Azure', 'DeepSeek', 'xAI'];
+        if (\WPAICG\aipkit_dashboard::is_pro_plan()) { $allowed[] = 'Ollama'; }
+        if ($operation !== 'connect' || !in_array($provider, $allowed, true)) {
+            wp_send_json_error(['message' => __('Invalid provider selection.', 'gpt3-ai-content-generator')], 400);
+            return;
+        }
+        $fields = $provider === 'Ollama' ? ['base_url'] : ['api_key'];
+        if ($provider === 'Azure') {
+            $fields = array_merge($fields, ['endpoint', 'api_version_authoring', 'api_version_inference', 'api_version_images']);
+        }
+        foreach ($fields as $field) {
+            // phpcs:ignore WordPress.Security.NonceVerification.Missing, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Nonce checked above; each allowed field is sanitized by type on the next line.
+            $value = isset($_POST[$field]) && is_string($_POST[$field]) ? trim(wp_unslash($_POST[$field])) : '';
+            $this->connection_fields[$field] = in_array($field, ['base_url', 'endpoint'], true) ? esc_url_raw($value) : sanitize_text_field($value);
+        }
+        $credential = $provider === 'Ollama' ? 'base_url' : 'api_key';
+        if ($this->connection_fields[$credential] === '' || ($provider === 'Azure' && $this->connection_fields['endpoint'] === '')) {
+            wp_send_json_error(['message' => __('Complete the connection fields.', 'gpt3-ai-content-generator')], 400);
+            return;
+        }
+        $this->connection_candidate = array_merge(AIPKit_Providers::get_provider_data($provider), $this->connection_fields);
+        $this->ajax_sync_models();
+    }
+
     private $vector_store_manager;
     private $vector_store_registry;
 
@@ -197,6 +244,16 @@ class ModelsAjaxHandler extends BaseDashboardAjaxHandler
 
         // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce is checked in check_module_access_permissions().
         $provider = isset($_POST['provider']) ? sanitize_text_field(wp_unslash($_POST['provider'])) : '';
+        if ($provider === 'AIPufferCloud' && class_exists('\\WPAICG\\Cloud\\Connection')) {
+            if (\WPAICG\Cloud\Connection::transition('sync') !== 'synced') {
+                wp_send_json_error(['message' => __('Cloud model sync failed. Check your connection in Settings.', 'gpt3-ai-content-generator')], 503);
+                return;
+            }
+            wp_send_json_success(array_merge(\WPAICG\Cloud\Connection::view_response('synced'), [
+                'message' => __('Cloud models synced.', 'gpt3-ai-content-generator'),
+            ]));
+            return;
+        }
         $default_valid_providers = ['OpenAI', 'OpenRouter', 'Google', 'GoogleFileSearchStores', 'Azure', 'Claude', 'DeepSeek', 'xAI', 'xAIImage', 'ElevenLabs', 'ElevenLabsModels', 'OpenAIVectorStores', 'PineconeIndexes', 'QdrantCollections', 'ChromaCollections', 'Replicate'];
         $valid_providers = apply_filters('aipkit_sync_provider_allowlist', $default_valid_providers);
         if (!is_array($valid_providers) || empty($valid_providers)) {
@@ -230,10 +287,11 @@ class ModelsAjaxHandler extends BaseDashboardAjaxHandler
             $provider_data_key = 'Chroma';
         }
 
-        $provData = AIPKit_Providers::get_provider_data($provider_data_key);
+        $provData = $this->connection_candidate ?? AIPKit_Providers::get_provider_data($provider_data_key);
 
         // Remap Azure 'endpoint' to 'azure_endpoint' for consistency with AI_Caller and strategy expectations.
         $api_params = [
+            'verify_credentials'      => $this->connection_candidate !== null,
             'api_key'                 => $provData['api_key'] ?? '',
             'base_url'                => $provData['base_url'] ?? '',
             'url'                     => $provData['url'] ?? '', // For Qdrant/Chroma
@@ -334,7 +392,9 @@ class ModelsAjaxHandler extends BaseDashboardAjaxHandler
         }
 
         if (is_wp_error($result)) {
-            AIPKit_Model_Registry::mark_sync_error($provider_data_key, $provider, $result, $provData);
+            if ($this->connection_candidate === null) {
+                AIPKit_Model_Registry::mark_sync_error($provider_data_key, $provider, $result, $provData);
+            }
             $error_data = $result->get_error_data();
             $status_code = isset($error_data['status']) ? (int)$error_data['status'] : 500;
             wp_send_json_error(['message' => $result->get_error_message()], $status_code);
@@ -622,6 +682,17 @@ class ModelsAjaxHandler extends BaseDashboardAjaxHandler
             return;
         }
 
+        if ($this->connection_candidate !== null) {
+            AIPKit_Providers::save_provider_data($provider_data_key, $this->connection_fields);
+            $saved_connection = AIPKit_Providers::get_provider_data($provider_data_key);
+            foreach ($this->connection_fields as $field => $value) {
+                if (($saved_connection[$field] ?? '') !== $value) {
+                    wp_send_json_error(['message' => __('The connection could not be saved. Please try again.', 'gpt3-ai-content-generator')], 500);
+                    return;
+                }
+            }
+        }
+
         if ($this->vector_store_registry) {
             foreach ($vector_registry_updates as $vector_provider => $vector_targets) {
                 $this->vector_store_registry->update_registered_stores_for_provider(
@@ -693,6 +764,8 @@ class ModelsAjaxHandler extends BaseDashboardAjaxHandler
                     'synced_at' => $synced_at,
                     'catalog_revision' => $catalog_revision,
                     'provider_state' => $provider_state,
+                    'providerStatus' => AIPKit_Providers::get_provider_status_map(),
+                    'newConfiguration' => AIPKit_Providers::get_new_configuration_payload(),
                     'warnings' => $sync_warnings,
                 ],
                 $extra_response_payload

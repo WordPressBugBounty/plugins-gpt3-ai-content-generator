@@ -238,6 +238,11 @@ class AIPKit_Update_Automated_Task_Status_Action extends AIPKit_Automated_Task_B
         }
         $task_config = json_decode($task['task_config'], true);
         $frequency = $task_config['indexing_frequency'] ?? ($task_config['task_frequency'] ?? 'daily');
+        if ($status === 'active' && !\WPAICG\AutoGPT\Helpers\clear_provider_hold($task_id)) {
+            $this->send_wp_error(new WP_Error('provider_hold_clear_failed', __('Could not resume the task. Please try again.', 'gpt3-ai-content-generator')), 500);
+            return;
+        }
+
 
         // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Reason: Direct update to a custom table. Caches will be invalidated.
         $result = $wpdb->update($this->tasks_table_name, ['status' => $status, 'updated_at' => current_time('mysql', 1)], ['id' => $task_id], ['%s', '%s'], ['%d']);
@@ -620,6 +625,8 @@ class AIPKit_Retry_Automated_Task_Queue_Item_Action extends AIPKit_Automated_Tas
         $item_id = isset($_POST['item_id']) ? absint($_POST['item_id']) : 0;
         if (empty($item_id)) { $this->send_wp_error(new WP_Error('missing_item_id_retry', __('Queue item ID is required.', 'gpt3-ai-content-generator')), 400); return; }
 
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Resolve the exact failed item's task before an explicit retry.
+        $task_id = (int) $wpdb->get_var($wpdb->prepare('SELECT task_id FROM ' . esc_sql($this->queue_table_name) . ' WHERE id = %d AND status = %s', $item_id, 'failed'));
         // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Reason: Direct update to a custom table. Cache will be invalidated.
         $result = $wpdb->update(
             $this->queue_table_name,
@@ -634,6 +641,10 @@ class AIPKit_Retry_Automated_Task_Queue_Item_Action extends AIPKit_Automated_Tas
         } elseif ($result === 0) {
             $this->send_wp_error(new WP_Error('item_not_retryable', __('Item not found or not in a failed state.', 'gpt3-ai-content-generator')), 404);
         } else {
+            if ($task_id && !\WPAICG\AutoGPT\Helpers\clear_provider_hold($task_id)) {
+                $this->send_wp_error(new WP_Error('provider_hold_clear_failed', __('Item queued, but the task could not resume. Resume the task to continue.', 'gpt3-ai-content-generator')), 500);
+                return;
+            }
              if (class_exists(AIPKit_Automated_Task_Event_Processor::class)) {
                  AIPKit_Automated_Task_Event_Processor::process_task_queue_event();
              }
@@ -755,6 +766,7 @@ function provider_setup_is_present(string $provider_key): ?bool
 
     $provider_key = strtolower(sanitize_key($provider_key));
     $provider_names = [
+        'aipuffercloud' => 'AIPufferCloud',
         'openai' => 'OpenAI',
         'google' => 'Google',
         'claude' => 'Claude',
@@ -805,7 +817,7 @@ function provider_setup_error(string $provider_key): ?WP_Error
     }
 
     $labels = [
-        'openai' => 'OpenAI', 'google' => 'Google', 'claude' => 'Anthropic',
+        'aipuffercloud' => 'AI Puffer Cloud', 'openai' => 'OpenAI', 'google' => 'Google', 'claude' => 'Anthropic',
         'openrouter' => 'OpenRouter', 'azure' => 'Azure', 'ollama' => 'Ollama',
         'deepseek' => 'DeepSeek', 'xai' => 'xAI', 'replicate' => 'Replicate',
         'pexels' => 'Pexels', 'pixabay' => 'Pixabay', 'pinecone' => 'Pinecone',
@@ -843,7 +855,7 @@ function validate_task_provider_setup(string $task_type, array $post_data): ?WP_
         if (($post_data['enable_vector_store'] ?? '0') === '1') {
             $vector_provider = (string) ($post_data['vector_store_provider'] ?? 'openai');
             $providers[] = $vector_provider;
-            if (in_array(strtolower($vector_provider), ['pinecone', 'qdrant', 'chroma'], true)) {
+            if (in_array(strtolower($vector_provider), ['pinecone', 'qdrant', 'chroma', 'local'], true)) {
                 $providers[] = $post_data['vector_embedding_provider'] ?? '';
             }
         }
@@ -852,7 +864,7 @@ function validate_task_provider_setup(string $task_type, array $post_data): ?WP_
         if (($post_data['enable_vector_store'] ?? '0') === '1') {
             $vector_provider = (string) ($post_data['vector_store_provider'] ?? 'openai');
             $providers[] = $vector_provider;
-            if (in_array(strtolower($vector_provider), ['pinecone', 'qdrant', 'chroma'], true)) {
+            if (in_array(strtolower($vector_provider), ['pinecone', 'qdrant', 'chroma', 'local'], true)) {
                 $providers[] = $post_data['vector_embedding_provider'] ?? '';
             }
         }
@@ -861,7 +873,7 @@ function validate_task_provider_setup(string $task_type, array $post_data): ?WP_
     } elseif ($task_type === 'content_indexing') {
         $vector_provider = (string) ($post_data['target_store_provider'] ?? 'openai');
         $providers[] = $vector_provider;
-        if (in_array(strtolower($vector_provider), ['pinecone', 'qdrant', 'chroma'], true)) {
+        if (in_array(strtolower($vector_provider), ['pinecone', 'qdrant', 'chroma', 'local'], true)) {
             $providers[] = $post_data['embedding_provider'] ?? '';
         }
     }
@@ -930,7 +942,7 @@ function build_task_config_indexing_logic(array $post_data)
         ? array_values(array_filter(array_map('absint', $post_data['specific_post_ids'])))
         : [];
     $task_config['target_store_provider'] = isset($post_data['target_store_provider']) ? sanitize_key($post_data['target_store_provider']) : 'openai';
-    if (!in_array($task_config['target_store_provider'], ['openai', 'google', 'pinecone', 'qdrant', 'chroma'], true)) {
+    if (!in_array($task_config['target_store_provider'], ['openai', 'google', 'pinecone', 'qdrant', 'chroma', 'local'], true)) {
         return new WP_Error('unsupported_target_store_provider', __('Unsupported knowledge base provider.', 'gpt3-ai-content-generator'), ['status' => 400]);
     }
     $task_config['target_store_id'] = isset($post_data['target_store_id']) ? sanitize_text_field($post_data['target_store_id']) : '';
@@ -957,6 +969,7 @@ function build_task_config_indexing_logic(array $post_data)
     }
 
     if (
+        $task_config['target_store_provider'] === 'local' ||
         $task_config['target_store_provider'] === 'pinecone' ||
         $task_config['target_store_provider'] === 'qdrant' ||
         $task_config['target_store_provider'] === 'chroma'
@@ -1025,7 +1038,7 @@ function build_task_config_writing_logic(array $post_data)
             'pexels_orientation', 'pexels_size', 'pexels_color',
             'pixabay_orientation', 'pixabay_image_type', 'pixabay_category',
             'enable_vector_store', 'vector_store_provider', 'openai_vector_store_ids', 'google_file_search_store_names',
-            'pinecone_index_name', 'qdrant_collection_name', 'chroma_collection_name', 'vector_embedding_provider',
+            'pinecone_index_name', 'qdrant_collection_name', 'chroma_collection_name', 'local_store_id', 'vector_embedding_provider',
             'vector_embedding_model', 'vector_store_top_k', 'vector_store_confidence_threshold',
             'rss_include_keywords', 'rss_exclude_keywords', 'rss_item_limit',
             'reasoning_effort',
@@ -1072,10 +1085,10 @@ function build_task_config_writing_logic(array $post_data)
                         'ollama' => 'Ollama',
                         'xai' => 'xAI',
                     ];
-                    $content_writer_config[$key] = $provider_map[$provider_key] ?? ucfirst($provider_key);
+                    $content_writer_config[$key] = $provider_map[$provider_key] ?? \WPAICG\AIPKit_Providers::normalize_provider_label($provider_raw);
                 } elseif ($key === 'image_provider') {
                     $image_provider_key = sanitize_key(wp_unslash($post_data[$key]));
-                    $allowed_image_providers = ['openai', 'openrouter', 'google', 'azure', 'xai', 'replicate', 'pexels', 'pixabay'];
+                    $allowed_image_providers = ['openai', 'aipuffercloud', 'openrouter', 'google', 'azure', 'xai', 'replicate', 'pexels', 'pixabay'];
                     $content_writer_config[$key] = in_array($image_provider_key, $allowed_image_providers, true) ? $image_provider_key : 'openai';
                 } elseif (in_array($key, ['generate_meta_description', 'generate_focus_keyword', 'generate_excerpt', 'generate_tags', 'generate_toc', 'generate_images_enabled', 'generate_featured_image', 'enable_vector_store', 'generate_seo_slug', 'seo_score_improvement_enabled', 'seo_score_continue_until_target'], true)) {
                     $content_writer_config[$key] = ($post_data[$key] === '1' || $post_data[$key] === true || $post_data[$key] === 1) ? '1' : '0';
@@ -1145,7 +1158,7 @@ function build_task_config_writing_logic(array $post_data)
         unset($content_writer_config['content_title_bulk']);
 
         $image_provider = sanitize_key((string) ($content_writer_config['image_provider'] ?? 'openai'));
-        $allowed_image_providers = ['openai', 'openrouter', 'google', 'azure', 'xai', 'replicate', 'pexels', 'pixabay'];
+        $allowed_image_providers = ['openai', 'aipuffercloud', 'openrouter', 'google', 'azure', 'xai', 'replicate', 'pexels', 'pixabay'];
         $content_writer_config['image_provider'] = in_array($image_provider, $allowed_image_providers, true) ? $image_provider : 'openai';
         if (isset($content_writer_config['image_model'])) {
             $image_model = sanitize_text_field((string) $content_writer_config['image_model']);
@@ -1188,6 +1201,8 @@ function build_task_config_writing_logic(array $post_data)
                 $has_vector_source = !empty($content_writer_config['qdrant_collection_name']);
             } elseif ($vector_provider === 'chroma') {
                 $has_vector_source = !empty($content_writer_config['chroma_collection_name']);
+            } elseif ($vector_provider === 'local') {
+                $has_vector_source = !empty($content_writer_config['local_store_id']);
             }
             if (!$has_vector_source) {
                 return new WP_Error('missing_vector_source', __('Please select a knowledge source before enabling context.', 'gpt3-ai-content-generator'), ['status' => 400]);
@@ -1237,7 +1252,7 @@ function build_task_config_comment_reply_logic(array $post_data)
             $task_config['ai_provider'] = 'Ollama';
             break;
         default:
-            $task_config['ai_provider'] = ucfirst(strtolower($provider_raw));
+            $task_config['ai_provider'] = \WPAICG\AIPKit_Providers::normalize_provider_label((string) $provider_raw);
             break;
     }
 

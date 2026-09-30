@@ -16,6 +16,10 @@ $log_settings_retention = isset($log_settings['retention_period_days'])
     ? (int) $log_settings['retention_period_days']
     : 90;
 $user_credits_nonce = wp_create_nonce('aipkit_user_credits_nonce');
+$visitor_billing_enabled = \WPAICG\Stats\AIPKit_Stats::visitor_billing_enabled();
+$cloud_connected = class_exists('\\WPAICG\\Cloud\\Connection')
+    && \WPAICG\Cloud\Connection::allowed()
+    && \WPAICG\Cloud\Connection::display()['connected'];
 $retention_options = class_exists('\\WPAICG\\Chat\\Utils\\LogConfig')
     ? \WPAICG\Chat\Utils\LogConfig::get_retention_periods()
     : [
@@ -163,11 +167,13 @@ if ($woo_active) {
                         <div class="aipkit_container-title"><?php esc_html_e('Usage', 'gpt3-ai-content-generator'); ?></div>
                         <span id="aipkit_stats_status" class="aipkit_training_status aipkit_global_status_area" aria-live="polite"></span>
                     </div>
-                    <p class="aipkit_stats_header_hint"><?php esc_html_e('Inspect saved conversations, billing activity, and user balances.', 'gpt3-ai-content-generator'); ?></p>
+                    <p class="aipkit_stats_header_hint"><?php echo $cloud_connected
+                        ? esc_html__('Manage your AI Puffer credits and review activity on this site.', 'gpt3-ai-content-generator')
+                        : esc_html__('Review conversations and recorded AI requests on this site.', 'gpt3-ai-content-generator'); ?></p>
                 </div>
             </div>
         </div>
-        <div class="aipkit_stats_tabs" role="tablist" aria-label="<?php esc_attr_e('Usage Sections', 'gpt3-ai-content-generator'); ?>">
+        <div class="aipkit_stats_tabs" role="tablist" aria-label="<?php esc_attr_e('Usage sections', 'gpt3-ai-content-generator'); ?>">
             <button
                 type="button"
                 class="aipkit_stats_tab aipkit_active"
@@ -175,63 +181,39 @@ if ($woo_active) {
                 role="tab"
                 aria-selected="true"
                 aria-controls="aipkit_stats_logs_panel"
-                data-aipkit-stats-tab="logs"
+                data-aipkit-stats-section="logs"
+            >
+                <span class="dashicons dashicons-chart-area" aria-hidden="true"></span>
+                <?php esc_html_e('Overview', 'gpt3-ai-content-generator'); ?>
+            </button>
+            <button
+                type="button"
+                class="aipkit_stats_tab"
+                id="aipkit_stats_tab_requests"
+                role="tab"
+                aria-selected="false"
+                aria-controls="aipkit_stats_requests_panel"
+                data-aipkit-stats-section="requests"
+                tabindex="-1"
             >
                 <span class="dashicons dashicons-list-view" aria-hidden="true"></span>
-                <?php esc_html_e('Logs', 'gpt3-ai-content-generator'); ?>
+                <?php esc_html_e('Requests', 'gpt3-ai-content-generator'); ?>
             </button>
+            <?php if ($visitor_billing_enabled) : ?>
             <button
                 type="button"
                 class="aipkit_stats_tab"
-                id="aipkit_stats_tab_pricing"
+                id="aipkit_stats_tab_visitor_billing"
                 role="tab"
                 aria-selected="false"
-                aria-controls="aipkit_stats_billing_pricing_panel"
-                data-aipkit-stats-tab="pricing"
+                aria-controls="aipkit_stats_visitor_billing_panel"
+                data-aipkit-stats-section="billing"
                 tabindex="-1"
             >
-                <span class="dashicons dashicons-tag" aria-hidden="true"></span>
-                <?php esc_html_e('Pricing', 'gpt3-ai-content-generator'); ?>
+                <span class="dashicons dashicons-groups" aria-hidden="true"></span>
+                <?php esc_html_e('Visitor billing', 'gpt3-ai-content-generator'); ?>
             </button>
-            <button
-                type="button"
-                class="aipkit_stats_tab"
-                id="aipkit_stats_tab_activity"
-                role="tab"
-                aria-selected="false"
-                aria-controls="aipkit_stats_billing_activity_panel"
-                data-aipkit-stats-tab="activity"
-                tabindex="-1"
-            >
-                <span class="dashicons dashicons-chart-bar" aria-hidden="true"></span>
-                <?php esc_html_e('Activity', 'gpt3-ai-content-generator'); ?>
-            </button>
-            <button
-                type="button"
-                class="aipkit_stats_tab"
-                id="aipkit_stats_tab_balances"
-                role="tab"
-                aria-selected="false"
-                aria-controls="aipkit_stats_billing_balances_panel"
-                data-aipkit-stats-tab="balances"
-                tabindex="-1"
-            >
-                <span class="dashicons dashicons-money-alt" aria-hidden="true"></span>
-                <?php esc_html_e('Balances', 'gpt3-ai-content-generator'); ?>
-            </button>
-            <button
-                type="button"
-                class="aipkit_stats_tab"
-                id="aipkit_stats_tab_woocommerce"
-                role="tab"
-                aria-selected="false"
-                aria-controls="aipkit_stats_billing_shortcode_panel"
-                data-aipkit-stats-tab="woocommerce"
-                tabindex="-1"
-            >
-                <span class="dashicons dashicons-cart" aria-hidden="true"></span>
-                <?php esc_html_e('WooCommerce', 'gpt3-ai-content-generator'); ?>
-            </button>
+            <?php endif; ?>
         </div>
     </div>
     <div class="aipkit_container-body">
@@ -241,26 +223,11 @@ if ($woo_active) {
                 id="aipkit_stats_logs_panel"
                 role="tabpanel"
                 aria-labelledby="aipkit_stats_tab_logs"
-                data-aipkit-stats-panel="logs"
+                data-aipkit-stats-section-panel="logs"
             >
-                <div class="aipkit_stats_summary_grid" aria-label="<?php esc_attr_e('Usage summary', 'gpt3-ai-content-generator'); ?>">
-                    <div class="aipkit_stats_summary_item">
-                        <span class="aipkit_stats_summary_label"><?php esc_html_e('Conversations', 'gpt3-ai-content-generator'); ?></span>
-                        <strong class="aipkit_stats_summary_value" data-aipkit-stats-summary="conversations">—</strong>
-                    </div>
-                    <div class="aipkit_stats_summary_item">
-                        <span class="aipkit_stats_summary_label"><?php esc_html_e('Messages', 'gpt3-ai-content-generator'); ?></span>
-                        <strong class="aipkit_stats_summary_value" data-aipkit-stats-summary="messages">—</strong>
-                    </div>
-                    <div class="aipkit_stats_summary_item">
-                        <span class="aipkit_stats_summary_label"><?php esc_html_e('Tokens used', 'gpt3-ai-content-generator'); ?></span>
-                        <strong class="aipkit_stats_summary_value" data-aipkit-stats-summary="tokens_used">—</strong>
-                    </div>
-                    <div class="aipkit_stats_summary_item">
-                        <span class="aipkit_stats_summary_label"><?php esc_html_e('Active users', 'gpt3-ai-content-generator'); ?></span>
-                        <strong class="aipkit_stats_summary_value" data-aipkit-stats-summary="active_users">—</strong>
-                    </div>
-                </div>
+                <?php if ($cloud_connected) : ?>
+                    <?php include __DIR__ . '/cloud-account.php'; ?>
+                <?php endif; ?>
                 <div class="aipkit_stats_layout">
                     <div class="aipkit_stats_logs_shell">
                         <div class="aipkit_stats_panel_header aipkit_stats_logs_header">
@@ -438,24 +405,92 @@ if ($woo_active) {
                 </div>
             </section>
 
-            <div
-                id="aipkit_stats_billing_panel"
-                class="aipkit_stats_billing_panels"
+            <section
+                class="aipkit_stats_tab_panel"
+                id="aipkit_stats_requests_panel"
+                role="tabpanel"
+                aria-labelledby="aipkit_stats_tab_requests"
+                data-aipkit-stats-section-panel="requests"
+                hidden
             >
+                <div class="aipkit_sub_container aipkit_stats_management_card aipkit_stats_shell">
+                    <div class="aipkit_sub_container_header aipkit_stats_panel_header">
+                        <div class="aipkit_stats_panel_intro">
+                            <div class="aipkit_sub_container_title"><?php esc_html_e('Recent requests', 'gpt3-ai-content-generator'); ?></div>
+                            <p class="aipkit_stats_management_hint"><?php esc_html_e('Review recent AI requests across providers.', 'gpt3-ai-content-generator'); ?></p>
+                        </div>
+                        <div class="aipkit_stats_section_actions">
+                            <label class="screen-reader-text" for="aipkit_stats_requests_days"><?php esc_html_e('Request date range', 'gpt3-ai-content-generator'); ?></label>
+                            <select id="aipkit_stats_requests_days" class="aipkit_popover_select">
+                                <option value="7" <?php selected($stats_default_days, 7); ?>><?php esc_html_e('Last 7 days', 'gpt3-ai-content-generator'); ?></option>
+                                <option value="30" <?php selected($stats_default_days, 30); ?>><?php esc_html_e('Last 30 days', 'gpt3-ai-content-generator'); ?></option>
+                                <option value="90" <?php selected($stats_default_days, 90); ?>><?php esc_html_e('Last 90 days', 'gpt3-ai-content-generator'); ?></option>
+                                <option value="0"><?php esc_html_e('All time', 'gpt3-ai-content-generator'); ?></option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="aipkit_stats_management_body aipkit_stats_shell_body">
+                        <div class="aipkit_data-table aipkit_stats_ledger_table">
+                            <table class="aipkit_data-table__table">
+                                <thead><tr id="aipkit_stats_requests_header">
+                                    <th class="aipkit_stats_log_select_cell"><input type="checkbox" class="aipkit_stats_log_checkbox" id="aipkit_stats_requests_select_all" aria-label="<?php esc_attr_e('Select all requests on this page', 'gpt3-ai-content-generator'); ?>" /></th>
+                                    <th><?php esc_html_e('Time', 'gpt3-ai-content-generator'); ?></th>
+                                    <th><?php esc_html_e('Request type', 'gpt3-ai-content-generator'); ?></th>
+                                    <th><?php esc_html_e('Provider / model', 'gpt3-ai-content-generator'); ?></th>
+                                    <th><?php esc_html_e('Usage', 'gpt3-ai-content-generator'); ?></th>
+                                </tr>
+                                <tr id="aipkit_stats_requests_selection" class="aipkit_stats_logs_selection_header" hidden><th colspan="5">
+                                    <div class="aipkit_stats_logs_selection_toolbar">
+                                        <span class="aipkit_stats_logs_selection_count" id="aipkit_stats_requests_count"></span>
+                                        <span class="aipkit_stats_logs_selection_actions">
+                                            <button type="button" class="aipkit_stats_logs_selection_action aipkit_stats_logs_selection_action--danger" id="aipkit_stats_requests_delete"><span class="dashicons dashicons-trash" aria-hidden="true"></span><?php esc_html_e('Delete', 'gpt3-ai-content-generator'); ?></button>
+                                            <button type="button" class="aipkit_stats_logs_selection_action" id="aipkit_stats_requests_clear"><span class="dashicons dashicons-no-alt" aria-hidden="true"></span><?php esc_html_e('Clear', 'gpt3-ai-content-generator'); ?></button>
+                                        </span>
+                                    </div>
+                                </th></tr></thead>
+                                <tbody id="aipkit_stats_requests_body"><tr><td colspan="5" class="aipkit_stats_table_placeholder"><?php esc_html_e('Loading requests...', 'gpt3-ai-content-generator'); ?></td></tr></tbody>
+                            </table>
+                        </div>
+                        <div id="aipkit_stats_requests_pagination" class="aipkit_logs_pagination_container aipkit_data-table-footer"></div>
+                    </div>
+                </div>
+            </section>
+
+            <div
+                id="aipkit_stats_visitor_billing_panel"
+                class="aipkit_stats_billing_panels"
+                role="tabpanel"
+                aria-labelledby="aipkit_stats_tab_visitor_billing"
+                data-aipkit-stats-section-panel="billing"
+                hidden
+            >
+                <div class="aipkit_stats_tabs aipkit_stats_billing_tabs" role="tablist" aria-label="<?php esc_attr_e('Visitor billing sections', 'gpt3-ai-content-generator'); ?>">
+                    <button type="button" class="aipkit_stats_tab aipkit_active" id="aipkit_stats_tab_pricing" role="tab" aria-selected="true" aria-controls="aipkit_stats_billing_pricing_panel" data-aipkit-stats-tab="pricing">
+                        <?php esc_html_e('Pricing', 'gpt3-ai-content-generator'); ?>
+                    </button>
+                    <button type="button" class="aipkit_stats_tab" id="aipkit_stats_tab_activity" role="tab" aria-selected="false" aria-controls="aipkit_stats_billing_activity_panel" data-aipkit-stats-tab="activity" tabindex="-1">
+                        <?php esc_html_e('Transactions', 'gpt3-ai-content-generator'); ?>
+                    </button>
+                    <button type="button" class="aipkit_stats_tab" id="aipkit_stats_tab_balances" role="tab" aria-selected="false" aria-controls="aipkit_stats_billing_balances_panel" data-aipkit-stats-tab="balances" tabindex="-1">
+                        <?php esc_html_e('User balances', 'gpt3-ai-content-generator'); ?>
+                    </button>
+                    <button type="button" class="aipkit_stats_tab" id="aipkit_stats_tab_woocommerce" role="tab" aria-selected="false" aria-controls="aipkit_stats_billing_shortcode_panel" data-aipkit-stats-tab="woocommerce" tabindex="-1">
+                        <?php esc_html_e('Storefront', 'gpt3-ai-content-generator'); ?>
+                    </button>
+                </div>
                 <section
                     class="aipkit_stats_tab_panel"
                     id="aipkit_stats_billing_pricing_panel"
                     role="tabpanel"
                     aria-labelledby="aipkit_stats_tab_pricing"
                     data-aipkit-stats-panel="pricing"
-                    hidden
                 >
                     <div class="aipkit_sub_container aipkit_stats_management_card aipkit_stats_shell">
                         <div class="aipkit_sub_container_header aipkit_stats_panel_header">
                             <div class="aipkit_stats_panel_intro">
                                 <div class="aipkit_sub_container_title"><?php esc_html_e('Pricing rules', 'gpt3-ai-content-generator'); ?></div>
                                 <p class="aipkit_stats_management_hint">
-                                    <?php esc_html_e('Define module-level model pricing used for credit estimates and billing.', 'gpt3-ai-content-generator'); ?>
+                                    <?php esc_html_e('Set the credits visitors pay to use AI features on this site.', 'gpt3-ai-content-generator'); ?>
                                 </p>
                             </div>
                             <div class="aipkit_stats_section_actions">
@@ -574,7 +609,7 @@ if ($woo_active) {
                     <div class="aipkit_sub_container aipkit_stats_management_card aipkit_stats_shell">
                         <div class="aipkit_sub_container_header aipkit_stats_panel_header">
                             <div class="aipkit_stats_panel_intro">
-                                <div class="aipkit_sub_container_title"><?php esc_html_e('Ledger activity', 'gpt3-ai-content-generator'); ?></div>
+                                <div class="aipkit_sub_container_title"><?php esc_html_e('Visitor credit transactions', 'gpt3-ai-content-generator'); ?></div>
                                 <p class="aipkit_stats_management_hint">
                                     <?php esc_html_e('Review credits added, debited balance, and recent ledger entries.', 'gpt3-ai-content-generator'); ?>
                                 </p>
@@ -644,7 +679,7 @@ if ($woo_active) {
                     <div class="aipkit_sub_container aipkit_stats_management_card aipkit_stats_shell">
                         <div class="aipkit_sub_container_header aipkit_stats_panel_header">
                             <div class="aipkit_stats_panel_intro">
-                                <div class="aipkit_sub_container_title"><?php esc_html_e('User credits', 'gpt3-ai-content-generator'); ?></div>
+                                <div class="aipkit_sub_container_title"><?php esc_html_e('Visitor credit balances', 'gpt3-ai-content-generator'); ?></div>
                                 <p class="aipkit_stats_management_hint">
                                     <?php esc_html_e('Manage user credit balances, periodic usage, and purchase history.', 'gpt3-ai-content-generator'); ?>
                                 </p>
@@ -835,7 +870,7 @@ if ($woo_active) {
                     <div class="aipkit_sub_container aipkit_stats_management_card aipkit_stats_shell aipkit_stats_customer_woo_shell">
                         <div class="aipkit_sub_container_header aipkit_stats_panel_header">
                             <div class="aipkit_stats_panel_intro">
-                                <div class="aipkit_sub_container_title"><?php esc_html_e('Sell credits with WooCommerce', 'gpt3-ai-content-generator'); ?></div>
+                                <div class="aipkit_sub_container_title"><?php esc_html_e('Sell visitor credits with WooCommerce', 'gpt3-ai-content-generator'); ?></div>
                                 <p class="aipkit_stats_management_hint">
                                     <?php esc_html_e('Create credit products in WooCommerce and use the AI Puffer box on the product editor to define how many credits each package grants.', 'gpt3-ai-content-generator'); ?>
                                 </p>
@@ -850,9 +885,9 @@ if ($woo_active) {
                                         <span class="aipkit_stats_customer_woo_status_text">
                                             <?php
                                             if (!$woo_active) {
-                                                esc_html_e('Activate WooCommerce to start selling AI Puffer credit packages.', 'gpt3-ai-content-generator');
+                                                esc_html_e('Activate WooCommerce to start selling visitor credit packages.', 'gpt3-ai-content-generator');
                                             } elseif ($can_manage_woo_products) {
-                                                esc_html_e('Open any WooCommerce product to find the AI Puffer credit package box.', 'gpt3-ai-content-generator');
+                                                esc_html_e('Open any WooCommerce product to find the visitor credits box.', 'gpt3-ai-content-generator');
                                             } else {
                                                 esc_html_e('Your role can review credit package summaries, but cannot edit WooCommerce products.', 'gpt3-ai-content-generator');
                                             }
@@ -956,7 +991,7 @@ if ($woo_active) {
                                         </div>
                                     <?php elseif ($woo_active): ?>
                                         <div class="aipkit_stats_customer_woo_empty">
-                                            <?php esc_html_e('No AI Puffer credit products yet. Create your first WooCommerce product and enable the AI Puffer credit package box there.', 'gpt3-ai-content-generator'); ?>
+                                            <?php esc_html_e('No visitor credit products yet. Create a WooCommerce product and enable its visitor credits box.', 'gpt3-ai-content-generator'); ?>
                                         </div>
                                     <?php endif; ?>
                         </div>

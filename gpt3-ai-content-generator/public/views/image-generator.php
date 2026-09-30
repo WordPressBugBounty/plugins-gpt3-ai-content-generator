@@ -61,6 +61,7 @@ if (empty($show_model)) {
     class="aipkit_shortcode_container aipkit_image_generator_public_wrapper <?php echo esc_attr($theme_class); ?> <?php echo esc_attr($font_class); ?>"
     id="aipkit_public_image_generator"
     data-allowed-models="<?php echo esc_attr($allowed_models); ?>"
+    data-selection-policy="<?php echo esc_attr($selection_policy); ?>"
     data-image-mode="<?php echo esc_attr($shortcode_mode); ?>"
     data-initial-image-mode="<?php echo esc_attr($current_image_mode); ?>"
     data-user-logged-in="<?php echo is_user_logged_in() ? '1' : '0'; ?>"

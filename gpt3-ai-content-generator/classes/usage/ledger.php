@@ -22,6 +22,21 @@ class AIPKit_Ledger_Repository
         $this->table_name = $table_name ?: $wpdb->prefix . 'aipkit_token_ledger';
     }
 
+    /** Record provider usage without touching visitor balances, quotas, or Cloud receipts. */
+    public static function record_provider_request(string $provider, string $model, ?array $usage, string $module, string $operation): void
+    {
+        if ($provider === '' || $model === '' || strtolower($provider) === 'aipuffercloud' || $usage === null) { return; }
+        $input = max(0, (int) ($usage['input_tokens'] ?? $usage['prompt_tokens'] ?? ($operation === 'embed' ? ($usage['total_tokens'] ?? 0) : 0)));
+        $output = max(0, (int) ($usage['output_tokens'] ?? $usage['completion_tokens'] ?? 0));
+        (new self())->insert_entry([
+            'entry_type' => 'request', 'user_id' => get_current_user_id() ?: null,
+            'module' => $module, 'operation' => $operation, 'provider' => $provider, 'model' => $model,
+            'usage_input_units' => $input, 'usage_output_units' => $output,
+            'usage_total_units' => max($input + $output, (int) ($usage['total_tokens'] ?? 0)),
+            'meta' => ['usage_unit' => 'token'],
+        ]);
+    }
+
     /**
      * @param array<string, mixed> $entry
      * @return int|WP_Error

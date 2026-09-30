@@ -53,6 +53,7 @@ class Core
                 add_action('wp_ajax_aipkit_bulk_process_single_field', [$ajax_handler, 'ajax_bulk_process_single_field']);
                 add_action('wp_ajax_aipkit_bulk_update_seo_slug', [$ajax_handler, 'ajax_bulk_update_seo_slug']);
                 add_action('wp_ajax_aipkit_process_enhancer_text', [$ajax_handler, 'ajax_process_enhancer_text']);
+                add_action('wp_ajax_aipkit_enhancer_request_status', [$ajax_handler, 'ajax_request_status']);
             }
         }
 

@@ -9,6 +9,7 @@ use WPAICG\Chat\Storage\LogCronManager;
 use WPAICG\Chat\Utils\LogConfig;
 use WPAICG\Core\Moderation\AIPKit_Global_Security_Settings;
 use WPAICG\AIPKit_Role_Manager;
+use WPAICG\Stats\AIPKit_Stats;
 use WP_Error;
 
 if (!defined('ABSPATH')) {
@@ -53,6 +54,44 @@ abstract class AIPKit_Usage_Ajax_Handler extends BaseDashboardAjaxHandler
 /** Manages Usage conversation logs, privacy controls and settings. */
 class AIPKit_Log_Ajax_Handler extends AIPKit_Usage_Ajax_Handler
 {
+    public function ajax_delete_stats_requests()
+    {
+        $post_data = $this->get_stats_post_data();
+        if ($post_data === null) { return; }
+        $ids = $post_data['request_ids'] ?? [];
+        if (!is_array($ids)) { $ids = []; }
+        $deleted = (new AIPKit_Stats())->delete_provider_requests($ids);
+        if (is_wp_error($deleted)) { $this->send_wp_error($deleted); return; }
+        wp_send_json_success(['deleted' => $deleted]);
+    }
+
+    public function ajax_get_stats_requests()
+    {
+        $post_data = $this->get_stats_post_data();
+        if ($post_data === null) {
+            return;
+        }
+
+        $days = in_array($post_data['days'] ?? 7, [0, '0'], true)
+            ? 0 : $this->resolve_stats_days($post_data['days'] ?? 7);
+        $per_page = 20;
+        $page = isset($post_data['page']) ? absint($post_data['page']) : 1;
+        $page = max(1, min(intdiv(PHP_INT_MAX, $per_page), $page));
+        $offset = ($page - 1) * $per_page;
+        $stats = new AIPKit_Stats();
+        $requests = $stats->get_recent_provider_requests($days, $per_page + 1, $offset);
+        if (is_wp_error($requests)) {
+            $this->send_wp_error($requests);
+            return;
+        }
+
+        wp_send_json_success([
+            'requests' => array_slice($requests, 0, $per_page),
+            'hasMore' => count($requests) > $per_page,
+            'page' => $page,
+        ]);
+    }
+
     private function get_stats_time_range(int $days): array
     {
         $wp_timezone = wp_timezone();
@@ -157,13 +196,10 @@ class AIPKit_Log_Ajax_Handler extends AIPKit_Usage_Ajax_Handler
         $log_storage = new LogStorage();
         $logs = $log_storage->get_logs($filters, $per_page, $offset);
         $total_logs = $log_storage->count_logs($filters);
-        $summary = $log_storage->get_log_summary($filters);
-        $summary['conversations'] = (int) $total_logs;
         $total_pages = $per_page > 0 ? (int) ceil($total_logs / $per_page) : 1;
 
         wp_send_json_success([
             'logs' => $logs ?: [],
-            'summary' => $summary,
             'pagination' => [
                 'total_logs' => (int) $total_logs,
                 'total_pages' => $total_pages,

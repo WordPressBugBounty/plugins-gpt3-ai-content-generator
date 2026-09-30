@@ -159,8 +159,8 @@ class AIPKit_Global_Security_Settings
      */
     public static function is_ip_blocked(string $ip_address): bool
     {
-        $ip_address = trim($ip_address);
-        if (filter_var($ip_address, FILTER_VALIDATE_IP) === false) {
+        $ip_address = self::normalize_ip($ip_address);
+        if ($ip_address === '') {
             return false;
         }
 
@@ -177,8 +177,8 @@ class AIPKit_Global_Security_Settings
      */
     public static function set_ip_blocked(string $ip_address, bool $blocked): bool
     {
-        $ip_address = trim($ip_address);
-        if (filter_var($ip_address, FILTER_VALIDATE_IP) === false) {
+        $ip_address = self::normalize_ip($ip_address);
+        if ($ip_address === '') {
             return false;
         }
 
@@ -275,11 +275,16 @@ class AIPKit_Global_Security_Settings
             explode(',', sanitize_textarea_field($raw_ips))
         );
 
-        $valid_ips = array_filter($candidate_ips, static function ($ip): bool {
-            return $ip !== '' && filter_var($ip, FILTER_VALIDATE_IP) !== false;
-        });
+        $valid_ips = array_filter(array_map([self::class, 'normalize_ip'], $candidate_ips));
 
         return implode(',', array_unique($valid_ips));
+    }
+
+    /** Returns a canonical address, or an empty string for invalid input. */
+    public static function normalize_ip(string $ip): string
+    {
+        $ip = trim($ip);
+        return filter_var($ip, FILTER_VALIDATE_IP) !== false ? inet_ntop(inet_pton($ip)) : '';
     }
 
     /**
@@ -306,8 +311,9 @@ class AIPKit_BannedIP_Checker {
      * @return WP_Error|null WP_Error if banned, null otherwise.
      */
     public static function check(?string $client_ip, array $banned_ips_settings): ?WP_Error {
-        if ($client_ip && !empty($banned_ips_settings['ips'])) {
-            $banned_ips_list = array_map('trim', explode(',', $banned_ips_settings['ips']));
+        $client_ip = AIPKit_Global_Security_Settings::normalize_ip($client_ip ?? '');
+        if ($client_ip !== '' && !empty($banned_ips_settings['ips'])) {
+            $banned_ips_list = array_map([AIPKit_Global_Security_Settings::class, 'normalize_ip'], explode(',', $banned_ips_settings['ips']));
             if (in_array($client_ip, $banned_ips_list, true)) {
                 $banned_ip_message = $banned_ips_settings['message'] ?: __('Access from your IP address has been blocked.', 'gpt3-ai-content-generator');
                 return new WP_Error('ip_banned', $banned_ip_message, ['status' => 403]); // Forbidden
@@ -340,7 +346,7 @@ class AIPKit_BannedWords_Checker {
                 if (empty($banned_word)) {
                     continue;
                 }
-                if (preg_match('/\b' . preg_quote($banned_word, '/') . '\b/i', $text)) {
+                if (preg_match('/(*UCP)\b' . preg_quote($banned_word, '/') . '\b/iu', $text)) {
                     $banned_word_message = $banned_words_settings['message'] ?: __('Sorry, your message could not be sent as it contains prohibited words.', 'gpt3-ai-content-generator');
                     return new WP_Error('word_banned', $banned_word_message, ['status' => 400]); // Bad Request
                 }

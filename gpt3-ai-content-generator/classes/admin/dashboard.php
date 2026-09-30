@@ -275,6 +275,10 @@ if (!class_exists('\\WPAICG\\aipkit_dashboard')) {
             $opts['module_settings'] = self::$module_settings;
             update_option('aipkit_options', $opts, 'no');
 
+            if ($moduleKey === 'stats_viewer' && !$isEnabled) {
+                update_option('aipkit_visitor_billing_enabled', 'no', false);
+            }
+
             wp_send_json_success(['message' => 'Module setting updated.']);
         }
 

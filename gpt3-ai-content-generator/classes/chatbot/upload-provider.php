@@ -22,7 +22,7 @@ class AIPKit_Chat_File_Upload_Provider_Resolver
      *
      * @var string[]
      */
-    private const VECTOR_CONTEXT_PROVIDERS = ['openai', 'pinecone', 'qdrant', 'chroma'];
+    private const VECTOR_CONTEXT_PROVIDERS = ['openai', 'pinecone', 'qdrant', 'chroma', 'local'];
 
     /**
      * Resolve the upload transport from existing chatbot settings.
@@ -72,25 +72,26 @@ class AIPKit_Chat_File_Upload_Provider_Resolver
             return false;
         }
 
-        if ($provider === 'pinecone') {
-            return trim((string) ($settings['pinecone_index_name'] ?? '')) !== '';
-        }
+        return self::vector_target($provider, $settings) !== '';
+    }
 
-        $singular_key = $provider === 'qdrant'
-            ? 'qdrant_collection_name'
-            : 'chroma_collection_name';
+    /** Use the first selected store for temporary uploads; retrieval can still search all selected stores. */
+    public static function vector_target(string $provider, array $settings): string
+    {
+        if ($provider === 'pinecone') { return trim((string) ($settings['pinecone_index_name'] ?? '')); }
+
+        $singular_key = $provider === 'local' ? 'local_store_id' : $provider . '_collection_name';
         if (trim((string) ($settings[$singular_key] ?? '')) !== '') {
-            return true;
+            return trim((string) $settings[$singular_key]);
         }
 
-        $plural_key = $provider === 'qdrant'
-            ? 'qdrant_collection_names'
-            : 'chroma_collection_names';
+        $plural_key = $provider === 'local' ? 'local_store_ids' : $provider . '_collection_names';
         $targets = isset($settings[$plural_key]) && is_array($settings[$plural_key])
             ? $settings[$plural_key]
             : [];
 
-        return !empty(array_filter(array_map('strval', $targets)));
+        $targets = array_values(array_filter(array_map('strval', $targets)));
+        return $targets[0] ?? '';
     }
 
     private static function resolve_native_provider(string $main_provider): string

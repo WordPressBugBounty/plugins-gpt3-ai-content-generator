@@ -26,6 +26,8 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
+require_once dirname(__DIR__) . '/ai/http.php';
+
 /**
  * Base class for REST API Endpoint Handlers.
  * Provides common utility methods like permission checks.
@@ -120,12 +122,10 @@ abstract class AIPKit_REST_Base_Handler {
      * @return WP_Error A WP_Error object formatted for REST response.
      */
     protected function send_wp_error_response(WP_Error $error): WP_Error {
-        $status_code = $error->get_error_data()['status'] ?? 500;
-        if(!is_int($status_code) || $status_code < 400 || $status_code > 599) $status_code = 500;
         return new WP_Error(
             $error->get_error_code(),
             $error->get_error_message(),
-            ['status' => $status_code]
+            \WPAICG\Core\AIPKit_HTTP_Request::public_error_data($error)
         );
     }
 }
@@ -144,7 +144,7 @@ class AIPKit_REST_Text_Handler extends AIPKit_REST_Base_Handler
             'provider' => array(
                 'description' => __('The AI provider to use for text generation.', 'gpt3-ai-content-generator'),
                 'type'        => 'string',
-                'enum'        => ['openai', 'azure', 'google', 'openrouter', 'claude', 'deepseek', 'xai', 'ollama'],
+                'enum'        => ['aipuffercloud', 'openai', 'azure', 'google', 'openrouter', 'claude', 'deepseek', 'xai', 'ollama'],
                 'required'    => true,
             ),
             'model' => array(
@@ -258,7 +258,7 @@ class AIPKit_REST_Text_Handler extends AIPKit_REST_Base_Handler
         }
 
         $provider = AIPKit_Providers::normalize_provider_label((string) $provider_raw);
-        if (!in_array($provider, ['OpenAI', 'Azure', 'Google', 'OpenRouter', 'Claude', 'DeepSeek', 'xAI', 'Ollama'], true)) {
+        if (!in_array($provider, AIPKit_Providers::get_text_generation_providers(), true)) {
             /* translators: %s is the invalid provider name */
             return $this->send_wp_error_response(new WP_Error('rest_aipkit_invalid_param', sprintf(__('Invalid provider specified: %s', 'gpt3-ai-content-generator'), $provider_raw), ['status' => 400]));
         }
@@ -277,7 +277,7 @@ class AIPKit_REST_Text_Handler extends AIPKit_REST_Base_Handler
             return $this->send_wp_error_response(new WP_Error('rest_aipkit_internal_error', __('Internal server error.', 'gpt3-ai-content-generator'), ['status' => 500]));
         }
 
-        $ai_caller = new AIPKit_AI_Caller();
+        $ai_caller = new AIPKit_AI_Caller(false, 'rest_api');
         $global_ai_params = AIPKIT_AI_Settings::get_ai_parameters();
         $final_ai_params = array_merge($global_ai_params, $ai_params_override);
         if (isset($final_ai_params['temperature'])) {
@@ -324,7 +324,7 @@ class AIPKit_REST_Image_Handler extends AIPKit_REST_Base_Handler {
             'provider' => array(
                 'description' => __('The AI image provider to use.', 'gpt3-ai-content-generator'),
                 'type'        => 'string',
-                'enum'        => ['openai', 'openrouter', 'azure', 'google'],
+                'enum'        => ['aipuffercloud', 'openai', 'openrouter', 'azure', 'google'],
                 'default'     => 'openai',
                 'sanitize_callback' => 'sanitize_text_field',
             ),
@@ -498,6 +498,20 @@ class AIPKit_REST_Image_Handler extends AIPKit_REST_Base_Handler {
              return $this->send_wp_error_response(new WP_Error('rest_aipkit_missing_prompt', __('Missing required parameter: prompt', 'gpt3-ai-content-generator'), ['status' => 400]));
         }
 
+        if (strtolower($options['provider']) === 'aipuffercloud') {
+            if (empty($options['model'])) {
+                return $this->send_wp_error_response(new WP_Error('rest_aipkit_cloud_image_model_required', __('Choose a Cloud image model before generating.', 'gpt3-ai-content-generator'), ['status' => 400]));
+            }
+            if ($options['response_format'] !== 'b64_json') {
+                return $this->send_wp_error_response(new WP_Error('rest_aipkit_cloud_image_format', __('Cloud images require response_format=b64_json in REST requests.', 'gpt3-ai-content-generator'), ['status' => 400]));
+            }
+            foreach (['quality', 'aspect_ratio', 'resolution', 'output_format', 'output_compression', 'background', 'seed', 'style'] as $unsupported_option) {
+                if ($options[$unsupported_option] !== null) {
+                    return $this->send_wp_error_response(new WP_Error('rest_aipkit_cloud_image_option', __('The selected Cloud image model does not support this image option.', 'gpt3-ai-content-generator'), ['status' => 400]));
+                }
+            }
+        }
+
         $image_manager = new AIPKit_Image_Manager();
         $result = $image_manager->generate_image($prompt, $options);
 
@@ -663,7 +677,7 @@ class AIPKit_REST_Embeddings_Handler extends AIPKit_REST_Base_Handler
             return $this->send_wp_error_response(new WP_Error('rest_aipkit_internal_error', __('Internal server error.', 'gpt3-ai-content-generator'), ['status' => 500]));
         }
 
-        $ai_caller = new AIPKit_AI_Caller();
+        $ai_caller = new AIPKit_AI_Caller(false, 'rest_api');
         $embedding_options = [
             'model' => sanitize_text_field($model)
         ];
@@ -678,6 +692,9 @@ class AIPKit_REST_Embeddings_Handler extends AIPKit_REST_Base_Handler
             if (($provider === 'OpenAI' || $provider === 'OpenRouter') && isset($params['encoding_format'])) {
                 $embedding_options['encoding_format'] = sanitize_key($params['encoding_format']);
             }
+        }
+        if ($provider === 'AIPufferCloud' && isset($params['dimensions'])) {
+            $embedding_options['dimensions'] = absint($params['dimensions']);
         }
         if ($provider === 'Google') {
             if (isset($params['task_type'])) {
@@ -866,6 +883,12 @@ class AIPKit_REST_Chat_Handler extends AIPKit_REST_Base_Handler
             return $this->send_wp_error_response($ai_result);
         }
 
+        require_once dirname(__DIR__) . '/usage/ledger.php';
+        \WPAICG\Core\TokenManager\Ledger\AIPKit_Ledger_Repository::record_provider_request(
+            (string) ($bot_settings['provider'] ?? ''), (string) ($bot_settings['model'] ?? ''),
+            $ai_result['usage'] ?? null, 'rest_api', 'text'
+        );
+
         $response_data = [
             'reply'    => $ai_result['content'] ?? '',
             'usage'    => $ai_result['usage'] ?? null,
@@ -888,7 +911,7 @@ class AIPKit_REST_Vector_Store_Handler extends AIPKit_REST_Base_Handler
     public function __construct()
     {
         if (class_exists(AIPKit_AI_Caller::class)) {
-            $this->ai_caller = new AIPKit_AI_Caller();
+            $this->ai_caller = new AIPKit_AI_Caller(false, 'rest_api');
         }
         if (class_exists(AIPKit_Vector_Store_Manager::class)) {
             $this->vector_store_manager = new AIPKit_Vector_Store_Manager();
@@ -903,7 +926,7 @@ class AIPKit_REST_Vector_Store_Handler extends AIPKit_REST_Base_Handler
             'provider' => array(
                 'description' => __('The vector database provider.', 'gpt3-ai-content-generator'),
                 'type'        => 'string',
-                'enum'        => ['pinecone', 'qdrant', 'chroma'],
+                'enum'        => ['local', 'pinecone', 'qdrant', 'chroma'],
                 'required'    => true,
             ),
             'target_id' => array(
@@ -926,15 +949,15 @@ class AIPKit_REST_Vector_Store_Handler extends AIPKit_REST_Base_Handler
                 ),
             ),
             'embedding_provider' => array(
-                'description' => __('The AI provider to use for generating embeddings.', 'gpt3-ai-content-generator'),
+                'description' => __('The AI provider to use for generating embeddings, including Local stores.', 'gpt3-ai-content-generator'),
                 'type'        => 'string',
                 'enum'        => $embedding_provider_keys,
-                'required'    => true,
+                'required'    => false,
             ),
             'embedding_model' => array(
                 'description' => __('The specific model ID to use for generating embeddings.', 'gpt3-ai-content-generator'),
                 'type'        => 'string',
-                'required'    => true,
+                'required'    => false,
             ),
             'namespace' => array(
                  'description' => __('(Pinecone only) The namespace to upsert vectors into.', 'gpt3-ai-content-generator'),
@@ -981,6 +1004,7 @@ class AIPKit_REST_Vector_Store_Handler extends AIPKit_REST_Base_Handler
         $params = $request->get_params();
         $provider_key = sanitize_key((string) ($params['provider'] ?? ''));
         $provider_map = [
+            'local' => 'Local',
             'pinecone' => 'Pinecone',
             'qdrant'  => 'Qdrant',
             'chroma'  => 'Chroma',
@@ -991,15 +1015,34 @@ class AIPKit_REST_Vector_Store_Handler extends AIPKit_REST_Base_Handler
         $provider_normalized = $provider_map[$provider_key];
         $target_id = $params['target_id'];
         $vectors_data = $params['vectors'];
-        $embedding_provider_key = $params['embedding_provider'];
-        $embedding_model = $params['embedding_model'];
+        $embedding_provider_key = (string) ($params['embedding_provider'] ?? '');
+        $embedding_model = (string) ($params['embedding_model'] ?? '');
         $namespace = $params['namespace'] ?? null;
+        if ($provider_key === 'local') {
+            if (!class_exists(\WPAICG\Vector\Providers\AIPKit_Vector_Local_Strategy::class)) {
+                require_once WPAICG_PLUGIN_DIR . 'classes/knowledge-base/providers/local.php';
+            }
+            $local_store = (new \WPAICG\Vector\Providers\AIPKit_Vector_Local_Strategy())->get_store(\WPAICG\Vector\Providers\AIPKit_Vector_Local_Strategy::store_id((string) $target_id));
+            if (!$local_store) {
+                return $this->send_wp_error_response(new WP_Error('rest_aipkit_local_store_missing', __('Knowledge base not found.', 'gpt3-ai-content-generator'), ['status' => 404]));
+            }
+            $target_id = $local_store['id'];
+        }
+        if ($embedding_provider_key === '' || $embedding_model === '') {
+            return $this->send_wp_error_response(new WP_Error('rest_aipkit_missing_embedding', __('The "embedding_provider" and "embedding_model" parameters are required.', 'gpt3-ai-content-generator'), ['status' => 400]));
+        }
 
         if (empty($vectors_data) || !is_array($vectors_data)) {
             return $this->send_wp_error_response(new WP_Error('rest_aipkit_invalid_vectors', __('The "vectors" parameter must be a non-empty array.', 'gpt3-ai-content-generator'), ['status' => 400]));
         }
 
-        $provider_config = AIPKit_Providers::get_provider_data($provider_normalized);
+        foreach ($vectors_data as $item) {
+            if (!is_array($item) || !isset($item['content']) || !is_scalar($item['content']) || trim((string) $item['content']) === '') {
+                return $this->send_wp_error_response(new WP_Error('rest_aipkit_no_content', __('Each object in the "vectors" array must have a non-empty "content" key.', 'gpt3-ai-content-generator'), ['status' => 400]));
+            }
+        }
+
+        $provider_config = $provider_key === 'local' ? [] : AIPKit_Providers::get_provider_data($provider_normalized);
         $ingestion_service = new AIPKit_Vector_Text_Ingestion_Service($this->vector_store_manager, $this->ai_caller);
         $results = [];
         $total_upserted = 0;
@@ -1009,11 +1052,7 @@ class AIPKit_REST_Vector_Store_Handler extends AIPKit_REST_Base_Handler
             $options['namespace'] = (string) $namespace;
         }
 
-        foreach ($vectors_data as $item) {
-            if (!is_array($item) || !isset($item['content']) || !is_scalar($item['content']) || trim((string) $item['content']) === '') {
-                return $this->send_wp_error_response(new WP_Error('rest_aipkit_no_content', __('Each object in the "vectors" array must have a non-empty "content" key.', 'gpt3-ai-content-generator'), ['status' => 400]));
-            }
-
+        foreach (array_values($vectors_data) as $source_index => $item) {
             $metadata = isset($item['metadata']) && is_array($item['metadata']) ? $item['metadata'] : [];
             if (isset($item['id']) && is_scalar($item['id']) && (string) $item['id'] !== '') {
                 $metadata['vector_id'] = (string) $item['id'];
@@ -1034,7 +1073,16 @@ class AIPKit_REST_Vector_Store_Handler extends AIPKit_REST_Base_Handler
             );
 
             if (is_wp_error($result)) {
-                return $this->send_wp_error_response($result);
+                $error = $this->send_wp_error_response($result);
+                $error->add_data(array_merge($error->get_error_data(), [
+                    'completed_sources' => count($results),
+                    'failed_source_index' => $source_index,
+                    'source_count' => count($vectors_data),
+                    'results' => $results,
+                    'upserted_count' => $total_upserted,
+                    'total_chunks' => $total_chunks,
+                ]));
+                return $error;
             }
 
             $total_upserted += (int) ($result['upserted_count'] ?? 0);

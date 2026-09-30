@@ -127,29 +127,7 @@ class AIPKit_Image_Generator_Shortcode
 
         // --- 4. Determine Final Values ---
         $final_provider_key = $preset_provider_from_att ?? 'openai';
-        switch ($final_provider_key) {
-            case 'openai':
-                $final_provider_normalized = 'OpenAI';
-                break;
-            case 'openrouter':
-                $final_provider_normalized = 'OpenRouter';
-                break;
-            case 'azure':
-                $final_provider_normalized = 'Azure';
-                break;
-            case 'google':
-                $final_provider_normalized = 'Google';
-                break;
-            case 'xai':
-                $final_provider_normalized = 'xAI';
-                break;
-            case 'replicate':
-                $final_provider_normalized = 'Replicate';
-                break;
-            default:
-                $final_provider_normalized = 'OpenAI';
-                break;
-        }
+        $final_provider_normalized = AIPKit_Providers::normalize_provider_label($final_provider_key);
         $final_model = $preset_model;
         $final_size = $preset_size;
         $final_number = $preset_number;
@@ -160,6 +138,14 @@ class AIPKit_Image_Generator_Shortcode
 
         // 6. Prepare data for the view
         $view_data = [
+            'selection_policy' => \WPAICG\Images\AIPKit_Image_Manager::sign_public_policy([
+                'provider' => $show_provider ? '' : $final_provider_normalized,
+                'model' => !$show_model && !$show_provider ? $final_model : '',
+                'mode' => $mode,
+                'allowed' => self::$current_atts['allowed_models'],
+                'n' => max(1, min(10, (int) $final_number)),
+                'size' => $final_size,
+            ]),
             'nonce' => wp_create_nonce('aipkit_image_generator_nonce'),
             'show_provider' => $show_provider,
             'show_model'    => $show_model,
@@ -410,6 +396,8 @@ class AIPKit_Image_Generator_Shortcode
             $prompt = get_post_meta($attachment_id, '_aipkit_image_prompt', true);
             $provider = get_post_meta($attachment_id, '_aipkit_image_provider', true);
             $model = get_post_meta($attachment_id, '_aipkit_image_model', true);
+            $provider_name = AIPKit_Providers::get_provider_display_name((string) $provider);
+            $model_name = \WPAICG\Core\Models\AIPKit_Model_Registry::get_model_display_name((string) $provider, (string) $model);
             $size = get_post_meta($attachment_id, '_aipkit_image_size', true);
             $image_url_path = wp_parse_url((string) $full_url, PHP_URL_PATH);
             $image_file_name = is_string($image_url_path) && $image_url_path !== ''
@@ -425,7 +413,7 @@ class AIPKit_Image_Generator_Shortcode
                 __('Expand generated image: %s', 'gpt3-ai-content-generator'),
                 wp_html_excerpt((string) $prompt, 120, '…')
             );
-            $model_label = implode(' / ', array_filter([$provider, $model]));
+            $model_label = implode(' / ', array_filter([$provider_name, $model_name]));
             ?>
             <article
                 class="aipkit-image-history-item"
@@ -464,7 +452,7 @@ class AIPKit_Image_Generator_Shortcode
                     <?php endif; ?>
                     <?php if ($model): ?>
                          <p class="aipkit-image-history-meta">
-                            <?php echo esc_html($provider . ' / ' . $model . ' / ' . $size); ?>
+                            <?php echo esc_html(implode(' / ', array_filter([$model_label, $size]))); ?>
                          </p>
                     <?php endif; ?>
                 </div>

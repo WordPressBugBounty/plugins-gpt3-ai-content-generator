@@ -109,6 +109,8 @@ function process_queue_item_logic(array $item): array
                 return ContentIndexing\process_qdrant_indexing_logic($item, $item_config);
             case 'chroma':
                 return ContentIndexing\process_chroma_indexing_logic($item, $item_config);
+            case 'local':
+                return ContentIndexing\process_local_indexing_logic($item, $item_config);
             default:
                 return ['status' => 'error', 'message' => "Unsupported provider '{$provider}' for content_indexing task."];
         }
@@ -485,6 +487,30 @@ function reconcile_indexing_queue_items_logic(): array
     return $summary;
 }
 
+/** Held tasks retain pending rows, including one-time tasks that are normally paused. */
+function unblocked_queue_condition_logic(): string
+{
+    global $wpdb;
+    $tasks = $wpdb->prefix . 'aipkit_automated_tasks';
+    $queue = $wpdb->prefix . 'aipkit_automated_task_queue';
+    return $wpdb->prepare(" AND NOT EXISTS (SELECT 1 FROM " . esc_sql($tasks) . " held_task WHERE held_task.id = " . esc_sql($queue) . ".task_id AND held_task.task_config LIKE %s)", '%' . $wpdb->esc_like('"_aipkit_provider_hold":') . '%');
+}
+
+/** Pause future triggers and retain pending work until the user explicitly resumes it. */
+function hold_task_for_provider_logic(int $task_id, array $result): void
+{
+    global $wpdb;
+    $table = $wpdb->prefix . 'aipkit_automated_tasks';
+    // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Preserve the current task configuration while holding queued work.
+    $json = $wpdb->get_var($wpdb->prepare('SELECT task_config FROM ' . esc_sql($table) . ' WHERE id = %d', $task_id));
+    $config = json_decode((string) $json, true);
+    if (!is_array($config)) { return; }
+    $config['_aipkit_provider_hold'] = sanitize_key((string) ($result['provider_error_code'] ?? $result['code'] ?? 'provider_refusal'));
+    // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Hold both scheduled production and existing queue work.
+    $wpdb->update($table, ['task_config' => wp_json_encode($config), 'status' => 'paused', 'next_run_time' => null], ['id' => $task_id], ['%s', '%s', '%s'], ['%d']);
+    \WPAICG\AutoGPT\Cron\AIPKit_Automated_Task_Scheduler::clear_task_event($task_id);
+}
+
 /**
  * Checks if there are more pending items in the queue and schedules
  * an immediate one-off event to process them.
@@ -496,8 +522,8 @@ function maybe_reschedule_queue_logic(): void
     global $wpdb;
     $queue_table_name = $wpdb->prefix . 'aipkit_automated_task_queue';
     $main_cron_hook = AIPKit_Automated_Task_Event_Processor::MAIN_CRON_HOOK;
-    // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Reason: Direct query to a custom table. Caches will be invalidated.
-    $remaining_items = $wpdb->get_var($wpdb->prepare("SELECT 1 FROM " . esc_sql($queue_table_name) . " WHERE status = %s LIMIT 1", 'pending'));
+    // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.NotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter -- The helper returns a prepared predicate; the remaining values are prepared here and the queue identifier is escaped.
+    $remaining_items = $wpdb->get_var($wpdb->prepare("SELECT 1 FROM " . esc_sql($queue_table_name) . " WHERE status = %s" . unblocked_queue_condition_logic() . " LIMIT 1", 'pending'));
 
     if ($remaining_items > 0 || has_waiting_indexing_queue_items_logic()) {
         wp_schedule_single_event(time() + 30, $main_cron_hook);
@@ -763,6 +789,15 @@ function process_task_queue_event_logic(bool $schedule_follow_up = true, string 
         $processed_task_ids[] = $task_cursor;
         $is_expensive_item = Helpers\is_expensive_queue_task_logic((string) ($item['task_type'] ?? ''));
         $item_started_at = microtime(true);
+        // Observe the original provider error before a worker wraps its message or keeps a partial result.
+        $provider_refusal = null;
+        $capture_refusal = static function ($code, $message, $data) use (&$provider_refusal): void {
+            // Do not construct WP_Error here: it would recursively emit this hook.
+            if (is_array($data) && (!empty($data['stop_batch']) || in_array((int) ($data['status_code'] ?? $data['status'] ?? 0), [401, 402, 403, 429], true)) && $provider_refusal === null) {
+                $provider_refusal = ['code' => $code, 'message' => $message, 'data' => $data];
+            }
+        };
+        add_action('wp_error_added', $capture_refusal, 10, 3);
         try {
             $result = Processor\process_queue_item_logic($item);
         } catch (\Throwable $throwable) {
@@ -773,6 +808,8 @@ function process_task_queue_event_logic(bool $schedule_follow_up = true, string 
                     sanitize_text_field($throwable->getMessage())
                 ),
             ];
+        } finally {
+            remove_action('wp_error_added', $capture_refusal, 10);
         }
 
         if (!is_array($result) || !isset($result['status'])) {
@@ -780,6 +817,15 @@ function process_task_queue_event_logic(bool $schedule_follow_up = true, string 
                 'status' => 'error',
                 'message' => 'The queue processor returned an invalid result.',
             ];
+        }
+
+        if ($provider_refusal !== null && empty($result['stop_batch'])) {
+            $error = new \WP_Error($provider_refusal['code'], $provider_refusal['message'], $provider_refusal['data']);
+            $result = array_merge($result, \WPAICG\AutoGPT\Helpers\provider_error_result($error));
+        }
+        if (!empty($result['pause_task'])) {
+            Helpers\hold_task_for_provider_logic($task_cursor, $result);
+            $result['message'] .= ' ' . __('Task paused. Resolve the provider issue, then resume the task or retry the failed item.', 'gpt3-ai-content-generator');
         }
 
         $result_status = sanitize_key((string) $result['status']);
@@ -814,7 +860,7 @@ function process_task_queue_event_logic(bool $schedule_follow_up = true, string 
             ++$processed_expensive_items;
             $expensive_processing_seconds += microtime(true) - $item_started_at;
         }
-        if (Helpers\is_rate_limited_result_logic($result)) {
+        if ($provider_refusal !== null || !empty($result['stop_batch']) || Helpers\is_rate_limited_result_logic($result)) {
             break;
         }
         if (
@@ -840,10 +886,11 @@ function process_task_queue_event_logic(bool $schedule_follow_up = true, string 
     }
 
     // A bounded existence check avoids an expensive exact count on very large queues.
-    // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Indexed existence check on the plugin queue table.
+    // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, PluginCheck.Security.DirectDB.UnescapedDBParameter -- Values are prepared below, including the helper predicate; table identifiers are escaped.
     $has_remaining_items = (bool) $wpdb->get_var(
         $wpdb->prepare(
-            "SELECT 1 FROM " . esc_sql($queue_table_name) . " WHERE status = %s LIMIT 1",
+            // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter -- The helper returns a prepared predicate; the remaining values are prepared here and the queue identifier is escaped.
+            "SELECT 1 FROM " . esc_sql($queue_table_name) . " WHERE status = %s" . Helpers\unblocked_queue_condition_logic() . " LIMIT 1",
             'pending'
         )
     );
@@ -865,10 +912,11 @@ function claim_next_queue_item_logic(\wpdb $wpdb, string $queue_table_name, int 
 {
     for ($claim_attempt = 0; $claim_attempt < 3; ++$claim_attempt) {
         if ($after_task_id > 0) {
-            // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Indexed, one-row fair-queue lookup in a plugin-owned table.
+            // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, PluginCheck.Security.DirectDB.UnescapedDBParameter -- Values are prepared below, including the helper predicate; table identifiers are escaped.
             $item = $wpdb->get_row(
                 $wpdb->prepare(
-                    "SELECT * FROM " . esc_sql($queue_table_name) . " WHERE status = %s AND task_id > %d ORDER BY task_id ASC, id ASC LIMIT 1",
+                    // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter -- The helper returns a prepared predicate; the remaining values are prepared here and the queue identifier is escaped.
+                    "SELECT * FROM " . esc_sql($queue_table_name) . " WHERE status = %s AND task_id > %d" . Helpers\unblocked_queue_condition_logic() . " ORDER BY task_id ASC, id ASC LIMIT 1",
                     'pending',
                     $after_task_id
                 ),
@@ -879,10 +927,11 @@ function claim_next_queue_item_logic(\wpdb $wpdb, string $queue_table_name, int 
         }
         if (!is_array($item) || empty($item['id'])) {
             // Wrap to the first task after reaching the end of the task-ID sequence.
-            // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Indexed, one-row fair-queue lookup in a plugin-owned table.
+            // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, PluginCheck.Security.DirectDB.UnescapedDBParameter -- Values are prepared below, including the helper predicate; table identifiers are escaped.
             $item = $wpdb->get_row(
                 $wpdb->prepare(
-                    "SELECT * FROM " . esc_sql($queue_table_name) . " WHERE status = %s ORDER BY task_id ASC, id ASC LIMIT 1",
+                    // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter -- The helper returns a prepared predicate; the remaining values are prepared here and the queue identifier is escaped.
+                    "SELECT * FROM " . esc_sql($queue_table_name) . " WHERE status = %s" . Helpers\unblocked_queue_condition_logic() . " ORDER BY task_id ASC, id ASC LIMIT 1",
                     'pending'
                 ),
                 ARRAY_A
@@ -961,7 +1010,7 @@ function refill_content_indexing_queue_windows_logic(array $task_ids): void
     foreach ((array) $tasks as $task) {
         $task_id = absint($task['id'] ?? 0);
         $task_config = json_decode((string) ($task['task_config'] ?? ''), true);
-        if ($task_id <= 0 || !is_array($task_config)) {
+        if ($task_id <= 0 || !is_array($task_config) || isset($task_config['_aipkit_provider_hold'])) {
             continue;
         }
         $initial_requested = ($task_config['index_existing_now_flag'] ?? '0') === '1';

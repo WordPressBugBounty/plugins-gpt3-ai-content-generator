@@ -198,6 +198,7 @@ function register_hooks_general_ajax_logic(
         'get_conversation_history',
         'store_feedback',
         'generate_speech',
+        'speech_request_status',
         'delete_single_conversation',
     ];
     foreach ($actions as $action) {

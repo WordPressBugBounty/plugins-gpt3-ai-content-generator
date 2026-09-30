@@ -14,6 +14,55 @@ if (!defined('ABSPATH')) {
  */
 class AIPKit_Provider_Model_List_Builder
 {
+    /** Render Settings model options from the shared catalog. */
+    public static function render_model_options(string $provider, string $current_model): void
+    {
+        $payload = self::get_model_options($provider, $current_model);
+
+        foreach ((array) ($payload['groups'] ?? []) as $group) {
+            if (!is_array($group) || empty($group['options'])) {
+                continue;
+            }
+            $group_label = (string) ($group['label'] ?? '');
+            if ($group_label !== '') {
+                echo '<optgroup label="' . esc_attr($group_label) . '" data-family-key="' . esc_attr((string) ($group['key'] ?? 'other')) . '">';
+            }
+            foreach ((array) $group['options'] as $option) {
+                if (!is_array($option)) {
+                    continue;
+                }
+                $value = (string) ($option['value'] ?? '');
+                if ($value === '') {
+                    continue;
+                }
+                echo '<option value="' . esc_attr($value) . '"'
+                    . ' data-recommended="' . (!empty($option['recommended']) ? 'true' : 'false') . '"'
+                    . ' data-family-key="' . esc_attr((string) ($option['family_key'] ?? $group['key'] ?? 'other')) . '"'
+                    . ' data-family-label="' . esc_attr((string) ($option['family_label'] ?? $group_label)) . '"'
+                    . ' data-family-order="' . esc_attr((string) ($option['family_order'] ?? $group['order'] ?? 999)) . '"'
+                    . ' data-family-collapsed="' . (!empty($option['family_collapsed']) ? 'true' : 'false') . '" '
+                    . selected(!empty($option['selected']), true, false) . '>'
+                    . esc_html((string) ($option['label'] ?? $value)) . '</option>';
+            }
+            if ($group_label !== '') {
+                echo '</optgroup>';
+            }
+        }
+
+        $manual_option = is_array($payload['manual_option'] ?? null) ? $payload['manual_option'] : null;
+        if ($manual_option && (string) ($manual_option['value'] ?? '') !== '') {
+            $manual_value = (string) $manual_option['value'];
+            echo '<option value="' . esc_attr($manual_value) . '" data-family-key="other" data-family-label="'
+                . esc_attr((string) ($manual_option['family_label'] ?? __('Other', 'gpt3-ai-content-generator')))
+                . '" data-family-order="999" data-family-collapsed="true" selected>'
+                . esc_html((string) ($manual_option['label'] ?? $manual_value)) . '</option>';
+        }
+
+        if (empty($payload['has_selectable_options']) && !$manual_option) {
+            echo '<option value="">' . esc_html((string) ($payload['empty_option_label'] ?? __('Sync to load models', 'gpt3-ai-content-generator'))) . '</option>';
+        }
+    }
+
     /**
      * @param array<int, string> $providers Ordered provider keys.
      * @return array<int, array<string, mixed>>
@@ -118,6 +167,7 @@ class AIPKit_Provider_Model_List_Builder
     private static function get_primary_catalog_key(string $provider_key): string
     {
         $catalogs = [
+            'AIPufferCloud' => 'AIPufferCloud',
             'OpenAI' => 'OpenAI',
             'OpenRouter' => 'OpenRouter',
             'Google' => 'Google',

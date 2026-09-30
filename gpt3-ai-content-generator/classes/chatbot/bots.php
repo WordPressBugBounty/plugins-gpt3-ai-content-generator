@@ -516,8 +516,8 @@ class BotSettingsManager
 
     public function get_chatbot_settings(int $bot_id): array
     {
-
-        return AIPKit_Bot_Settings_Getter::get($bot_id);
+        $settings = AIPKit_Bot_Settings_Getter::get($bot_id);
+        return is_array($settings) ? $settings : [];
     }
 
     /**
@@ -1120,6 +1120,10 @@ class AIPKit_Bot_Settings_Getter
             if (in_array($key, ['_aipkit_token_guest_limit', '_aipkit_token_user_limit'], true)) {
                 return ($value === '') ? '' : $value; // Return empty string as is, otherwise actual value
             }
+            if (in_array($key, ['_aipkit_tts_provider', '_aipkit_stt_provider', '_aipkit_chat_image_model_id', '_aipkit_vector_embedding_provider', '_aipkit_vector_embedding_model'], true)
+                && (($prefetched_meta !== null && array_key_exists($key, $prefetched_meta)) || metadata_exists('post', $bot_id, $key))) {
+                return $value;
+            }
             // For other keys, if value is empty string (either from prefetched or get_post_meta) use default
             return ($value !== '') ? $value : $default;
         };
@@ -1204,6 +1208,34 @@ class AIPKit_Bot_Settings_Saver {
 
 class AIPKit_Bot_Settings_Initializer
 {
+    /** Called only for a new bot or the untouched starter bot during onboarding. */
+    public static function initialize_feature_defaults(int $post_id, string $provider, bool $only_untouched = false): void
+    {
+        if ($only_untouched) {
+            $previous = get_post_meta($post_id, '_aipkit_initial_feature_defaults', true);
+            if (!is_array($previous) || !$previous) { return; }
+            foreach ($previous as $key => $value) {
+                if (get_post_meta($post_id, '_aipkit_' . $key, true) !== $value) { return; }
+            }
+            foreach (['enable_vector_store', 'tts_enabled', 'enable_voice_input', 'enable_image_generation'] as $key) {
+                if (get_post_meta($post_id, '_aipkit_' . $key, true) === '1') { return; }
+            }
+        }
+        $defaults = AIPKit_Providers::get_new_feature_defaults('chatbot', $provider);
+        $values = array_intersect_key($defaults, array_flip([
+            'vector_store_provider', 'vector_embedding_provider', 'vector_embedding_model', 'tts_provider', 'stt_provider',
+        ]));
+        $values['chat_image_model_id'] = $defaults['image_model'];
+        foreach (['tts', 'stt'] as $type) {
+            $slug = $defaults[$type . '_provider'] === 'AIPufferCloud' ? 'cloud' : strtolower($defaults[$type . '_provider']);
+            if ($slug === '') { continue; }
+            $values[$type . '_' . $slug . '_model_id'] = $defaults[$type . '_model'];
+            if ($type === 'tts') { $values['tts_' . $slug . '_voice_id'] = $defaults['tts_voice']; }
+        }
+        foreach ($values as $key => $value) { update_post_meta($post_id, '_aipkit_' . $key, $value); }
+        update_post_meta($post_id, '_aipkit_initial_feature_defaults', $values);
+    }
+
     /**
      * Initialize a chatbot with its factory settings.
      *
@@ -1230,7 +1262,7 @@ class AIPKit_Bot_Settings_Initializer
         update_post_meta($post_id, '_aipkit_header_avatar_type', BotSettingsManager::DEFAULT_HEADER_AVATAR_TYPE);
         update_post_meta($post_id, '_aipkit_header_avatar_value', BotSettingsManager::DEFAULT_HEADER_AVATAR_VALUE);
         update_post_meta($post_id, '_aipkit_header_online_text', __('Online', 'gpt3-ai-content-generator'));
-        $new_ai_selection = AIPKit_Providers::get_new_text_generation_selection();
+        $new_ai_selection = AIPKit_Providers::get_new_text_generation_selection([], true);
         $global_provider = (string) ($new_ai_selection['provider'] ?? 'OpenAI');
         $global_model = (string) ($new_ai_selection['model'] ?? '');
         update_post_meta($post_id, '_aipkit_provider', $global_provider);
@@ -1319,7 +1351,6 @@ class AIPKit_Bot_Settings_Initializer
         update_post_meta($post_id, '_aipkit_token_limit_secondary_action_label', $default_token_limit_actions['secondary_label']);
         update_post_meta($post_id, '_aipkit_token_limit_secondary_action_url', $default_token_limit_actions['secondary_url']);
         update_post_meta($post_id, '_aipkit_tts_enabled', BotSettingsManager::DEFAULT_TTS_ENABLED);
-        update_post_meta($post_id, '_aipkit_tts_provider', BotSettingsManager::DEFAULT_TTS_PROVIDER);
         update_post_meta($post_id, '_aipkit_tts_google_voice_id', AIPKit_Providers::normalize_google_tts_voice(''));
         update_post_meta($post_id, '_aipkit_tts_google_model_id', AIPKit_Providers::normalize_google_tts_model(''));
         update_post_meta($post_id, '_aipkit_tts_openai_voice_id', BotSettingsManager::get_default_model_id('OpenAIVoices'));
@@ -1328,17 +1359,14 @@ class AIPKit_Bot_Settings_Initializer
         update_post_meta($post_id, '_aipkit_tts_elevenlabs_model_id', BotSettingsManager::get_default_model_id('ElevenLabsModels'));
         update_post_meta($post_id, '_aipkit_tts_auto_play', BotSettingsManager::DEFAULT_TTS_AUTO_PLAY);
         update_post_meta($post_id, '_aipkit_enable_voice_input', BotSettingsManager::DEFAULT_ENABLE_VOICE_INPUT);
-        update_post_meta($post_id, '_aipkit_stt_provider', BotSettingsManager::DEFAULT_STT_PROVIDER);
         update_post_meta($post_id, '_aipkit_stt_openai_model_id', BotSettingsManager::get_default_model_id('OpenAISTT'));
         update_post_meta($post_id, '_aipkit_stt_google_model_id', AIPKit_Providers::normalize_google_stt_model(''));
         update_post_meta($post_id, '_aipkit_stt_azure_model_id', BotSettingsManager::DEFAULT_STT_AZURE_MODEL_ID);
         update_post_meta($post_id, '_aipkit_image_triggers', BotSettingsManager::DEFAULT_IMAGE_TRIGGERS);
-        update_post_meta($post_id, '_aipkit_chat_image_model_id', BotSettingsManager::get_default_model_id('OpenAIImage'));
         update_post_meta($post_id, '_aipkit_enable_image_generation', BotSettingsManager::DEFAULT_ENABLE_IMAGE_GENERATION);
         update_post_meta($post_id, '_aipkit_enable_file_upload', BotSettingsManager::DEFAULT_ENABLE_FILE_UPLOAD);
         update_post_meta($post_id, '_aipkit_enable_image_upload', BotSettingsManager::DEFAULT_ENABLE_IMAGE_UPLOAD);
         update_post_meta($post_id, '_aipkit_enable_vector_store', BotSettingsManager::DEFAULT_ENABLE_VECTOR_STORE);
-        update_post_meta($post_id, '_aipkit_vector_store_provider', BotSettingsManager::DEFAULT_VECTOR_STORE_PROVIDER);
         update_post_meta($post_id, '_aipkit_openai_vector_store_ids', '[]');
         update_post_meta($post_id, '_aipkit_google_file_search_store_names', '[]');
         delete_post_meta($post_id, '_aipkit_openai_vector_store_id');
@@ -1347,8 +1375,7 @@ class AIPKit_Bot_Settings_Initializer
         update_post_meta($post_id, '_aipkit_qdrant_collection_names', '[]');
         update_post_meta($post_id, '_aipkit_chroma_collection_name', '');
         update_post_meta($post_id, '_aipkit_chroma_collection_names', '[]');
-        update_post_meta($post_id, '_aipkit_vector_embedding_provider', BotSettingsManager::DEFAULT_VECTOR_EMBEDDING_PROVIDER);
-        update_post_meta($post_id, '_aipkit_vector_embedding_model', BotSettingsManager::get_default_model_id('OpenAIEmbedding'));
+        update_post_meta($post_id, '_aipkit_local_store_ids', '[]');
         update_post_meta($post_id, '_aipkit_vector_store_top_k', BotSettingsManager::DEFAULT_VECTOR_STORE_TOP_K);
         update_post_meta($post_id, '_aipkit_vector_store_confidence_threshold', BotSettingsManager::DEFAULT_VECTOR_STORE_CONFIDENCE_THRESHOLD); // NEW
         update_post_meta($post_id, '_aipkit_openai_web_search_enabled', BotSettingsManager::DEFAULT_OPENAI_WEB_SEARCH_ENABLED);
@@ -1389,6 +1416,8 @@ class AIPKit_Bot_Settings_Initializer
                 update_post_meta($post_id, '_aipkit_cts_' . $key, $default_value);
             }
         }
+
+        self::initialize_feature_defaults($post_id, $global_provider);
 
         if (function_exists(__NAMESPACE__ . '\initialize_paid_bot_settings_logic')) {
             initialize_paid_bot_settings_logic($post_id);
@@ -1973,58 +2002,6 @@ function get_contextual_settings_logic(int $bot_id, callable $get_meta_fn): arra
     $settings['enable_image_generation'] = in_array($get_meta_fn('_aipkit_enable_image_generation', BotSettingsManager::DEFAULT_ENABLE_IMAGE_GENERATION), ['0','1'], true)
         ? $get_meta_fn('_aipkit_enable_image_generation', BotSettingsManager::DEFAULT_ENABLE_IMAGE_GENERATION)
         : BotSettingsManager::DEFAULT_ENABLE_IMAGE_GENERATION;
-    // Build valid image models dynamically
-    $valid_image_models = class_exists('\\WPAICG\\AIPKit_Providers')
-        ? \WPAICG\AIPKit_Providers::get_openai_image_model_ids()
-        : [BotSettingsManager::get_default_model_id('OpenAIImage')];
-    if (class_exists('\\WPAICG\\AIPKit_Providers')) {
-        // Add Google image models
-        $google_models = \WPAICG\AIPKit_Providers::get_google_image_models();
-        if (!empty($google_models)) {
-            $valid_image_models = array_merge($valid_image_models, wp_list_pluck($google_models, 'id'));
-        }
-    }
-
-    // Add Azure image models to validation list
-    if (class_exists('\WPAICG\AIPKit_Providers')) {
-        $azure_models = \WPAICG\AIPKit_Providers::get_azure_image_models();
-        if (!empty($azure_models)) {
-            $azure_model_ids = wp_list_pluck($azure_models, 'id');
-            $valid_image_models = array_merge($valid_image_models, $azure_model_ids);
-        }
-    }
-
-    // Add Replicate models to validation list when available
-    if (class_exists('\WPAICG\AIPKit_Providers')) {
-        $replicate_models = \WPAICG\AIPKit_Providers::get_replicate_models();
-        if (!empty($replicate_models)) {
-            $replicate_model_ids = wp_list_pluck($replicate_models, 'id');
-            $valid_image_models = array_merge($valid_image_models, $replicate_model_ids);
-        }
-    }
-
-    // Add OpenRouter image models to validation list when available
-    if (class_exists('\WPAICG\AIPKit_Providers')) {
-        $openrouter_image_models = \WPAICG\AIPKit_Providers::get_openrouter_image_models();
-        if (!empty($openrouter_image_models)) {
-            $openrouter_model_ids = wp_list_pluck($openrouter_image_models, 'id');
-            $valid_image_models = array_merge($valid_image_models, $openrouter_model_ids);
-        }
-    }
-
-    // Add xAI image models to validation list when available
-    if (class_exists('\WPAICG\AIPKit_Providers')) {
-        $xai_image_models = \WPAICG\AIPKit_Providers::get_xai_image_models();
-        if (!empty($xai_image_models)) {
-            $xai_model_ids = wp_list_pluck($xai_image_models, 'id');
-            $valid_image_models = array_merge($valid_image_models, $xai_model_ids);
-        }
-    }
-
-    if (!in_array($settings['chat_image_model_id'], $valid_image_models, true)) {
-        $settings['chat_image_model_id'] = BotSettingsManager::get_default_model_id('OpenAIImage');
-    }
-
     return $settings;
 }
 
@@ -2046,7 +2023,7 @@ function get_vector_store_config_logic(int $bot_id, callable $get_meta_fn): arra
         : BotSettingsManager::DEFAULT_ENABLE_VECTOR_STORE;
 
     $settings['vector_store_provider'] = $get_meta_fn('_aipkit_vector_store_provider', BotSettingsManager::DEFAULT_VECTOR_STORE_PROVIDER);
-    if (!in_array($settings['vector_store_provider'], ['openai', 'pinecone', 'qdrant', 'chroma', 'claude_files', 'google'], true)) {
+    if (!in_array($settings['vector_store_provider'], ['openai', 'pinecone', 'qdrant', 'chroma', 'local', 'claude_files', 'google'], true)) {
         $settings['vector_store_provider'] = BotSettingsManager::DEFAULT_VECTOR_STORE_PROVIDER;
     }
     $chat_provider = sanitize_text_field((string) $get_meta_fn('_aipkit_provider', 'OpenAI'));
@@ -2083,6 +2060,10 @@ function get_vector_store_config_logic(int $bot_id, callable $get_meta_fn): arra
     $settings['qdrant_collection_names'] = $qdrant_names_array;
 
     $settings['chroma_collection_name'] = $get_meta_fn('_aipkit_chroma_collection_name', '');
+    // Local knowledge stores; embedding provider/model are configured separately.
+    $local_store_ids = json_decode((string) $get_meta_fn('_aipkit_local_store_ids', '[]'), true);
+    $settings['local_store_ids'] = is_array($local_store_ids) ? array_values(array_filter(array_map('sanitize_key', $local_store_ids))) : [];
+
     $chroma_names_json = $get_meta_fn('_aipkit_chroma_collection_names', '[]');
     $chroma_names_array = json_decode($chroma_names_json, true);
     if (!is_array($chroma_names_array)) { $chroma_names_array = []; }
@@ -2094,7 +2075,7 @@ function get_vector_store_config_logic(int $bot_id, callable $get_meta_fn): arra
     $allowed_embedding_provider_keys = AIPKit_Providers::get_embedding_provider_keys('chat_vector_store_getter');
 
     $settings['vector_embedding_provider'] = $get_meta_fn('_aipkit_vector_embedding_provider', BotSettingsManager::DEFAULT_VECTOR_EMBEDDING_PROVIDER);
-    if (!in_array($settings['vector_embedding_provider'], $allowed_embedding_provider_keys, true)) {
+    if ($settings['vector_embedding_provider'] !== '' && $settings['vector_embedding_provider'] !== 'aipuffercloud' && !in_array($settings['vector_embedding_provider'], $allowed_embedding_provider_keys, true)) {
         $settings['vector_embedding_provider'] = BotSettingsManager::DEFAULT_VECTOR_EMBEDDING_PROVIDER;
     }
     $settings['vector_embedding_model'] = $get_meta_fn('_aipkit_vector_embedding_model', BotSettingsManager::get_default_model_id('OpenAIEmbedding'));
@@ -2127,7 +2108,7 @@ function get_tts_config_logic(int $bot_id, callable $get_meta_fn): array
         : BotSettingsManager::DEFAULT_TTS_ENABLED;
 
     $settings['tts_provider'] = $get_meta_fn('_aipkit_tts_provider', BotSettingsManager::DEFAULT_TTS_PROVIDER);
-    if (!in_array($settings['tts_provider'], ['Google', 'OpenAI', 'ElevenLabs'])) {
+    if (!in_array($settings['tts_provider'], ['', 'Google', 'OpenAI', 'ElevenLabs', 'AIPufferCloud'])) {
         $settings['tts_provider'] = BotSettingsManager::DEFAULT_TTS_PROVIDER;
     }
 
@@ -2139,6 +2120,8 @@ function get_tts_config_logic(int $bot_id, callable $get_meta_fn): array
     );
     $settings['tts_openai_voice_id'] = $get_meta_fn('_aipkit_tts_openai_voice_id', BotSettingsManager::get_default_model_id('OpenAIVoices'));
     $settings['tts_openai_model_id'] = $get_meta_fn('_aipkit_tts_openai_model_id', BotSettingsManager::get_default_model_id('OpenAITTS'));
+    $settings['tts_cloud_voice_id'] = $get_meta_fn('_aipkit_tts_cloud_voice_id', 'alloy');
+    $settings['tts_cloud_model_id'] = $get_meta_fn('_aipkit_tts_cloud_model_id', \WPAICG\Cloud\Connection::media_models('speech_generate')[0]['id'] ?? '');
     $settings['tts_elevenlabs_voice_id'] = $get_meta_fn('_aipkit_tts_elevenlabs_voice_id', '');
     $settings['tts_elevenlabs_model_id'] = $get_meta_fn('_aipkit_tts_elevenlabs_model_id', BotSettingsManager::get_default_model_id('ElevenLabsModels'));
 
@@ -2149,6 +2132,8 @@ function get_tts_config_logic(int $bot_id, callable $get_meta_fn): array
         case 'OpenAI': $settings['tts_voice_id'] = $settings['tts_openai_voice_id'];
             break;
         case 'ElevenLabs': $settings['tts_voice_id'] = $settings['tts_elevenlabs_voice_id'];
+            break;
+        case 'AIPufferCloud': $settings['tts_voice_id'] = $settings['tts_cloud_voice_id'];
             break;
     }
 
@@ -2177,7 +2162,7 @@ function get_stt_config_logic(int $bot_id, callable $get_meta_fn): array
         : BotSettingsManager::DEFAULT_ENABLE_VOICE_INPUT;
 
     $settings['stt_provider'] = $get_meta_fn('_aipkit_stt_provider', BotSettingsManager::DEFAULT_STT_PROVIDER);
-    if (!in_array($settings['stt_provider'], ['OpenAI', 'Google', 'Azure'], true)) {
+    if (!in_array($settings['stt_provider'], ['', 'OpenAI', 'Google', 'Azure', 'AIPufferCloud'], true)) {
         $settings['stt_provider'] = BotSettingsManager::DEFAULT_STT_PROVIDER;
     }
 
@@ -2187,6 +2172,7 @@ function get_stt_config_logic(int $bot_id, callable $get_meta_fn): array
     $settings['stt_google_model_id'] = \WPAICG\AIPKit_Providers::normalize_google_stt_model(
         (string) $get_meta_fn('_aipkit_stt_google_model_id', '')
     );
+    $settings['stt_cloud_model_id'] = $get_meta_fn('_aipkit_stt_cloud_model_id', \WPAICG\Cloud\Connection::media_models('transcribe')[0]['id'] ?? '');
     $settings['stt_azure_model_id'] = $get_meta_fn('_aipkit_stt_azure_model_id', BotSettingsManager::DEFAULT_STT_AZURE_MODEL_ID);
 
     return $settings;
@@ -2602,7 +2588,7 @@ function validate_bot_post_logic(int $botId) {
  * @return array|WP_Error Coordinated raw settings or a validation error.
  */
 function coordinate_native_knowledge_settings_logic(array $raw_settings, int $bot_id) {
-    $allowed_vector_store_providers = ['openai', 'google', 'pinecone', 'qdrant', 'chroma', 'claude_files'];
+    $allowed_vector_store_providers = ['openai', 'google', 'pinecone', 'qdrant', 'chroma', 'local', 'claude_files'];
     $stored_chatbot_provider = (string) get_post_meta($bot_id, '_aipkit_provider', true);
     $stored_vector_store_provider = (string) get_post_meta($bot_id, '_aipkit_vector_store_provider', true);
     $stored_enable_vector_store = (string) get_post_meta($bot_id, '_aipkit_enable_vector_store', true);
@@ -2862,7 +2848,7 @@ function sanitize_settings_logic(array $raw_settings, int $bot_id): array
     $sanitized['model'] = isset($raw_settings['model']) ? sanitize_text_field($raw_settings['model']) : '';
     $sanitized['tts_enabled'] = (isset($raw_settings['tts_enabled']) && $raw_settings['tts_enabled'] === '1') ? '1' : '0';
     $sanitized['tts_provider'] = isset($raw_settings['tts_provider']) ? sanitize_text_field($raw_settings['tts_provider']) : BotSettingsManager::DEFAULT_TTS_PROVIDER;
-    if (!in_array($sanitized['tts_provider'], ['Google', 'OpenAI', 'ElevenLabs'])) {
+    if (!in_array($sanitized['tts_provider'], ['', 'Google', 'OpenAI', 'ElevenLabs', 'AIPufferCloud'])) {
         $sanitized['tts_provider'] = BotSettingsManager::DEFAULT_TTS_PROVIDER;
     }
     $sanitized['tts_google_voice_id'] = AIPKit_Providers::normalize_google_tts_voice(
@@ -2873,12 +2859,15 @@ function sanitize_settings_logic(array $raw_settings, int $bot_id): array
     );
     $sanitized['tts_openai_voice_id'] = isset($raw_settings['tts_openai_voice_id']) ? sanitize_text_field($raw_settings['tts_openai_voice_id']) : BotSettingsManager::get_default_model_id('OpenAIVoices');
     $sanitized['tts_openai_model_id'] = isset($raw_settings['tts_openai_model_id']) ? sanitize_text_field($raw_settings['tts_openai_model_id']) : BotSettingsManager::get_default_model_id('OpenAITTS');
+    $sanitized['tts_cloud_voice_id'] = isset($raw_settings['tts_cloud_voice_id']) ? sanitize_text_field($raw_settings['tts_cloud_voice_id']) : 'alloy';
+    $sanitized['tts_cloud_model_id'] = isset($raw_settings['tts_cloud_model_id'])
+        ? sanitize_text_field($raw_settings['tts_cloud_model_id']) : (\WPAICG\Cloud\Connection::media_models('speech_generate')[0]['id'] ?? '');
     $sanitized['tts_elevenlabs_voice_id'] = isset($raw_settings['tts_elevenlabs_voice_id']) ? sanitize_text_field($raw_settings['tts_elevenlabs_voice_id']) : '';
     $sanitized['tts_elevenlabs_model_id'] = isset($raw_settings['tts_elevenlabs_model_id']) ? sanitize_text_field($raw_settings['tts_elevenlabs_model_id']) : '';
     $sanitized['tts_auto_play'] = (isset($raw_settings['tts_auto_play']) && $raw_settings['tts_auto_play'] === '1') ? '1' : '0';
     $sanitized['enable_voice_input'] = (isset($raw_settings['enable_voice_input']) && $raw_settings['enable_voice_input'] === '1') ? '1' : '0';
     $sanitized['stt_provider'] = isset($raw_settings['stt_provider']) ? sanitize_text_field($raw_settings['stt_provider']) : BotSettingsManager::DEFAULT_STT_PROVIDER;
-    if (!in_array($sanitized['stt_provider'], ['OpenAI', 'Google', 'Azure'], true)) {
+    if (!in_array($sanitized['stt_provider'], ['', 'OpenAI', 'Google', 'Azure', 'AIPufferCloud'], true)) {
         $sanitized['stt_provider'] = BotSettingsManager::DEFAULT_STT_PROVIDER;
     }
     $sanitized['stt_openai_model_id'] = AIPKit_Model_Catalog::sanitize_openai_file_transcription_model(
@@ -2889,6 +2878,8 @@ function sanitize_settings_logic(array $raw_settings, int $bot_id): array
     $sanitized['stt_google_model_id'] = AIPKit_Providers::normalize_google_stt_model(
         isset($raw_settings['stt_google_model_id']) ? (string) $raw_settings['stt_google_model_id'] : ''
     );
+    $sanitized['stt_cloud_model_id'] = isset($raw_settings['stt_cloud_model_id'])
+        ? sanitize_text_field($raw_settings['stt_cloud_model_id']) : (\WPAICG\Cloud\Connection::media_models('transcribe')[0]['id'] ?? '');
     $sanitized['stt_azure_model_id'] = isset($raw_settings['stt_azure_model_id']) ? sanitize_text_field($raw_settings['stt_azure_model_id']) : BotSettingsManager::DEFAULT_STT_AZURE_MODEL_ID;
     $raw_image_triggers = isset($raw_settings['image_triggers']) ? sanitize_text_field($raw_settings['image_triggers']) : BotSettingsManager::DEFAULT_IMAGE_TRIGGERS;
     $triggers_array = array_map('trim', explode(',', $raw_image_triggers));
@@ -2911,7 +2902,7 @@ function sanitize_settings_logic(array $raw_settings, int $bot_id): array
     $vector_store_provider_input = isset($raw_settings['vector_store_provider'])
         ? sanitize_key((string) $raw_settings['vector_store_provider'])
         : '';
-    $allowed_vector_store_providers = ['openai', 'google', 'pinecone', 'qdrant', 'chroma', 'claude_files'];
+    $allowed_vector_store_providers = ['openai', 'google', 'pinecone', 'qdrant', 'chroma', 'local', 'claude_files'];
     $sanitized['vector_store_provider'] = in_array($vector_store_provider_input, $allowed_vector_store_providers, true)
         ? $vector_store_provider_input
         : BotSettingsManager::DEFAULT_VECTOR_STORE_PROVIDER;
@@ -2982,12 +2973,21 @@ function sanitize_settings_logic(array $raw_settings, int $bot_id): array
     $chroma_names_clean = array_values(array_unique($chroma_names_clean));
     $sanitized['chroma_collection_names'] = wp_json_encode($chroma_names_clean);
     $sanitized['chroma_collection_name'] = $chroma_names_clean[0] ?? '';
+    $local_ids_raw = [];
+    if ($sanitized['vector_store_provider'] === 'local') {
+        $local_ids_raw = $raw_settings['local_store_ids'] ?? [];
+        if (is_string($local_ids_raw)) { $local_ids_raw = json_decode($local_ids_raw, true); }
+        $local_ids_raw = is_array($local_ids_raw) ? $local_ids_raw : [];
+    }
+    $sanitized['local_store_ids'] = wp_json_encode(array_values(array_unique(array_filter(array_map(static function ($id) {
+        return substr((string) preg_replace('/[^a-z0-9_-]/', '', strtolower((string) $id)), 0, 64);
+    }, $local_ids_raw)))));
     $allowed_embedding_providers = AIPKit_Providers::get_embedding_provider_keys('chat_settings_sanitize');
-    $uses_custom_embedding_provider = in_array($sanitized['vector_store_provider'], ['pinecone', 'qdrant', 'chroma'], true);
+    $uses_custom_embedding_provider = in_array($sanitized['vector_store_provider'], ['pinecone', 'qdrant', 'chroma', 'local'], true);
     $sanitized['vector_embedding_provider'] = ($uses_custom_embedding_provider && isset($raw_settings['vector_embedding_provider']))
         ? sanitize_key($raw_settings['vector_embedding_provider'])
         : BotSettingsManager::DEFAULT_VECTOR_EMBEDDING_PROVIDER;
-    if (!in_array($sanitized['vector_embedding_provider'], $allowed_embedding_providers, true)) {
+    if ($sanitized['vector_embedding_provider'] !== '' && $sanitized['vector_embedding_provider'] !== 'aipuffercloud' && !in_array($sanitized['vector_embedding_provider'], $allowed_embedding_providers, true)) {
         $sanitized['vector_embedding_provider'] = BotSettingsManager::DEFAULT_VECTOR_EMBEDDING_PROVIDER;
     }
     $sanitized['vector_embedding_model'] = ($uses_custom_embedding_provider && isset($raw_settings['vector_embedding_model']))
@@ -3331,6 +3331,8 @@ function save_meta_fields_logic(int $botId, array $sanitized_settings)
     delete_post_meta($botId, '_aipkit_azure_deployment');
     update_post_meta($botId, '_aipkit_tts_enabled', $sanitized_settings['tts_enabled']);
     update_post_meta($botId, '_aipkit_tts_provider', $sanitized_settings['tts_provider']);
+    update_post_meta($botId, '_aipkit_tts_cloud_voice_id', $sanitized_settings['tts_cloud_voice_id']);
+    update_post_meta($botId, '_aipkit_tts_cloud_model_id', $sanitized_settings['tts_cloud_model_id']);
     update_post_meta($botId, '_aipkit_tts_google_voice_id', $sanitized_settings['tts_google_voice_id']);
     update_post_meta($botId, '_aipkit_tts_google_model_id', $sanitized_settings['tts_google_model_id']);
     update_post_meta($botId, '_aipkit_tts_openai_voice_id', $sanitized_settings['tts_openai_voice_id']);
@@ -3342,6 +3344,7 @@ function save_meta_fields_logic(int $botId, array $sanitized_settings)
     update_post_meta($botId, '_aipkit_stt_provider', $sanitized_settings['stt_provider']);
     update_post_meta($botId, '_aipkit_stt_openai_model_id', $sanitized_settings['stt_openai_model_id']);
     update_post_meta($botId, '_aipkit_stt_google_model_id', $sanitized_settings['stt_google_model_id']);
+    update_post_meta($botId, '_aipkit_stt_cloud_model_id', $sanitized_settings['stt_cloud_model_id']);
     update_post_meta($botId, '_aipkit_stt_azure_model_id', $sanitized_settings['stt_azure_model_id']);
     update_post_meta($botId, '_aipkit_image_triggers', $sanitized_settings['image_triggers']);
     update_post_meta($botId, '_aipkit_chat_image_model_id', $sanitized_settings['chat_image_model_id']);
@@ -3390,6 +3393,11 @@ function save_meta_fields_logic(int $botId, array $sanitized_settings)
         delete_post_meta($botId, '_aipkit_chroma_collection_name');
         delete_post_meta($botId, '_aipkit_chroma_collection_names');
         delete_post_meta($botId, '_aipkit_google_file_search_store_names');
+    } elseif ($sanitized_settings['vector_store_provider'] === 'local') {
+        // Store selection and embedding configuration are independent.
+        update_post_meta($botId, '_aipkit_local_store_ids', $sanitized_settings['local_store_ids']);
+        update_post_meta($botId, '_aipkit_vector_embedding_provider', $sanitized_settings['vector_embedding_provider']);
+        update_post_meta($botId, '_aipkit_vector_embedding_model', $sanitized_settings['vector_embedding_model']);
     } elseif ($sanitized_settings['vector_store_provider'] === 'chroma') {
         update_post_meta($botId, '_aipkit_chroma_collection_name', $sanitized_settings['chroma_collection_name']);
         update_post_meta($botId, '_aipkit_chroma_collection_names', $sanitized_settings['chroma_collection_names']);
@@ -3606,6 +3614,8 @@ function save_bot_settings_logic(int $botId, array $raw_settings, SiteWideBotMan
     if (is_wp_error($meta_save_result)) {
         return $meta_save_result; // Propagate WP_Error if JSON validation failed for triggers
     }
+
+    delete_post_meta($botId, '_aipkit_initial_feature_defaults');
 
     // 5. Session memory requires provider-side storage for both OpenAI and Google.
     handle_provider_conversation_state_settings_logic($sanitized_settings);

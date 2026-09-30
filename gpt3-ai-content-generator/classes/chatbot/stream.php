@@ -132,6 +132,17 @@ function process_chat_logic(
         return new WP_Error('settings_load_failure_moderation', __('Could not load chatbot configuration.', 'gpt3-ai-content-generator'), ['status' => 500]);
     }
 
+    if (class_exists(PaidStream::class)) {
+        $file_context_check = PaidStream::apply_uploaded_file_context($params, $bot_settings);
+        if (is_wp_error($file_context_check)) { return $file_context_check; }
+    } elseif (!empty(array_filter(array_intersect_key($params, array_flip([
+        'active_file_context_token', 'active_openai_vs_id', 'active_pinecone_index_name',
+        'active_pinecone_namespace', 'active_qdrant_collection_name', 'active_qdrant_file_upload_context_id',
+        'active_chroma_collection_name', 'active_chroma_file_upload_context_id', 'active_claude_file_id',
+    ]))))) {
+        return new WP_Error('chat_upload_unavailable', __('File upload is unavailable.', 'gpt3-ai-content-generator'), ['status' => 403]);
+    }
+
     $active_google_document = null;
     if (!empty($params['active_google_file_context_token'])) {
         if (
@@ -184,6 +195,8 @@ function process_chat_logic(
     if (!$token_manager) {
         return new WP_Error('dependency_missing_token_manager', 'Token manager is unavailable.', ['status' => 500]);
     }
+    $rate_check = AIPKit_Token_Manager::check_public_request_rate();
+    if (is_wp_error($rate_check)) { return $rate_check; }
     $token_check_result = Process\run_token_check_logic(
         $token_manager,
         $params['user_id'],
@@ -431,6 +444,7 @@ function extract_request_params_logic(array $cached_data, array $get_params): ar
         'resume_after_form_submission' => !empty($cached_data['resume_after_form_submission']),
         'form_submission_context' => isset($cached_data['form_submission_context']) && is_array($cached_data['form_submission_context']) ? $cached_data['form_submission_context'] : [],
         'form_resume_token' => isset($cached_data['form_resume_token']) ? sanitize_text_field((string) $cached_data['form_resume_token']) : '',
+        'active_file_context_token' => (string) ($cached_data['active_file_context_token'] ?? ''),
         'active_openai_vs_id' => $cached_data['active_openai_vs_id'] ?? ($get_params['active_openai_vs_id'] ?? null),
         'active_pinecone_index_name' => $cached_data['active_pinecone_index_name'] ?? ($get_params['active_pinecone_index_name'] ?? null),
         'active_pinecone_namespace' => $cached_data['active_pinecone_namespace'] ?? ($get_params['active_pinecone_namespace'] ?? null),
@@ -843,6 +857,10 @@ function build_ai_request_data_for_stream_logic(
     if ($main_provider_for_ai === 'OpenAI' && !class_exists(OpenAIStatefulConversationHelper::class)) {
         return new WP_Error('dependency_missing_openai_helper', 'OpenAI Stateful Helper component is missing.');
     }
+    $feature_strategy = \WPAICG\Core\Providers\ProviderStrategyFactory::get_strategy($main_provider_for_ai);
+    if (is_wp_error($feature_strategy)) { return $feature_strategy; }
+    $feature_error = $feature_strategy->validate_chatbot_features($bot_settings, !empty($image_inputs), $frontend_openai_web_search_active || $frontend_google_search_grounding_active);
+    if ($feature_error) { return $feature_error; }
 
     if (!empty($image_inputs)) {
         /**
@@ -891,6 +909,8 @@ function build_ai_request_data_for_stream_logic(
             $vector_search_scores // Pass reference to capture scores
         );
     }
+
+    if (is_wp_error($all_formatted_results_for_instruction)) { return $all_formatted_results_for_instruction; }
 
     $instruction_context = [
         'base_instructions' => $system_instruction_after_triggers,
@@ -1045,6 +1065,11 @@ function build_ai_request_data_for_stream_logic(
         }
         if (class_exists(PaidStream::class)) {
             PaidStream::apply_document_context($ai_params_for_payload, 'Claude', $bot_settings, $frontend_active_claude_file_id, null);
+        }
+    } elseif ($main_provider_for_ai === 'AIPufferCloud') {
+        $reasoning_effort = \WPAICG\Cloud\Connection::reasoning_effort((string) $model_id_for_ai, $bot_settings['reasoning_effort'] ?? '');
+        if ($reasoning_effort !== '') {
+            $ai_params_for_payload['reasoning'] = ['effort' => $reasoning_effort];
         }
     } elseif ($main_provider_for_ai === 'OpenRouter') {
         $reasoning_effort = AIPKit_OpenRouter_Reasoning::normalize_effort_for_model(

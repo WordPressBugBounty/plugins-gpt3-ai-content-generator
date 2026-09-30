@@ -310,7 +310,7 @@ $chroma_defaults     = AIPKit_Providers::get_provider_defaults('Chroma');
                 >
                     <header class="aipkit_settings_page_header">
                         <h3 class="aipkit_settings_page_title"><?php esc_html_e('Modules', 'gpt3-ai-content-generator'); ?></h3>
-                        <p class="aipkit_settings_page_helper"><?php esc_html_e('Choose which AI Puffer tools appear in navigation and inside WordPress.', 'gpt3-ai-content-generator'); ?></p>
+                        <p class="aipkit_settings_page_helper"><?php esc_html_e('Choose which tools appear in navigation and enable optional features.', 'gpt3-ai-content-generator'); ?></p>
                     </header>
 
                     <div class="aipkit_settings_simple_form aipkit_settings_simple_form--modules">

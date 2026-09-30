@@ -7,6 +7,8 @@ if (!defined('ABSPATH')) {
 
 use WPAICG\ContentWriter\AIPKit_Content_Writer_Prompts;
 
+$feature_defaults = \WPAICG\AIPKit_Providers::get_new_feature_defaults();
+
 $default_image_title_prompt_update = AIPKit_Content_Writer_Prompts::get_default_image_title_prompt_update();
 $default_image_alt_text_prompt_update = AIPKit_Content_Writer_Prompts::get_default_image_alt_text_prompt_update();
 $default_image_caption_prompt_update = AIPKit_Content_Writer_Prompts::get_default_image_caption_prompt_update();
@@ -23,13 +25,15 @@ $default_image_description_prompt_update = AIPKit_Content_Writer_Prompts::get_de
 <div class="aipkit_cw_image_section">
     <div class="aipkit_cw_image_hidden_fields" hidden aria-hidden="true">
         <select id="aipkit_cw_image_provider" name="image_provider" class="aipkit_autosave_trigger" tabindex="-1">
+            <option value="" <?php selected($feature_defaults['image_provider'], ''); ?>><?php esc_html_e('Select a provider', 'gpt3-ai-content-generator'); ?></option>
             <optgroup label="<?php echo esc_attr__('AI Providers', 'gpt3-ai-content-generator'); ?>">
-                <option value="openai" selected>OpenAI</option>
-                <option value="google">Google</option>
-                <option value="openrouter">OpenRouter</option>
-                <option value="azure">Azure</option>
-                <option value="xai">xAI</option>
-                <option value="replicate"><?php esc_html_e('Replicate', 'gpt3-ai-content-generator'); ?></option>
+                <option value="openai" <?php selected($feature_defaults['image_provider'], 'openai'); ?>>OpenAI</option>
+                <option value="aipuffercloud" <?php selected($feature_defaults['image_provider'], 'aipuffercloud'); ?>><?php esc_html_e('AI Puffer Cloud', 'gpt3-ai-content-generator'); ?></option>
+                <option value="google" <?php selected($feature_defaults['image_provider'], 'google'); ?>>Google</option>
+                <option value="openrouter" <?php selected($feature_defaults['image_provider'], 'openrouter'); ?>>OpenRouter</option>
+                <option value="azure" <?php selected($feature_defaults['image_provider'], 'azure'); ?>>Azure</option>
+                <option value="xai" <?php selected($feature_defaults['image_provider'], 'xai'); ?>>xAI</option>
+                <option value="replicate" <?php selected($feature_defaults['image_provider'], 'replicate'); ?>><?php esc_html_e('Replicate', 'gpt3-ai-content-generator'); ?></option>
             </optgroup>
             <optgroup label="<?php echo esc_attr__('Stock Photos', 'gpt3-ai-content-generator'); ?>">
                 <option value="pexels"><?php esc_html_e('Pexels', 'gpt3-ai-content-generator'); ?></option>

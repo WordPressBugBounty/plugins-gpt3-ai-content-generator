@@ -73,6 +73,7 @@ function process_initial_request_logic(
                     $cached_data_decoded_for_handler = $nested_decoded; // Use the inner decoded data
                     // Preserve outer context overrides without copying unrelated cached fields.
                     foreach ([
+                        'active_file_context_token',
                         'active_openai_vs_id',
                         'active_pinecone_index_name',
                         'active_pinecone_namespace',
@@ -120,6 +121,11 @@ function process_initial_request_logic(
         }
         return $chat_handler->process($cached_data_decoded_for_handler, $get_params);
     } elseif ($stream_context === 'content_writer') {
+        $user_id = get_current_user_id();
+        if (!$user_id || (!\WPAICG\AIPKit_Role_Manager::user_can_access_module('content-writer') && !\WPAICG\AIPKit_Role_Manager::user_can_access_module('autogpt'))) {
+            return new WP_Error('content_writer_forbidden', __('You do not have permission to use Content Writer.', 'gpt3-ai-content-generator'), ['status' => 403]);
+        }
+        $cached_data_decoded_for_handler['user_id'] = $user_id;
         $content_writer_handler = $handlerInstance->get_content_writer_context_handler();
         if (!$content_writer_handler) {
             return new WP_Error(

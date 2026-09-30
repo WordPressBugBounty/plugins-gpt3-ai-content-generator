@@ -19,6 +19,58 @@ if (!defined('ABSPATH')) {
 class AIPKit_Stats
 { // Renamed from AIPKit_Chat_Stats to reflect broader scope
 
+    public static function visitor_billing_enabled(): bool
+    {
+        $saved = get_option('aipkit_visitor_billing_enabled');
+        if ($saved === 'yes' || $saved === 'no') {
+            return $saved === 'yes';
+        }
+
+        if (get_option('aipkit_token_dashboard_page_url') || get_option('aipkit_token_shop_page_url')) {
+            return true;
+        }
+
+        $products = get_posts([
+            'post_type' => 'product',
+            'post_status' => ['publish', 'draft', 'pending', 'private', 'future'],
+            'posts_per_page' => 1,
+            'fields' => 'ids',
+            'no_found_rows' => true,
+            // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key -- One-row check for an existing visitor credit package.
+            'meta_key' => '_aipkit_is_token_package',
+            // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_value -- One-row check for an existing visitor credit package.
+            'meta_value' => 'yes',
+        ]);
+        if ($products) {
+            return true;
+        }
+
+        $users = get_users([
+            'number' => 1,
+            'fields' => 'ID',
+            'count_total' => false,
+            // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key -- One-row check to keep saved visitor balances visible.
+            'meta_key' => '_aipkit_token_balance',
+            // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_value -- One-row check to keep saved visitor balances visible.
+            'meta_value' => 0,
+            'meta_compare' => '>',
+            'meta_type' => 'NUMERIC',
+        ]);
+        if ($users) {
+            return true;
+        }
+
+        global $wpdb;
+        $table = $wpdb->prefix . 'aipkit_pricing_rules';
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Read-only check of a plugin-owned table while rendering Usage.
+        if ($wpdb->get_var($wpdb->prepare('SHOW TABLES LIKE %s', $table)) !== $table) {
+            return false;
+        }
+
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter -- The table name is built only from the WordPress prefix and the plugin's fixed suffix.
+        return (bool) $wpdb->get_var("SELECT 1 FROM {$table} LIMIT 1");
+    }
+
     private $wpdb;
     private $log_table_name;
     private $ledger_table_name;
@@ -331,7 +383,7 @@ class AIPKit_Stats
                 COALESCE(SUM(CASE WHEN entry_type = 'usage' THEN 1 ELSE 0 END), 0) AS usage_entry_count,
                 COUNT(*) AS total_entries
              FROM {$this->ledger_table_name}
-             WHERE created_at >= %s AND created_at <= %s",
+             WHERE entry_type <> 'request' AND created_at >= %s AND created_at <= %s",
             $range['start_utc'],
             $range['end_utc']
         );
@@ -374,7 +426,7 @@ class AIPKit_Stats
             "SELECT l.*, u.display_name, u.user_email
              FROM {$this->ledger_table_name} l
              LEFT JOIN {$users_table} u ON u.ID = l.user_id
-             WHERE l.created_at >= %s AND l.created_at <= %s
+             WHERE l.entry_type <> 'request' AND l.created_at >= %s AND l.created_at <= %s
              ORDER BY l.created_at DESC, l.id DESC
              LIMIT %d",
             $range['start_utc'],
@@ -427,5 +479,79 @@ class AIPKit_Stats
         }
 
         return $activity;
+    }
+
+    /** Delete standalone request receipts; preserve shared visitor-accounting entries. */
+    public function delete_provider_requests(array $ids)
+    {
+        $ids = array_values(array_unique(array_filter(array_map('absint', $ids))));
+        if (!$ids || count($ids) > 20) {
+            return new WP_Error('invalid_request_ids', __('Select up to 20 requests.', 'gpt3-ai-content-generator'));
+        }
+        $placeholders = implode(',', array_fill(0, count($ids), '%d'));
+        // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- The dynamic IN list contains only integer placeholders, with every ID bound below.
+        $deleted = $this->wpdb->query($this->wpdb->prepare(
+            // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare -- One %d per validated ID; wpdb prepares the array of IDs.
+            "DELETE FROM {$this->ledger_table_name} WHERE entry_type = 'request' AND id IN ({$placeholders})", $ids
+        ));
+        if ($deleted === false) { return new WP_Error('request_delete_failed', __('Could not delete request history.', 'gpt3-ai-content-generator')); }
+        // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- The dynamic IN list contains only integer placeholders, with every ID bound below.
+        $hidden = $this->wpdb->query($this->wpdb->prepare(
+            // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare -- One %d per validated ID; the update preserves visitor credit accounting.
+            "UPDATE {$this->ledger_table_name} SET meta = JSON_SET(CASE WHEN JSON_VALID(meta) THEN meta ELSE '{}' END, '$.request_history_deleted', true) WHERE entry_type = 'usage' AND id IN ({$placeholders})", $ids
+        ));
+        if ($hidden === false) { return new WP_Error('request_delete_failed', __('Could not delete request history.', 'gpt3-ai-content-generator')); }
+        return $deleted + $hidden;
+    }
+
+    /** Locally recorded provider usage and completed Cloud receipts. */
+    public function get_recent_provider_requests(int $days, int $limit, int $offset = 0)
+    {
+        if (!$this->ledger_table_exists()) {
+            return [];
+        }
+
+        $range = $this->get_ledger_date_range($days);
+        if ($days === 0) { $range['start_utc'] = '1970-01-01 00:00:00'; }
+        $query = $this->wpdb->prepare(
+            "SELECT id, created_at, module, provider, model, operation, usage_input_units, usage_output_units, usage_total_units, meta
+             FROM {$this->ledger_table_name}
+             WHERE (entry_type = 'request' OR (entry_type = 'usage'
+               AND LOWER(COALESCE(provider, '')) NOT IN ('aipuffercloud', 'ai puffer cloud')))
+               AND COALESCE(JSON_UNQUOTE(JSON_EXTRACT(CASE WHEN JSON_VALID(meta) THEN meta ELSE '{}' END, '$.request_history_deleted')), 'false') NOT IN ('true', '1')
+               AND created_at >= %s AND created_at <= %s
+             ORDER BY created_at DESC, id DESC LIMIT %d OFFSET %d",
+            $range['start_utc'],
+            $range['end_utc'],
+            max(1, min(201, $limit)),
+            max(0, $offset)
+        );
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.NotPrepared -- Prepared query of the plugin-owned ledger.
+        $rows = $this->wpdb->get_results($query, ARRAY_A);
+        if ($this->wpdb->last_error) {
+            return new WP_Error('db_query_error', __('Database error fetching recent requests.', 'gpt3-ai-content-generator'));
+        }
+
+        return array_map(static function ($row) {
+            $meta = json_decode($row['meta'] ?? '', true);
+            $cloud = strtolower($row['provider'] ?? '') === 'aipuffercloud';
+            return [
+                'id' => (int) $row['id'],
+                'source' => $cloud ? 'cloud' : 'provider',
+                'createdAt' => gmdate('c', strtotime($row['created_at'] . ' UTC')),
+                'feature' => (string) $row['module'],
+                'operation' => (string) $row['operation'],
+                'provider' => $cloud ? 'AI Puffer Cloud' : (string) $row['provider'],
+                'model' => (string) $row['model'],
+                'providerLabel' => \WPAICG\AIPKit_Providers::get_provider_display_name((string) $row['provider']),
+                'modelLabel' => \WPAICG\Core\Models\AIPKit_Model_Registry::get_model_display_name((string) $row['provider'], (string) $row['model']),
+                'inputUnits' => (int) $row['usage_input_units'],
+                'outputUnits' => (int) $row['usage_output_units'],
+                'totalUnits' => (int) $row['usage_total_units'],
+                'unit' => $meta['usage_unit'] ?? ($row['operation'] === 'live_voice' ? 'second' : 'token'),
+                'cachedUnits' => (int) ($meta['cached_units'] ?? 0),
+                'chargedUnits' => $cloud ? ($meta['cloud_charged_units'] ?? null) : null,
+            ];
+        }, $rows ?: []);
     }
 }

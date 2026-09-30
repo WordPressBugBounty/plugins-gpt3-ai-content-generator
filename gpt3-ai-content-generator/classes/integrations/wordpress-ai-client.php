@@ -622,7 +622,7 @@ class AIPKit_WP_AI_Client_Model_Directory implements ModelMetadataDirectoryInter
                 $id,
                 $row['name'] ?: $id,
                 $this->unique_capabilities($row['capabilities']),
-                $this->supported_options($row['capabilities'])
+                $this->supported_options($row['capabilities'], $id)
             );
         }
 
@@ -719,6 +719,8 @@ class AIPKit_WP_AI_Client_Model_Directory implements ModelMetadataDirectoryInter
     private function text_model_rows(): array
     {
         switch ($this->internal_provider) {
+            case 'AIPufferCloud':
+                return AIPKit_WP_AI_Client_Settings::provider_has_credentials('aipuffercloud') ? \WPAICG\Cloud\Connection::models() : [];
             case 'OpenAI':
                 return AIPKit_Providers::get_openai_models();
             case 'Google':
@@ -743,6 +745,8 @@ class AIPKit_WP_AI_Client_Model_Directory implements ModelMetadataDirectoryInter
     private function image_model_rows(): array
     {
         switch ($this->internal_provider) {
+            case 'AIPufferCloud':
+                return AIPKit_WP_AI_Client_Settings::provider_has_credentials('aipuffercloud') ? \WPAICG\Cloud\Connection::media_models('image_generate') : [];
             case 'OpenAI':
                 return AIPKit_Providers::get_openai_image_models();
             case 'Google':
@@ -777,7 +781,7 @@ class AIPKit_WP_AI_Client_Model_Directory implements ModelMetadataDirectoryInter
         return $unique;
     }
 
-    private function supported_options(array $capabilities): array
+    private function supported_options(array $capabilities, string $model_id): array
     {
         $has_text = false;
         $has_image = false;
@@ -817,6 +821,10 @@ class AIPKit_WP_AI_Client_Model_Directory implements ModelMetadataDirectoryInter
             ]);
         }
 
+        if ($this->internal_provider === 'AIPufferCloud') {
+            $option_methods = $has_text ? ['candidateCount', 'systemInstruction', 'maxTokens'] : ['candidateCount'];
+        }
+
         $supported = [];
         $seen = [];
         foreach ($option_methods as $method) {
@@ -827,6 +835,9 @@ class AIPKit_WP_AI_Client_Model_Directory implements ModelMetadataDirectoryInter
                 }
                 $seen[$option->value] = true;
                 $supported_values = ($has_text && $method === 'candidateCount') ? [1, 2, 3, 4] : null;
+                if ($this->internal_provider === 'AIPufferCloud' && $has_image && $method === 'candidateCount') {
+                    $supported_values = [1];
+                }
                 $supported[] = new SupportedOption($option, $supported_values);
             } catch (\Throwable $e) {
                 continue;
@@ -835,7 +846,7 @@ class AIPKit_WP_AI_Client_Model_Directory implements ModelMetadataDirectoryInter
 
         try {
             $input_modalities = [[ModalityEnum::text()]];
-            if ($this->provider_accepts_image_input()) {
+            if (($this->internal_provider === 'AIPufferCloud' ? \WPAICG\AIPKit_Providers::model_supports_image_input('AIPufferCloud', $model_id) : $this->provider_accepts_image_input())) {
                 $input_modalities[] = [ModalityEnum::text(), ModalityEnum::image()];
             }
             $supported[] = new SupportedOption(OptionEnum::inputModalities(), $input_modalities);
@@ -974,7 +985,7 @@ class AIPKit_WP_AI_Client_Routes
         return new ProviderMetadata(
             $connector_id !== '' ? $connector_id : self::PROVIDER_ID,
             ($config['name'] ?? __('AI Puffer', 'gpt3-ai-content-generator')) . ' via AI Puffer',
-            $is_keyless ? ProviderTypeEnum::server() : ProviderTypeEnum::cloud(),
+            $is_keyless && empty($config['hosted']) ? ProviderTypeEnum::server() : ProviderTypeEnum::cloud(),
             !empty($config['credentials_url']) ? $config['credentials_url'] : null,
             $is_keyless ? null : RequestAuthenticationMethod::apiKey(),
             $config['description'] ?? __('AI provider managed by AI Puffer.', 'gpt3-ai-content-generator')
@@ -1009,7 +1020,9 @@ class AIPKit_WP_AI_Client_Routes
             return false;
         }
 
-        return self::provider_accepts_image_input((string) ($resolved['internal_provider'] ?? ''));
+        return ($resolved['internal_provider'] ?? '') === 'AIPufferCloud'
+            ? \WPAICG\AIPKit_Providers::model_supports_image_input('AIPufferCloud', (string) ($resolved['model'] ?? ''))
+            : self::provider_accepts_image_input((string) ($resolved['internal_provider'] ?? ''));
     }
 
     private static function normalize_resolved_route(string $route, array $setting): ?array
@@ -1060,10 +1073,12 @@ class AIPKit_WP_AI_Client_Routes
             $alias,
             $name,
             $capabilities,
-            self::generic_supported_options(
-                $is_image_route,
-                !$is_image_route && self::provider_accepts_image_input((string) ($resolved['internal_provider'] ?? ''))
-            )
+            ($resolved['internal_provider'] ?? '') === 'AIPufferCloud'
+                ? $actual->getSupportedOptions()
+                : self::generic_supported_options(
+                    $is_image_route,
+                    !$is_image_route && self::provider_accepts_image_input((string) ($resolved['internal_provider'] ?? ''))
+                )
         );
     }
 
@@ -1088,6 +1103,10 @@ class AIPKit_WP_AI_Client_Routes
             [$current_connector],
             ['openai', 'google', 'openrouter', 'anthropic', 'deepseek', 'xai', 'ollama', 'azure']
         ))));
+
+        if ($current_internal === 'AIPufferCloud') {
+            $ordered_connectors = ['aipuffercloud'];
+        }
 
         foreach ($ordered_connectors as $connector_id) {
             $config = AIPKit_WP_AI_Client_Settings::get_provider_config($connector_id);
@@ -1118,7 +1137,10 @@ class AIPKit_WP_AI_Client_Routes
 
     private static function infer_image_route(): array
     {
-        $ordered_connectors = ['openai', 'google', 'xai', 'openrouter', 'azure'];
+        $current_internal = class_exists(AIPKit_Providers::class) ? AIPKit_Providers::get_current_provider() : 'OpenAI';
+        $ordered_connectors = $current_internal === 'AIPufferCloud'
+            ? ['aipuffercloud']
+            : ['openai', 'google', 'xai', 'openrouter', 'azure'];
         foreach ($ordered_connectors as $connector_id) {
             $config = AIPKit_WP_AI_Client_Settings::get_provider_config($connector_id);
             if (!$config) {
@@ -1198,6 +1220,8 @@ class AIPKit_WP_AI_Client_Routes
     private static function model_rows_for_text(string $internal_provider): array
     {
         switch ($internal_provider) {
+            case 'AIPufferCloud':
+                return AIPKit_WP_AI_Client_Settings::provider_has_credentials('aipuffercloud') ? \WPAICG\Cloud\Connection::models() : [];
             case 'OpenAI':
                 return AIPKit_Providers::get_openai_models();
             case 'Google':
@@ -1222,6 +1246,8 @@ class AIPKit_WP_AI_Client_Routes
     private static function model_rows_for_image(string $internal_provider): array
     {
         switch ($internal_provider) {
+            case 'AIPufferCloud':
+                return AIPKit_WP_AI_Client_Settings::provider_has_credentials('aipuffercloud') ? \WPAICG\Cloud\Connection::media_models('image_generate') : [];
             case 'OpenAI':
                 return AIPKit_Providers::get_openai_image_models();
             case 'Google':
@@ -1941,7 +1967,7 @@ class AIPKit_WP_AI_Client_Gateway_Model implements ModelInterface, TextGeneratio
 
             $file = null;
             if (!empty($image['b64_json']) && is_string($image['b64_json'])) {
-                $file = new File($image['b64_json'], $this->config->getOutputMimeType() ?: 'image/png');
+                $file = new File($image['b64_json'], $image['mime_type'] ?? ($this->config->getOutputMimeType() ?: 'image/png'));
             } elseif (!empty($image['url']) && is_string($image['url'])) {
                 $file = new File($image['url'], $this->config->getOutputMimeType() ?: 'image/png');
             } elseif (!empty($image['media_library_url']) && is_string($image['media_library_url'])) {
@@ -1999,6 +2025,9 @@ class AIPKit_WP_AI_Client_Gateway_Model implements ModelInterface, TextGeneratio
 
     private function enforce_connector_approval(): void
     {
+        if (!AIPKit_WP_AI_Client_Settings::provider_has_credentials($this->connector_id())) {
+            throw new RuntimeException('Connect the selected AI provider in AI Puffer Settings.');
+        }
         if (!class_exists(AIPKit_WP_AI_Client_Approval_Compatibility::class)) {
             return;
         }
@@ -2289,7 +2318,7 @@ abstract class AIPKit_WP_AI_Client_Provider_Base extends AbstractProvider
         return new ProviderMetadata(
             static::$connector_id,
             ($config['name'] ?? ucwords(static::$connector_id)) . ' via AI Puffer',
-            $is_keyless ? ProviderTypeEnum::server() : ProviderTypeEnum::cloud(),
+            $is_keyless && empty($config['hosted']) ? ProviderTypeEnum::server() : ProviderTypeEnum::cloud(),
             !empty($config['credentials_url']) ? $config['credentials_url'] : null,
             $is_keyless ? null : RequestAuthenticationMethod::apiKey(),
             $config['description'] ?? 'AI provider managed by AI Puffer.'
@@ -2347,6 +2376,11 @@ class AIPKit_WP_AI_Client_Provider_AIPuffer extends AbstractProvider
     }
 }
 
+class AIPKit_WP_AI_Client_Provider_AIPufferCloud extends AIPKit_WP_AI_Client_Provider_Base
+{
+    protected static string $connector_id = 'aipuffercloud';
+}
+
 class AIPKit_WP_AI_Client_Provider_OpenAI extends AIPKit_WP_AI_Client_Provider_Base
 {
     protected static string $connector_id = 'openai';
@@ -2391,6 +2425,7 @@ class AIPKit_WP_AI_Client_Gateway
 {
     private const PROVIDER_CLASSES = [
         'aipuffer' => AIPKit_WP_AI_Client_Provider_AIPuffer::class,
+        'aipuffercloud' => AIPKit_WP_AI_Client_Provider_AIPufferCloud::class,
         'openai' => AIPKit_WP_AI_Client_Provider_OpenAI::class,
         'google' => AIPKit_WP_AI_Client_Provider_Google::class,
         'anthropic' => AIPKit_WP_AI_Client_Provider_Anthropic::class,

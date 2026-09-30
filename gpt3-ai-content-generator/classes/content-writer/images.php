@@ -51,6 +51,8 @@ class AIPKit_Content_Writer_Image_Handler
         switch (strtolower($provider)) {
             case 'openai':
                 return 'OpenAI';
+            case 'aipuffercloud':
+                return 'AIPufferCloud';
             case 'openrouter':
                 return 'OpenRouter';
             case 'google':
@@ -698,16 +700,16 @@ class AIPKit_Content_Writer_Image_Handler
         string $post_title,
         string $excerpt,
         string $meta_topic
-    ): void {
+    ): ?WP_Error {
         $mode = sanitize_key((string) ($settings['cw_generation_mode'] ?? ''));
         if ($mode !== '' && strpos($mode, 'existing') === 0) {
-            return;
+            return null;
         }
 
         $has_inline = !empty($image_data['in_content_images']) && is_array($image_data['in_content_images']);
         $has_featured = !empty($image_data['featured_image_id']);
         if (!$has_inline && !$has_featured) {
-            return;
+            return null;
         }
 
         $field_flags = [
@@ -717,7 +719,7 @@ class AIPKit_Content_Writer_Image_Handler
             'description' => ($settings['generate_image_description'] ?? '0') === '1',
         ];
         if (!in_array(true, $field_flags, true)) {
-            return;
+            return null;
         }
 
         if (!class_exists(AIPKit_AI_Caller::class)) {
@@ -725,11 +727,11 @@ class AIPKit_Content_Writer_Image_Handler
             if (file_exists($ai_caller_path)) {
                 require_once $ai_caller_path;
             } else {
-                return;
+                return null;
             }
         }
 
-        $ai_caller = new AIPKit_AI_Caller();
+        $ai_caller = new AIPKit_AI_Caller(true, (string) ($settings['aipkit_event_module'] ?? 'content_writer'));
         $global_config = AIPKit_Providers::get_new_text_generation_selection();
         $global_ai_params = AIPKIT_AI_Settings::get_ai_parameters();
 
@@ -737,12 +739,12 @@ class AIPKit_Content_Writer_Image_Handler
         $provider = $this->normalize_provider_name($provider_raw);
         $model = (string) ($settings['ai_model'] ?? ($global_config['model'] ?? ''));
         if ($model === '') {
-            return;
+            return null;
         }
 
         $provider_config = AIPKit_Providers::get_provider_data($provider);
         if ($provider !== 'Ollama' && empty($provider_config['api_key'])) {
-            return;
+            return null;
         }
 
         $temperature = isset($settings['ai_temperature']) && $settings['ai_temperature'] !== ''
@@ -755,6 +757,8 @@ class AIPKit_Content_Writer_Image_Handler
                 (string) $model,
                 $settings['reasoning_effort'] ?? ''
             );
+        } elseif ($provider === 'AIPufferCloud') {
+            $reasoning_effort = \WPAICG\Cloud\Connection::reasoning_effort((string) $model, $settings['reasoning_effort'] ?? '');
         } elseif ($provider === 'OpenRouter') {
             $reasoning_effort = AIPKit_OpenRouter_Reasoning::normalize_effort_for_model(
                 (string) $model,
@@ -792,6 +796,7 @@ class AIPKit_Content_Writer_Image_Handler
         $system_instruction = 'You are an expert assistant. Follow the prompt exactly and return only the requested text.';
 
         $context_cache = [];
+        $metadata_error = null;
         $process_attachment = function (int $attachment_id, array &$image_item) use (
             $ai_caller,
             $provider,
@@ -802,8 +807,9 @@ class AIPKit_Content_Writer_Image_Handler
             $field_flags,
             $base_placeholders,
             $system_instruction,
-            &$context_cache
-        ): void {
+            &$context_cache,
+            &$metadata_error
+        ) {
             $file_name = '';
             $file_path = (string) get_attached_file($attachment_id);
             if ($file_path !== '') {
@@ -811,14 +817,17 @@ class AIPKit_Content_Writer_Image_Handler
             }
 
             $image_context = '';
-            if ($provider === 'OpenAI') {
+            if (AIPKit_Providers::model_supports_image_input($provider, $model)) {
                 if (!isset($context_cache[$attachment_id])) {
                     $context_cache[$attachment_id] = $this->get_image_context_for_attachment(
                         $attachment_id,
                         $provider,
-                        $ai_caller
+                        $ai_caller,
+                        $model,
+                        $reasoning_effort !== '' ? ['reasoning' => ['effort' => $reasoning_effort]] : []
                     );
                 }
+                if (is_wp_error($context_cache[$attachment_id])) { $metadata_error = $context_cache[$attachment_id]; return null; }
                 $image_context = (string) $context_cache[$attachment_id];
             }
 
@@ -873,9 +882,8 @@ class AIPKit_Content_Writer_Image_Handler
                     ['attachment_id' => $attachment_id]
                 );
 
-                if (is_wp_error($ai_result) || empty($ai_result['content'])) {
-                    continue;
-                }
+                if (is_wp_error($ai_result)) { $metadata_error = $ai_result; return null; }
+                if (empty($ai_result['content'])) { continue; }
 
                 $value = trim(preg_replace('/\s+/', ' ', (string) $ai_result['content']));
                 if ($value === '') {
@@ -932,11 +940,12 @@ class AIPKit_Content_Writer_Image_Handler
                     continue;
                 }
                 $process_attachment($attachment_id, $image_item);
+                if ($metadata_error) { break; }
             }
             unset($image_item);
         }
 
-        if ($has_featured) {
+        if ($has_featured && !$metadata_error) {
             $featured_id = absint($image_data['featured_image_id']);
             if ($featured_id > 0) {
                 $featured_item = ['attachment_id' => $featured_id];
@@ -955,6 +964,7 @@ class AIPKit_Content_Writer_Image_Handler
                 }
             }
         }
+        return $metadata_error;
     }
 
     /**
@@ -1023,7 +1033,8 @@ class AIPKit_Content_Writer_Image_Handler
         $event_context_options = $this->get_image_event_context_options($settings);
 
         $current_user_id = get_current_user_id() ?: 1;
-        $resolved_image_model = sanitize_text_field((string) ($settings['image_model'] ?? AIPKit_Providers::get_default_openai_image_model()));
+        $default_image_model = $image_provider === 'aipuffercloud' ? '' : AIPKit_Providers::get_default_openai_image_model();
+        $resolved_image_model = sanitize_text_field((string) ($settings['image_model'] ?? $default_image_model));
         if ($image_provider === 'openai') {
             $resolved_image_model = AIPKit_Providers::normalize_openai_image_model($resolved_image_model);
         }
@@ -1156,7 +1167,7 @@ class AIPKit_Content_Writer_Image_Handler
             }
             // OpenRouter routes often return a single image even when n > 1 is requested.
             // Force one-by-one requests so requested image_count is consistently honored.
-            $force_single_image_requests = in_array($image_provider, ['google', 'replicate', 'openrouter'], true);
+            $force_single_image_requests = in_array($image_provider, ['google', 'replicate', 'openrouter', 'aipuffercloud'], true);
 
             if ($force_single_image_requests || in_array($image_model, $models_with_n_equals_1, true)) {
                 for ($i = 0; $i < $image_count; $i++) {
@@ -1170,6 +1181,9 @@ class AIPKit_Content_Writer_Image_Handler
                         false
                     );
                     $result = $this->image_manager->generate_image($prompt_for_main_generation, $generation_options, $current_user_id);
+                    if ($this->preserve_image_refusal($result, $final_image_data)) {
+                        return $result;
+                    }
                     if (!is_wp_error($result) && !empty($result['images'])) {
                         $final_image_data['in_content_images'][] = $result['images'][0];
                     } else {
@@ -1195,6 +1209,9 @@ class AIPKit_Content_Writer_Image_Handler
                 }
 
                 $result = $this->image_manager->generate_image($prompt_for_main_generation, $generation_options, $current_user_id);
+                if ($this->preserve_image_refusal($result, $final_image_data)) {
+                    return $result;
+                }
                 if (!is_wp_error($result) && !empty($result['images'])) {
                     $final_image_data['in_content_images'] = array_merge($final_image_data['in_content_images'], $result['images']);
                     if (count($final_image_data['in_content_images']) > $image_count) {
@@ -1233,6 +1250,9 @@ class AIPKit_Content_Writer_Image_Handler
             );
 
             $result = $this->image_manager->generate_image($prompt_for_featured_generation, $generation_options, $current_user_id);
+            if ($this->preserve_image_refusal($result, $final_image_data)) {
+                return $result;
+            }
 
             if (!is_wp_error($result) && !empty($result['images'][0])) {
                 $featured_image = $result['images'][0];
@@ -1252,7 +1272,7 @@ class AIPKit_Content_Writer_Image_Handler
             }
         }
 
-        $this->maybe_generate_image_metadata(
+        $metadata_error = $this->maybe_generate_image_metadata(
             $settings,
             $final_image_data,
             $final_title,
@@ -1262,6 +1282,11 @@ class AIPKit_Content_Writer_Image_Handler
             $meta_topic
         );
 
+        if (is_wp_error($metadata_error)) {
+            if ($this->preserve_image_refusal($metadata_error, $final_image_data)) { return $metadata_error; }
+            $append_image_warning($image_warnings, $metadata_error->get_error_message());
+        }
+
         if (!empty($image_warnings)) {
             $final_image_data['warnings'] = $image_warnings;
             $final_image_data['warning'] = $image_warnings[0];
@@ -1270,63 +1295,20 @@ class AIPKit_Content_Writer_Image_Handler
         return $final_image_data;
     }
 
-    private function get_image_context_for_attachment(int $attachment_id, string $provider, AIPKit_AI_Caller $ai_caller): string
+    private function preserve_image_refusal($result, array $image_data): bool
     {
-        if ($provider !== 'OpenAI') {
-            return '';
+        if (!is_wp_error($result)) {
+            return false;
         }
-
-        $openai_config = AIPKit_Providers::get_provider_data('OpenAI');
-        if (empty($openai_config['api_key'])) {
-            return '';
+        $error_data = $result->get_error_data();
+        if (!is_array($error_data) || empty($error_data['stop_batch'])) {
+            return false;
         }
-
-        $file_path = $this->get_attachment_image_path($attachment_id);
-        $file_mtime = $file_path && file_exists($file_path) ? (int) filemtime($file_path) : 0;
-        $transient_key = 'aipkit_cw_img_ctx_' . $attachment_id . '_' . $file_mtime;
-        $cached_context = get_transient($transient_key);
-        if (is_string($cached_context) && $cached_context !== '') {
-            return $cached_context;
-        }
-
-        $image_payload = $this->get_attachment_image_payload($attachment_id);
-        if (empty($image_payload['base64']) || empty($image_payload['type'])) {
-            return '';
-        }
-
-        $analysis_prompt = 'Describe the image in one short sentence for SEO context. Return only the description.';
-        $analysis_params = [
-            'temperature' => 0.2,
-            'max_completion_tokens' => 60,
-            'image_inputs' => [
-                [
-                    'base64' => $image_payload['base64'],
-                    'type' => $image_payload['type'],
-                    'detail' => 'low',
-                ],
-            ],
-        ];
-
-        $analysis_result = $ai_caller->make_standard_call(
-            'OpenAI',
-            AIPKit_Providers::get_default_model_id('OpenAI'),
-            [['role' => 'user', 'content' => $analysis_prompt]],
-            $analysis_params,
-            null,
-            ['attachment_id' => $attachment_id]
-        );
-
-        if (is_wp_error($analysis_result) || empty($analysis_result['content'])) {
-            return '';
-        }
-
-        $context = trim(preg_replace('/\s+/', ' ', $analysis_result['content']));
-        if ($context === '') {
-            return '';
-        }
-
-        set_transient($transient_key, $context, 30 * MINUTE_IN_SECONDS);
-        return $context;
+        $error_data['image_data'] = $image_data;
+        $result->add_data($error_data);
+        return true;
     }
+
+
 
 }

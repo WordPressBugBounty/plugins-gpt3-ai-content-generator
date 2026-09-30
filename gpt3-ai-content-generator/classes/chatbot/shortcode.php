@@ -136,6 +136,7 @@ function get_text_labels_logic(array $settings, array $consent_texts): array {
         'statusRetrievingContext' => $custom_retrieving_context_text,
         'statusCallingTool' => __('Calling tool...', 'gpt3-ai-content-generator'),
         'errorPrefix' => __('Error:', 'gpt3-ai-content-generator'),
+        // Shown as-is, without the error label (see WPAICG\Cloud\Connection::billing_message()).
         'userPrefix' => __('User', 'gpt3-ai-content-generator'),
         'sources' => $custom_sources_label !== '' ? $custom_sources_label : __('Sources', 'gpt3-ai-content-generator'),
         'source' => $custom_sources_label !== '' ? $custom_sources_label : __('Source', 'gpt3-ai-content-generator'),
@@ -178,6 +179,17 @@ function get_text_labels_logic(array $settings, array $consent_texts): array {
         'voiceInput' => __('Voice input', 'gpt3-ai-content-generator'),
         'voiceStarting' => __('Starting microphone...', 'gpt3-ai-content-generator'),
         'voiceRecording' => __('Listening...', 'gpt3-ai-content-generator'),
+        /* translators: %s: maximum recording duration in seconds. */
+        'voiceRecordingLimit' => __('Listening… Up to %s seconds.', 'gpt3-ai-content-generator'),
+        'voiceClipTooLarge' => __('This recording is too large. Record a shorter clip.', 'gpt3-ai-content-generator'),
+        'audioOutcomeUnknown' => __('The audio response was interrupted. Check its status before starting another request.', 'gpt3-ai-content-generator'),
+        'audioMissing' => __('The original request cannot be checked. Starting again may use additional credits.', 'gpt3-ai-content-generator'),
+        'audioAllowNew' => __('Allow a new request', 'gpt3-ai-content-generator'),
+        'audioNewAllowed' => __('You can try again. This starts a new request.', 'gpt3-ai-content-generator'),
+        'audioCheckStatus' => __('Check status', 'gpt3-ai-content-generator'),
+        'audioSettled' => __('This request used credits, but its audio or transcript could not be recovered. Starting again uses credits for a new request.', 'gpt3-ai-content-generator'),
+        'audioReleased' => __('This request did not use credits. You can try again.', 'gpt3-ai-content-generator'),
+        'audioPending' => __('This request is still processing. Check again later before starting another request.', 'gpt3-ai-content-generator'),
         'voiceCancelRecording' => __('Cancel recording', 'gpt3-ai-content-generator'),
         'voiceFinishRecording' => __('Finish recording', 'gpt3-ai-content-generator'),
         'voiceTranscribing' => __('Transcribing audio...', 'gpt3-ai-content-generator'),
@@ -415,6 +427,13 @@ function build_config_array_logic(int $bot_id, \WP_Post $bot_post, array $settin
         'voiceEngine' => !empty($feature_flags['enable_realtime_voice_ui']) && ($settings['voice_engine'] ?? 'realtime') === 'live' ? 'live' : 'realtime',
         'realtimeModel' => $settings['realtime_model'] ?? AIPKit_Model_Catalog::get_default_id('OpenAIRealtime'),
         'sttProvider' => $settings['stt_provider'] ?? (class_exists(BotSettingsManager::class) ? BotSettingsManager::DEFAULT_STT_PROVIDER : 'OpenAI'),
+        'sttLimits' => (function () use ($settings) {
+            $limits = ($settings['stt_provider'] ?? '') === 'AIPufferCloud'
+                ? \WPAICG\Cloud\Connection::media_capabilities('transcribe', (string) ($settings['stt_cloud_model_id'] ?? '')) : [];
+            $site_max = (int) apply_filters('aipkit_stt_max_audio_bytes', 4 * 1024 * 1024);
+            $limits['maxInputBytes'] = min($site_max, (int) ($limits['maxInputBytes'] ?? $site_max));
+            return $limits;
+        })(),
         'imageTriggers' => $image_triggers,
         'fileUploadEnabledUI' => $feature_flags['file_upload_ui_enabled'] ?? false,
         'imageUploadEnabledUI' => $feature_flags['image_upload_ui_enabled'] ?? false,
@@ -580,7 +599,7 @@ function get_upload_flags_logic(array $core_flags): array {
     $file_upload_provider = isset($core_flags['file_upload_provider'])
         ? sanitize_key((string) $core_flags['file_upload_provider'])
         : '';
-    $default_image_upload_supported_providers = ['OpenAI', 'Google', 'Claude', 'OpenRouter', 'xAI'];
+    $default_image_upload_supported_providers = ['OpenAI', 'Google', 'Claude', 'OpenRouter', 'xAI', 'AIPufferCloud'];
     $image_upload_supported_providers = apply_filters(
         'aipkit_chat_image_upload_supported_providers',
         $default_image_upload_supported_providers,
@@ -599,6 +618,7 @@ function get_upload_flags_logic(array $core_flags): array {
         }
     }
     $is_image_upload_supported_provider = in_array($provider, $image_upload_supported_providers, true);
+    if ($provider === 'AIPufferCloud') { $is_image_upload_supported_provider = AIPKit_Providers::model_supports_image_input($provider, $model); }
     if ($provider === 'OpenRouter' && $is_image_upload_supported_provider && $model !== '') {
         $resolver_fn = 'WPAICG\\Core\\Providers\\OpenRouter\\Methods\\resolve_model_capabilities_logic';
         if (!function_exists($resolver_fn)) {

@@ -69,6 +69,26 @@ if (!function_exists(__NAMESPACE__ . '\\build_chat_pricing_check_context_logic')
         return $context;
     }
 
+    /** Speech providers return audio/text without a common token count; use the existing text estimate for visitor usage. */
+    function build_speech_pricing_context_logic(array $settings, string $operation, string $text = ''): array
+    {
+        $provider = (string) ($settings[$operation . '_provider'] ?? '');
+        $provider_key = $provider === 'AIPufferCloud' ? 'cloud' : strtolower($provider);
+        $tokens = max(1, estimate_text_token_count_logic($text));
+        return [
+            'provider' => $provider,
+            'model' => (string) ($settings[$operation . '_' . $provider_key . '_model_id'] ?? ''),
+            'operation' => $operation,
+            'fallback_units' => $tokens,
+            'usage_data' => [
+                'input_tokens' => $operation === 'tts' ? $tokens : 0,
+                'output_tokens' => $operation === 'stt' ? $tokens : 0,
+                'total_tokens' => $tokens,
+                'estimated' => true,
+            ],
+        ];
+    }
+
     function estimate_text_token_count_logic(string $text): int
     {
         $text = AIPKit_Prompt_Sanitizer::sanitize($text);

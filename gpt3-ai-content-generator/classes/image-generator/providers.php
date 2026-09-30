@@ -520,7 +520,7 @@ class GoogleVideoResponseParser {
      * @param int|null $user_id The WordPress user ID (optional, for completed operations).
      * @return array|WP_Error Status info or completed video data.
      */
-    public static function check_operation_status(string $operation_name, string $model_id, array $api_params, string $prompt = '', ?int $user_id = null) {
+    public static function check_operation_status(string $operation_name, string $model_id, array $api_params, string $prompt = '', ?int $user_id = null, ?callable $before_complete = null) {
 
         // Poll the operation status
         $poll_result = self::poll_operation($operation_name, $api_params);
@@ -536,6 +536,7 @@ class GoogleVideoResponseParser {
             if (isset($poll_result['response']['generateVideoResponse']['generatedSamples'])) {
                 $samples = $poll_result['response']['generateVideoResponse']['generatedSamples'];
 
+                if ($before_complete) { $before_complete(); }
                 $videos = [];
                 if (is_array($samples) && !empty($samples)) {
                     foreach ($samples as $sample) {
@@ -3293,4 +3294,64 @@ class AIPKit_Image_XAI_Provider_Strategy extends AIPKit_Image_Base_Provider_Stra
         }
         return true;
     }
+}
+
+/** Published Cloud image operations use the shared image strategy contract. */
+class AIPKit_Image_Cloud_Provider_Strategy extends AIPKit_Image_Base_Provider_Strategy
+{
+    public function generate_image(string $prompt, array $api_params, array $options = [])
+    {
+        $edit = ($options['image_mode'] ?? 'generate') === 'edit';
+        $operation = $edit ? 'image_edit' : 'image_generate';
+        $model = $options['model'] ?? '';
+        if (!in_array($model, wp_list_pluck(\WPAICG\Cloud\Connection::media_models($operation), 'id'), true)) {
+            return new WP_Error('cloud_image_model_unavailable', __('This Cloud image model is unavailable. Sync Cloud models in Settings.', 'gpt3-ai-content-generator'));
+        }
+        if (($options['size'] ?? '1024x1024') !== '1024x1024' || (int) ($options['n'] ?? 1) !== 1) {
+            return new WP_Error('cloud_image_options_unsupported', __('Cloud images use one 1024 × 1024 image per request.', 'gpt3-ai-content-generator'));
+        }
+        $operation_id = $options['cloud_operation_id'] ?? wp_generate_uuid4();
+        $body = ['prompt' => $prompt, 'model' => $model, 'operationId' => $operation_id];
+        if ($edit) {
+            $source = $options['source_image'] ?? null;
+            if (!is_array($source) || !is_string($source['base64_data'] ?? null) || $source['base64_data'] === '') {
+                return new WP_Error('cloud_image_source_missing', __('Upload one image to edit.', 'gpt3-ai-content-generator'));
+            }
+            $constraints = \WPAICG\Images\AIPKit_Image_Provider_Strategy_Factory::edit_upload_constraints('AIPufferCloud', $model);
+            if (!in_array($source['mime_type'] ?? '', $constraints['allowedMimeTypes'], true)) {
+                return new WP_Error('cloud_image_source_unsupported', $constraints['invalidTypeMessage']);
+            }
+            $source_bytes = base64_decode($source['base64_data'], true);
+            if ($source_bytes === false || $source_bytes === '') {
+                return new WP_Error('cloud_image_source_unsupported', __('The source image could not be read.', 'gpt3-ai-content-generator'));
+            }
+            if (max((int) ($source['size_bytes'] ?? 0), strlen($source_bytes)) > $constraints['maxBytes']) {
+                return new WP_Error('cloud_image_source_unsupported', $constraints['tooLargeMessage']);
+            }
+            $body['image'] = $source['base64_data'];
+        }
+        try {
+            $result = \WPAICG\Cloud\Connection::media_request($operation, $body);
+        } catch (\RuntimeException $error) {
+            $code = $error->getMessage();
+            $uncertain = in_array($code, ['cloud_outcome_unknown', 'cloud_request_failed', 'already_dispatched_or_final', 'gateway_aborted', 'gateway_response_unverified'], true);
+            $message = $uncertain
+                ? __('The Cloud image response was interrupted. The request may have completed and used credits. Check its status before starting a new request.', 'gpt3-ai-content-generator')
+                : ($code === 'catalog_model_unavailable'
+                ? __('This Cloud image model is unavailable. Sync Cloud models and choose another model.', 'gpt3-ai-content-generator')
+                : (in_array($code, \WPAICG\Cloud\Connection::BILLING_CODES, true)
+                ? \WPAICG\Cloud\Connection::billing_message($code)
+                : __('Cloud could not generate the image. Check the selected model and try again.', 'gpt3-ai-content-generator')));
+            return new WP_Error($code, $message, array_merge(\WPAICG\Cloud\Connection::request_error_data($code), ['cloud_operation_id' => $operation_id]));
+        }
+        $image = $result['image'] ?? null;
+        if (!is_array($image) || !in_array($image['mime'] ?? '', ['image/png', 'image/jpeg', 'image/webp'], true)
+            || !is_string($image['data'] ?? null) || strlen($image['data']) > 11 * 1024 * 1024
+            || base64_decode($image['data'], true) === false) {
+            return new WP_Error('cloud_image_invalid_response', __('Cloud completed the request, but its image could not be read. Check its status before starting a new request.', 'gpt3-ai-content-generator'), ['cloud_operation_id' => $operation_id, 'stop_batch' => true]);
+        }
+        return ['images' => [['b64_json' => $image['data'], 'mime_type' => $image['mime']]], 'usage' => null];
+    }
+
+    public function get_supported_sizes(): array { return ['1024x1024']; }
 }

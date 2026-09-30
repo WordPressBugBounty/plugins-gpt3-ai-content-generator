@@ -101,7 +101,10 @@ class AIPKit_Dependency_Loader
             Content_Writer_Dependencies_Loader::load();
         }
         Security_Dependencies_Loader::load();
+        require_once WPAICG_PLUGIN_DIR . 'classes/cloud/connection.php';
+        require_once WPAICG_PLUGIN_DIR . 'classes/cloud/credit-notice.php';
         if ($admin_like_request) {
+            require_once WPAICG_PLUGIN_DIR . 'classes/admin/onboarding.php';
             Post_Enhancer_Core_Loader::load();
         }
         Woocommerce_Writer_Loader::load();
@@ -429,6 +432,7 @@ class Vector_Store_Ajax_Handlers_Loader
             'pinecone-actions.php',
             'qdrant-actions.php',
             'chroma-actions.php',
+            'local-actions.php',
             'openai-support.php',
         ];
         foreach ($module_files as $module_file) {

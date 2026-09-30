@@ -66,6 +66,19 @@ class AIPKit_Hook_Manager
     public static function register_hooks(string $plugin_version)
     {
         $admin_like_request = is_admin() || wp_doing_ajax();
+        if (class_exists(\WPAICG\Cloud\Connection::class)) {
+            wpaicg_gacg_fs()->add_action('after_account_connection', [\WPAICG\Cloud\Connection::class, 'account_changed']);
+            wpaicg_gacg_fs()->add_action('after_account_delete', [\WPAICG\Cloud\Connection::class, 'forget_connection']);
+            wpaicg_gacg_fs()->add_action('after_uninstall', [\WPAICG\Cloud\Connection::class, 'uninstall']);
+            add_action('wp_ajax_aipkit_cloud_connection', [\WPAICG\Cloud\Connection::class, 'handle']);
+            if (is_admin()) {
+                add_action('admin_init', [\WPAICG\Cloud\Connection::class, 'remove_scheduled_sync']);
+                \WPAICG\Cloud\CreditNotice::register();
+            }
+        }
+        if ($admin_like_request && class_exists(\WPAICG\Admin\Onboarding::class)) {
+            \WPAICG\Admin\Onboarding::register();
+        }
 
         // --- Instantiate ALL services/handlers needed by ANY registrar ---
         $public_handler  = new WP_AI_Content_Generator_Public();
@@ -634,6 +647,7 @@ class Ajax_Hooks_Registrar
             if (method_exists($models_ajax_handler, 'ajax_get_model_sync_targets')) {
                 add_action('wp_ajax_aipkit_get_model_sync_targets', [$models_ajax_handler, 'ajax_get_model_sync_targets']);
             }
+            add_action('wp_ajax_aipkit_provider_connection', [$models_ajax_handler, 'ajax_provider_connection']);
             if (method_exists($models_ajax_handler, 'ajax_sync_models')) {
                 add_action('wp_ajax_aipkit_sync_models', [$models_ajax_handler, 'ajax_sync_models']);
             }
@@ -675,6 +689,15 @@ class Ajax_Hooks_Registrar
         add_action('wp_ajax_aipkit_upload_file_and_upsert_to_pinecone', [$pinecone_vector_store_ajax_handler, 'ajax_upload_file_and_upsert_to_pinecone']);
         add_action('wp_ajax_aipkit_delete_index_pinecone', [$pinecone_vector_store_ajax_handler, 'ajax_delete_index_pinecone']);
 
+        if (class_exists(\WPAICG\Dashboard\Ajax\AIPKit_Vector_Store_Local_Ajax_Handler::class)) {
+            $local_vector_store_ajax_handler = new \WPAICG\Dashboard\Ajax\AIPKit_Vector_Store_Local_Ajax_Handler();
+            add_action('wp_ajax_aipkit_local_list_stores', [$local_vector_store_ajax_handler, 'ajax_list_stores']);
+            add_action('wp_ajax_aipkit_local_create_store', [$local_vector_store_ajax_handler, 'ajax_create_store']);
+            add_action('wp_ajax_aipkit_local_delete_store', [$local_vector_store_ajax_handler, 'ajax_delete_store']);
+            add_action('wp_ajax_aipkit_local_add_text', [$local_vector_store_ajax_handler, 'ajax_add_text']);
+            add_action('wp_ajax_aipkit_local_delete_source', [$local_vector_store_ajax_handler, 'ajax_delete_source']);
+            add_action('wp_ajax_aipkit_local_upload_file', [$local_vector_store_ajax_handler, 'ajax_upload_file']);
+        }
         add_action('wp_ajax_aipkit_list_collections_qdrant', [$qdrant_vector_store_ajax_handler, 'ajax_list_collections_qdrant']);
         add_action('wp_ajax_aipkit_create_collection_qdrant', [$qdrant_vector_store_ajax_handler, 'ajax_create_collection_qdrant']);
         add_action('wp_ajax_aipkit_delete_collection_qdrant', [$qdrant_vector_store_ajax_handler, 'ajax_delete_collection_qdrant']);
@@ -697,6 +720,8 @@ class Ajax_Hooks_Registrar
             ]],
             [$log_ajax_handler, [
                 'aipkit_stats_get_logs' => 'ajax_get_stats_logs',
+                'aipkit_stats_get_requests' => 'ajax_get_stats_requests',
+                'aipkit_stats_delete_requests' => 'ajax_delete_stats_requests',
                 'aipkit_stats_get_log_detail' => 'ajax_get_stats_log_detail',
                 'aipkit_stats_set_ip_block' => 'ajax_set_stats_ip_block',
                 'aipkit_stats_export_logs' => 'ajax_export_stats_logs',

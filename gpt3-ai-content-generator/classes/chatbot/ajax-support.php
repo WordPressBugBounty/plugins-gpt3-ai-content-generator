@@ -79,6 +79,12 @@ trait Trait_SendWPError {
             'code' => $error->get_error_code(),
         ];
         $wp_error_internal_data = $error->get_error_data(); // This is the $data param passed to new WP_Error
+        if (is_array($wp_error_internal_data) && !empty($wp_error_internal_data['cloud_operation_id'])) {
+            $error_data_for_json_response['operation_id'] = $wp_error_internal_data['cloud_operation_id'];
+        }
+        foreach (['stop_batch', 'outcome_unknown'] as $flag) {
+            if (!empty($wp_error_internal_data[$flag])) { $error_data_for_json_response[$flag] = true; }
+        }
         $status_code = isset($wp_error_internal_data['status']) && is_int($wp_error_internal_data['status'])
                        ? $wp_error_internal_data['status']
                        : 400; // Default to 400 Bad Request if not specified

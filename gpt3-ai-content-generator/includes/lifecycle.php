@@ -186,6 +186,8 @@ trait AIPKit_Plugin_Updates
             'aipkit_guest_token_usage',
             'aipkit_sse_message_cache',
             'aipkit_vector_data_source',
+            'aipkit_vector_stores',
+            'aipkit_vectors',
             'aipkit_automated_tasks',
             'aipkit_automated_task_queue',
             'aipkit_content_writer_templates',
@@ -315,6 +317,13 @@ class WP_AI_Content_Generator_Activator
      */
     public static function activate()
     {
+        // Decided before this method writes anything: only a site that never had AI Puffer gets first-run setup.
+        // (aipkit_options is not a signal: loading the plugin writes it before the activation hook runs.)
+        global $wpdb;
+        $is_fresh_install = get_option('aipkit_plugin_version', null) === null
+            // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- One-time check on activation.
+            && !$wpdb->get_var($wpdb->prepare("SELECT 1 FROM {$wpdb->posts} WHERE post_type = %s LIMIT 1", 'aipkit_chatbot'));
+
         // Create database tables if they don't exist.
         self::setup_tables_for_blog();
 
@@ -372,6 +381,9 @@ class WP_AI_Content_Generator_Activator
         if (class_exists(AIPKit_Automated_Task_Cron::class)) {
             AIPKit_Automated_Task_Cron::init();
         }
+
+        require_once WPAICG_PLUGIN_DIR . 'classes/admin/onboarding.php';
+        \WPAICG\Admin\Onboarding::mark_fresh_install($is_fresh_install);
     }
 
     public static function setup_tables_for_blog($blog_id = null)
@@ -401,6 +413,9 @@ class WP_AI_Content_Generator_Activator
         }
         if (function_exists('aipkit_create_vector_data_source_table')) {
             aipkit_create_vector_data_source_table();
+        }
+        if (function_exists('aipkit_create_local_vector_tables')) {
+            aipkit_create_local_vector_tables();
         }
         if (function_exists('aipkit_create_automated_tasks_table')) {
             aipkit_create_automated_tasks_table();

@@ -806,7 +806,7 @@ function do_ajax_save_form_logic(AIPKit_AI_Form_Ajax_Handler $handler_instance):
     // --- Get Vector config fields from POST ---
     $enable_vector_store = isset($post_data['enable_vector_store']) && $post_data['enable_vector_store'] === '1' ? '1' : '0';
     $vector_store_provider = isset($post_data['vector_store_provider']) ? sanitize_key($post_data['vector_store_provider']) : 'openai';
-    if (!in_array($vector_store_provider, ['openai', 'google', 'pinecone', 'qdrant', 'chroma'], true)) {
+    if (!in_array($vector_store_provider, ['local', 'openai', 'google', 'pinecone', 'qdrant', 'chroma'], true)) {
         $vector_store_provider = 'openai';
     }
     $openai_vector_store_ids = isset($post_data['openai_vector_store_ids']) && is_array($post_data['openai_vector_store_ids']) ? array_map('sanitize_text_field', $post_data['openai_vector_store_ids']) : [];
@@ -822,6 +822,7 @@ function do_ajax_save_form_logic(AIPKit_AI_Form_Ajax_Handler $handler_instance):
     $pinecone_index_name = isset($post_data['pinecone_index_name']) ? sanitize_text_field($post_data['pinecone_index_name']) : '';
     $qdrant_collection_name = isset($post_data['qdrant_collection_name']) ? sanitize_text_field($post_data['qdrant_collection_name']) : '';
     $chroma_collection_name = isset($post_data['chroma_collection_name']) ? sanitize_text_field($post_data['chroma_collection_name']) : '';
+    $local_store_id = isset($post_data['local_store_id']) ? sanitize_text_field($post_data['local_store_id']) : '';
     $vector_embedding_provider = isset($post_data['vector_embedding_provider']) ? sanitize_key($post_data['vector_embedding_provider']) : 'openai';
     $vector_embedding_model = isset($post_data['vector_embedding_model']) ? sanitize_text_field($post_data['vector_embedding_model']) : '';
     $vector_store_top_k = isset($post_data['vector_store_top_k']) ? absint($post_data['vector_store_top_k']) : 3;
@@ -967,6 +968,7 @@ function do_ajax_save_form_logic(AIPKit_AI_Form_Ajax_Handler $handler_instance):
         'pinecone_index_name' => $pinecone_index_name,
         'qdrant_collection_name' => $qdrant_collection_name,
         'chroma_collection_name' => $chroma_collection_name,
+        'local_store_ids' => $local_store_id !== '' ? [$local_store_id] : [],
         'vector_embedding_provider' => $vector_embedding_provider,
         'vector_embedding_model' => $vector_embedding_model,
         'vector_store_top_k' => $vector_store_top_k,

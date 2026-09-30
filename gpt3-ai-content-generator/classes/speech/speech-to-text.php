@@ -69,7 +69,7 @@ class AIPKit_STT_Manager
             ? $stt_provider
             : ($requested_provider !== '' ? $requested_provider : AIPKit_Providers::get_current_provider());
 
-        $valid_stt_providers = ['OpenAI', 'Google', 'Azure'];
+        $valid_stt_providers = ['OpenAI', 'Google', 'Azure', 'AIPufferCloud'];
         if (!in_array($provider, $valid_stt_providers, true)) {
             $provider = 'OpenAI';
         }
@@ -79,6 +79,7 @@ class AIPKit_STT_Manager
                 'OpenAI' => 'stt_openai_model_id',
                 'Google' => 'stt_google_model_id',
                 'Azure' => 'stt_azure_model_id',
+                'AIPufferCloud' => 'stt_cloud_model_id',
             ];
             $model_key = $model_key_by_provider[$provider] ?? '';
             if ($model_key !== '' && isset($bot_settings[$model_key])) {
@@ -101,7 +102,7 @@ class AIPKit_STT_Manager
             'azure_endpoint' => $provider_data['endpoint'] ?? null,
             'stt_model' => $options['stt_model'] ?? null,
         ];
-        if (empty($api_params['api_key'])) {
+        if ($provider !== 'AIPufferCloud' && empty($api_params['api_key'])) {
             /* translators: %s is the STT provider name */
             return new WP_Error('missing_stt_api_key', sprintf(__('API Key for STT provider %s is missing.', 'gpt3-ai-content-generator'), $provider));
         }
@@ -162,7 +163,7 @@ class AIPKit_STT_Manager
 
         // Use frontend nonce check as this is called from chat UI
         if (!check_ajax_referer('aipkit_frontend_chat_nonce', '_ajax_nonce', false)) {
-            wp_send_json_error(['message' => __('Security check failed (nonce).', 'gpt3-ai-content-generator')], 403);
+            wp_send_json_error(['message' => __('Security check failed (nonce).', 'gpt3-ai-content-generator'), 'code' => 'nonce_failure'], 403);
             return;
         }
 
@@ -171,8 +172,43 @@ class AIPKit_STT_Manager
             return;
         }
 
+        if (get_post_type($bot_id) !== \WPAICG\Chat\Admin\AdminSetup::POST_TYPE || get_post_status($bot_id) !== 'publish') {
+            wp_send_json_error(['message' => __('Invalid chatbot specified.', 'gpt3-ai-content-generator')], 400);
+            return;
+        }
+        $bot_settings = $this->bot_storage ? $this->bot_storage->get_chatbot_settings($bot_id) : [];
+        if (!$bot_settings) {
+            wp_send_json_error(['message' => __('Invalid chatbot specified.', 'gpt3-ai-content-generator')], 400);
+            return;
+        }
+        if (($bot_settings['enable_voice_input'] ?? '0') !== '1') {
+            wp_send_json_error(['message' => __('Voice input is not enabled for this chatbot.', 'gpt3-ai-content-generator')], 403);
+            return;
+        }
+        if (!in_array($bot_settings['stt_provider'] ?? '', ['OpenAI', 'Google', 'Azure', 'AIPufferCloud'], true)) {
+            wp_send_json_error(['message' => __('Select a speech recognition provider for this chatbot.', 'gpt3-ai-content-generator')], 400);
+            return;
+        }
+        $rate_check = \WPAICG\Core\TokenManager\AIPKit_Token_Manager::check_public_request_rate();
+        if (is_wp_error($rate_check)) {
+            wp_send_json_error(['message' => $rate_check->get_error_message(), 'code' => $rate_check->get_error_code()], $rate_check->get_error_data()['status']);
+            return;
+        }
+
+        require_once WPAICG_PLUGIN_DIR . 'classes/chatbot/pricing-context.php';
+        $user_id = get_current_user_id() ?: null;
+        $session_id = isset($post_data['session_id']) ? sanitize_text_field($post_data['session_id']) : null;
+        $tokens = new \WPAICG\Core\TokenManager\AIPKit_Token_Manager();
+        $usage_context = \WPAICG\Chat\Core\Pricing\build_speech_pricing_context_logic($bot_settings, 'stt');
+        $allowance = $tokens->check_and_reset_tokens($user_id, $session_id, $bot_id, 'chat', $usage_context);
+        if (is_wp_error($allowance)) {
+            $error_data = $allowance->get_error_data();
+            wp_send_json_error(['message' => $allowance->get_error_message(), 'code' => $allowance->get_error_code()], is_array($error_data) ? (int) ($error_data['status'] ?? 400) : 400);
+            return;
+        }
+
         // Prepare options early
-        $options = ['bot_id' => $bot_id];
+        $options = ['bot_id' => $bot_id, 'provider' => $bot_settings['stt_provider']];
         if (isset($post_data['language'])) {
             $options['language'] = sanitize_text_field((string) $post_data['language']);
         }
@@ -271,15 +307,24 @@ class AIPKit_STT_Manager
         }
 
         // Call the main STT method
-        $transcription_result = $this->speech_to_text($audio_data_binary, $audio_format, $options);
+        $operation_id = sanitize_text_field($post_data['operation_id'] ?? '');
+        if (($bot_settings['stt_provider'] ?? '') === 'AIPufferCloud') { $options['cloud_operation_id'] = $operation_id; }
+        $dispatch = function () use ($audio_data_binary, $audio_format, $options) { return $this->speech_to_text($audio_data_binary, $audio_format, $options); };
+        $transcription_result = ($bot_settings['stt_provider'] ?? '') === 'AIPufferCloud'
+            ? \WPAICG\Speech\AIPKit_Speech_Manager::run_cloud_request($operation_id, $bot_id, 'transcribe', $dispatch)
+            : $dispatch();
 
         if (is_wp_error($transcription_result)) {
             $error_data = $transcription_result->get_error_data();
             $status_code = is_array($error_data)
                 ? (int) ($error_data['status'] ?? $error_data['status_code'] ?? 500)
                 : 500;
-            wp_send_json_error(['message' => $transcription_result->get_error_message()], $status_code);
+            $payload = ['message' => $transcription_result->get_error_message(), 'code' => $transcription_result->get_error_code()];
+            if (!empty($error_data['cloud_operation_id'])) { $payload['operation_id'] = $error_data['cloud_operation_id']; }
+            wp_send_json_error($payload, $status_code);
         } else {
+            $usage_context = \WPAICG\Chat\Core\Pricing\build_speech_pricing_context_logic($bot_settings, 'stt', $transcription_result);
+            $tokens->record_token_usage($user_id, $session_id, $bot_id, $usage_context['fallback_units'], 'chat', $usage_context);
             wp_send_json_success(['transcription' => $transcription_result]);
         }
     }
@@ -452,6 +497,7 @@ class AIPKit_STT_Provider_Strategy_Factory {
             case 'OpenAI':     $class_name = AIPKit_STT_OpenAI_Provider_Strategy::class; break;
             case 'Google':     $class_name = AIPKit_STT_Google_Provider_Strategy::class; break;
             case 'Azure':      $class_name = AIPKit_STT_Azure_Provider_Strategy::class; break; // Added Azure class name
+            case 'AIPufferCloud': $class_name = AIPKit_STT_Cloud_Provider_Strategy::class; break;
             default:
                 /* translators: %s: The provider name. */
                 return new WP_Error('unsupported_stt_provider_strategy', sprintf(__('STT Provider strategy "%s" is not supported.', 'gpt3-ai-content-generator'), esc_html($provider)));
@@ -466,6 +512,36 @@ class AIPKit_STT_Provider_Strategy_Factory {
 
         return self::$instances[$provider];
     }
+}
+
+/** Cloud STT returns plain transcript text through the existing strategy contract. */
+class AIPKit_STT_Cloud_Provider_Strategy extends AIPKit_STT_Base_Provider_Strategy
+{
+    public function transcribe_audio(string $audio_data, string $audio_format, array $api_params, array $options = [])
+    {
+        $mime = ['webm' => 'audio/webm', 'mp3' => 'audio/mpeg', 'mpeg' => 'audio/mpeg', 'wav' => 'audio/wav',
+            'ogg' => 'audio/ogg', 'mp4' => 'audio/mp4', 'm4a' => 'audio/x-m4a'][strtolower($audio_format)] ?? '';
+        $model = $options['stt_model'] ?? (\WPAICG\Cloud\Connection::media_models('transcribe')[0]['id'] ?? '');
+        $limits = \WPAICG\Cloud\Connection::media_capabilities('transcribe', $model);
+        if ($mime === '' || (!empty($limits['maxInputBytes']) && strlen($audio_data) > $limits['maxInputBytes'])) {
+            return new WP_Error('cloud_audio_unsupported', __('This recording is too large or uses an unsupported format. Record a shorter clip.', 'gpt3-ai-content-generator'), ['status' => 413]);
+        }
+        $operation_id = !empty($options['cloud_operation_id']) ? $options['cloud_operation_id'] : wp_generate_uuid4();
+        try { $result = \WPAICG\Cloud\Connection::media_request('transcribe', ['audio' => base64_encode($audio_data), 'mime' => $mime, 'model' => $model, 'operationId' => $operation_id]); }
+        catch (\RuntimeException $error) {
+            $code = $error->getMessage();
+            $status = $error->getCode() >= 400 && $error->getCode() < 600 ? $error->getCode() : 503;
+            $strategy = \WPAICG\Core\Providers\ProviderStrategyFactory::get_strategy('AIPufferCloud');
+            return new WP_Error($code, is_wp_error($strategy) ? __('Cloud could not transcribe this audio.', 'gpt3-ai-content-generator')
+                : $strategy->parse_error_response(wp_json_encode(['code' => $code]), $status), array_merge(\WPAICG\Cloud\Connection::request_error_data($code), ['status' => $status, 'cloud_operation_id' => $operation_id]));
+        }
+        if (!is_string($result['text'] ?? null) || strlen($result['text']) > 100000) {
+            return new WP_Error('cloud_transcript_invalid_response', __('The transcript could not be read. Check its status before starting another request.', 'gpt3-ai-content-generator'), ['status' => 502, 'cloud_operation_id' => $operation_id]);
+        }
+        return $result['text'];
+    }
+
+    public function get_supported_formats(): array { return ['webm', 'mp3', 'mpeg', 'wav', 'ogg', 'mp4', 'm4a']; }
 }
 
 /**

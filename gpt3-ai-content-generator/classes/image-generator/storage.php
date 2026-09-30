@@ -14,6 +14,25 @@ if (!defined('ABSPATH')) {
 /** Prepares an attachment or local image for provider input. */
 trait AIPKit_Image_Input_Trait
 {
+    /** Shared visual context for image metadata; uses the caller's explicitly selected model. */
+    private function get_image_context_for_attachment(int $attachment_id, string $provider, \WPAICG\Core\AIPKit_AI_Caller $ai_caller, string $model, array $params = [])
+    {
+        if (!AIPKit_Providers::model_supports_image_input($provider, $model)) { return ''; }
+        $file = $this->get_attachment_image_path($attachment_id);
+        $key = 'aipkit_img_ctx_' . md5($attachment_id . '|' . $provider . '|' . $model . '|' . ($file ? filemtime($file) : 0));
+        $cached = get_transient($key);
+        if (is_string($cached) && $cached !== '') { return $cached; }
+        $image = $this->get_attachment_image_payload($attachment_id);
+        if (!$image) { return ''; }
+        $params['image_inputs'] = [$image];
+        $params['max_completion_tokens'] = 256;
+        $response = $ai_caller->make_standard_call($provider, $model, [['role' => 'user', 'content' => 'Describe the image in one short sentence for SEO context. Return only the description.']], $params, null, ['attachment_id' => $attachment_id]);
+        if (is_wp_error($response)) { return $response; }
+        $context = trim(preg_replace('/\s+/', ' ', (string) ($response['content'] ?? '')));
+        if ($context !== '') { set_transient($key, $context, 30 * MINUTE_IN_SECONDS); }
+        return $context;
+    }
+
     private function get_attachment_image_path(int $attachment_id): string
     {
         $original_path = (string) get_attached_file($attachment_id);

@@ -17,6 +17,10 @@ if (!defined('ABSPATH')) {
  */
 final class AIPKit_Model_Catalog
 {
+    /** Built-in definitions are shared for this request; labels follow the current locale. */
+    private static $definitions_locale = null;
+    private static $definitions = [];
+
     /**
      * Provider preference for fresh text-generation configurations.
      *
@@ -25,6 +29,8 @@ final class AIPKit_Model_Catalog
      */
     private const PROVIDER_PRIORITY = [
         'text_generation' => [
+            // AI Puffer leads while connected; unconnected providers are skipped by every consumer.
+            'AIPufferCloud',
             'OpenAI',
             'Claude',
             'Google',
@@ -34,6 +40,18 @@ final class AIPKit_Model_Catalog
             'DeepSeek',
             'xAI',
         ],
+        'embeddings' => ['AIPufferCloud', 'OpenAI', 'Google', 'OpenRouter', 'Azure', 'Ollama'],
+        'image_generation' => ['AIPufferCloud', 'OpenAI', 'Google', 'OpenRouter', 'xAI', 'Azure', 'Replicate'],
+        'tts' => ['AIPufferCloud', 'OpenAI', 'Google', 'ElevenLabs'],
+        'stt' => ['AIPufferCloud', 'OpenAI', 'Google'],
+    ];
+
+    private const CLOUD_CATALOGS = [
+        'AIPufferCloud' => ['text', 'text_generation', ''],
+        'AIPufferCloudEmbedding' => ['embedding', 'embeddings', ''],
+        'AIPufferCloudImage' => ['image', 'image_generation', 'image_generate'],
+        'AIPufferCloudTTS' => ['audio', 'tts', 'speech_generate'],
+        'AIPufferCloudSTT' => ['audio', 'stt', 'transcribe'],
     ];
 
     /**
@@ -90,7 +108,23 @@ final class AIPKit_Model_Catalog
      */
     public static function get_definitions(): array
     {
-        return [
+        $definitions = self::get_builtin_definitions();
+        foreach (array_keys(self::CLOUD_CATALOGS) as $key) {
+            $cloud = self::get_definition($key);
+            if ($cloud) {
+                $definitions[$key] = $cloud;
+            }
+        }
+        return $definitions;
+    }
+
+    private static function get_builtin_definitions(): array
+    {
+        $locale = get_locale();
+        if (self::$definitions_locale === $locale) {
+            return self::$definitions;
+        }
+        $definitions = [
             'OpenAI' => self::model_definition(
                 'OpenAI',
                 'text',
@@ -454,6 +488,9 @@ final class AIPKit_Model_Catalog
                 []
             ),
         ];
+        self::$definitions_locale = $locale;
+        self::$definitions = $definitions;
+        return $definitions;
     }
 
     /**
@@ -468,6 +505,7 @@ final class AIPKit_Model_Catalog
     public static function get_bulk_model_sync_targets(): array
     {
         $targets = [
+            ['provider' => 'AIPufferCloud', 'connection_provider' => 'AIPufferCloud', 'label' => 'AI Puffer Cloud'],
             ['provider' => 'OpenAI', 'connection_provider' => 'OpenAI', 'label' => 'OpenAI'],
             ['provider' => 'Claude', 'connection_provider' => 'Claude', 'label' => 'Anthropic'],
             ['provider' => 'Google', 'connection_provider' => 'Google', 'label' => 'Google'],
@@ -489,8 +527,18 @@ final class AIPKit_Model_Catalog
      */
     public static function get_definition(string $catalog_key): array
     {
-        $definitions = self::get_definitions();
         $normalized_key = self::normalize_catalog_key($catalog_key);
+        if (isset(self::CLOUD_CATALOGS[$normalized_key])) {
+            if (!class_exists('\\WPAICG\\Cloud\\Connection') || !\WPAICG\Cloud\Connection::generation_ready()) {
+                return [];
+            }
+            [$type, $capability, $operation] = self::CLOUD_CATALOGS[$normalized_key];
+            $models = $capability === 'text_generation' ? \WPAICG\Cloud\Connection::models()
+                : ($capability === 'embeddings' ? \WPAICG\Cloud\Connection::embedding_models()
+                    : \WPAICG\Cloud\Connection::media_models($operation));
+            return self::model_definition('AIPufferCloud', $type, $capability, '', $models[0]['id'] ?? '', $models);
+        }
+        $definitions = self::get_builtin_definitions();
         return $definitions[$normalized_key] ?? [];
     }
 
@@ -501,7 +549,7 @@ final class AIPKit_Model_Catalog
             return '';
         }
 
-        foreach (array_keys(self::get_definitions()) as $known_key) {
+        foreach (array_merge(array_keys(self::get_builtin_definitions()), array_keys(self::CLOUD_CATALOGS)) as $known_key) {
             if (strtolower($known_key) === strtolower($catalog_key)) {
                 return $known_key;
             }
@@ -797,6 +845,8 @@ final class AIPKit_Model_Catalog
             case 'OpenRouterImage':
             case 'OpenRouterEmbedding':
                 return self::classify_publisher_family($model_id, 'OpenRouter');
+            case 'AIPufferCloud':
+                return self::classify_publisher_family($model_id, 'AI Puffer');
             case 'Google':
                 return self::classify_google_text_family($model_id);
             case 'GoogleImage':
@@ -991,8 +1041,12 @@ final class AIPKit_Model_Catalog
         return self::other_family();
     }
 
-    /** @return array{key:string,label:string,order:int,collapsed:bool} */
-    private static function classify_publisher_family(string $model_id, string $fallback_label): array
+    /**
+     * Shared publisher grouping for registry records and live catalog responses.
+     * Does not load catalog definitions, so catalog sources can safely use it.
+     * @return array{key:string,label:string,order:int,collapsed:bool}
+     */
+    public static function classify_publisher_family(string $model_id, string $fallback_label): array
     {
         $model_id = ltrim(strtolower(trim($model_id)), '~');
         $parts = explode('/', $model_id, 2);
@@ -1004,12 +1058,16 @@ final class AIPKit_Model_Catalog
         $publisher_aliases = [
             'meta' => 'meta-llama',
             'xai' => 'x-ai',
+            'spacexai' => 'x-ai',
+            'zai' => 'z-ai',
+            'mistral' => 'mistralai',
             'bytedance-seed' => 'bytedance',
         ];
         $publisher = $publisher_aliases[$publisher] ?? $publisher;
 
         $labels = [
             'openrouter' => 'OpenRouter',
+            'aipuffer' => 'AI Puffer',
             'openai' => 'OpenAI',
             'ai21' => 'AI21',
             'anthropic' => 'Anthropic',
@@ -1241,6 +1299,12 @@ final class AIPKit_Model_Registry
     /** @var array<string, array<int, array<string, mixed>>> */
     private static $catalog_cache = [];
 
+    /** @var array<string, array<string, array>> */
+    private static $legacy_cache = [];
+
+    /** @var array<string, array<string, array>> */
+    private static $query_cache = [];
+
     /** @var array<string, array<string, mixed>>|null */
     private static $provider_state_cache = null;
 
@@ -1269,12 +1333,21 @@ final class AIPKit_Model_Registry
             $args['include_persisted'] = false;
         }
         $cache_key = $catalog_key . ':' . (!empty($args['include_bootstrap']) ? '1' : '0') . ':' . (!empty($args['include_persisted']) ? '1' : '0');
+        if (($definition['provider'] ?? '') === 'AIPufferCloud') {
+            // A sync or account change can replace Cloud's catalog in the same request.
+            $cache_key .= ':' . hash('sha256', serialize($definition));
+        }
         if (isset(self::$catalog_cache[$cache_key])) {
             return self::$catalog_cache[$cache_key];
         }
 
-        $records = [];
-        if (!empty($args['include_bootstrap'])) {
+        $persisted = !empty($args['include_persisted'])
+            ? self::get_persisted_catalog($catalog_key)
+            : ['records' => [], 'authoritative' => false];
+        $use_bootstrap = !empty($args['include_bootstrap'])
+            && empty($persisted['records']) && empty($persisted['authoritative']);
+        $records = $persisted['records'];
+        if ($use_bootstrap) {
             $records = self::normalize_rows(
                 $catalog_key,
                 AIPKit_Model_Catalog::get_seed_rows($catalog_key),
@@ -1285,12 +1358,6 @@ final class AIPKit_Model_Registry
         }
 
         if (!empty($args['include_persisted'])) {
-            $persisted = self::get_persisted_catalog($catalog_key);
-            if (!empty($persisted['records'])) {
-                $records = $persisted['records'];
-            } elseif (!empty($persisted['authoritative'])) {
-                $records = [];
-            }
             $records = self::merge_records(
                 $records,
                 self::get_reclassified_primary_records($catalog_key)
@@ -1298,6 +1365,7 @@ final class AIPKit_Model_Registry
         }
         if (
             !empty($args['include_bootstrap'])
+            && !$use_bootstrap
             && in_array($catalog_key, ['GoogleImage', 'GoogleTTS'], true)
         ) {
             $records = self::merge_records(
@@ -1324,15 +1392,55 @@ final class AIPKit_Model_Registry
     public static function get_legacy_model_list(string $catalog_key): array
     {
         $catalog_key = AIPKit_Model_Catalog::normalize_catalog_key($catalog_key);
-        $definition = AIPKit_Model_Catalog::get_definition($catalog_key);
-        if (empty($definition)) {
-            return [];
+        $records = self::get_catalog_records($catalog_key);
+        // Compare the current records so Cloud sync/disconnect remains immediate.
+        if (!isset(self::$legacy_cache[$catalog_key]) || self::$legacy_cache[$catalog_key]['records'] !== $records) {
+            self::$legacy_cache[$catalog_key] = [
+                'records' => $records,
+                'rows' => self::records_to_legacy_rows($catalog_key, $records),
+            ];
+        }
+        return self::$legacy_cache[$catalog_key]['rows'];
+    }
+
+    /** Resolve a history label from local catalogs without changing the stored model ID. */
+    public static function get_model_display_name(string $provider, string $model): string
+    {
+        $model = trim($model);
+        if ($model === '' || trim($provider) === '') {
+            return $model;
         }
 
-        return self::records_to_legacy_rows(
-            $catalog_key,
-            self::get_catalog_records($catalog_key)
-        );
+        $cloud = in_array(strtolower(trim($provider)), ['aipuffercloud', 'ai puffer cloud'], true);
+        if ($cloud) {
+            // Use the catalog name before the picker adds current credit estimates.
+            $name = class_exists('\\WPAICG\\Cloud\\Connection')
+                ? \WPAICG\Cloud\Connection::model_display_name($model) : '';
+            if ($name !== '' && $name !== $model) {
+                return $name;
+            }
+            $records = [];
+        } else {
+            $records = self::query_models(['providers' => [$provider]]);
+        }
+        foreach ($records as $record) {
+            if (in_array($model, [$record['id'] ?? '', $record['raw_id'] ?? '', $record['canonical_id'] ?? ''], true)
+                && !empty($record['name']) && $record['name'] !== $model) {
+                return (string) $record['name'];
+            }
+        }
+
+        // Old or disconnected Cloud history may no longer have a catalog entry.
+        // Hide routing namespaces while retaining the model's version and variant.
+        if ($cloud && strpos($model, '/') !== false) {
+            $name = substr($model, strrpos($model, '/') + 1);
+            $name = ucwords(str_replace(['-', '_'], ' ', $name));
+            return preg_replace_callback('/\b(Gpt|Glm|Tts|Hd|Oss)\b/', static function ($match) {
+                return strtoupper($match[0]);
+            }, $name);
+        }
+
+        return $model;
     }
 
     /**
@@ -1365,7 +1473,7 @@ final class AIPKit_Model_Registry
         $required_capabilities = array_fill_keys(array_map('sanitize_key', self::normalize_string_list($args['required_capabilities'])), true);
         $statuses = array_fill_keys(array_map('sanitize_key', self::normalize_string_list($args['statuses'])), true);
 
-        $merged = [];
+        $catalogs = [];
         foreach (AIPKit_Model_Catalog::get_definitions() as $catalog_key => $definition) {
             if (($definition['resource_type'] ?? 'model') !== 'model') {
                 continue;
@@ -1378,11 +1486,24 @@ final class AIPKit_Model_Registry
                 continue;
             }
 
-            $records = self::get_catalog_records($catalog_key, [
+            $catalogs[$catalog_key] = self::get_catalog_records($catalog_key, [
                 'include_bootstrap' => !empty($args['include_bootstrap']),
                 'include_persisted' => !empty($args['include_persisted']),
             ]);
+        }
+
+        // Only cache catalog-derived work. Provider state and extension filters
+        // are applied on every call, including when the underlying lists match.
+        $cache_key = serialize([$provider_lookup, $catalog_lookup, $kinds, $required_capabilities, $statuses,
+            !empty($args['include_bootstrap']), !empty($args['include_persisted'])]);
+        if (isset(self::$query_cache[$cache_key]) && self::$query_cache[$cache_key]['catalogs'] === $catalogs) {
+            return self::finalize_model_query(self::$query_cache[$cache_key]['results'], $args);
+        }
+
+        $merged = [];
+        foreach ($catalogs as $records) {
             foreach ($records as $record) {
+                $provider = (string) ($record['provider'] ?? '');
                 $identity = strtolower($provider . '|' . (string) ($record['canonical_id'] ?? $record['id'] ?? ''));
                 if ($identity === strtolower($provider . '|')) {
                     continue;
@@ -1393,7 +1514,6 @@ final class AIPKit_Model_Registry
             }
         }
 
-        $provider_states = !empty($args['with_provider_state']) ? self::get_provider_states() : [];
         $results = [];
         foreach ($merged as $record) {
             if (!empty($kinds)) {
@@ -1422,10 +1542,6 @@ final class AIPKit_Model_Registry
                 continue;
             }
 
-            if (!empty($provider_states)) {
-                $provider_key = strtolower((string) ($record['provider'] ?? ''));
-                $record['provider_state'] = $provider_states[$provider_key] ?? null;
-            }
             $results[] = $record;
         }
 
@@ -1459,6 +1575,25 @@ final class AIPKit_Model_Registry
             return strcasecmp((string) ($left['name'] ?? ''), (string) ($right['name'] ?? ''));
         });
 
+        // Bound combinations for long-running import/automation requests.
+        if (count(self::$query_cache) >= 32) {
+            unset(self::$query_cache[array_key_first(self::$query_cache)]);
+        }
+        self::$query_cache[$cache_key] = ['catalogs' => $catalogs, 'results' => $results];
+        return self::finalize_model_query($results, $args);
+    }
+
+    /** Apply request state and extension filters after reading cached model data. */
+    private static function finalize_model_query(array $results, array $args): array
+    {
+        $provider_states = !empty($args['with_provider_state']) ? self::get_provider_states() : [];
+        if (!empty($provider_states)) {
+            foreach ($results as &$record) {
+                $provider_key = strtolower((string) ($record['provider'] ?? ''));
+                $record['provider_state'] = $provider_states[$provider_key] ?? null;
+            }
+            unset($record);
+        }
         $filtered = apply_filters('aipkit_model_registry_query_models', $results, $args);
         return is_array($filtered) ? array_values($filtered) : $results;
     }
@@ -1471,6 +1606,7 @@ final class AIPKit_Model_Registry
      * @param string $capability Required model capability.
      * @param array<string, mixed> $args {
      *     @type array<int, string>                       $allowed_providers Allowed provider names/keys.
+     *     @type bool                                     $configured_only Leave unsupported features unselected.
      *     @type string                                   $preferred_provider Configured main provider.
      *     @type array<string, array<string, mixed>>|null $provider_configs Provider settings for state resolution.
      * }
@@ -1483,6 +1619,7 @@ final class AIPKit_Model_Registry
             'allowed_providers' => [],
             'preferred_provider' => '',
             'provider_configs' => null,
+            'configured_only' => false,
         ]);
 
         $catalogs_by_provider = AIPKit_Model_Catalog::get_provider_catalogs_by_capability();
@@ -1565,7 +1702,15 @@ final class AIPKit_Model_Registry
                 && empty($state['connection_changed'])
                 && (int) ($state['last_success'] ?? 0) > 0
                 && (int) ($state['model_count'] ?? 0) > 0;
-            $model_resolution = self::resolve_new_model_for_catalog($catalog_key, $synced);
+            $config = $provider_configs[$provider_name] ?? [];
+            $preference_key = $capability === 'text_generation' ? 'model'
+                : ($capability === 'embeddings' ? ($provider_key === 'azure' ? 'embeddings' : 'embedding_model')
+                    : ($capability === 'tts' && $provider_key === 'elevenlabs' ? 'model_id' : ''));
+            $model_resolution = self::resolve_new_model_for_catalog(
+                $catalog_key,
+                $configured && empty($state['connection_changed']),
+                (string) ($config[$preference_key] ?? '')
+            );
 
             $resolutions[$provider_key] = [
                 'provider' => $provider_name,
@@ -1596,6 +1741,11 @@ final class AIPKit_Model_Registry
             }
         }
 
+        if (!empty($args['configured_only'])) {
+            return ['provider' => '', 'provider_key' => '', 'model' => '', 'catalog_key' => '',
+                'source' => 'none', 'configured' => false, 'synced' => false, 'needs_setup' => true];
+        }
+
         foreach ($resolutions as $resolution) {
             if ($resolution['model'] !== '') {
                 return $resolution;
@@ -1608,7 +1758,7 @@ final class AIPKit_Model_Registry
     /**
      * @return array{model:string,source:string}
      */
-    private static function resolve_new_model_for_catalog(string $catalog_key, bool $include_persisted): array
+    private static function resolve_new_model_for_catalog(string $catalog_key, bool $include_persisted, string $preferred_model = ''): array
     {
         $records = self::get_catalog_records($catalog_key, [
             'include_bootstrap' => true,
@@ -1627,6 +1777,9 @@ final class AIPKit_Model_Registry
             }
         }
 
+        if ($preferred_model !== '' && isset($record_ids[$preferred_model])) {
+            return ['model' => $record_ids[$preferred_model], 'source' => 'saved_default'];
+        }
         $default_model = AIPKit_Model_Catalog::get_default_id($catalog_key);
         if ($default_model !== '' && isset($record_ids[$default_model])) {
             return ['model' => $record_ids[$default_model], 'source' => 'catalog_default'];
@@ -2019,6 +2172,7 @@ final class AIPKit_Model_Registry
                 ? $provider_configs[$provider]
                 : [];
             $configured = self::is_provider_configured($provider, $config);
+            if ($provider === 'AIPufferCloud') { $configured = class_exists('\\WPAICG\\Cloud\\Connection') && \WPAICG\Cloud\Connection::generation_ready(); }
             $locked = (bool) apply_filters('aipkit_model_registry_provider_locked', false, $provider);
             $snapshot = self::get_provider_snapshot($provider);
             $sync_states = self::sanitize_sync_map($snapshot['sync'] ?? []);
@@ -2068,6 +2222,10 @@ final class AIPKit_Model_Registry
             ];
         }
 
+        if (!empty($states['aipuffercloud']['configured'])) {
+            $states['aipuffercloud']['status'] = 'ready';
+            $states['aipuffercloud']['model_count'] = count(\WPAICG\Cloud\Connection::models());
+        }
         $filtered = apply_filters('aipkit_model_registry_provider_states', $states, $provider_configs);
         $states = is_array($filtered) ? $filtered : $states;
         if ($use_cache) {
@@ -2301,8 +2459,9 @@ final class AIPKit_Model_Registry
                 'source' => sanitize_key($source),
                 'status' => sanitize_key($status),
                 'verified' => $verified,
-                'recommended' => in_array($raw_id, AIPKit_Model_Catalog::get_recommended_ids($catalog_key), true)
-                    || in_array($canonical_id, AIPKit_Model_Catalog::get_recommended_ids($catalog_key), true),
+                // AI Puffer models carry a credits badge instead.
+                'recommended' => $provider !== 'AIPufferCloud' && (in_array($raw_id, AIPKit_Model_Catalog::get_recommended_ids($catalog_key), true)
+                    || in_array($canonical_id, AIPKit_Model_Catalog::get_recommended_ids($catalog_key), true)),
                 'default' => self::canonicalize_model_id($provider, AIPKit_Model_Catalog::get_default_id($catalog_key)) === $canonical_id,
                 'family_key' => sanitize_key((string) ($family['key'] ?? 'other')),
                 'family_label' => sanitize_text_field((string) ($family['label'] ?? __('Other', 'gpt3-ai-content-generator'))),
@@ -2807,6 +2966,8 @@ final class AIPKit_Model_Registry
     {
         self::$snapshot_cache = [];
         self::$catalog_cache = [];
+        self::$legacy_cache = [];
+        self::$query_cache = [];
         self::$provider_state_cache = null;
 
         foreach (array_keys(AIPKit_Model_Catalog::get_definitions()) as $catalog_key) {

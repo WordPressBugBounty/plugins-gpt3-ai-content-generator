@@ -189,6 +189,11 @@ function determine_provider_model(?\WPAICG\Chat\Core\AIService $serviceInstance,
     $provider = !empty($bot_settings['provider']) ? $bot_settings['provider'] : null;
     $model = !empty($bot_settings['model']) ? $bot_settings['model'] : null;
 
+    // A Cloud model is a billable saved choice; an unset choice must remain unset.
+    if ($provider === 'AIPufferCloud') {
+        return ['provider' => $provider, 'model' => $model ?: ''];
+    }
+
     if (empty($provider) || empty($model)) {
         // Ensure AIPKit_Providers class is available
         if (!class_exists(\WPAICG\AIPKit_Providers::class)) {
@@ -200,7 +205,7 @@ function determine_provider_model(?\WPAICG\Chat\Core\AIService $serviceInstance,
             }
         }
         $allowed_providers = empty($provider) ? [] : [(string) $provider];
-        $new_ai_selection = \WPAICG\AIPKit_Providers::get_new_text_generation_selection($allowed_providers);
+        $new_ai_selection = \WPAICG\AIPKit_Providers::get_new_text_generation_selection($allowed_providers, true);
         if (empty($provider)) {
             $provider = $new_ai_selection['provider'] ?? 'OpenAI';
         }
@@ -265,6 +270,10 @@ function generate_response(
     $provider_info = determine_provider_model($serviceInstance, $bot_settings);
     $main_provider = $provider_info['provider'];
     $model = $provider_info['model'];
+    $feature_strategy = \WPAICG\Core\Providers\ProviderStrategyFactory::get_strategy($main_provider);
+    if (is_wp_error($feature_strategy)) { return $feature_strategy; }
+    $feature_error = $feature_strategy->validate_chatbot_features($bot_settings, !empty($image_inputs_for_service), $frontend_openai_web_search_active || $frontend_google_search_grounding_active);
+    if ($feature_error) { return $feature_error; }
     if (empty($model)) {
         return new WP_Error('missing_model_orchestrator', __('Chatbot AI Model or Deployment Name is missing in settings.', 'gpt3-ai-content-generator'));
     }
@@ -318,6 +327,8 @@ function generate_response(
         $frontend_active_chroma_file_upload_context_id,
         $vector_search_scores // Pass reference to capture scores
     );
+
+    if (is_wp_error($all_formatted_results_for_instruction)) { return $all_formatted_results_for_instruction; }
 
     $base_instructions = $bot_settings['instructions'] ?? '';
     $instruction_context_for_logging = [
@@ -487,7 +498,7 @@ function load_instruction_manager_logic()
  * @param string|null $frontend_active_chroma_collection_name Optional active Chroma collection name.
  * @param string|null $frontend_active_chroma_file_upload_context_id Optional active Chroma file context ID.
  * @param array|null &$vector_search_scores_output Optional reference to capture vector search scores for logging.
- * @return string The formatted context string from vector searches, or an empty string.
+ * @return string|WP_Error Context text, an empty result, or the retrieval error.
  */
 function prepare_vector_search_context_logic(
     ?\WPAICG\Core\AIPKit_AI_Caller $ai_caller,
@@ -503,7 +514,7 @@ function prepare_vector_search_context_logic(
     ?string $frontend_active_chroma_collection_name = null,
     ?string $frontend_active_chroma_file_upload_context_id = null,
     ?array &$vector_search_scores_output = null
-): string {
+) {
     if (!$ai_caller || !$vector_store_manager) {
         return "";
     }
@@ -677,6 +688,11 @@ function prepare_final_ai_params_logic(
         );
         if (function_exists(__NAMESPACE__ . '\\AiParams\\apply_claude_file_context_logic')) {
             AiParams\apply_claude_file_context_logic($final_ai_params, $bot_settings, $frontend_active_claude_file_id);
+        }
+    } elseif ($main_provider === 'AIPufferCloud') {
+        $reasoning_effort = \WPAICG\Cloud\Connection::reasoning_effort((string) $model, $bot_settings['reasoning_effort'] ?? '');
+        if ($reasoning_effort !== '') {
+            $final_ai_params['reasoning'] = ['effort' => $reasoning_effort];
         }
     } elseif ($main_provider === 'OpenRouter') {
         AiParams\apply_openrouter_web_search_logic(

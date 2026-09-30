@@ -261,6 +261,7 @@ class AIPKit_Vector_Provider_Strategy_Factory {
             'Qdrant' => ['qdrant.php', \WPAICG\Vector\Providers\AIPKit_Vector_Qdrant_Strategy::class],
             'OpenAI' => ['openai.php', \WPAICG\Vector\Providers\AIPKit_Vector_OpenAI_Strategy::class],
             'Chroma' => ['chroma.php', \WPAICG\Vector\Providers\AIPKit_Vector_Chroma_Strategy::class],
+            'Local' => ['local.php', \WPAICG\Vector\Providers\AIPKit_Vector_Local_Strategy::class],
         ];
 
         if (!isset($strategies_map[$provider])) {

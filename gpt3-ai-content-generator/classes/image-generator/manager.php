@@ -76,6 +76,10 @@ function init_hooks_logic(AIPKit_Image_Manager $managerInstance): void
     add_action('wp_ajax_aipkit_load_more_image_history', [$managerInstance, 'ajax_load_more_image_history']);
     add_action('wp_ajax_aipkit_check_video_status', [$managerInstance, 'ajax_check_video_status']);
     add_action('wp_ajax_nopriv_aipkit_check_video_status', [$managerInstance, 'ajax_check_video_status']);
+    foreach (['wp_ajax_', 'wp_ajax_nopriv_'] as $prefix) {
+        add_action($prefix . 'aipkit_image_request_status', [$managerInstance, 'ajax_image_request_status']);
+        add_action($prefix . 'aipkit_image_nonce', [$managerInstance, 'ajax_image_nonce']);
+    }
 
     $settings_ajax_handler = $managerInstance->get_settings_ajax_handler();
     if ($settings_ajax_handler && method_exists($settings_ajax_handler, 'ajax_save_image_settings')) {
@@ -107,17 +111,18 @@ function generate_image_logic(AIPKit_Image_Manager $managerInstance, string $pro
     $provider_raw = $options['provider'] ?? 'openai';
 
     $provider_normalized = AIPKit_Providers::normalize_provider_label((string) $provider_raw);
-    if (!in_array($provider_normalized, ['OpenAI', 'OpenRouter', 'Azure', 'Google', 'xAI', 'Pexels', 'Pixabay', 'Replicate'], true)) {
+    if (!in_array($provider_normalized, ['OpenAI', 'OpenRouter', 'Azure', 'Google', 'xAI', 'Pexels', 'Pixabay', 'Replicate', 'AIPufferCloud'], true)) {
         $provider_normalized = 'OpenAI';
     }
 
     $all_settings = $managerInstance->get_image_settings();
-    $provider_module_defaults = $all_settings['defaults'][$provider_normalized] ?? ($all_settings['defaults']['OpenAI'] ?? []);
+    $provider_module_defaults = $provider_normalized === 'AIPufferCloud' ? []
+        : ($all_settings['defaults'][$provider_normalized] ?? ($all_settings['defaults']['OpenAI'] ?? []));
     $final_options = array_merge($provider_module_defaults, $options);
     $final_options['provider'] = $provider_normalized;
 
     $api_params = AIPKit_Providers::get_provider_data($provider_normalized);
-    if (empty($api_params['api_key'])) {
+    if ($provider_normalized !== 'AIPufferCloud' && empty($api_params['api_key'])) {
         /* translators: %s: The provider name that was attempted to be used for image generation. */
         return new WP_Error('missing_api_key', sprintf(__('%s API Key is missing.', 'gpt3-ai-content-generator'), $provider_normalized), ['status' => 400]);
     }
@@ -412,18 +417,32 @@ function ajax_generate_image_logic(AIPKit_Image_Manager $managerInstance): void
         return;
     }
 
+    $rate_check = \WPAICG\Core\TokenManager\AIPKit_Token_Manager::check_public_request_rate();
+    if (is_wp_error($rate_check)) { $managerInstance->send_wp_error($rate_check); return; }
+
+    $policy = $managerInstance::read_public_policy($post_data['selection_policy'] ?? '');
+    if (is_wp_error($policy)) { $managerInstance->send_wp_error($policy); return; }
+    $provider = AIPKit_Providers::normalize_provider_label(sanitize_text_field($post_data['provider'] ?? ''));
+    $selected_model = sanitize_text_field($post_data['model'] ?? '');
+    $image_mode = sanitize_key($post_data['image_mode'] ?? 'generate');
+    $allowed = $policy['allowed'] ?? ($managerInstance->get_image_settings()['frontend_display']['allowed_models'] ?? '');
+    $allowed = array_filter(array_map('trim', explode(',', strtolower((string) $allowed))));
+    if (!in_array($provider, ['OpenAI', 'OpenRouter', 'Azure', 'Google', 'xAI', 'Replicate', 'AIPufferCloud'], true)
+        || $selected_model === '' || !in_array($image_mode, ['generate', 'edit'], true)
+        || (!empty($policy['provider']) && $policy['provider'] !== $provider)
+        || (!empty($policy['model']) && $policy['model'] !== $selected_model)
+        || ($policy['mode'] !== 'both' && $policy['mode'] !== $image_mode)
+        || ($allowed && !in_array(strtolower($provider), $allowed, true) && !in_array(strtolower($selected_model), $allowed, true))) {
+        $managerInstance->send_wp_error(new WP_Error('image_selection_not_allowed', __('This model or operation is not available in this image generator.', 'gpt3-ai-content-generator'), ['status' => 403]));
+        return;
+    }
+
     $prompt = isset($post_data['prompt']) ? AIPKit_Prompt_Sanitizer::sanitize($post_data['prompt']) : '';
     if (empty($prompt)) {
         $error_response = new WP_Error('missing_prompt', __('Image prompt cannot be empty.', 'gpt3-ai-content-generator'), ['status' => 400]);
         $managerInstance->log_image_generation_attempt($conversation_uuid, $prompt, $post_data, $error_response, null, $user_id, $session_id_for_guest, $client_ip);
         $managerInstance->send_wp_error($error_response);
         return;
-    }
-
-    $provider = isset($post_data['provider']) ? sanitize_text_field($post_data['provider']) : 'OpenAI';
-    $image_mode = isset($post_data['image_mode']) ? sanitize_key($post_data['image_mode']) : 'generate';
-    if (!in_array($image_mode, ['generate', 'edit'], true)) {
-        $image_mode = 'generate';
     }
 
     if (class_exists(AIPKit_Content_Moderator::class)) {
@@ -444,10 +463,10 @@ function ajax_generate_image_logic(AIPKit_Image_Manager $managerInstance): void
     $source_image_payload = null;
     if ($image_mode === 'edit') {
         $edit_provider = strtolower($provider);
-        if (!in_array($edit_provider, ['google', 'openai', 'openrouter', 'xai'], true)) {
+        if (!in_array($edit_provider, ['google', 'openai', 'openrouter', 'xai', 'aipuffercloud'], true)) {
             $provider_error = new WP_Error(
                 'image_edit_provider_unsupported',
-                __('Image editing is currently supported only for Google, OpenAI, OpenRouter, and xAI providers.', 'gpt3-ai-content-generator'),
+                __('The selected provider does not support image editing.', 'gpt3-ai-content-generator'),
                 ['status' => 400]
             );
             $managerInstance->log_image_generation_attempt($conversation_uuid, $prompt, $post_data, $provider_error, null, $user_id, $session_id_for_guest, $client_ip);
@@ -455,7 +474,7 @@ function ajax_generate_image_logic(AIPKit_Image_Manager $managerInstance): void
             return;
         }
 
-        $source_image_payload = parse_edit_source_image_upload_logic($_FILES);
+        $source_image_payload = parse_edit_source_image_upload_logic($_FILES, $provider, $selected_model);
         if (is_wp_error($source_image_payload)) {
             $managerInstance->log_image_generation_attempt($conversation_uuid, $prompt, $post_data, $source_image_payload, null, $user_id, $session_id_for_guest, $client_ip);
             $managerInstance->send_wp_error($source_image_payload);
@@ -463,9 +482,7 @@ function ajax_generate_image_logic(AIPKit_Image_Manager $managerInstance): void
         }
     }
 
-    $num_images_to_generate = isset($post_data['n']) ? absint($post_data['n']) : 1;
-    $num_images_to_generate = max(1, $num_images_to_generate);
-    $selected_model = isset($post_data['model']) ? sanitize_text_field($post_data['model']) : '';
+    $num_images_to_generate = max(1, min(10, (int) ($policy['n'] ?? 1)));
     $pricing_operation = $image_mode;
 
     if (strtolower($provider) === 'google' && $selected_model !== '') {
@@ -517,16 +534,8 @@ function ajax_generate_image_logic(AIPKit_Image_Manager $managerInstance): void
         'image_mode' => $image_mode,
         'provider' => $provider,
         'model' => $selected_model !== '' ? $selected_model : null,
-        'size' => isset($post_data['size']) ? sanitize_text_field($post_data['size']) : null,
+        'size' => $policy['size'] ?? null,
         'n' => $num_images_to_generate,
-        'quality' => isset($post_data['quality']) ? sanitize_text_field($post_data['quality']) : null,
-        'style' => isset($post_data['style']) ? sanitize_text_field($post_data['style']) : null,
-        'aspect_ratio' => isset($post_data['aspect_ratio']) ? sanitize_text_field($post_data['aspect_ratio']) : null,
-        'resolution' => isset($post_data['resolution']) ? sanitize_text_field($post_data['resolution']) : null,
-        'output_format' => isset($post_data['output_format']) ? sanitize_key($post_data['output_format']) : null,
-        'output_compression' => isset($post_data['output_compression']) ? absint($post_data['output_compression']) : null,
-        'background' => isset($post_data['background']) ? sanitize_key($post_data['background']) : null,
-        'seed' => isset($post_data['seed']) ? absint($post_data['seed']) : null,
         'response_format' => isset($post_data['response_format']) ? sanitize_text_field($post_data['response_format']) : 'url',
         'user' => $user_identifier,
         'aipkit_event_module' => 'image_generator',
@@ -554,7 +563,29 @@ function ajax_generate_image_logic(AIPKit_Image_Manager $managerInstance): void
         unset($runtime_options['response_format']);
     }
 
-    $result = $managerInstance->generate_image($prompt, $runtime_options, $is_logged_in ? $user_id : null);
+    if ($provider === 'AIPufferCloud') {
+        $operation_id = sanitize_text_field($post_data['operation_id'] ?? '');
+        if (!preg_match('/^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$/D', $operation_id)) {
+            $managerInstance->send_wp_error(new WP_Error('invalid_operation_id', __('Reload the image generator before trying again.', 'gpt3-ai-content-generator'))); return;
+        }
+        $lock = $managerInstance::lock_operation($operation_id);
+        $result = new WP_Error('cloud_outcome_unknown', __('This image request may already be processing. Check its status before starting a new request.', 'gpt3-ai-content-generator'), ['cloud_operation_id' => $operation_id]);
+        if ($lock !== '') {
+            try {
+                if (!get_transient($managerInstance::operation_key($operation_id))) {
+                    $managerInstance::save_operation($operation_id, ['provider' => $provider]);
+                    $runtime_options['cloud_operation_id'] = $operation_id;
+                    $result = $managerInstance->generate_image($prompt, $runtime_options, $is_logged_in ? $user_id : null);
+                }
+            } catch (\Throwable $error) {
+                $result = new WP_Error('cloud_outcome_unknown', __('The image response was interrupted. Check its status before starting a new request.', 'gpt3-ai-content-generator'), ['cloud_operation_id' => $operation_id]);
+            } finally {
+                $managerInstance::unlock_operation($operation_id, $lock);
+            }
+        }
+    } else {
+        $result = $managerInstance->generate_image($prompt, $runtime_options, $is_logged_in ? $user_id : null);
+    }
     $images_array = [];
     $videos_array = [];
     $usage_data = null;
@@ -562,6 +593,15 @@ function ajax_generate_image_logic(AIPKit_Image_Manager $managerInstance): void
     if (!is_wp_error($result)) {
         // Check if this is an async video operation
         if (isset($result['status']) && $result['status'] === 'processing') {
+            try {
+                $managerInstance::save_operation($result['operation_name'], [
+                    'provider' => $provider, 'model' => $selected_model, 'prompt' => $prompt,
+                    'session_id' => $session_id_for_guest, 'conversation_uuid' => $conversation_uuid,
+                    'options' => $request_options_for_log, 'state' => 'processing',
+                ]);
+            } catch (\RuntimeException $error) {
+                $managerInstance->send_wp_error(new WP_Error('image_operation_storage_failed', __('The video started, but its progress could not be saved. Contact the site administrator before starting another video.', 'gpt3-ai-content-generator'))); return;
+            }
 
             // Log the attempt as processing
             $managerInstance->log_image_generation_attempt(
@@ -793,181 +833,75 @@ function ajax_load_more_image_history_logic(): void
 
 function ajax_check_video_status_logic(AIPKit_Image_Manager $managerInstance): void
 {
-    // Unslash all POST data at the beginning for security
+    // The nonce is checked before request parameters are used.
     $post_data = wp_unslash($_POST);
-
-    $user_id = get_current_user_id();
-    $is_logged_in = $user_id > 0;
-
-    // Check nonce
     if (!isset($post_data['_ajax_nonce']) || !wp_verify_nonce(sanitize_key($post_data['_ajax_nonce']), 'aipkit_image_generator_nonce')) {
-        wp_send_json_error(['message' => __('Security check failed (nonce).', 'gpt3-ai-content-generator')], 403);
-        return;
+        $managerInstance->send_wp_error(new WP_Error('nonce_failure', __('Security check failed (nonce).', 'gpt3-ai-content-generator'), ['status' => 403])); return;
     }
-
-    // Check permissions (same as generate_image)
-    if ($is_logged_in && !AIPKit_Role_Manager::user_can_access_module($managerInstance::MODULE_SLUG)) {
-        wp_send_json_error(['message' => __('You do not have permission to check video status.', 'gpt3-ai-content-generator')], 403);
-        return;
+    if (get_current_user_id() && !AIPKit_Role_Manager::user_can_access_module($managerInstance::MODULE_SLUG)) {
+        $managerInstance->send_wp_error(new WP_Error('permission_denied', __('You do not have permission to check video status.', 'gpt3-ai-content-generator'), ['status' => 403])); return;
     }
-
-    // Get required parameters
-    $operation_name = isset($post_data['operation_name']) ? sanitize_text_field($post_data['operation_name']) : '';
-    $model_id = isset($post_data['model_id']) ? sanitize_text_field($post_data['model_id']) : '';
-    $prompt = isset($post_data['prompt']) ? AIPKit_Prompt_Sanitizer::sanitize($post_data['prompt']) : '';
-
-    if (empty($operation_name) || empty($model_id)) {
-        wp_send_json_error(['message' => __('Missing required parameters for video status check.', 'gpt3-ai-content-generator')], 400);
-        return;
+    $rate = \WPAICG\Core\TokenManager\AIPKit_Token_Manager::check_public_request_rate();
+    if (is_wp_error($rate)) { $managerInstance->send_wp_error($rate); return; }
+    $id = sanitize_text_field($post_data['operation_name'] ?? '');
+    $record = $managerInstance::read_operation($id);
+    if (!$record || ($record['provider'] ?? '') !== 'Google') {
+        $managerInstance->send_wp_error(new WP_Error('image_operation_missing', __('This video request is unavailable or belongs to another visitor.', 'gpt3-ai-content-generator'), ['status' => 404])); return;
     }
-
-    // Get API key from server-side provider configuration (secure)
-    if (!class_exists('WPAICG\AIPKit_Providers')) {
-        $providers_path = WPAICG_PLUGIN_DIR . 'classes/ai/settings.php';
-        if (file_exists($providers_path)) {
-            require_once $providers_path;
-        }
-    }
-
-    if (!class_exists('WPAICG\AIPKit_Providers')) {
-        wp_send_json_error(['message' => __('Provider configuration not available.', 'gpt3-ai-content-generator')], 500);
-        return;
-    }
-
-    $api_params = \WPAICG\AIPKit_Providers::get_provider_data('Google');
-
-    if (empty($api_params['api_key'])) {
-        wp_send_json_error(['message' => __('Google API Key is not configured.', 'gpt3-ai-content-generator')], 500);
-        return;
-    }
-
-    // Prepare API params with defaults
-    $api_params = array_merge($api_params, [
-        // phpcs:ignore PluginCheck.CodeAnalysis.AIProvider.DirectIntegration -- Provider-specific API transport.
-        'base_url' => $api_params['base_url'] ?? 'https://generativelanguage.googleapis.com',
-        'api_version' => $api_params['api_version'] ?? 'v1beta'
-    ]);
-
-    // Verify all required classes are loaded
-    $response_parser_exists = class_exists(GoogleVideoResponseParser::class);
-    $url_builder_exists = class_exists('WPAICG\Images\Providers\Google\GoogleVideoUrlBuilder');
-
-    if (!$response_parser_exists) {
-        wp_send_json_error(['message' => __('Video response parser not available.', 'gpt3-ai-content-generator')], 500);
-        return;
-    }
-
-    if (!$url_builder_exists) {
-        wp_send_json_error(['message' => __('Video URL builder not available.', 'gpt3-ai-content-generator')], 500);
-        return;
-    }
-
-    // Check the operation status - now includes prompt and user information
+    $lock = $managerInstance::lock_operation($id);
+    if ($lock === '') { wp_send_json_success(['status' => 'processing', 'message' => __('Video completion is being checked.', 'gpt3-ai-content-generator')]); return; }
     try {
-        $status_result = GoogleVideoResponseParser::check_operation_status(
-            $operation_name,
-            $model_id,
-            $api_params,
-            $prompt,
-            $is_logged_in ? $user_id : null
-        );
-    } catch (\Error $e) {
-        wp_send_json_error(['message' => 'Internal error during video status check: ' . $e->getMessage()]);
-        return;
-    } catch (\Exception $e) {
-        wp_send_json_error(['message' => 'Error during video status check: ' . $e->getMessage()]);
-        return;
+        // Re-read after acquiring the lock: another poll may have finished while we waited.
+        $record = $managerInstance::read_operation($id);
+        $result = complete_video_operation_logic($managerInstance, $id, $record);
+    } catch (\Throwable $error) {
+        $result = new WP_Error('video_completion_interrupted', __('Video completion was interrupted. Contact the site administrator before starting another video.', 'gpt3-ai-content-generator'));
+    } finally {
+        $managerInstance::unlock_operation($id, $lock);
     }
+    if (is_wp_error($result)) { $managerInstance->send_wp_error($result); return; }
+    wp_send_json_success($result);
+}
 
-    if (is_wp_error($status_result)) {
-        wp_send_json_error(['message' => $status_result->get_error_message()]);
-        return;
+/** Runs under the operation lock. JSON delivery happens only after releasing it. */
+function complete_video_operation_logic(AIPKit_Image_Manager $managerInstance, string $id, array $record)
+{
+    if (isset($record['result'])) { return $record['result']; }
+    if (($record['state'] ?? '') !== 'processing') {
+        return new WP_Error('video_completion_interrupted', __('This video completion needs review. Contact the site administrator before starting another video.', 'gpt3-ai-content-generator'));
     }
-    // Handle the different response types
-    if (isset($status_result['status'])) {
-        if ($status_result['status'] === 'processing') {
-            // Still processing
-            wp_send_json_success([
-                'status' => 'processing',
-                'message' => $status_result['message']
+    $api_params = AIPKit_Providers::get_provider_data('Google');
+    if (empty($api_params['api_key'])) { return new WP_Error('missing_api_key', __('Google API Key is not configured.', 'gpt3-ai-content-generator')); }
+    $result = GoogleVideoResponseParser::check_operation_status($id, $record['model'], $api_params, $record['prompt'], get_current_user_id() ?: null, static function () use ($managerInstance, $id, &$record): void {
+        // Persist before the first download: an interrupted finalization must not run twice.
+        $record['state'] = 'finalizing';
+        $managerInstance::save_operation($id, $record);
+    });
+    if (is_wp_error($result)) { return $result; }
+    if (($result['status'] ?? '') === 'processing') {
+        $record['state'] = 'processing';
+        $managerInstance::save_operation($id, $record);
+        return $result;
+    }
+    if (($result['status'] ?? '') !== 'completed' || empty($result['videos'])) {
+        return new WP_Error('invalid_video_result', __('The video result could not be read. Contact the site administrator before starting another video.', 'gpt3-ai-content-generator'));
+    }
+    $usage = $result['usage'] ?? [];
+    $count = count($result['videos']);
+    $tokens = $managerInstance->get_token_manager();
+    if ($tokens) {
+        $tokens->record_token_usage(get_current_user_id() ?: null, $record['session_id'], GuestTableConstants::IMG_GEN_GUEST_CONTEXT_ID,
+            (int) ($usage['total_tokens'] ?? ($count * $managerInstance::TOKENS_PER_IMAGE)), 'image_generator', [
+                'provider' => 'Google', 'model' => $record['model'], 'operation' => 'video_generate',
+                'idempotency_key' => 'image-video:' . hash('sha256', $id),
+                'usage_data' => array_merge($usage, ['unit_count' => $count, 'video_count' => $count]),
             ]);
-        } elseif ($status_result['status'] === 'completed') {
-            // Completed - record token usage and return video data
-            $videos_array = $status_result['videos'] ?? [];
-            $usage_data = $status_result['usage'] ?? null;
-
-            // Record token usage when video generation completes
-            $token_manager = $managerInstance->get_token_manager();
-            if ($token_manager && !empty($videos_array)) {
-                $videos_generated_count = count($videos_array);
-                $tokens_to_record = $usage_data['total_tokens'] ?? ($videos_generated_count * $managerInstance::TOKENS_PER_IMAGE);
-
-                if ($tokens_to_record > 0) {
-                    $context_id_for_token_record = GuestTableConstants::IMG_GEN_GUEST_CONTEXT_ID;
-
-                    // Get session ID for guests (this should match the session from the original generation request)
-                    $session_id_for_guest = null;
-                    if (!$is_logged_in) {
-                        $posted_session_id = isset($post_data['session_id']) ? sanitize_text_field($post_data['session_id']) : null;
-                        $client_ip = isset($_SERVER['REMOTE_ADDR']) ? sanitize_text_field(wp_unslash($_SERVER['REMOTE_ADDR'])) : null;
-                        $session_id_for_guest = class_exists(AIPKit_Global_Security_Settings::class)
-                            ? AIPKit_Global_Security_Settings::resolve_guest_session_id($posted_session_id, $client_ip)
-                            : (!empty($posted_session_id) ? $posted_session_id : $client_ip);
-                    }
-
-                    $token_manager->record_token_usage(
-                        $user_id ?: null,
-                        $session_id_for_guest,
-                        $context_id_for_token_record,
-                        $tokens_to_record,
-                        'image_generator',
-                        [
-                            'provider' => 'Google',
-                            'model' => $model_id,
-                            'operation' => 'video_generate',
-                            'usage_data' => array_merge(
-                                is_array($usage_data) ? $usage_data : [],
-                                [
-                                    'unit_count' => $videos_generated_count,
-                                    'video_count' => $videos_generated_count,
-                                ]
-                            ),
-                        ]
-                    );
-                }
-            }
-
-            $managerInstance->emit_generated_event(
-                $prompt,
-                [
-                    'videos' => $videos_array,
-                    'usage' => $usage_data,
-                ],
-                [
-                    'provider' => 'Google',
-                    'model' => $model_id,
-                    'image_mode' => 'generate',
-                    'aipkit_event_module' => 'image_generator',
-                    'aipkit_event_origin' => 'image_generator_ajax',
-                ],
-                $is_logged_in ? $user_id : null,
-                !$is_logged_in ? ($session_id_for_guest ?? null) : null
-            );
-
-            wp_send_json_success([
-                'status' => 'completed',
-                'videos' => $videos_array,
-                'usage' => $usage_data,
-                'message' => __('Video generation completed successfully!', 'gpt3-ai-content-generator')
-            ]);
-        } else {
-            // Unknown status
-            wp_send_json_error(['message' => __('Unknown video generation status.', 'gpt3-ai-content-generator')]);
-        }
-    } else {
-        // Unexpected response format
-        wp_send_json_error(['message' => __('Unexpected response format from video status check.', 'gpt3-ai-content-generator')]);
     }
+    $managerInstance->emit_generated_event($record['prompt'], $result, $record['options'], get_current_user_id() ?: null, $record['session_id']);
+    $record['state'] = 'completed';
+    $record['result'] = $result;
+    $managerInstance::save_operation($id, $record);
+    return $result;
 }
 
 }
@@ -1057,11 +991,11 @@ use WP_Error;
  * @param array $files_data Raw $_FILES data.
  * @return array|WP_Error Normalized image payload or WP_Error on invalid input.
  */
-function parse_edit_source_image_upload_logic(array $files_data)
+function parse_edit_source_image_upload_logic(array $files_data, string $provider = '', string $model = '')
 {
-    $allowed_mime_types = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
-    $max_size_bytes = 10 * 1024 * 1024; // 10MB
-    $allowed_extensions_label = 'JPG, PNG, WEBP, GIF';
+    $constraints = \WPAICG\Images\AIPKit_Image_Provider_Strategy_Factory::edit_upload_constraints($provider, $model);
+    $allowed_mime_types = $constraints['allowedMimeTypes'];
+    $max_size_bytes = $constraints['maxBytes'];
 
     if (!isset($files_data['source_image']) || !is_array($files_data['source_image'])) {
         return new WP_Error(
@@ -1087,7 +1021,7 @@ function parse_edit_source_image_upload_logic(array $files_data)
         if ($error_code === UPLOAD_ERR_NO_FILE) {
             $error_message = __('Please upload an image to edit.', 'gpt3-ai-content-generator');
         } elseif ($error_code === UPLOAD_ERR_INI_SIZE || $error_code === UPLOAD_ERR_FORM_SIZE) {
-            $error_message = __('Source image is too large. Maximum allowed size is 10MB.', 'gpt3-ai-content-generator');
+            $error_message = $constraints['tooLargeMessage'];
             $status_code = 413;
         }
         return new WP_Error(
@@ -1117,7 +1051,7 @@ function parse_edit_source_image_upload_logic(array $files_data)
     if ($reported_size > $max_size_bytes) {
         return new WP_Error(
             'source_image_too_large',
-            __('Source image is too large. Maximum allowed size is 10MB.', 'gpt3-ai-content-generator'),
+            $constraints['tooLargeMessage'],
             ['status' => 413]
         );
     }
@@ -1136,11 +1070,7 @@ function parse_edit_source_image_upload_logic(array $files_data)
     if (!in_array($mime_type, $allowed_mime_types, true)) {
         return new WP_Error(
             'invalid_source_image_type',
-            sprintf(
-                /* translators: %s: Comma-separated list of allowed file extensions. */
-                __('Invalid image type. Allowed types: %s.', 'gpt3-ai-content-generator'),
-                $allowed_extensions_label
-            ),
+            $constraints['invalidTypeMessage'],
             ['status' => 400]
         );
     }
@@ -1165,7 +1095,7 @@ function parse_edit_source_image_upload_logic(array $files_data)
     if ($actual_size > $max_size_bytes) {
         return new WP_Error(
             'source_image_too_large',
-            __('Source image is too large. Maximum allowed size is 10MB.', 'gpt3-ai-content-generator'),
+            $constraints['tooLargeMessage'],
             ['status' => 413]
         );
     }
@@ -1189,6 +1119,9 @@ function send_wp_error_logic(WP_Error $error): void
 
     if (is_array($error_data) && !empty($error_data['quota_notice']) && is_array($error_data['quota_notice'])) {
         $payload['quota_notice'] = $error_data['quota_notice'];
+    }
+    if (is_array($error_data) && !empty($error_data['cloud_operation_id'])) {
+        $payload['operation_id'] = $error_data['cloud_operation_id'];
     }
 
     wp_send_json_error($payload, $status);
@@ -1214,6 +1147,95 @@ class AIPKit_Image_Manager
     private $settings_ajax_handler;
     private $image_settings_cache = null;
     private $token_manager;
+
+    public static function sign_public_policy(array $policy): string
+    {
+        $encoded = base64_encode(wp_json_encode($policy));
+        return $encoded . ':' . wp_hash('image_selection|' . $encoded);
+    }
+
+    /** Cached shortcode policy is independent of the expiring request nonce. */
+    public static function read_public_policy($signed)
+    {
+        $parts = is_string($signed) && strlen($signed) <= 16384 ? explode(':', $signed, 2) : [];
+        if (count($parts) === 2 && hash_equals(wp_hash('image_selection|' . $parts[0]), $parts[1])) {
+            $policy = json_decode((string) base64_decode($parts[0], true), true);
+            if (is_array($policy) && in_array($policy['mode'] ?? '', ['generate', 'edit', 'both'], true)) { return $policy; }
+        }
+        return new WP_Error('image_policy_invalid', __('Reload this image generator to refresh its settings. If the problem continues, clear the page cache.', 'gpt3-ai-content-generator'), ['status' => 403]);
+    }
+
+    private static function operation_owner(): string
+    {
+        // Guest identity is independent of a caller-supplied session ID.
+        $address = isset($_SERVER['REMOTE_ADDR']) ? sanitize_text_field(wp_unslash($_SERVER['REMOTE_ADDR'])) : '';
+        return wp_hash('image_owner|' . (get_current_user_id() ? 'user:' . get_current_user_id() : 'guest:' . $address));
+    }
+
+    public static function operation_key(string $id): string
+    {
+        return 'aipkit_image_operation_' . hash('sha256', $id);
+    }
+
+    public static function read_operation(string $id): array
+    {
+        $record = get_transient(self::operation_key($id));
+        return is_array($record) && hash_equals($record['owner'] ?? '', self::operation_owner()) ? $record : [];
+    }
+
+    public static function save_operation(string $id, array $record): void
+    {
+        $record['owner'] = self::operation_owner();
+        $key = self::operation_key($id);
+        set_transient($key, $record, DAY_IN_SECONDS);
+        if (get_transient($key) !== $record) { throw new \RuntimeException('image_operation_storage_failed'); }
+    }
+
+    public static function lock_operation(string $id): string
+    {
+        if (!class_exists('\\WPAICG\\AutoGPT\\Cron\\AIPKit_Option_Lock')) {
+            require_once WPAICG_PLUGIN_DIR . 'classes/automations/lock.php';
+        }
+        return \WPAICG\AutoGPT\Cron\AIPKit_Option_Lock::acquire(self::operation_key($id) . '_lock', 600);
+    }
+
+    public static function unlock_operation(string $id, string $token): void
+    {
+        \WPAICG\AutoGPT\Cron\AIPKit_Option_Lock::release(self::operation_key($id) . '_lock', $token);
+    }
+
+    public function ajax_image_nonce(): void
+    {
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- The policy validator checks its length and signature; changing signed bytes would invalidate it. This issues a nonce for cached guest pages.
+        $policy = self::read_public_policy(wp_unslash($_POST['selection_policy'] ?? ''));
+        if (is_wp_error($policy)) { $this->send_wp_error($policy); return; }
+        nocache_headers();
+        wp_send_json_success(['nonce' => wp_create_nonce('aipkit_image_generator_nonce')]);
+    }
+
+    public function ajax_image_request_status(): void
+    {
+        if (!check_ajax_referer('aipkit_image_generator_nonce', '_ajax_nonce', false)) {
+            $this->send_wp_error(new WP_Error('nonce_failure', __('Security check failed (nonce).', 'gpt3-ai-content-generator'), ['status' => 403])); return;
+        }
+        if (get_current_user_id() && !\WPAICG\AIPKit_Role_Manager::user_can_access_module(self::MODULE_SLUG)) {
+            $this->send_wp_error(new WP_Error('permission_denied', __('You cannot access this image request.', 'gpt3-ai-content-generator'), ['status' => 403])); return;
+        }
+        $id = sanitize_text_field(wp_unslash($_POST['operation_id'] ?? ''));
+        $record = self::read_operation($id);
+        if (!$record || ($record['provider'] ?? '') !== 'AIPufferCloud') {
+            $this->send_wp_error(new WP_Error('image_operation_missing', __('The request status is unavailable. It may still have completed. Check your credits before starting a new request.', 'gpt3-ai-content-generator'), ['status' => 404])); return;
+        }
+        $rate = \WPAICG\Core\TokenManager\AIPKit_Token_Manager::check_public_request_rate();
+        if (is_wp_error($rate)) { $this->send_wp_error($rate); return; }
+        try {
+            $status = \WPAICG\Cloud\Connection::request_status($id);
+        } catch (\RuntimeException $error) {
+            $this->send_wp_error(new WP_Error('image_status_unavailable', __('The request status could not be checked. Check again before starting another request.', 'gpt3-ai-content-generator')));
+            return;
+        }
+        wp_send_json_success(['state' => sanitize_key($status['state'] ?? 'unknown')]);
+    }
 
     public function __construct()
     {

@@ -67,7 +67,7 @@ class AIPKit_Source_Ajax_Handler extends BaseDashboardAjaxHandler
             ]]];
         }
 
-        if ($provider === 'Qdrant') {
+        if ($provider === 'Qdrant' || $provider === 'Local') {
             return ['filter' => ['should' => [
                 ['key' => 'post_id', 'match' => ['value' => (string) $post_id]],
             ]]];
@@ -99,7 +99,7 @@ class AIPKit_Source_Ajax_Handler extends BaseDashboardAjaxHandler
             ]]];
         }
 
-        if ($provider === 'Qdrant') {
+        if ($provider === 'Qdrant' || $provider === 'Local') {
             return ['filter' => ['should' => [
                 ['key' => 'parent_vector_id', 'match' => ['value' => $parent_vector_id]],
                 ['key' => 'vector_id', 'match' => ['value' => $parent_vector_id]],
@@ -136,7 +136,7 @@ class AIPKit_Source_Ajax_Handler extends BaseDashboardAjaxHandler
 
         $provider_raw = isset($post_data['provider']) ? sanitize_text_field($post_data['provider']) : '';
         $provider = AIPKit_Providers::normalize_provider_label($provider_raw);
-        $allowed_providers = ['OpenAI', 'Google', 'Pinecone', 'Qdrant', 'Chroma'];
+        $allowed_providers = ['OpenAI', 'Google', 'Pinecone', 'Qdrant', 'Chroma', 'Local'];
         if (!in_array($provider, $allowed_providers, true)) {
             $this->send_wp_error(new WP_Error('invalid_provider_delete_vector', __('Invalid or unsupported provider for this action.', 'gpt3-ai-content-generator')));
             return;
@@ -221,7 +221,9 @@ class AIPKit_Source_Ajax_Handler extends BaseDashboardAjaxHandler
 
             // Get provider config
             $provider_config = \WPAICG\AIPKit_Providers::get_provider_data($provider);
-            if ($provider === 'Chroma') {
+            if ($provider === 'Local') {
+                $provider_config = []; // Built-in store: nothing to connect to.
+            } elseif ($provider === 'Chroma') {
                 if (empty($provider_config['url'])) {
                     $this->send_wp_error(new WP_Error('missing_chroma_url_delete_vector', __('Chroma URL is missing.', 'gpt3-ai-content-generator')));
                     return;
@@ -316,6 +318,12 @@ class AIPKit_Source_Ajax_Handler extends BaseDashboardAjaxHandler
             case 'Chroma':
                 $post_processor = $this->chroma_post_processor;
                 break;
+            case 'Local':
+                if (!class_exists(\WPAICG\Vector\PostProcessor\Local\LocalPostProcessor::class)) {
+                    require_once WPAICG_PLUGIN_DIR . 'classes/knowledge-base/indexing-local.php';
+                }
+                $post_processor = new \WPAICG\Vector\PostProcessor\Local\LocalPostProcessor();
+                break;
             default:
                 $this->send_wp_error(new WP_Error('invalid_provider_reindex', __('Invalid provider for re-indexing.', 'gpt3-ai-content-generator')));
                 return;
@@ -325,7 +333,7 @@ class AIPKit_Source_Ajax_Handler extends BaseDashboardAjaxHandler
             return;
         }
         if (
-            in_array($provider, ['Pinecone', 'Qdrant', 'Chroma'], true)
+            in_array($provider, ['Pinecone', 'Qdrant', 'Chroma', 'Local'], true)
             && (empty($embedding_provider) || empty($embedding_model))
         ) {
             $this->send_wp_error(new WP_Error('missing_embedding_config_reindex', __('Embedding provider and model are required for re-indexing.', 'gpt3-ai-content-generator')));
@@ -333,8 +341,10 @@ class AIPKit_Source_Ajax_Handler extends BaseDashboardAjaxHandler
         }
 
         // OpenAI owns safe replacement and keeps the previous file/log until ready.
-        $provider_config = AIPKit_Providers::get_provider_data($provider);
-        if ($provider === 'Chroma') {
+        $provider_config = $provider === 'Local' ? [] : AIPKit_Providers::get_provider_data($provider);
+        if ($provider === 'Local') {
+            // Local has no external storage credentials.
+        } elseif ($provider === 'Chroma') {
             if (empty($provider_config['url'])) {
                 $this->send_wp_error(new WP_Error('missing_chroma_url_reindex', __('Chroma URL is missing.', 'gpt3-ai-content-generator')));
                 return;
@@ -394,6 +404,9 @@ class AIPKit_Source_Ajax_Handler extends BaseDashboardAjaxHandler
                 break;
             case 'Chroma':
                 $reindex_result = $this->chroma_post_processor->index_single_post_to_collection($post_id, $store_id, $embedding_provider, $embedding_model);
+                break;
+            case 'Local':
+                $reindex_result = $post_processor->index_single_post_to_store($post_id, $store_id, $embedding_provider, $embedding_model);
                 break;
             default:
                 $this->send_wp_error(new WP_Error('invalid_provider_reindex', __('Invalid provider for re-indexing.', 'gpt3-ai-content-generator')));
@@ -471,6 +484,10 @@ class AIPKit_Source_Ajax_Handler extends BaseDashboardAjaxHandler
 
             foreach ($logs as &$log) {
                 $log['is_user_upload'] = $this->is_vector_source_user_upload($log);
+                $log['embedding_model_label'] = \WPAICG\Core\Models\AIPKit_Model_Registry::get_model_display_name(
+                    (string) ($log['embedding_provider'] ?? ''),
+                    (string) ($log['embedding_model'] ?? '')
+                );
 
                 $provider = strtolower((string) ($log['provider'] ?? ''));
                 $store_id = (string) ($log['vector_store_id'] ?? '');
@@ -526,6 +543,7 @@ class AIPKit_Source_Ajax_Handler extends BaseDashboardAjaxHandler
             'pinecone' => 'Pinecone',
             'qdrant' => 'Qdrant',
             'chroma' => 'Chroma',
+            'local' => 'Local',
         ];
     }
 

@@ -20,6 +20,58 @@ if (!defined('ABSPATH')) {
  */
 class AIPKit_Speech_Manager
 {
+    /** A request belongs to its original visitor and chatbot, independently of guest session IDs. */
+    private static function request_owner(int $bot_id): string
+    {
+        $address = isset($_SERVER['REMOTE_ADDR']) ? sanitize_text_field(wp_unslash($_SERVER['REMOTE_ADDR'])) : '';
+        return wp_hash('speech|' . $bot_id . '|' . (get_current_user_id() ? 'user:' . get_current_user_id() : 'guest:' . $address));
+    }
+
+    /** Keep the dispatch marker before calling a paid provider. Replays only check status. */
+    public static function run_cloud_request(string $id, int $bot_id, string $operation, callable $dispatch)
+    {
+        if (!preg_match('/^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$/D', $id)) {
+            return new WP_Error('invalid_operation_id', __('Reload the chatbot before trying again.', 'gpt3-ai-content-generator'), ['status' => 400]);
+        }
+        if (!class_exists('\\WPAICG\\AutoGPT\\Cron\\AIPKit_Option_Lock')) {
+            require_once WPAICG_PLUGIN_DIR . 'classes/automations/lock.php';
+        }
+        $key = 'aipkit_speech_request_' . hash('sha256', $id);
+        $lock = \WPAICG\AutoGPT\Cron\AIPKit_Option_Lock::acquire($key . '_lock', 600);
+        $unknown = new WP_Error('cloud_outcome_unknown', __('The audio request may have completed. Check its status before starting another request.', 'gpt3-ai-content-generator'), ['status' => 409, 'cloud_operation_id' => $id]);
+        if ($lock === '') { return $unknown; }
+        try {
+            if (get_transient($key)) { return $unknown; }
+            $record = ['owner' => self::request_owner($bot_id), 'operation' => $operation];
+            set_transient($key, $record, DAY_IN_SECONDS);
+            if (get_transient($key) !== $record) {
+                return new WP_Error('speech_request_storage_failed', __('The audio request could not be saved. Please try again.', 'gpt3-ai-content-generator'), ['status' => 503]);
+            }
+            return $dispatch();
+        } catch (\Throwable $error) {
+            return $unknown;
+        } finally {
+            \WPAICG\AutoGPT\Cron\AIPKit_Option_Lock::release($key . '_lock', $lock);
+        }
+    }
+
+    public static function request_status(string $id, int $bot_id)
+    {
+        $record = get_transient('aipkit_speech_request_' . hash('sha256', $id));
+        if (!is_array($record) || !hash_equals($record['owner'] ?? '', self::request_owner($bot_id))) {
+            return new WP_Error('speech_request_missing', __('This audio request is unavailable. Ask the site administrator to check usage before trying again.', 'gpt3-ai-content-generator'), ['status' => 404]);
+        }
+        try {
+            $status = \WPAICG\Cloud\Connection::request_status($id);
+            return ['state' => sanitize_key($status['state'] ?? 'unknown')];
+        } catch (\RuntimeException $error) {
+            if ($error->getMessage() === 'request_not_found') {
+                return new WP_Error('speech_request_missing', __('This audio request is unavailable. Ask the site administrator to check usage before trying again.', 'gpt3-ai-content-generator'), ['status' => 404]);
+            }
+            return new WP_Error('speech_status_unavailable', __('The audio status could not be checked. Try checking again later.', 'gpt3-ai-content-generator'), ['status' => 503]);
+        }
+    }
+
     public function __construct()
     {
         // Potentially load required dependencies or setup initial state
@@ -109,7 +161,7 @@ class AIPKit_Speech_Manager
         $api_params['base_url'] = $provider_data['base_url'] ?? null; // Pass base URL if needed
         $api_params['api_version'] = $provider_data['api_version'] ?? null; // Pass API version if needed
 
-        if (empty($api_params['api_key'])) {
+        if ($provider !== 'AIPufferCloud' && empty($api_params['api_key'])) {
             /* translators: %s: The provider name that was attempted to be used for TTS generation. */
             return new WP_Error('missing_api_key', sprintf(__('API Key for %s provider is missing in main settings.', 'gpt3-ai-content-generator'), $provider), ['status' => 500]);
         }
@@ -119,6 +171,7 @@ class AIPKit_Speech_Manager
             'voice' => $voice_id,
             'format' => $options['format'] ?? ($provider === 'Google' ? 'wav' : 'mp3'),
         ];
+        if ($provider === 'AIPufferCloud') { $synthesis_options['cloud_operation_id'] = $options['cloud_operation_id'] ?? ''; }
         // Add ElevenLabs model ID to synthesis options if available
         if ($provider === 'ElevenLabs' && !empty($elevenlabs_model_id)) {
             $synthesis_options['model_id'] = $elevenlabs_model_id;
@@ -129,6 +182,9 @@ class AIPKit_Speech_Manager
         }
         if ($provider === 'Google' && !empty($google_model_id)) {
             $synthesis_options['model_id'] = $google_model_id;
+        }
+        if ($provider === 'AIPufferCloud' && !empty($options['cloud_model_id'])) {
+            $synthesis_options['model_id'] = $options['cloud_model_id'];
         }
         // Add OpenAI speed if available
         if ($provider === 'OpenAI' && isset($options['speed'])) {
@@ -332,6 +388,7 @@ class AIPKit_TTS_Provider_Strategy_Factory {
             case 'OpenAI':     $class_name = AIPKit_TTS_OpenAI_Provider_Strategy::class; break; // Correct class name
             case 'Google':     $class_name = AIPKit_TTS_Google_Provider_Strategy::class; break;
             case 'ElevenLabs': $class_name = AIPKit_TTS_ElevenLabs_Provider_Strategy::class; break;
+            case 'AIPufferCloud': $class_name = AIPKit_TTS_Cloud_Provider_Strategy::class; break;
             default:
                 /* translators: %s: The provider name that was attempted to be used for TTS generation. */
                 return new WP_Error('unsupported_tts_provider_strategy', sprintf(__('TTS Provider strategy "%s" is not supported.', 'gpt3-ai-content-generator'), esc_html($provider)));
@@ -468,6 +525,43 @@ class AIPKit_TTS_OpenAI_Provider_Strategy extends AIPKit_TTS_Base_Provider_Strat
         // Accept header is generally not needed for OpenAI TTS, response type is dictated by request format
         return $headers;
     }
+}
+
+/** Cloud TTS keeps the existing strategy return value: base64 MP3 audio. */
+class AIPKit_TTS_Cloud_Provider_Strategy extends AIPKit_TTS_Base_Provider_Strategy
+{
+    public function generate_speech(string $text, array $api_params, array $options)
+    {
+        if (($options['format'] ?? 'mp3') !== 'mp3' || !is_string($options['voice'] ?? null) || $options['voice'] === '') {
+            return new WP_Error('cloud_speech_options_unsupported', __('Choose a Cloud voice and MP3 output.', 'gpt3-ai-content-generator'));
+        }
+        $model = $options['model_id'] ?? (\WPAICG\Cloud\Connection::media_models('speech_generate')[0]['id'] ?? '');
+        $operation_id = !empty($options['cloud_operation_id']) ? $options['cloud_operation_id'] : wp_generate_uuid4();
+        try { $result = \WPAICG\Cloud\Connection::media_request('speech_generate', ['text' => $text, 'voice' => $options['voice'], 'model' => $model, 'operationId' => $operation_id]); }
+        catch (\RuntimeException $error) {
+            $code = $error->getMessage();
+            $status = $error->getCode() >= 400 && $error->getCode() < 600 ? $error->getCode() : 503;
+            $strategy = \WPAICG\Core\Providers\ProviderStrategyFactory::get_strategy('AIPufferCloud');
+            return new WP_Error($code, is_wp_error($strategy) ? __('Cloud could not generate speech.', 'gpt3-ai-content-generator')
+                : $strategy->parse_error_response(wp_json_encode(['code' => $code]), $status), array_merge(\WPAICG\Cloud\Connection::request_error_data($code), ['status' => $status, 'cloud_operation_id' => $operation_id]));
+        }
+        $audio = $result['audio'] ?? null;
+        if (!is_array($audio) || ($audio['mime'] ?? '') !== 'audio/mpeg' || !is_string($audio['data'] ?? null)
+            || strlen($audio['data']) > 7 * 1024 * 1024 || base64_decode($audio['data'], true) === false) {
+            return new WP_Error('cloud_speech_invalid_response', __('The audio response could not be read. Check its status before starting another request.', 'gpt3-ai-content-generator'), ['status' => 502, 'cloud_operation_id' => $operation_id]);
+        }
+        return $audio['data'];
+    }
+
+    public function get_voices(array $api_params) {
+        $voices = [];
+        foreach (\WPAICG\Cloud\Connection::media_models('speech_generate') as $model) {
+            if (!empty($api_params['model_id']) && $model['id'] !== $api_params['model_id']) { continue; }
+            $voices = array_merge($voices, $model['capabilities']['voices'] ?? []);
+        }
+        return array_map(static function ($voice) { return ['id' => $voice, 'name' => ucfirst($voice)]; }, array_values(array_unique($voices)));
+    }
+    public function get_supported_formats(): array { return ['mp3']; }
 }
 
 /**

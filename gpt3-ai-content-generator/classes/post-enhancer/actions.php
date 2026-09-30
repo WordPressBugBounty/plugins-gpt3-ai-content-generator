@@ -9,6 +9,8 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
+require_once dirname(__DIR__) . '/ai/http.php';
+
 abstract class AIPKit_Post_Enhancer_Base_Ajax_Action
 {
     public const CONTENT_WRITER_MODULE = 'content-writer';
@@ -123,10 +125,26 @@ abstract class AIPKit_Post_Enhancer_Base_Ajax_Action
         return $post;
     }
 
+    public static function request_error_data(WP_Error $error, int $default_status = 400): array
+    {
+        $data = \WPAICG\Core\AIPKit_HTTP_Request::public_error_data($error, $default_status);
+        $id = $data['cloud_operation_id'] ?? '';
+        if (preg_match('/^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$/D', $id)) {
+            // The status capability belongs to the user who received this operation's error.
+            $data['request_status_nonce'] = wp_create_nonce('aipkit_enhancer_status_' . $id);
+        }
+        return $data;
+    }
+
     protected function send_error_response(WP_Error $error): void
     {
-        $status = is_array($error->get_error_data()) && isset($error->get_error_data()['status']) ? $error->get_error_data()['status'] : 400;
-        wp_send_json_error(['message' => $error->get_error_message()], $status);
+        $data = self::request_error_data($error);
+        $data['message'] = $error->get_error_message();
+        if ($error->get_error_code() === 'post_update_failed') {
+            $source = $error->get_error_data();
+            $data['generated_value'] = (string) ($source['generated_value'] ?? '');
+        }
+        wp_send_json_error($data, $data['status']);
     }
 }
 
@@ -189,7 +207,7 @@ function generate_suggestions_logic(string $type, \WP_Post $post, string $final_
     $provider = $global_config['provider'];
     $model = $global_config['model'];
 
-    $ai_caller = new AIPKit_AI_Caller();
+    $ai_caller = new AIPKit_AI_Caller(true, 'ai_post_enhancer');
     $messages = [['role' => 'user', 'content' => $final_prompt]];
 
     $result = $ai_caller->make_standard_call(
@@ -219,7 +237,8 @@ function generate_suggestions_logic(string $type, \WP_Post $post, string $final_
             null,
             $request_payload_log
         );
-        wp_send_json_error(['message' => $result->get_error_message()], 500);
+        $public_error = AIPKit_Post_Enhancer_Base_Ajax_Action::request_error_data($result, 500);
+        wp_send_json_error(array_merge($public_error, ['message' => $result->get_error_message()]), $public_error['status']);
         return;
     } else {
         $suggestions_raw = $result['content'] ?? '';
@@ -320,7 +339,7 @@ function log_enhancer_bulk_update_logic(int $post_id, string $field, string $pro
         : ('enhancer-bulk-' . $field . '-' . $post_id . '-' . time());
 
     $message_content = sprintf(
-        "Assistant updated %s for Post ID: %d.\nPrompt Snippet: %s...\nResult:\n%s",
+        "Assistant generated %s for Post ID: %d.\nPrompt Snippet: %s...\nResult:\n%s",
         $field,
         $post_id,
         mb_substr($prompt, 0, 100),
@@ -703,7 +722,7 @@ class AIPKit_PostEnhancer_Bulk_Process_Single_Field extends AIPKit_Post_Enhancer
         }
 
         // AI setup
-        $ai_caller = new AIPKit_AI_Caller();
+        $ai_caller = new AIPKit_AI_Caller(true, $enhancer_source === 'content_writer' ? 'content_writer' : 'ai_post_enhancer');
         $global_config = AIPKit_Providers::get_new_text_generation_selection();
         $global_ai_params = AIPKIT_AI_Settings::get_ai_parameters();
 
@@ -735,7 +754,7 @@ class AIPKit_PostEnhancer_Bulk_Process_Single_Field extends AIPKit_Post_Enhancer
                 $provider = 'Ollama';
                 break;
             default:
-                $provider = ucfirst(strtolower($provider_raw));
+                $provider = \WPAICG\AIPKit_Providers::normalize_provider_label((string) $provider_raw);
                 break;
         }
         $model = $item_config['ai_model'] ?? $global_config['model'];
@@ -749,6 +768,11 @@ class AIPKit_PostEnhancer_Bulk_Process_Single_Field extends AIPKit_Post_Enhancer
                 (string) $model,
                 $item_config['reasoning_effort'] ?? ''
             );
+            if ($reasoning_effort !== '') {
+                $ai_params['reasoning'] = ['effort' => $reasoning_effort];
+            }
+        } elseif ($provider === 'AIPufferCloud') {
+            $reasoning_effort = \WPAICG\Cloud\Connection::reasoning_effort((string) $model, $item_config['reasoning_effort'] ?? '');
             if ($reasoning_effort !== '') {
                 $ai_params['reasoning'] = ['effort' => $reasoning_effort];
             }
@@ -908,6 +932,10 @@ class AIPKit_PostEnhancer_Bulk_Process_Single_Field extends AIPKit_Post_Enhancer
                 );
             }
         }
+        if (is_wp_error($vector_context)) {
+            $this->send_error_response($vector_context);
+            return;
+        }
         if (!empty($vector_context)) {
             $system_instruction = "## Relevant information from knowledge base:\n" . trim($vector_context) . "\n##\n\n" . $system_instruction;
         }
@@ -915,7 +943,8 @@ class AIPKit_PostEnhancer_Bulk_Process_Single_Field extends AIPKit_Post_Enhancer
         $image_context = '';
         $image_fields = ['keyword', 'title', 'excerpt', 'content'];
         if ($post->post_type === 'attachment' && in_array($field, $image_fields, true)) {
-            $image_context = $this->get_image_context_for_attachment($post->ID, $provider, $ai_caller);
+            $image_context = $this->get_image_context_for_attachment($post->ID, $provider, $ai_caller, $model, $ai_params);
+            if (is_wp_error($image_context)) { $this->send_error_response($image_context); return; }
             if (!empty($image_context)) {
                 $placeholders['{image_context}'] = $image_context;
             }
@@ -982,7 +1011,7 @@ class AIPKit_PostEnhancer_Bulk_Process_Single_Field extends AIPKit_Post_Enhancer
         $success_message = '';
         $updated_value = null;
 
-        // Log success before updating the post based on field type so Admin Logs capture the generated content
+        // Retain the generated content even if the subsequent save fails.
         log_enhancer_bulk_update_logic(
             (int) $post->ID,
             $field,
@@ -995,52 +1024,59 @@ class AIPKit_PostEnhancer_Bulk_Process_Single_Field extends AIPKit_Post_Enhancer
             $conv_uuid
         );
 
-        // Update the post based on field type
+        // A provider response can succeed while WordPress rejects its save.
+        $saved = true;
         switch ($field) {
             case 'keyword':
                 if ($post->post_type === 'attachment') {
-                    update_post_meta($post->ID, '_wp_attachment_image_alt', sanitize_text_field($new_value));
+                    $value = sanitize_text_field($new_value);
+                    $saved = get_post_meta($post->ID, '_wp_attachment_image_alt', true) === $value || update_post_meta($post->ID, '_wp_attachment_image_alt', wp_slash($value)) !== false;
                     $success_message = 'Alt text updated successfully';
                 } else {
-                    AIPKit_SEO_Helper::update_focus_keyword($post->ID, $new_value);
+                    $value = sanitize_text_field($new_value);
+                    $saved = AIPKit_SEO_Helper::get_focus_keyword($post->ID) === $value || AIPKit_SEO_Helper::update_focus_keyword($post->ID, $value);
                     $success_message = 'Focus keyword updated successfully';
                 }
                 break;
             case 'title':
-                wp_update_post(['ID' => $post->ID, 'post_title' => sanitize_text_field($new_value)]);
+                $saved = wp_update_post(wp_slash(['ID' => $post->ID, 'post_title' => sanitize_text_field($new_value)]), true);
                 $updated_value = get_post_field('post_title', $post->ID);
                 $success_message = 'Title updated successfully';
                 break;
             case 'excerpt':
-                wp_update_post(['ID' => $post->ID, 'post_excerpt' => wp_kses_post($new_value)]);
+                $saved = wp_update_post(wp_slash(['ID' => $post->ID, 'post_excerpt' => wp_kses_post($new_value)]), true);
                 $success_message = 'Excerpt updated successfully';
                 break;
             case 'content':
                 $html_content = AIPKit_Content_Writer_Output_Cleaner::convert_basic_markdown_to_html($new_value);
-                wp_update_post(['ID' => $post->ID, 'post_content' => wp_kses_post($html_content)]);
+                $saved = wp_update_post(wp_slash(['ID' => $post->ID, 'post_content' => wp_kses_post($html_content)]), true);
                 $success_message = 'Content updated successfully';
                 break;
             case 'tags':
                 if (class_exists('\\WPAICG\\SEO\\AIPKit_SEO_Helper')) {
-                    $result = \WPAICG\SEO\AIPKit_SEO_Helper::update_tags($post->ID, sanitize_text_field($new_value));
-                    if ($result) {
-                        $success_message = 'Tags updated successfully';
-                    } else {
-                        $this->send_error_response(new WP_Error('tags_update_failed', __('Failed to update tags.', 'gpt3-ai-content-generator'), ['status' => 500]));
-                        return;
-                    }
+                    $saved = \WPAICG\SEO\AIPKit_SEO_Helper::update_tags($post->ID, sanitize_text_field($new_value));
+                    $success_message = 'Tags updated successfully';
                 } else {
                     $this->send_error_response(new WP_Error('tags_helper_missing', __('Tags helper class not available.', 'gpt3-ai-content-generator'), ['status' => 500]));
                     return;
                 }
                 break;
             case 'meta':
-                AIPKit_SEO_Helper::update_meta_description($post->ID, sanitize_text_field($new_value));
+                $value = sanitize_text_field($new_value);
+                $saved = AIPKit_SEO_Helper::get_meta_description($post->ID) === $value || AIPKit_SEO_Helper::update_meta_description($post->ID, $value);
                 $success_message = 'Meta description updated successfully';
                 break;
             default:
                 $this->send_error_response(new WP_Error('unsupported_field', __('Unsupported field type.', 'gpt3-ai-content-generator'), ['status' => 400]));
                 return;
+        }
+
+        if (is_wp_error($saved) || !$saved) {
+            $this->send_error_response(new WP_Error('post_update_failed', __('The AI response was generated, but WordPress could not save it. Copy the generated text below before closing this window.', 'gpt3-ai-content-generator'), [
+                'status' => 500, 'stop_batch' => true,
+                'generated_value' => $field === 'content' ? $html_content : $new_value,
+            ]));
+            return;
         }
 
         if ($post->post_type === 'attachment' && $updated_value === null) {
@@ -1067,64 +1103,7 @@ class AIPKit_PostEnhancer_Bulk_Process_Single_Field extends AIPKit_Post_Enhancer
         wp_send_json_success($response_payload);
     }
 
-    private function get_image_context_for_attachment(int $attachment_id, string $provider, AIPKit_AI_Caller $ai_caller): string
-    {
-        if ($provider !== 'OpenAI') {
-            return '';
-        }
 
-        $openai_config = AIPKit_Providers::get_provider_data('OpenAI');
-        if (empty($openai_config['api_key'])) {
-            return '';
-        }
-
-        $file_path = $this->get_attachment_image_path($attachment_id);
-        $file_mtime = $file_path && file_exists($file_path) ? (int) filemtime($file_path) : 0;
-        $transient_key = 'aipkit_cw_img_ctx_' . $attachment_id . '_' . $file_mtime;
-        $cached_context = get_transient($transient_key);
-        if (is_string($cached_context) && $cached_context !== '') {
-            return $cached_context;
-        }
-
-        $image_payload = $this->get_attachment_image_payload($attachment_id);
-        if (empty($image_payload['base64']) || empty($image_payload['type'])) {
-            return '';
-        }
-
-        $analysis_prompt = 'Describe the image in one short sentence for SEO context. Return only the description.';
-        $analysis_params = [
-            'temperature' => 0.2,
-            'max_completion_tokens' => 60,
-            'image_inputs' => [
-                [
-                    'base64' => $image_payload['base64'],
-                    'type' => $image_payload['type'],
-                    'detail' => 'low',
-                ],
-            ],
-        ];
-
-        $analysis_result = $ai_caller->make_standard_call(
-            'OpenAI',
-            AIPKit_Providers::get_default_model_id('OpenAI'),
-            [['role' => 'user', 'content' => $analysis_prompt]],
-            $analysis_params,
-            null,
-            ['post_id' => $attachment_id]
-        );
-
-        if (is_wp_error($analysis_result) || empty($analysis_result['content'])) {
-            return '';
-        }
-
-        $context = trim(preg_replace('/\s+/', ' ', $analysis_result['content']));
-        if ($context === '') {
-            return '';
-        }
-
-        set_transient($transient_key, $context, 30 * MINUTE_IN_SECONDS);
-        return $context;
-    }
 
 }
 
@@ -1187,6 +1166,28 @@ class AIPKit_PostEnhancer_Bulk_Update_SEO_Slug extends AIPKit_Post_Enhancer_Base
     }
 }
 
+class AIPKit_PostEnhancer_Request_Status extends AIPKit_Post_Enhancer_Base_Ajax_Action
+{
+    public function handle(): void
+    {
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Operation-specific nonce is verified below before lookup.
+        $id = sanitize_text_field(wp_unslash($_POST['operation_id'] ?? ''));
+        if (!preg_match('/^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$/D', $id)) {
+            $this->send_error_response(new WP_Error('invalid_operation_id', __('Invalid request ID.', 'gpt3-ai-content-generator'), ['status' => 400]));
+            return;
+        }
+        $permission = $this->check_permissions('aipkit_enhancer_status_' . $id, [self::ROW_ASSISTANT_MODULE, self::CLASSIC_EDITOR_ASSISTANT_MODULE, self::BLOCK_EDITOR_ASSISTANT_MODULE]);
+        if (is_wp_error($permission)) { $this->send_error_response($permission); return; }
+        try {
+            $result = \WPAICG\Cloud\Connection::request_status($id);
+            $state = sanitize_key($result['state'] ?? 'unknown');
+            wp_send_json_success(['state' => $state]);
+        } catch (\RuntimeException $error) {
+            $this->send_error_response(new WP_Error('request_status_unavailable', __('The request status could not be checked. Check again before starting another request.', 'gpt3-ai-content-generator'), ['status' => 503]));
+        }
+    }
+}
+
 class AIPKit_PostEnhancer_Process_Text extends AIPKit_Post_Enhancer_Base_Ajax_Action
 {
     public function handle(): void
@@ -1218,7 +1219,7 @@ class AIPKit_PostEnhancer_Process_Text extends AIPKit_Post_Enhancer_Base_Ajax_Ac
         $ai_params = AIPKIT_AI_Settings::get_ai_parameters();
         $provider = $global_config['provider'];
         $model = $global_config['model'];
-        $ai_caller = new AIPKit_AI_Caller();
+        $ai_caller = new AIPKit_AI_Caller(true, 'ai_post_enhancer');
         $messages = [['role' => 'user', 'content' => $final_prompt]];
 
         $result = $ai_caller->make_standard_call($provider, $model, $messages, $ai_params);
@@ -1229,7 +1230,7 @@ class AIPKit_PostEnhancer_Process_Text extends AIPKit_Post_Enhancer_Base_Ajax_Ac
 
         $new_text_raw = $result['content'] ?? '';
 
-        $html_content = AIPKit_Content_Writer_Output_Cleaner::convert_basic_markdown_to_html((string) $new_text_raw);
+        $html_content = wp_kses_post(AIPKit_Content_Writer_Output_Cleaner::convert_basic_markdown_to_html((string) $new_text_raw));
 
         wp_send_json_success(['text' => $html_content]);
     }
@@ -1657,5 +1658,10 @@ class AjaxHandler
     public function ajax_process_enhancer_text()
     {
         $this->process_text_handler->handle();
+    }
+
+    public function ajax_request_status(): void
+    {
+        (new Actions\AIPKit_PostEnhancer_Request_Status())->handle();
     }
 }

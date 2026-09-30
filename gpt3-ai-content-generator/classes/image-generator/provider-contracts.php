@@ -151,6 +151,30 @@ abstract class AIPKit_Image_Base_Provider_Strategy implements AIPKit_Image_Provi
  */
 class AIPKit_Image_Provider_Strategy_Factory
 {
+    /** Shared upload contract for the renderer and every image entry point. */
+    public static function edit_upload_constraints(string $provider, string $model = ''): array
+    {
+        $types = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
+        $max = 10 * 1024 * 1024;
+        if ($provider === 'OpenAI') { $types = ['image/jpeg', 'image/png', 'image/webp']; }
+        if ($provider === 'xAI') { $types = ['image/jpeg', 'image/png']; }
+        if ($provider === 'AIPufferCloud') {
+            $caps = [];
+            foreach (\WPAICG\Cloud\Connection::media_models('image_edit') as $candidate) {
+                if ($candidate['id'] === $model) { $caps = $candidate['capabilities'] ?? []; break; }
+            }
+            $types = array_values(array_intersect(['image/jpeg', 'image/png', 'image/webp'], array_map(static function ($format) { return 'image/' . $format; }, $caps['inputFormats'] ?? [])));
+            $max = min($max, max(0, (int) ($caps['maxInputBytes'] ?? 0)));
+        }
+        $extensions = implode(', ', array_map(static function ($mime) { return $mime === 'image/jpeg' ? 'JPG' : strtoupper(substr($mime, 6)); }, $types));
+        return [
+            'allowedMimeTypes' => $types, 'maxBytes' => $max,
+            /* translators: %s: Supported image extensions. */
+            'invalidTypeMessage' => sprintf(__('Invalid image type. Allowed types: %s.', 'gpt3-ai-content-generator'), $extensions),
+            /* translators: %s: Maximum image file size. */
+            'tooLargeMessage' => sprintf(__('Source image is too large. Maximum allowed size is %s.', 'gpt3-ai-content-generator'), size_format($max, 2)),
+        ];
+    }
     /** @var array<string, AIPKit_Image_Provider_Strategy_Interface> */
     private static $instances = [];
 
@@ -190,6 +214,7 @@ class AIPKit_Image_Provider_Strategy_Factory
             'Pexels'     => Providers\AIPKit_Image_Pexels_Provider_Strategy::class,
             'Pixabay'    => Providers\AIPKit_Image_Pixabay_Provider_Strategy::class,
             'Replicate'  => Providers\AIPKit_Image_Replicate_Provider_Strategy::class,
+            'AIPufferCloud' => Providers\AIPKit_Image_Cloud_Provider_Strategy::class,
         ];
 
         if (!isset($strategies[$provider])) {

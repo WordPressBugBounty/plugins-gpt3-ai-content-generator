@@ -154,6 +154,47 @@ function aipkit_create_vector_data_source_table()
 /**
  * RENAMED: Creates or updates the automated tasks table.
  */
+/**
+ * Built-in knowledge base ("This site"): stores and their chunks with packed float32 vectors.
+ * Searched in PHP (classes/knowledge-base/providers/local.php); no database vector type is needed.
+ */
+function aipkit_create_local_vector_tables()
+{
+    global $wpdb;
+    $charset_collate = $wpdb->get_charset_collate();
+    $stores = $wpdb->prefix . 'aipkit_vector_stores';
+    $vectors = $wpdb->prefix . 'aipkit_vectors';
+    require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
+    dbDelta("CREATE TABLE $stores (
+        id varchar(64) NOT NULL,
+        name varchar(191) NOT NULL,
+        embedding_provider varchar(50) DEFAULT NULL,
+        embedding_model varchar(100) DEFAULT NULL,
+        dimensions smallint(5) unsigned NOT NULL DEFAULT 0,
+        chunk_count int(10) unsigned NOT NULL DEFAULT 0,
+        bytes bigint(20) unsigned NOT NULL DEFAULT 0,
+        created_at datetime NOT NULL,
+        updated_at datetime NOT NULL,
+        PRIMARY KEY  (id)
+    ) $charset_collate;");
+    dbDelta("CREATE TABLE $vectors (
+        id bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+        store_id varchar(64) NOT NULL,
+        vector_id varchar(64) NOT NULL,
+        parent_id varchar(191) DEFAULT NULL,
+        post_id bigint(20) unsigned DEFAULT NULL,
+        chunk_index int(10) unsigned NOT NULL DEFAULT 0,
+        content mediumtext NOT NULL,
+        metadata longtext DEFAULT NULL,
+        embedding mediumblob NOT NULL,
+        created_at datetime NOT NULL,
+        PRIMARY KEY  (id),
+        UNIQUE KEY store_vector (store_id,vector_id),
+        KEY store_parent (store_id,parent_id),
+        KEY store_post (store_id,post_id)
+    ) $charset_collate;");
+}
+
 function aipkit_create_automated_tasks_table()
 {
     global $wpdb;

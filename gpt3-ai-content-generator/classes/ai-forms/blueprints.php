@@ -52,7 +52,7 @@ function do_ajax_generate_form_from_prompt_logic(AIPKit_AI_Form_Ajax_Handler $ha
     }
 
     $selected_provider = sanitize_text_field((string) ($post_data['ai_provider'] ?? ''));
-    if (!in_array($selected_provider, ['OpenAI', 'Google', 'Claude', 'OpenRouter', 'DeepSeek', 'xAI', 'Azure', 'Ollama'], true)) {
+    if ($selected_provider !== 'AIPufferCloud' && !in_array($selected_provider, AIPKit_Providers::get_text_generation_providers(), true)) {
         $selected_provider = '';
     }
     $selected_model = isset($post_data['ai_model']) ? sanitize_text_field((string) $post_data['ai_model']) : '';
@@ -66,7 +66,9 @@ function do_ajax_generate_form_from_prompt_logic(AIPKit_AI_Form_Ajax_Handler $ha
         $handler_instance->send_wp_error(
             new WP_Error(
                 'no_generation_provider_available',
-                __('No usable AI provider is configured for form generation. Add an API key for OpenAI, Google, Anthropic, OpenRouter, DeepSeek, or xAI. To use Azure or Ollama, select that provider and a model in the editor first.', 'gpt3-ai-content-generator'),
+                $selected_provider === 'AIPufferCloud'
+                    ? __('Connect AI Puffer Cloud and select an available Cloud model before generating a form.', 'gpt3-ai-content-generator')
+                    : __('No usable AI provider is configured for form generation. Add an API key for OpenAI, Google, Anthropic, OpenRouter, DeepSeek, or xAI. To use Azure or Ollama, select that provider and a model in the editor first.', 'gpt3-ai-content-generator'),
                 [
                     'status' => 400,
                     'generation_skipped_providers' => $skipped,
@@ -141,6 +143,15 @@ function do_ajax_generate_form_from_prompt_logic(AIPKit_AI_Form_Ajax_Handler $ha
  */
 function aipkit_ai_forms_build_generation_retry_plan(string $selected_provider, string $selected_model): array
 {
+    // Cloud is an explicit billable choice. A missing connection or model must not make the
+    // form generator try a different provider with the site's own API key.
+    if ($selected_provider === 'AIPufferCloud') {
+        $ready = \WPAICG\Cloud\Connection::generation_ready() && $selected_model !== '';
+        return [
+            'attempts' => $ready ? [['provider' => 'AIPufferCloud', 'model' => $selected_model]] : [],
+            'skipped' => $ready ? [] : [['provider' => 'AIPufferCloud', 'reason' => __('Connect Cloud and select a Cloud model before generating a form.', 'gpt3-ai-content-generator')]],
+        ];
+    }
     $provider_priority = ['OpenAI', 'Google', 'Claude', 'OpenRouter', 'DeepSeek', 'xAI', 'Azure', 'Ollama'];
     $preferred_models = [];
 
@@ -202,6 +213,7 @@ function aipkit_ai_forms_build_generation_attempt(
     array $preferred_models
 ): array {
     switch ($provider) {
+
         case 'OpenAI':
         case 'Google':
         case 'Claude':

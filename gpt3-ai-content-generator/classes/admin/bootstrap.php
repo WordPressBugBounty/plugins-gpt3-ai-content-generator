@@ -54,6 +54,7 @@ class Initializer
 
     private function register_hooks()
     {
+        add_action('wp_ajax_aipkit_set_visitor_billing', ['\\WPAICG\\Dashboard\\Ajax\\SettingsAjaxHandler', 'ajax_set_visitor_billing']);
         add_action('admin_menu', [$this, 'register_admin_menu']);
         add_action('admin_menu', [$this, 'position_content_writer_shortcut_menu'], 999);
         add_filter('screen_options_show_screen', [$this, 'hide_screen_options_on_aipkit_screens'], PHP_INT_MAX, 2);

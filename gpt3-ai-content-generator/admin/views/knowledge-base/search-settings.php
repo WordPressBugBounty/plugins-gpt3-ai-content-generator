@@ -19,7 +19,7 @@ $kb_search_settings = isset($kb_search_options['semantic_search']) && is_array($
     : [];
 
 $kb_search_vector_provider = sanitize_key((string) ($kb_search_settings['vector_provider'] ?? 'pinecone'));
-if (!in_array($kb_search_vector_provider, ['pinecone', 'qdrant', 'chroma'], true)) {
+if (!in_array($kb_search_vector_provider, ['local', 'pinecone', 'qdrant', 'chroma'], true)) {
     $kb_search_vector_provider = 'pinecone';
 }
 
@@ -32,6 +32,16 @@ $kb_search_no_results_text = (string) ($kb_search_settings['no_results_text'] ??
 $kb_search_pinecone_indexes = is_array($pinecone_index_list ?? null) ? $pinecone_index_list : [];
 $kb_search_qdrant_collections = is_array($qdrant_collection_list ?? null) ? $qdrant_collection_list : [];
 $kb_search_chroma_collections = is_array($chroma_collection_list ?? null) ? $chroma_collection_list : [];
+// site knowledge bases: [{id, name}]; each searches with the embedding model it was created with.
+$kb_search_local_stores = [];
+if (!class_exists(\WPAICG\Vector\Providers\AIPKit_Vector_Local_Strategy::class) && file_exists(WPAICG_PLUGIN_DIR . 'classes/knowledge-base/providers/local.php')) {
+    require_once WPAICG_PLUGIN_DIR . 'classes/knowledge-base/providers/local.php';
+}
+if (class_exists(\WPAICG\Vector\Providers\AIPKit_Vector_Local_Strategy::class)) {
+    foreach ((new \WPAICG\Vector\Providers\AIPKit_Vector_Local_Strategy())->list_indexes() as $kb_search_local_store) {
+        $kb_search_local_stores[] = ['id' => $kb_search_local_store['id'], 'name' => $kb_search_local_store['name']];
+    }
+}
 $kb_search_embedding_providers = [];
 $kb_search_embedding_models = [];
 
@@ -65,7 +75,9 @@ $kb_search_embedding_allowed_html = [
 ];
 
 $kb_search_current_targets = [];
-if ($kb_search_vector_provider === 'pinecone') {
+if ($kb_search_vector_provider === 'local') {
+    $kb_search_current_targets = $kb_search_local_stores;
+} elseif ($kb_search_vector_provider === 'pinecone') {
     $kb_search_current_targets = $kb_search_pinecone_indexes;
 } elseif ($kb_search_vector_provider === 'qdrant') {
     $kb_search_current_targets = $kb_search_qdrant_collections;
@@ -75,7 +87,7 @@ if ($kb_search_vector_provider === 'pinecone') {
 
 $kb_search_target_label = in_array($kb_search_vector_provider, ['qdrant', 'chroma'], true)
     ? __('Collection', 'gpt3-ai-content-generator')
-    : __('Index', 'gpt3-ai-content-generator');
+    : ($kb_search_vector_provider === 'local' ? __('Knowledge base', 'gpt3-ai-content-generator') : __('Index', 'gpt3-ai-content-generator'));
 ?>
 <div
     class="aipkit_settings_kb_search_page"
@@ -83,6 +95,7 @@ $kb_search_target_label = in_array($kb_search_vector_provider, ['qdrant', 'chrom
     data-semantic-pinecone-indexes="<?php echo esc_attr(wp_json_encode($kb_search_pinecone_indexes ?: [])); ?>"
     data-semantic-qdrant-collections="<?php echo esc_attr(wp_json_encode($kb_search_qdrant_collections ?: [])); ?>"
     data-semantic-chroma-collections="<?php echo esc_attr(wp_json_encode($kb_search_chroma_collections ?: [])); ?>"
+    data-semantic-local-stores="<?php echo esc_attr(wp_json_encode($kb_search_local_stores)); ?>"
 >
     <section class="aipkit_settings_kb_search_card" aria-labelledby="aipkit_semantic_search_heading">
         <div class="aipkit_settings_kb_section_intro">
@@ -97,6 +110,7 @@ $kb_search_target_label = in_array($kb_search_vector_provider, ['qdrant', 'chrom
                     <span class="aipkit_form-label-helper"><?php esc_html_e('Search storage provider.', 'gpt3-ai-content-generator'); ?></span>
                 </label>
                 <select id="aipkit_semantic_search_vector_provider" name="semantic_search_vector_provider" class="aipkit_form-input aipkit_autosave_trigger">
+                    <option value="local" <?php selected($kb_search_vector_provider, 'local'); ?>><?php esc_html_e('Local', 'gpt3-ai-content-generator'); ?></option>
                     <option value="pinecone" <?php selected($kb_search_vector_provider, 'pinecone'); ?>><?php esc_html_e('Pinecone', 'gpt3-ai-content-generator'); ?></option>
                     <option value="qdrant" <?php selected($kb_search_vector_provider, 'qdrant'); ?>><?php esc_html_e('Qdrant', 'gpt3-ai-content-generator'); ?></option>
                     <option value="chroma" <?php selected($kb_search_vector_provider, 'chroma'); ?>><?php esc_html_e('Chroma', 'gpt3-ai-content-generator'); ?></option>
@@ -106,7 +120,7 @@ $kb_search_target_label = in_array($kb_search_vector_provider, ['qdrant', 'chrom
             <div class="aipkit_form-group aipkit_settings_simple_row aipkit_settings_kb_field">
                 <label class="aipkit_form-label" id="aipkit_semantic_search_target_label" for="aipkit_semantic_search_target_id">
                     <span data-aipkit-semantic-target-label-text><?php echo esc_html($kb_search_target_label); ?></span>
-                    <span class="aipkit_form-label-helper"><?php esc_html_e('Target index or collection.', 'gpt3-ai-content-generator'); ?></span>
+                    <span class="aipkit_form-label-helper" data-aipkit-semantic-target-helper><?php echo esc_html($kb_search_vector_provider === 'local' ? __('Knowledge base to search.', 'gpt3-ai-content-generator') : __('Target index or collection.', 'gpt3-ai-content-generator')); ?></span>
                 </label>
                 <select id="aipkit_semantic_search_target_id" name="semantic_search_target_id" class="aipkit_form-input aipkit_autosave_trigger">
                     <option value=""><?php esc_html_e('Select a destination', 'gpt3-ai-content-generator'); ?></option>
@@ -119,11 +133,13 @@ $kb_search_target_label = in_array($kb_search_vector_provider, ['qdrant', 'chrom
                         if (empty($kb_search_item_name)) {
                             continue;
                         }
-                        $kb_search_selected = selected($kb_search_target_id, $kb_search_item_name, false);
+                        // site knowledge bases are saved by id and shown by name.
+                        $kb_search_item_value = $kb_search_vector_provider === 'local' && is_array($kb_search_item) ? (string) $kb_search_item['id'] : $kb_search_item_name;
+                        $kb_search_selected = selected($kb_search_target_id, $kb_search_item_value, false);
                         if ($kb_search_selected) {
                             $kb_search_target_found = true;
                         }
-                        echo '<option value="' . esc_attr($kb_search_item_name) . '" ' . $kb_search_selected . '>' . esc_html($kb_search_item_name) . '</option>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- selected() returns a safe fixed attribute.
+                        echo '<option value="' . esc_attr($kb_search_item_value) . '" ' . $kb_search_selected . '>' . esc_html($kb_search_item_name) . '</option>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- selected() returns a safe fixed attribute.
                     }
                     if (!$kb_search_target_found && $kb_search_target_id !== '') {
                         echo '<option value="' . esc_attr($kb_search_target_id) . '" selected>' . esc_html($kb_search_target_id) . '</option>';
@@ -132,7 +148,7 @@ $kb_search_target_label = in_array($kb_search_vector_provider, ['qdrant', 'chrom
                 </select>
             </div>
 
-            <div class="aipkit_form-group aipkit_settings_simple_row aipkit_settings_kb_field">
+            <div class="aipkit_form-group aipkit_settings_simple_row aipkit_settings_kb_field" id="aipkit_semantic_search_embedding_row">
                 <label class="aipkit_form-label" for="aipkit_semantic_search_embedding_model">
                     <span><?php esc_html_e('Embedding model', 'gpt3-ai-content-generator'); ?></span>
                     <span class="aipkit_form-label-helper"><?php esc_html_e('Model used to search the index.', 'gpt3-ai-content-generator'); ?></span>

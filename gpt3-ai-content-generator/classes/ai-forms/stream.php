@@ -144,6 +144,7 @@ function process_ai_forms_logic(
             $vector_search_scores // Pass reference to capture scores
         );
 
+        if (is_wp_error($vector_search_context)) { return $vector_search_context; }
         if (!empty($vector_search_context)) {
             // Prepend the found context to the system instruction area.
             // If there's an existing system instruction, add a separator.
@@ -186,8 +187,8 @@ function validate_request_logic(
     array $get_params
 ) {
     // 1. Extract and Sanitize Parameters
-    $user_id           = $cached_data['user_id'] ?? get_current_user_id();
-    $form_id           = $cached_data['form_id'] ?? 0;
+    $user_id           = get_current_user_id();
+    $form_id           = isset($cached_data['form_id']) && is_scalar($cached_data['form_id']) ? absint($cached_data['form_id']) : 0;
     $user_input_values = $cached_data['user_input_values'] ?? [];
     $image_inputs      = isset($cached_data['image_inputs']) && is_array($cached_data['image_inputs']) ? $cached_data['image_inputs'] : null;
     $conversation_uuid = $cached_data['conversation_uuid'] ?? wp_generate_uuid4();
@@ -197,7 +198,7 @@ function validate_request_logic(
     if (empty($form_id)) {
         return new WP_Error('missing_form_id_ai_forms_logic', __('Form ID is missing for AI Forms stream.', 'gpt3-ai-content-generator'), ['status' => 400]);
     }
-    if (empty($user_input_values) && empty($image_inputs)) {
+    if (!is_array($user_input_values) || (empty($user_input_values) && empty($image_inputs))) {
         return new WP_Error('missing_input_values_ai_forms_logic', __('User input values are missing for AI Forms stream.', 'gpt3-ai-content-generator'), ['status' => 400]);
     }
 
@@ -216,6 +217,17 @@ function validate_request_logic(
     if (is_wp_error($form_config)) {
         return $form_config;
     }
+    $can_preview_draft = $user_id && ($form_config['status'] ?? '') === 'draft'
+        && current_user_can('edit_post', $form_id)
+        && class_exists('\\WPAICG\\AIPKit_Role_Manager')
+        && \WPAICG\AIPKit_Role_Manager::user_can_access_module('ai-forms');
+    if (($form_config['status'] ?? '') !== 'publish' && !$can_preview_draft) {
+        return new WP_Error('form_not_public', __('This AI Form is not available.', 'gpt3-ai-content-generator'), ['status' => 403]);
+    }
+    $form_config = resolve_submission_selection_logic($form_config, $submitted_fields, $cached_data['selection_policy'] ?? '');
+    if (is_wp_error($form_config)) {
+        return $form_config;
+    }
 
     if (!empty($image_inputs)) {
         $is_pro = class_exists('\WPAICG\aipkit_dashboard') && \WPAICG\aipkit_dashboard::is_pro_plan();
@@ -228,18 +240,13 @@ function validate_request_logic(
         }
     }
 
-    if (isset($submitted_fields['ai_provider']) && $submitted_fields['ai_provider'] !== '') {
-        $form_config['ai_provider'] = sanitize_text_field((string) $submitted_fields['ai_provider']);
-    }
-    if (isset($submitted_fields['ai_model']) && $submitted_fields['ai_model'] !== '') {
-        $form_config['ai_model'] = sanitize_text_field((string) $submitted_fields['ai_model']);
-    }
-
     // 3. Perform Token Check
     $token_manager = $handlerInstance->get_token_manager();
     if (!$token_manager) {
         return new WP_Error('dependency_missing_token_manager', 'Token manager component is unavailable.', ['status' => 500]);
     }
+    $rate_check = \WPAICG\Core\TokenManager\AIPKit_Token_Manager::check_public_request_rate();
+    if (is_wp_error($rate_check)) { return $rate_check; }
 
     $context_id_for_tokens = !$user_id ? GuestTableConstants::AI_FORMS_GUEST_CONTEXT_ID : null;
     $usage_context = \WPAICG\AIForms\Core\Pricing\build_ai_form_pricing_check_context_logic(
@@ -265,6 +272,48 @@ function validate_request_logic(
         'session_id'        => $session_id,
         'client_ip'         => isset($_SERVER['REMOTE_ADDR']) ? sanitize_text_field(wp_unslash($_SERVER['REMOTE_ADDR'])) : null,
     ];
+}
+
+/** Resolve visitor choices against the rendered shortcode controls and current allowed lists. */
+function resolve_submission_selection_logic(array $form_config, array $fields, $policy)
+{
+    $error = new WP_Error('form_selection_not_allowed', __('This provider or model is not available for this form. Refresh the form and choose an available model.', 'gpt3-ai-content-generator'), ['status' => 403]);
+    foreach (['ai_provider', 'ai_model'] as $key) {
+        if (isset($fields[$key]) && !is_string($fields[$key])) { return $error; }
+    }
+    $saved_provider = (string) $form_config['ai_provider'];
+    $saved_model = (string) $form_config['ai_model'];
+    $provider = !empty($fields['ai_provider']) ? sanitize_text_field($fields['ai_provider']) : $saved_provider;
+    $model = !empty($fields['ai_model']) ? sanitize_text_field($fields['ai_model']) : $saved_model;
+    if ($provider === $saved_provider && $model === $saved_model) { return $form_config; }
+
+    // Shortcode visibility is not stored on the form. Authenticate its flags without an expiry
+    // so full-page caching does not recreate the stale-nonce problem. Current allowlists still apply.
+    if (!is_string($policy) || !preg_match('/^([01])([01]):([a-f0-9]{32})$/D', $policy, $parts)
+        || !hash_equals(wp_hash('ai_form_selection|' . $form_config['id'] . '|' . $parts[1] . $parts[2]), $parts[3])) {
+        return $error;
+    }
+    $provider_changed = $provider !== $saved_provider;
+    if (($provider_changed && $parts[1] !== '1') || ($model !== $saved_model && $parts[2] !== '1')) { return $error; }
+    $is_pro = class_exists('\\WPAICG\\aipkit_dashboard') && \WPAICG\aipkit_dashboard::is_pro_plan();
+    if (!in_array($provider, \WPAICG\AIPKit_Providers::get_text_generation_providers($is_pro), true)) { return $error; }
+    $settings = \WPAICG\AIForms\Admin\AIPKit_AI_Form_Settings_Ajax_Handler::get_settings()['frontend_display'] ?? [];
+    $allowed_providers = array_filter(array_map('trim', explode(',', (string) ($settings['allowed_providers'] ?? ''))));
+    $allowed_models = array_filter(array_map('trim', explode(',', (string) ($settings['allowed_models'] ?? ''))));
+    if ($provider_changed && $allowed_providers && !in_array($provider, $allowed_providers, true)) { return $error; }
+    if ($provider_changed && $parts[2] !== '1') {
+        $model = '';
+        foreach (\WPAICG\AIPKit_Providers::query_models(['providers' => [$provider], 'required_capabilities' => ['text_generation']]) as $candidate) {
+            $candidate_id = (string) ($candidate['raw_id'] ?? $candidate['id'] ?? '');
+            if ($candidate_id !== '' && (!$allowed_models || in_array($candidate_id, $allowed_models, true))) { $model = $candidate_id; break; }
+        }
+    }
+    if ($allowed_models && !in_array($model, $allowed_models, true)) { return $error; }
+    $selection = \WPAICG\AIPKit_Providers::resolve_model_selection($provider, $model, 'text_generation', false);
+    if (empty($selection['usable'])) { return $error; }
+    $form_config['ai_provider'] = $provider;
+    $form_config['ai_model'] = $model;
+    return $form_config;
 }
 
 /**
@@ -649,6 +698,11 @@ function prepare_stream_data_logic(
             (string) $model,
             $form_config['reasoning_effort'] ?? ''
         );
+        if ($reasoning_effort !== '') {
+            $ai_params_for_payload['reasoning'] = ['effort' => $reasoning_effort];
+        }
+    } elseif ($provider === 'AIPufferCloud') {
+        $reasoning_effort = \WPAICG\Cloud\Connection::reasoning_effort((string) $model, $form_config['reasoning_effort'] ?? '');
         if ($reasoning_effort !== '') {
             $ai_params_for_payload['reasoning'] = ['effort' => $reasoning_effort];
         }

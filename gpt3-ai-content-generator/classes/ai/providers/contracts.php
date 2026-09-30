@@ -13,6 +13,10 @@ if (!defined('ABSPATH')) {
  * Defines the contract for handling provider-specific logic.
  */
 interface ProviderStrategyInterface {
+    public function validate_chatbot_features(array $settings, bool $has_image = false, bool $has_web_search = false): ?WP_Error;
+
+    public function validate_stream_completion(): ?WP_Error;
+
 
     /**
      * Build the full API endpoint URL for a given operation.
@@ -138,6 +142,18 @@ interface ProviderStrategyInterface {
  */
 abstract class BaseProviderStrategy implements ProviderStrategyInterface
 {
+    /** Provider-specific validation before Chatbot builds a request. */
+    public function validate_chatbot_features(array $settings, bool $has_image = false, bool $has_web_search = false): ?WP_Error
+    {
+        return null;
+    }
+
+    /** Providers with a required terminal event validate it here after transport ends. */
+    public function validate_stream_completion(): ?WP_Error
+    {
+        return null;
+    }
+
     /**
      * Common helper to parse JSON, returning a WP_Error on failure.
      * @param string $json_string The JSON string to decode.
@@ -289,6 +305,7 @@ class ProviderStrategyFactory
         }
 
         $strategies = [
+            'AIPufferCloud' => ['ai/providers/aipuffer-cloud.php', AIPufferCloudProviderStrategy::class],
             'OpenAI' => ['ai/providers/openai.php', OpenAIProviderStrategy::class],
             'OpenRouter' => ['ai/providers/openrouter.php', OpenRouterProviderStrategy::class],
             'Google' => ['ai/providers/google.php', GoogleProviderStrategy::class],

@@ -1108,6 +1108,61 @@ use WPAICG\Core\TokenManager\Constants\CronHookConstant; // For CRON_HOOK
  */
 class AIPKit_Token_Manager {
 
+    /**
+     * Admit public AI requests independently of caller-controlled guest sessions.
+     * Site administrators skip throttling; the global IP blocklist still applies.
+     *
+     * @return true|\WP_Error
+     */
+    public static function check_public_request_rate() {
+        require_once WPAICG_PLUGIN_DIR . 'classes/security/moderation.php';
+        $blocklists = \WPAICG\Core\Moderation\AIPKit_Global_Security_Settings::get_blocklists_for_module('');
+        $ip = isset($_SERVER['REMOTE_ADDR']) ? filter_var(wp_unslash($_SERVER['REMOTE_ADDR']), FILTER_VALIDATE_IP) : false;
+        $blocked = \WPAICG\Core\Moderation\AIPKit_BannedIP_Checker::check($ip ?: null, $blocklists['banned_ips_settings']);
+        if (is_wp_error($blocked)) {
+            return $blocked;
+        }
+
+        if (get_current_user_id() > 0 && \WPAICG\AIPKit_Role_Manager::user_can_manage_settings()) {
+            return true;
+        }
+
+        if (!$ip) {
+            return new \WP_Error('public_request_unavailable', __('Unable to verify this request. Please try again.', 'gpt3-ai-content-generator'), ['status' => 503]);
+        }
+        $ip = inet_ntop(inet_pton($ip));
+        $limit = max(1, min(1000, (int) apply_filters('aipkit_public_ai_requests_per_minute', 60)));
+        $now = time();
+        $expires = (intdiv($now, 60) + 1) * 60;
+        $name = '_aipkit_public_rate_' . hash_hmac('sha256', $ip, wp_salt('auth'));
+        global $wpdb;
+
+        // Store only a salted fingerprint, expiry and counter; never autoload these rows.
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Atomic admission must bypass the options/object cache.
+        $inserted = $wpdb->query($wpdb->prepare("INSERT IGNORE INTO {$wpdb->options} (option_name, option_value, autoload) VALUES (%s, %s, 'no')", $name, $expires . '|0'));
+        if ($inserted === false) {
+            return new \WP_Error('public_request_unavailable', __('Unable to verify this request. Please try again.', 'gpt3-ai-content-generator'), ['status' => 503]);
+        }
+        // A conditional UPDATE admits at most $limit callers, including simultaneous requests.
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Atomic conditional counter update; the options table name is supplied by WordPress.
+        $admitted = $wpdb->query($wpdb->prepare(
+            "UPDATE {$wpdb->options} SET option_value = CASE WHEN CAST(SUBSTRING_INDEX(option_value, '|', 1) AS UNSIGNED) <= %d THEN %s ELSE CONCAT(SUBSTRING_INDEX(option_value, '|', 1), '|', CAST(SUBSTRING_INDEX(option_value, '|', -1) AS UNSIGNED) + 1) END WHERE option_name = %s AND (CAST(SUBSTRING_INDEX(option_value, '|', 1) AS UNSIGNED) <= %d OR CAST(SUBSTRING_INDEX(option_value, '|', -1) AS UNSIGNED) < %d)",
+            $now, $expires . '|1', $name, $now, $limit
+        ));
+        if ($inserted === 1) {
+            // New visitors remove a bounded batch of idle counters without a background job.
+            // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Expired admission counters have no cached readers.
+            $wpdb->query($wpdb->prepare("DELETE FROM {$wpdb->options} WHERE option_name LIKE %s AND CAST(SUBSTRING_INDEX(option_value, '|', 1) AS UNSIGNED) < %d LIMIT 100", $wpdb->esc_like('_aipkit_public_rate_') . '%', $now - 600));
+        }
+        if ($admitted === false) {
+            return new \WP_Error('public_request_unavailable', __('Unable to verify this request. Please try again.', 'gpt3-ai-content-generator'), ['status' => 503]);
+        }
+        if ($admitted !== 1) {
+            return new \WP_Error('public_request_rate_limit', __('Too many requests. Please wait a minute and try again.', 'gpt3-ai-content-generator'), ['status' => 429, 'retry_after' => $expires - $now]);
+        }
+        return true;
+    }
+
     // --- Properties for dependencies (injected by ConstructorLogic) ---
     private $guest_table_name;
     private $bot_storage;

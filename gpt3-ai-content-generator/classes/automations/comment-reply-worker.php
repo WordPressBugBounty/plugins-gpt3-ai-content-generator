@@ -137,6 +137,11 @@ function process_comment_reply_item_logic(array $item, array $item_config): arra
         if ($reasoning_effort !== '') {
             $ai_params_override['reasoning'] = ['effort' => $reasoning_effort];
         }
+    } elseif (($item_config['ai_provider'] ?? '') === 'AIPufferCloud') {
+        $reasoning_effort = \WPAICG\Cloud\Connection::reasoning_effort((string) ($item_config['ai_model'] ?? ''), $item_config['reasoning_effort'] ?? '');
+        if ($reasoning_effort !== '') {
+            $ai_params_override['reasoning'] = ['effort' => $reasoning_effort];
+        }
     } elseif (($item_config['ai_provider'] ?? '') === 'OpenRouter') {
         $reasoning_effort = AIPKit_OpenRouter_Reasoning::normalize_effort_for_model(
             (string) ($item_config['ai_model'] ?? ''),

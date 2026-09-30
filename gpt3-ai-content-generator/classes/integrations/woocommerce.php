@@ -51,14 +51,12 @@ class AIPKit_WooCommerce_Integration
         add_action('woocommerce_order_status_completed', [$this, 'grant_tokens_on_order_completion'], 10, 1);
     }
 
-    /**
-     * Adds the "AI Puffer: Token Package" meta box to the product edit screen.
-     */
+    /** Adds the visitor credit package controls to the product editor. */
     public function add_token_package_meta_box($post)
     {
         add_meta_box(
             'aipkit_token_package_meta_box',                // Meta box ID
-            __('AI Puffer: Credit Package', 'gpt3-ai-content-generator'), // Title
+            __('AI Puffer: Visitor Credits', 'gpt3-ai-content-generator'), // Title
             [$this, 'render_token_package_meta_box'],       // Callback function
             'product',                                      // Post type
             'side',                                         // Context (side, normal, advanced)
@@ -294,11 +292,11 @@ class AIPKit_WooCommerce_Integration
         echo '<p><label for="aipkit_is_token_package" style="display:block; margin-bottom: 6px; font-weight:600;">';
         echo '<input type="checkbox" id="aipkit_is_token_package" name="_aipkit_is_token_package" value="yes" ' . checked($is_token_package, 'yes', false) . ' />';
         echo ' ';
-        esc_html_e('Sell this product as an AI Puffer credit package', 'gpt3-ai-content-generator');
+        esc_html_e('Sell this product as a visitor credit package', 'gpt3-ai-content-generator');
         echo '</label></p>';
 
         echo '<p style="margin:0 0 10px; color:#50575e;">';
-        esc_html_e('Credits are added to the purchaser\'s AI Puffer balance when the order is completed.', 'gpt3-ai-content-generator');
+        esc_html_e('Credits are added to the purchaser\'s balance on this WordPress site. They are separate from AI Puffer Cloud credits.', 'gpt3-ai-content-generator');
         echo '</p>';
         echo '<p style="margin:0 0 12px; padding:8px 10px; border:1px solid #f0d7a1; background:#fff8e5; border-radius:4px; color:#664d03;">';
         echo '<strong>' . esc_html__('Account required:', 'gpt3-ai-content-generator') . '</strong> ';
@@ -463,7 +461,7 @@ class AIPKit_WooCommerce_Integration
                 update_post_meta($post_id, '_aipkit_tokens_amount', $tokens_amount);
             } else {
                 delete_post_meta($post_id, '_aipkit_tokens_amount');
-                $this->add_admin_error(__('AI Power credit packages must grant at least 1 credit.', 'gpt3-ai-content-generator'));
+                $this->add_admin_error(__('Visitor credit packages must grant at least 1 credit.', 'gpt3-ai-content-generator'));
             }
         } else {
             // Delete the tokens amount if it's no longer a token package

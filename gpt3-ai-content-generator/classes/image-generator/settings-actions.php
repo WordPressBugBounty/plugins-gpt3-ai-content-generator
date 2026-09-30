@@ -347,6 +347,7 @@ class AIPKit_Image_Settings_Ajax_Handler extends BaseDashboardAjaxHandler
                 $providers_detected = [];
                 foreach ($models_arr as $m) {
                     $ml = strtolower($m);
+                    if (strpos($ml, 'aipuffer/image_generate/') === 0 || strpos($ml, 'aipuffer/image_edit/') === 0) { $providers_detected['AIPufferCloud'] = true; continue; }
                     if (isset($openai_lu[$ml])) { $providers_detected['OpenAI'] = true; continue; }
                     if (isset($google_lu[$ml])) { $providers_detected['Google'] = true; continue; }
                     if (isset($openrouter_lu[$ml])) { $providers_detected['OpenRouter'] = true; continue; }

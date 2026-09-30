@@ -25,6 +25,31 @@ if (!defined('ABSPATH')) {
  */
 class SettingsAjaxHandler extends BaseDashboardAjaxHandler
 {
+    public static function ajax_set_visitor_billing(): void
+    {
+        if (!\WPAICG\AIPKit_Role_Manager::user_can_manage_settings()) {
+            wp_send_json_error(['message' => __('You cannot change visitor billing settings.', 'gpt3-ai-content-generator')], 403);
+        }
+        check_ajax_referer('aipkit_visitor_billing', 'nonce');
+        // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Exact 0/1 allowlist immediately below rejects all other values.
+        $enabled = isset($_POST['enabled']) && is_string($_POST['enabled']) ? wp_unslash($_POST['enabled']) : '';
+        if (!in_array($enabled, ['0', '1'], true)) {
+            wp_send_json_error(['message' => __('Choose a valid visitor billing setting.', 'gpt3-ai-content-generator')], 400);
+        }
+        if ($enabled === '1') {
+            $options = get_option('aipkit_options', []);
+            $options = is_array($options) ? $options : [];
+            $modules = isset($options['module_settings']) && is_array($options['module_settings'])
+                ? $options['module_settings']
+                : [];
+            $modules['stats_viewer'] = true;
+            $options['module_settings'] = $modules;
+            update_option('aipkit_options', $options, 'no');
+        }
+        update_option('aipkit_visitor_billing_enabled', $enabled === '1' ? 'yes' : 'no', false);
+        wp_send_json_success(['enabled' => $enabled === '1']);
+    }
+
     private const SETTINGS_RESTORE_POINT_OPTION = 'aipkit_settings_restore_point';
 
     /**
@@ -74,6 +99,13 @@ class SettingsAjaxHandler extends BaseDashboardAjaxHandler
         'image_generator_settings' => AIPKit_Image_Settings_Ajax_Handler::SETTINGS_OPTION_NAME,
         'enhancer_actions' => 'aipkit_enhancer_actions',
         'training_general_settings' => 'aipkit_training_general_settings',
+        'visitor_billing' => 'aipkit_visitor_billing_enabled',
+        'wp_ai_client_mode' => 'aipkit_wp_ai_client_gateway_mode',
+    ];
+
+    private const BACKUP_CHOICE_OPTIONS = [
+        'visitor_billing' => ['no', 'yes'],
+        'wp_ai_client_mode' => ['observe', 'managed'],
     ];
 
     public function ajax_save_settings()
@@ -119,6 +151,7 @@ class SettingsAjaxHandler extends BaseDashboardAjaxHandler
             $response = [
                 'message' => __('Settings saved successfully.', 'gpt3-ai-content-generator'),
                 'providerStatus' => AIPKit_Providers::get_provider_status_map(),
+                'newConfiguration' => AIPKit_Providers::get_new_configuration_payload(),
                 'providerConnectionStates' => AIPKit_Providers::get_provider_connection_states(),
             ];
             if ($updated_enhancer_actions !== null) {
@@ -129,6 +162,7 @@ class SettingsAjaxHandler extends BaseDashboardAjaxHandler
             wp_send_json_success([
                 'message' => __('No changes detected.', 'gpt3-ai-content-generator'),
                 'providerStatus' => AIPKit_Providers::get_provider_status_map(),
+                'newConfiguration' => AIPKit_Providers::get_new_configuration_payload(),
                 'providerConnectionStates' => AIPKit_Providers::get_provider_connection_states(),
             ]);
         }
@@ -706,7 +740,7 @@ class SettingsAjaxHandler extends BaseDashboardAjaxHandler
 
         $current_settings = $opts['semantic_search'] ?? [];
         $new_settings = [];
-        $allowed_vector_providers = ['pinecone', 'qdrant', 'chroma'];
+        $allowed_vector_providers = ['local', 'pinecone', 'qdrant', 'chroma'];
 
         // Sanitize and collect new settings
         $semantic_vector_provider = isset($post_data['semantic_search_vector_provider'])
@@ -931,6 +965,16 @@ class SettingsAjaxHandler extends BaseDashboardAjaxHandler
     {
         $additional_options = [];
         foreach (self::BACKUP_ADDITIONAL_OPTIONS as $payload_key => $option_name) {
+            if (isset(self::BACKUP_CHOICE_OPTIONS[$payload_key])) {
+                $choices = self::BACKUP_CHOICE_OPTIONS[$payload_key];
+                $default = $choices[0];
+                if ($payload_key === 'visitor_billing' && class_exists('\\WPAICG\\Stats\\AIPKit_Stats')) {
+                    $default = \WPAICG\Stats\AIPKit_Stats::visitor_billing_enabled() ? 'yes' : 'no';
+                }
+                $value = get_option($option_name, $default);
+                $additional_options[$payload_key] = in_array($value, $choices, true) ? $value : $default;
+                continue;
+            }
             $value = get_option($option_name, []);
             $additional_options[$payload_key] = is_array($value)
                 ? $this->sanitize_recursive_value($value)
@@ -1021,6 +1065,13 @@ class SettingsAjaxHandler extends BaseDashboardAjaxHandler
                     continue;
                 }
                 $value = $payload['additional_options'][$payload_key];
+                if (isset(self::BACKUP_CHOICE_OPTIONS[$payload_key])) {
+                    if (!in_array($value, self::BACKUP_CHOICE_OPTIONS[$payload_key], true)) {
+                        return new WP_Error('invalid_additional_option', __('An auxiliary settings value in the backup is invalid.', 'gpt3-ai-content-generator'), ['status' => 400]);
+                    }
+                    $normalized_additional_options[$option_name] = $value;
+                    continue;
+                }
                 if (!is_array($value)) {
                     return new WP_Error(
                         'invalid_additional_option',
@@ -1055,6 +1106,9 @@ class SettingsAjaxHandler extends BaseDashboardAjaxHandler
             }
         }
 
+        if (($normalized_additional_options['aipkit_visitor_billing_enabled'] ?? '') === 'yes') {
+            $sanitized_options['module_settings']['stats_viewer'] = true;
+        }
         update_option('aipkit_options', $sanitized_options, 'no');
         foreach ($normalized_additional_options as $option_name => $value) {
             update_option($option_name, $value, 'no');
@@ -1154,7 +1208,7 @@ class SettingsAjaxHandler extends BaseDashboardAjaxHandler
             ? $imported_options['semantic_search']
             : [];
         $imported_semantic_vector_provider = sanitize_key((string) ($imported_semantic['vector_provider'] ?? 'pinecone'));
-        if (!in_array($imported_semantic_vector_provider, ['pinecone', 'qdrant', 'chroma'], true)) {
+        if (!in_array($imported_semantic_vector_provider, ['local', 'pinecone', 'qdrant', 'chroma'], true)) {
             $imported_semantic_vector_provider = 'pinecone';
         }
         $sanitized['semantic_search'] = [

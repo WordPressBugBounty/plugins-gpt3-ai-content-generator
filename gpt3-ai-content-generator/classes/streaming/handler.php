@@ -244,6 +244,7 @@ function ajax_cache_sse_message_logic(\WPAICG\Core\Stream\Handler\SSEHandler $ha
         }
     }
     foreach ([
+        'active_file_context_token' => isset($post_data['active_file_context_token']) ? sanitize_text_field((string) $post_data['active_file_context_token']) : null,
         'active_openai_vs_id' => $active_openai_vs_id,
         'active_pinecone_index_name' => $active_pinecone_index_name,
         'active_pinecone_namespace' => $active_pinecone_namespace,

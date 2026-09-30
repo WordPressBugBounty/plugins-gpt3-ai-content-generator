@@ -23,6 +23,37 @@ class AIPKit_Vector_Store_Manager
         }
     }
 
+    /** Match supported embedding output sizes to storage before generating vectors. */
+    public function embedding_options(string $embedding_provider, string $model, string $provider, array $targets, array $config = [])
+    {
+        $options = ['model' => $model];
+        $policy = \WPAICG\AIPKit_Providers::embedding_dimension_policy($embedding_provider, $model);
+        if ($policy === null) { return $options; }
+        $dimension = null;
+        foreach (array_unique($targets) as $target) {
+            $description = $this->describe_single_index($provider, (string) $target, $config);
+            if (is_wp_error($description)) { return $description; }
+            $size = $description['dimensions'] ?? $description['dimension'] ?? $description['config']['params']['vectors']['size'] ?? null;
+            // Empty Chroma collections acquire their dimension from the first vectors.
+            if ($size === null && strtolower($provider) === 'chroma' && ($description['total_vector_count'] ?? null) === 0) { $size = $policy['default']; }
+            $size = (int) $size;
+            $supported = isset($policy['sizes']) ? in_array($size, $policy['sizes'], true) : ($size >= $policy['min'] && $size <= $policy['max']);
+            if (!$supported) {
+                return new WP_Error('embedding_dimensions_unsupported', sprintf(
+                    /* translators: 1: embedding model; 2: store dimension. */
+                    __('The embedding model %1$s does not support the store dimension (%2$d). Choose a compatible model or store.', 'gpt3-ai-content-generator'), $model, $size
+                ));
+            }
+            if ($dimension !== null && $dimension !== $size) {
+                return new WP_Error('embedding_store_dimensions_mismatch', __('Selected stores must use the same embedding dimensions.', 'gpt3-ai-content-generator'));
+            }
+            $dimension = $size;
+        }
+        if ($dimension === null) { return new WP_Error('embedding_store_missing', __('Choose a knowledge store before generating embeddings.', 'gpt3-ai-content-generator')); }
+        if ($policy['parameter'] !== null) { $options[$policy['parameter']] = $dimension; }
+        return $options;
+    }
+
     /**
      * Logic for creating an index in the specified vector store if it doesn't already exist.
      *

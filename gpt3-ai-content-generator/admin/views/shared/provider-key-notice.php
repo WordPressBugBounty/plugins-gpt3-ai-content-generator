@@ -47,6 +47,7 @@ $aipkit_provider_notice_settings_url = add_query_arg(
     id="<?php echo esc_attr($aipkit_provider_notice_id); ?>"
     class="aipkit_notification_bar aipkit_notification_bar--warning aipkit_provider_key_notice aipkit_provider_notice--hidden <?php echo esc_attr($aipkit_provider_notice_class); ?>"
     data-aipkit-provider-notice="1"
+    <?php if (!empty($aipkit_notice_model_source)) : ?>data-aipkit-connection-model-source="<?php echo esc_attr($aipkit_notice_model_source); ?>"<?php endif; ?>
     data-aipkit-settings-url="<?php echo esc_url($aipkit_provider_notice_settings_url); ?>"
     data-message-default="<?php echo esc_attr($aipkit_provider_notice_default_message); ?>"
     data-action-default="<?php echo esc_attr__('Connect a provider', 'gpt3-ai-content-generator'); ?>"
@@ -79,6 +80,7 @@ unset(
     $aipkit_provider_notice_context,
     $aipkit_provider_notice_default_message,
     $aipkit_provider_notice_settings_url,
+    $aipkit_notice_model_source,
     $aipkit_notice_id,
     $aipkit_notice_class,
     $aipkit_notice_context

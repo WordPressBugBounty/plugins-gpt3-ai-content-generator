@@ -19,6 +19,8 @@ class AIPKit_Vector_Text_Chunker
     private const CHROMA_SAFE_MAX_CHARS_PER_CHUNK = 5000;
     private const OLLAMA_SAFE_MAX_CHARS_PER_CHUNK = 2000;
     private const MXBAI_SAFE_MAX_CHARS_PER_CHUNK = 384;
+    // AI Puffer Cloud accepts 8,000 bytes per text; UTF-8 is at most 4 bytes per character.
+    private const CLOUD_MAX_CHARS_PER_CHUNK = 2000;
     private const MAX_OVERLAP_RATIO = 0.25;
     private const DEFAULT_MAX_CHUNKS = 2000;
 
@@ -148,6 +150,9 @@ class AIPKit_Vector_Text_Chunker
         } elseif ($provider === 'ollama') {
             $max_tokens = 2000;
             $max_chars = self::OLLAMA_SAFE_MAX_CHARS_PER_CHUNK;
+        } elseif ($provider === 'aipuffercloud') {
+            $max_tokens = 500;
+            $max_chars = self::CLOUD_MAX_CHARS_PER_CHUNK;
         }
 
         if (strpos($model, 'mxbai-embed-large') !== false) {
@@ -155,6 +160,12 @@ class AIPKit_Vector_Text_Chunker
             $max_chars = $max_chars !== null
                 ? min($max_chars, self::MXBAI_SAFE_MAX_CHARS_PER_CHUNK)
                 : self::MXBAI_SAFE_MAX_CHARS_PER_CHUNK;
+        }
+
+        // Built-in store: small chunks give precise matches and keep the context added to each reply short.
+        if (strtolower(trim($vector_store_type)) === 'local') {
+            $max_tokens = min($max_tokens, 400);
+            $max_chars = $max_chars !== null ? min($max_chars, 1600) : 1600;
         }
 
         if (strtolower(trim($vector_store_type)) === 'chroma') {
@@ -194,6 +205,10 @@ class AIPKit_Vector_Text_Chunker
             $normalized['max_chars_per_chunk'] = max(1, (int) $filtered['max_chars_per_chunk']);
         } elseif (isset($limits['max_chars_per_chunk'])) {
             $normalized['max_chars_per_chunk'] = $limits['max_chars_per_chunk'];
+        }
+        // A filter may not raise Cloud chunks past what Cloud accepts.
+        if ($provider === 'aipuffercloud') {
+            $normalized['max_chars_per_chunk'] = min($normalized['max_chars_per_chunk'] ?? self::CLOUD_MAX_CHARS_PER_CHUNK, self::CLOUD_MAX_CHARS_PER_CHUNK);
         }
 
         return $normalized;

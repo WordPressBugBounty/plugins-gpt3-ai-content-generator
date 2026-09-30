@@ -86,6 +86,31 @@ function process_pinecone_indexing_logic(array $item, array $item_config): array
 }
 
 /**
+ * Processes a single built-in knowledge base (shown to users as "AI Puffer") indexing queue item. The store's own
+ * embedding model is used; the task's embedding fields only matter for a store without content yet.
+ *
+ * @param array $item The queue item from the database.
+ * @param array $item_config The decoded item_config from the queue item.
+ * @return array ['status' => 'success'|'error', 'message' => '...']
+ */
+function process_local_indexing_logic(array $item, array $item_config): array
+{
+    if (!class_exists(\WPAICG\Vector\PostProcessor\Local\LocalPostProcessor::class)) {
+        require_once WPAICG_PLUGIN_DIR . 'classes/knowledge-base/indexing-local.php';
+    }
+    $target_store_id = (string) ($item_config['target_store_id'] ?? '');
+    if ($target_store_id === '') {
+        return ['status' => 'error', 'message' => 'Missing knowledge base for this indexing task.'];
+    }
+    return (new \WPAICG\Vector\PostProcessor\Local\LocalPostProcessor())->index_single_post_to_store(
+        absint($item['target_identifier']),
+        $target_store_id,
+        (string) ($item_config['embedding_provider'] ?? ''),
+        (string) ($item_config['embedding_model'] ?? '')
+    );
+}
+
+/**
  * Processes a single Qdrant content indexing queue item.
  *
  * @param array $item The queue item from the database.

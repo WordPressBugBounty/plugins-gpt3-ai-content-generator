@@ -5,20 +5,33 @@ if (!defined('ABSPATH')) {
 
 // phpcs:disable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- This file only uses local helper/template variables and does not define public globals.
 $hide_stt_controls = false;
+$cloud_audio_connected = !empty(\WPAICG\Cloud\Connection::display()['connected']);
+$cloud_stt_models = \WPAICG\Cloud\Connection::media_models('transcribe');
+$cloud_tts_models = \WPAICG\Cloud\Connection::media_models('speech_generate');
+$cloud_audio_unavailable_label = $cloud_audio_connected
+    ? __('AI Puffer Cloud models unavailable', 'gpt3-ai-content-generator')
+    : __('AI Puffer Cloud disconnected', 'gpt3-ai-content-generator');
 $stt_provider_options = [
+    '' => __('Select a provider', 'gpt3-ai-content-generator'),
     'OpenAI' => __('OpenAI', 'gpt3-ai-content-generator'),
     'Google' => __('Google', 'gpt3-ai-content-generator'),
 ];
+if ($stt_provider === 'AIPufferCloud' || \WPAICG\AIPKit_Providers::provider_supports_capability('AIPufferCloud', 'stt')) {
+    $stt_provider_options['AIPufferCloud'] = $cloud_audio_connected && $cloud_stt_models
+        ? __('AI Puffer Cloud', 'gpt3-ai-content-generator')
+        : $cloud_audio_unavailable_label;
+}
 $hide_stt_provider_field = count($stt_provider_options) <= 1;
 $selected_stt_provider_for_ui = array_key_exists((string) $stt_provider, $stt_provider_options)
     ? (string) $stt_provider
-    : 'OpenAI';
+    : '';
 $default_stt_model = \WPAICG\Chat\Storage\BotSettingsManager::get_default_model_id('OpenAISTT');
 $default_google_stt_model = \WPAICG\AIPKit_Providers::normalize_google_stt_model('');
 $stt_model_fields = [
     'OpenAI' => ['name' => 'stt_openai_model_id', 'models' => $openai_stt_models, 'value' => $stt_openai_model_id, 'default' => $default_stt_model],
     'Google' => ['name' => 'stt_google_model_id', 'models' => $google_stt_models, 'value' => $stt_google_model_id, 'default' => $default_google_stt_model],
 ];
+$stt_model_fields['AIPufferCloud'] = ['name' => 'stt_cloud_model_id', 'models' => $cloud_stt_models, 'value' => $stt_cloud_model_id, 'default' => ''];
 $tts_provider_fields = [
     'Google' => [
         'slug' => 'google', 'voice' => $google_tts_voices, 'model' => $google_tts_models,
@@ -33,10 +46,13 @@ $tts_provider_fields = [
         'voice_value' => $tts_elevenlabs_voice_id, 'model_value' => $tts_elevenlabs_model_id,
     ],
 ];
+$tts_provider_fields['AIPufferCloud'] = ['slug' => 'cloud',
+        'voice' => array_map(static function ($voice) { return ['id' => $voice, 'name' => ucfirst($voice)]; }, \WPAICG\Cloud\Connection::media_capabilities('speech_generate', (string) $tts_cloud_model_id)['voices'] ?? []),
+        'voice_value' => $tts_cloud_voice_id, 'model' => $cloud_tts_models, 'model_value' => $tts_cloud_model_id];
 $tts_field_labels = ['voice' => __('Voice', 'gpt3-ai-content-generator'), 'model' => __('Model', 'gpt3-ai-content-generator')];
 $tts_empty_labels = ['voice' => __('-- Select Voice --', 'gpt3-ai-content-generator'), 'model' => __('-- Select Model (Optional) --', 'gpt3-ai-content-generator')];
 ?>
-<div class="aipkit_popover_options_list">
+<div class="aipkit_popover_options_list" data-cloud-audio-models="<?php echo esc_attr(wp_json_encode(array_merge($cloud_stt_models, $cloud_tts_models))); ?>">
     <div class="aipkit_popover_option_group aipkit_audio_feature_group aipkit_audio_feature_group--stt">
         <div class="aipkit_popover_option_row aipkit_audio_toggle_row aipkit_audio_toggle_row--stt">
             <div class="aipkit_popover_option_main">
@@ -159,8 +175,9 @@ $tts_empty_labels = ['voice' => __('-- Select Voice --', 'gpt3-ai-content-genera
                                 name="tts_provider"
                                 class="aipkit_popover_option_select aipkit_popover_option_select--compact aipkit_tts_provider_select"
                             >
+                                <option value="" <?php selected($tts_provider, ''); ?>><?php esc_html_e('Select a provider', 'gpt3-ai-content-generator'); ?></option>
                                 <?php foreach ($tts_providers as $provider_name): ?>
-                                    <option value="<?php echo esc_attr($provider_name); ?>" <?php selected($tts_provider, $provider_name); ?>><?php echo esc_html($provider_name); ?></option>
+                                    <option value="<?php echo esc_attr($provider_name); ?>" <?php selected($tts_provider, $provider_name); ?>><?php echo esc_html($provider_name === 'AIPufferCloud' && (!$cloud_audio_connected || !$cloud_tts_models) ? $cloud_audio_unavailable_label : $provider_name); ?></option>
                                 <?php endforeach; ?>
                             </select>
                         </div>

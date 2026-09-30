@@ -58,6 +58,7 @@ if ($vector_embedding_provider === '' || !isset($embedding_provider_options[$vec
                     name="vector_store_provider"
                     class="aipkit_ai_form_knowledge_base_settings_control aipkit_vector_store_provider_select"
                 >
+                    <option value="local"><?php esc_html_e('Local', 'gpt3-ai-content-generator'); ?></option>
                     <option value="openai">OpenAI</option>
                     <option value="pinecone">Pinecone</option>
                     <option value="qdrant">Qdrant</option>
@@ -223,6 +224,40 @@ if ($vector_embedding_provider === '' || !isset($embedding_provider_options[$vec
                     <?php else: ?>
                         <option value="" disabled><?php esc_html_e('-- No Indexes Found --', 'gpt3-ai-content-generator'); ?></option>
                     <?php endif; ?>
+                </select>
+            </div>
+        </div>
+
+        <div class="aipkit_ai_form_knowledge_base_settings_row aipkit_vector_store_local_field" style="display:none;">
+            <div class="aipkit_ai_form_knowledge_base_settings_row_main">
+                <div class="aipkit_ai_form_knowledge_base_settings_copy">
+                    <label class="aipkit_ai_form_knowledge_base_settings_label" for="aipkit_ai_form_local_store_id">
+                        <?php esc_html_e('Knowledge base', 'gpt3-ai-content-generator'); ?>
+                    </label>
+                    <span class="aipkit_ai_form_knowledge_base_settings_helper">
+                        <?php esc_html_e('Knowledge base to search.', 'gpt3-ai-content-generator'); ?>
+                    </span>
+                </div>
+                <select
+                    id="aipkit_ai_form_local_store_id"
+                    name="local_store_id"
+                    class="aipkit_ai_form_knowledge_base_settings_control"
+                    data-aipkit-local-store-select
+                >
+                    <?php
+                    if (!class_exists(\WPAICG\Vector\Providers\AIPKit_Vector_Local_Strategy::class)) {
+                        require_once WPAICG_PLUGIN_DIR . 'classes/knowledge-base/providers/local.php';
+                    }
+                    $local_stores = \WPAICG\Vector\Providers\AIPKit_Vector_Local_Strategy::stores();
+                    if ($local_stores) {
+                        echo '<option value="">' . esc_html__('-- Select knowledge base --', 'gpt3-ai-content-generator') . '</option>';
+                        foreach ($local_stores as $local_store) {
+                            echo '<option value="' . esc_attr($local_store['id']) . '">' . esc_html($local_store['name']) . '</option>';
+                        }
+                    } else {
+                        echo '<option value="" disabled>' . esc_html__('-- No knowledge bases yet --', 'gpt3-ai-content-generator') . '</option>';
+                    }
+                    ?>
                 </select>
             </div>
         </div>

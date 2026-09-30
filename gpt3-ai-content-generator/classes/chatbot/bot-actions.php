@@ -1383,7 +1383,7 @@ class ChatbotAjaxHandler extends BaseAjaxHandler
             ? sanitize_text_field(wp_unslash($_POST['vector_store_provider']))
             : BotSettingsManager::DEFAULT_VECTOR_STORE_PROVIDER;
         $main_provider = (string) get_post_meta($bot_id, '_aipkit_provider', true);
-        $allowed_providers = ['openai', 'google', 'pinecone', 'qdrant', 'chroma', 'claude_files'];
+        $allowed_providers = ['openai', 'google', 'pinecone', 'qdrant', 'chroma', 'local', 'claude_files'];
         if (!in_array($vector_store_provider, $allowed_providers, true)) {
             wp_send_json_error(
                 ['message' => __('Invalid knowledge provider.', 'gpt3-ai-content-generator')],
@@ -1483,9 +1483,21 @@ class ChatbotAjaxHandler extends BaseAjaxHandler
         $chroma_collection_names = array_values(array_unique($chroma_collection_names));
         $chroma_collection_name = $chroma_collection_names[0] ?? '';
 
+        // Local store selection.
+        $local_store_ids = [];
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Reason: Nonce verification is handled in check_module_access_permissions method.
+        if ($vector_store_provider === 'local' && isset($_POST['local_store_ids']) && is_array($_POST['local_store_ids'])) {
+            // phpcs:ignore WordPress.Security.NonceVerification.Missing, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Nonce checked above; each id is reduced to [a-z0-9_-] below.
+            foreach (wp_unslash($_POST['local_store_ids']) as $local_id) {
+                $local_id = substr((string) preg_replace('/[^a-z0-9_-]/', '', strtolower((string) $local_id)), 0, 64);
+                if ($local_id !== '') { $local_store_ids[] = $local_id; }
+            }
+        }
+        $local_store_ids = array_values(array_unique($local_store_ids));
+
         $vector_embedding_provider = BotSettingsManager::DEFAULT_VECTOR_EMBEDDING_PROVIDER;
         $vector_embedding_model = '';
-        if (in_array($vector_store_provider, ['pinecone', 'qdrant', 'chroma'], true)) {
+        if (in_array($vector_store_provider, ['pinecone', 'qdrant', 'chroma', 'local'], true)) {
             // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Reason: Nonce verification is handled in check_module_access_permissions method.
             $vector_embedding_provider = isset($_POST['vector_embedding_provider'])
                 ? sanitize_key(wp_unslash($_POST['vector_embedding_provider']))
@@ -1566,6 +1578,10 @@ class ChatbotAjaxHandler extends BaseAjaxHandler
             delete_post_meta($bot_id, '_aipkit_chroma_collection_name');
             delete_post_meta($bot_id, '_aipkit_chroma_collection_names');
             delete_post_meta($bot_id, '_aipkit_google_file_search_store_names');
+        } elseif ($vector_store_provider === 'local') {
+            update_post_meta($bot_id, '_aipkit_local_store_ids', wp_json_encode($local_store_ids));
+            update_post_meta($bot_id, '_aipkit_vector_embedding_provider', $vector_embedding_provider);
+            update_post_meta($bot_id, '_aipkit_vector_embedding_model', $vector_embedding_model);
         } elseif ($vector_store_provider === 'chroma') {
             update_post_meta($bot_id, '_aipkit_chroma_collection_name', $chroma_collection_name);
             update_post_meta($bot_id, '_aipkit_chroma_collection_names', wp_json_encode($chroma_collection_names));
@@ -1853,7 +1869,7 @@ class ChatbotAjaxHandler extends BaseAjaxHandler
         if (isset($_POST['stt_provider'])) {
             // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Reason: Nonce verification is handled in check_module_access_permissions method.
             $stt_provider = sanitize_text_field(wp_unslash($_POST['stt_provider']));
-            $allowed_stt_providers = ['OpenAI', 'Google', 'Azure'];
+            $allowed_stt_providers = ['OpenAI', 'Google', 'Azure', 'AIPufferCloud'];
             if (!in_array($stt_provider, $allowed_stt_providers, true)) {
                 $stt_provider = BotSettingsManager::DEFAULT_STT_PROVIDER;
             }
@@ -1875,6 +1891,13 @@ class ChatbotAjaxHandler extends BaseAjaxHandler
             );
             update_post_meta($bot_id, '_aipkit_stt_google_model_id', $stt_google_model_id);
         }
+        if (isset($_POST['stt_cloud_model_id'])) {
+            // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Reason: Nonce verification is handled in check_module_access_permissions method.
+            $cloud_model = sanitize_text_field(wp_unslash($_POST['stt_cloud_model_id']));
+            if (in_array($cloud_model, wp_list_pluck(\WPAICG\Cloud\Connection::media_models('transcribe'), 'id'), true)) {
+                update_post_meta($bot_id, '_aipkit_stt_cloud_model_id', $cloud_model);
+            }
+        }
 
         if (isset($_POST['tts_enabled'])) {
             // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Reason: Nonce verification is handled in check_module_access_permissions method.
@@ -1891,7 +1914,7 @@ class ChatbotAjaxHandler extends BaseAjaxHandler
         if (isset($_POST['tts_provider'])) {
             // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Reason: Nonce verification is handled in check_module_access_permissions method.
             $tts_provider = sanitize_text_field(wp_unslash($_POST['tts_provider']));
-            $allowed_tts_providers = ['Google', 'OpenAI', 'ElevenLabs'];
+            $allowed_tts_providers = ['Google', 'OpenAI', 'ElevenLabs', 'AIPufferCloud'];
             if (!in_array($tts_provider, $allowed_tts_providers, true)) {
                 $tts_provider = BotSettingsManager::DEFAULT_TTS_PROVIDER;
             }
@@ -1921,6 +1944,23 @@ class ChatbotAjaxHandler extends BaseAjaxHandler
                 $tts_openai_voice_id = BotSettingsManager::get_default_model_id('OpenAIVoices');
             }
             update_post_meta($bot_id, '_aipkit_tts_openai_voice_id', $tts_openai_voice_id);
+        }
+        if (isset($_POST['tts_cloud_voice_id'])) {
+            // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Verified by check_module_access_permissions.
+            $voice = sanitize_text_field(wp_unslash($_POST['tts_cloud_voice_id']));
+            // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Verified by check_module_access_permissions.
+            $model = sanitize_text_field(wp_unslash($_POST['tts_cloud_model_id'] ?? get_post_meta($bot_id, '_aipkit_tts_cloud_model_id', true)));
+            $voices = \WPAICG\Cloud\Connection::media_capabilities('speech_generate', $model)['voices'] ?? [];
+            if ($voice === '' || in_array($voice, $voices, true)) {
+                update_post_meta($bot_id, '_aipkit_tts_cloud_voice_id', $voice);
+            }
+        }
+        if (isset($_POST['tts_cloud_model_id'])) {
+            // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Reason: Nonce verification is handled in check_module_access_permissions method.
+            $cloud_model = sanitize_text_field(wp_unslash($_POST['tts_cloud_model_id']));
+            if (in_array($cloud_model, wp_list_pluck(\WPAICG\Cloud\Connection::media_models('speech_generate'), 'id'), true)) {
+                update_post_meta($bot_id, '_aipkit_tts_cloud_model_id', $cloud_model);
+            }
         }
 
         if (isset($_POST['tts_openai_model_id'])) {
@@ -2475,6 +2515,16 @@ class ChatbotAjaxHandler extends BaseAjaxHandler
      * AJAX: Returns the training source count for a chatbot.
      * @since NEXT_VERSION
      */
+    /** Built-in knowledge base stores for this request: the posted override, else the bot's saved list. */
+    private function local_store_ids_for_request(array $settings): array
+    {
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Reason: Nonce verification is handled by the calling action.
+        $raw = isset($_POST['local_store_ids']) && is_array($_POST['local_store_ids']) ? wp_unslash($_POST['local_store_ids']) : ($settings['local_store_ids'] ?? []);
+        return array_values(array_unique(array_filter(array_map(static function ($id) {
+            return substr((string) preg_replace('/[^a-z0-9_-]/', '', strtolower((string) $id)), 0, 64);
+        }, (array) $raw))));
+    }
+
     public function ajax_get_chatbot_training_source_count()
     {
         $bot_id = $this->get_validated_chatbot_id_from_request();
@@ -2540,7 +2590,7 @@ class ChatbotAjaxHandler extends BaseAjaxHandler
         }
 
         $provider_key = $settings['vector_store_provider'] ?? BotSettingsManager::DEFAULT_VECTOR_STORE_PROVIDER;
-        if ($override_provider && in_array($override_provider, ['openai', 'pinecone', 'qdrant', 'chroma', 'claude_files', 'google'], true)) {
+        if ($override_provider && in_array($override_provider, ['openai', 'pinecone', 'qdrant', 'chroma', 'local', 'claude_files', 'google'], true)) {
             $provider_key = $override_provider;
         }
         $chatbot_provider = (string) ($settings['provider'] ?? get_post_meta($bot_id, '_aipkit_provider', true));
@@ -2555,6 +2605,7 @@ class ChatbotAjaxHandler extends BaseAjaxHandler
             'pinecone' => 'Pinecone',
             'qdrant' => 'Qdrant',
             'chroma' => 'Chroma',
+            'local' => 'Local',
             'google' => 'Google',
         ];
         $provider_name = $provider_map[$provider_key] ?? '';
@@ -2599,6 +2650,8 @@ class ChatbotAjaxHandler extends BaseAjaxHandler
             if (empty($store_ids) && !empty($settings['qdrant_collection_name']) && !$has_qdrant_override) {
                 $store_ids = [$settings['qdrant_collection_name']];
             }
+        } elseif ($provider_key === 'local') {
+            $store_ids = $this->local_store_ids_for_request($settings);
         } elseif ($provider_key === 'chroma') {
             if ($has_chroma_override && is_array($override_chroma_names)) {
                 $store_ids = array_filter(array_map('sanitize_text_field', $override_chroma_names));
@@ -2659,7 +2712,9 @@ class ChatbotAjaxHandler extends BaseAjaxHandler
 
         $source_stats = $this->get_chatbot_training_source_stats_for_context(
             (string) $context['provider_label'],
-            (array) $context['store_ids']
+            (array) $context['store_ids'],
+            // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Validated chatbot access and nonce above; refresh the bounded local count after a source mutation.
+            isset($_POST['refresh_source_stats']) && sanitize_text_field(wp_unslash($_POST['refresh_source_stats'])) === '1'
         );
         $count = $source_stats['count'];
         $queue_summary = $this->get_chatbot_training_queue_summary_for_context(
@@ -2831,7 +2886,7 @@ class ChatbotAjaxHandler extends BaseAjaxHandler
         }
 
         $provider_key = $settings['vector_store_provider'] ?? BotSettingsManager::DEFAULT_VECTOR_STORE_PROVIDER;
-        if ($override_provider && in_array($override_provider, ['openai', 'pinecone', 'qdrant', 'chroma', 'claude_files', 'google'], true)) {
+        if ($override_provider && in_array($override_provider, ['openai', 'pinecone', 'qdrant', 'chroma', 'local', 'claude_files', 'google'], true)) {
             $provider_key = $override_provider;
         }
         $chatbot_provider = (string) ($settings['provider'] ?? get_post_meta($bot_id, '_aipkit_provider', true));
@@ -2848,6 +2903,7 @@ class ChatbotAjaxHandler extends BaseAjaxHandler
             'pinecone' => 'Pinecone',
             'qdrant' => 'Qdrant',
             'chroma' => 'Chroma',
+            'local' => 'Local',
             'google' => 'Google',
         ];
         $provider_label = $provider_map[$provider_key] ?? '';
@@ -2894,6 +2950,8 @@ class ChatbotAjaxHandler extends BaseAjaxHandler
             if (empty($store_ids) && !empty($settings['qdrant_collection_name']) && !$has_qdrant_override) {
                 $store_ids = [$settings['qdrant_collection_name']];
             }
+        } elseif ($provider_key === 'local') {
+            $store_ids = $this->local_store_ids_for_request($settings);
         } elseif ($provider_key === 'chroma') {
             if ($has_chroma_override && is_array($override_chroma_names)) {
                 $store_ids = array_filter(array_map('sanitize_text_field', $override_chroma_names));
@@ -2920,7 +2978,7 @@ class ChatbotAjaxHandler extends BaseAjaxHandler
     }
 
     /** @return array{count:int,count_is_capped:bool} */
-    private function get_chatbot_training_source_stats_for_context(string $provider_label, array $store_ids): array
+    private function get_chatbot_training_source_stats_for_context(string $provider_label, array $store_ids, bool $refresh = false): array
     {
         $store_ids = array_values(array_unique(array_filter(array_map('sanitize_text_field', $store_ids))));
         if ($provider_label === '' || empty($store_ids)) {
@@ -2930,7 +2988,7 @@ class ChatbotAjaxHandler extends BaseAjaxHandler
         sort($store_ids, SORT_STRING);
         $cache_key = 'aipkit_chatbot_training_stats_' . md5($provider_label . '|' . wp_json_encode($store_ids));
         $cached_stats = get_transient($cache_key);
-        if (is_array($cached_stats)) {
+        if (!$refresh && is_array($cached_stats)) {
             return [
                 'count' => max(0, (int) ($cached_stats['count'] ?? 0)),
                 'count_is_capped' => !empty($cached_stats['count_is_capped']),
@@ -3202,7 +3260,7 @@ class ChatbotAjaxHandler extends BaseAjaxHandler
         }
 
         $provider_key = $settings['vector_store_provider'] ?? BotSettingsManager::DEFAULT_VECTOR_STORE_PROVIDER;
-        if ($override_provider && in_array($override_provider, ['openai', 'pinecone', 'qdrant', 'chroma', 'claude_files', 'google'], true)) {
+        if ($override_provider && in_array($override_provider, ['openai', 'pinecone', 'qdrant', 'chroma', 'local', 'claude_files', 'google'], true)) {
             $provider_key = $override_provider;
         }
         $chatbot_provider = (string) ($settings['provider'] ?? get_post_meta($bot_id, '_aipkit_provider', true));
@@ -3225,6 +3283,7 @@ class ChatbotAjaxHandler extends BaseAjaxHandler
             'pinecone' => 'Pinecone',
             'qdrant' => 'Qdrant',
             'chroma' => 'Chroma',
+            'local' => 'Local',
             'google' => 'Google',
         ];
         $provider_label = $provider_map[$provider_key] ?? '';
@@ -3260,6 +3319,8 @@ class ChatbotAjaxHandler extends BaseAjaxHandler
             $store_ids = is_array($override_qdrant_names)
                 ? array_filter(array_map('sanitize_text_field', $override_qdrant_names))
                 : array_filter((array) ($settings['qdrant_collection_names'] ?? []));
+        } elseif ($provider_key === 'local') {
+            $store_ids = $this->local_store_ids_for_request($settings);
         } elseif ($provider_key === 'chroma') {
             $store_ids = is_array($override_chroma_names)
                 ? array_filter(array_map('sanitize_text_field', $override_chroma_names))

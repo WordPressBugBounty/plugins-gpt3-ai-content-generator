@@ -16,6 +16,15 @@ class AIPKit_WP_AI_Client_Settings
     public const MODE_MANAGED = 'managed';
 
     private const PROVIDERS = [
+        'aipuffercloud' => [
+            'aipkit_provider' => 'AIPufferCloud',
+            'name' => 'AI Puffer Cloud',
+            'description' => 'Text and image generation using your connected AI Puffer Cloud account.',
+            'credentials_url' => '',
+            'supports_images' => true,
+            'keyless' => true,
+            'hosted' => true,
+        ],
         'openai' => [
             'aipkit_provider' => 'OpenAI',
             'name' => 'OpenAI',
@@ -212,6 +221,9 @@ class AIPKit_WP_AI_Client_Settings
             return false;
         }
 
+        if ($config['aipkit_provider'] === 'AIPufferCloud') {
+            return class_exists('\\WPAICG\\Cloud\\Connection') && \WPAICG\Cloud\Connection::generation_ready();
+        }
         if (!empty($config['keyless'])) {
             return true;
         }

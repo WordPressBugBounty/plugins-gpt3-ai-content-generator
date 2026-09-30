@@ -66,6 +66,7 @@ $all_selectable_post_types = array_filter($all_selectable_post_types, function (
                         class="aipkit_sources_filter_select aipkit_sources_native_filter_select"
                     >
                         <option value=""><?php esc_html_e('All providers', 'gpt3-ai-content-generator'); ?></option>
+                        <option value="local"><?php esc_html_e('Local', 'gpt3-ai-content-generator'); ?></option>
                         <option value="openai"><?php esc_html_e('OpenAI', 'gpt3-ai-content-generator'); ?></option>
                         <option value="google"><?php esc_html_e('Google', 'gpt3-ai-content-generator'); ?></option>
                         <option value="pinecone"><?php esc_html_e('Pinecone', 'gpt3-ai-content-generator'); ?></option>
@@ -117,6 +118,7 @@ $all_selectable_post_types = array_filter($all_selectable_post_types, function (
                         class="aipkit_sources_filter_select aipkit_sources_native_filter_select"
                     >
                         <option value=""><?php esc_html_e('All providers', 'gpt3-ai-content-generator'); ?></option>
+                        <option value="local"><?php esc_html_e('Local', 'gpt3-ai-content-generator'); ?></option>
                         <option value="openai"><?php esc_html_e('OpenAI', 'gpt3-ai-content-generator'); ?></option>
                         <option value="google"><?php esc_html_e('Google', 'gpt3-ai-content-generator'); ?></option>
                         <option value="pinecone"><?php esc_html_e('Pinecone', 'gpt3-ai-content-generator'); ?></option>
@@ -349,6 +351,7 @@ $all_selectable_post_types = array_filter($all_selectable_post_types, function (
                                     <?php esc_html_e('Provider', 'gpt3-ai-content-generator'); ?>
                                 </label>
                                 <select id="aipkit_sources_training_provider" class="aipkit_sources_filter_select aipkit_sources_training_select">
+                                    <option value="local"><?php esc_html_e('Local', 'gpt3-ai-content-generator'); ?></option>
                                     <option value="openai"><?php esc_html_e('OpenAI', 'gpt3-ai-content-generator'); ?></option>
                                     <option value="google"><?php esc_html_e('Google', 'gpt3-ai-content-generator'); ?></option>
                                     <option value="pinecone"><?php esc_html_e('Pinecone', 'gpt3-ai-content-generator'); ?></option>
@@ -649,6 +652,7 @@ $all_selectable_post_types = array_filter($all_selectable_post_types, function (
                         <?php esc_html_e('Provider', 'gpt3-ai-content-generator'); ?>
                     </label>
                     <select id="aipkit_sources_store_modal_provider" class="aipkit_sources_filter_select">
+                        <option value="local"><?php esc_html_e('Local', 'gpt3-ai-content-generator'); ?></option>
                         <option value="openai"><?php esc_html_e('OpenAI', 'gpt3-ai-content-generator'); ?></option>
                         <option value="google"><?php esc_html_e('Google', 'gpt3-ai-content-generator'); ?></option>
                         <option value="pinecone"><?php esc_html_e('Pinecone', 'gpt3-ai-content-generator'); ?></option>

@@ -5,9 +5,8 @@ if (!defined('ABSPATH')) {
 
 // phpcs:disable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- This file only uses local helper/template variables and does not define public globals.
 
-$default_embedding_provider_key = isset($embedding_provider_options['openai'])
-    ? 'openai'
-    : (array_key_first($embedding_provider_options) ?: 'openai');
+$feature_defaults = \WPAICG\AIPKit_Providers::get_new_feature_defaults();
+$default_embedding_provider_key = $feature_defaults['vector_embedding_provider'];
 ?>
 
 <div class="aipkit_cw_vector_section">
@@ -24,7 +23,7 @@ $default_embedding_provider_key = isset($embedding_provider_options['openai'])
         id="aipkit_cw_vector_store_provider_hidden"
         name="vector_store_provider"
         class="aipkit_cw_vector_store_provider_field aipkit_autosave_trigger"
-        value="openai"
+        value="<?php echo esc_attr($feature_defaults['vector_store_provider']); ?>"
     >
 
     <div class="aipkit_cw_kb_row aipkit_cw_kb_row--mode">
@@ -40,6 +39,7 @@ $default_embedding_provider_key = isset($embedding_provider_options['openai'])
                 data-aipkit-cw-fit-selected
             >
                 <option value="off"><?php esc_html_e('Off', 'gpt3-ai-content-generator'); ?></option>
+                <option value="local"><?php esc_html_e('Local', 'gpt3-ai-content-generator'); ?></option>
                 <option value="openai"><?php esc_html_e('OpenAI', 'gpt3-ai-content-generator'); ?></option>
                 <option value="pinecone"><?php esc_html_e('Pinecone', 'gpt3-ai-content-generator'); ?></option>
                 <option value="qdrant"><?php esc_html_e('Qdrant', 'gpt3-ai-content-generator'); ?></option>
@@ -192,6 +192,32 @@ $default_embedding_provider_key = isset($embedding_provider_options['openai'])
                                 <option value="" disabled>
                                     <?php esc_html_e('No collections found', 'gpt3-ai-content-generator'); ?>
                                 </option>
+                            <?php endif; ?>
+                        </select>
+                    </div>
+
+                    <div class="aipkit_cw_vector_local_field" hidden>
+                        <select
+                            id="aipkit_cw_local_store_id"
+                            name="local_store_id"
+                            class="aipkit_form-input aipkit_vector_settings_select aipkit_cw_blended_chevron_select aipkit_autosave_trigger"
+                            data-aipkit-cw-fit-selected
+                            data-aipkit-local-store-select
+                            aria-label="<?php esc_attr_e('site knowledge base', 'gpt3-ai-content-generator'); ?>"
+                        >
+                            <?php
+                            if (!class_exists(\WPAICG\Vector\Providers\AIPKit_Vector_Local_Strategy::class)) {
+                                require_once WPAICG_PLUGIN_DIR . 'classes/knowledge-base/providers/local.php';
+                            }
+                            $local_stores = \WPAICG\Vector\Providers\AIPKit_Vector_Local_Strategy::stores();
+                            ?>
+                            <?php if ($local_stores): ?>
+                                <option value=""><?php esc_html_e('Select', 'gpt3-ai-content-generator'); ?></option>
+                                <?php foreach ($local_stores as $local_store): ?>
+                                    <option value="<?php echo esc_attr($local_store['id']); ?>"><?php echo esc_html($local_store['name']); ?></option>
+                                <?php endforeach; ?>
+                            <?php else: ?>
+                                <option value="" disabled><?php esc_html_e('No knowledge bases yet', 'gpt3-ai-content-generator'); ?></option>
                             <?php endif; ?>
                         </select>
                     </div>

@@ -43,6 +43,8 @@ class SSEStreamProcessor {
     public $final_usage_data       = null;
     public $log_base_data          = [];
     public $error_occurred         = false;
+    public $stream_parse_error     = null;
+    public $stream_error_data      = [];
     public $request_payload_log    = null;
     public $current_openai_response_id = null;
     public $used_previous_openai_response_id = false;
@@ -143,6 +145,8 @@ class SSEStreamProcessor {
         $this->incomplete_sse_buffer = '';
         $this->data_sent_to_frontend = false; $this->full_bot_response = ''; $this->final_usage_data = null;
         $this->log_base_data = $base_log_data; $this->current_stream_context = $stream_context;
+        $this->stream_parse_error = null;
+        $this->stream_error_data = [];
         $this->error_occurred = false; $this->request_payload_log = null; $this->current_openai_response_id = null;
         $this->used_previous_openai_response_id = $used_previous_openai_id;
         $this->current_google_interaction_id = null;
@@ -404,8 +408,18 @@ function start_stream_logic(
             }
         }
         if ($curl_error_num) {
-            $transport_error = $curl_error_msg;
-            $transport_error_code = 'curl_error_' . $curl_error_num;
+            // An intentional parser abort also produces CURLE_WRITE_ERROR.
+            // Preserve the provider error already sent to the browser in logs/triggers.
+            $transport_error = $processorInstance->stream_parse_error ?? $curl_error_msg;
+            $transport_error_code = $processorInstance->stream_parse_error !== null ? 'stream_response_error' : 'curl_error_' . $curl_error_num;
+        }
+
+        if ($final_http_code < 400 && $transport_error === '') {
+            $completion_error = $strategy->validate_stream_completion();
+            if (is_wp_error($completion_error)) {
+                $transport_error = $completion_error->get_error_message();
+                $transport_error_code = $completion_error->get_error_code();
+            }
         }
 
         if (!$processorInstance->get_error_occurred_status() && !empty($processorInstance->get_full_bot_response())) {
@@ -413,6 +427,7 @@ function start_stream_logic(
         }
 
         if ($transport_error !== '') {
+            $transport_error_code = $processorInstance->stream_error_data['provider_error_code'] ?? $transport_error_code;
             $error_message = "Connection Error: {$transport_error}";
             if (!$processorInstance->get_error_occurred_status()) {
                 $formatter->send_sse_error($error_message, false);
@@ -545,8 +560,10 @@ function process_stream_chunk_logic(\WPAICG\Core\Stream\Processor\SSEStreamProce
 
     if ($parsed['is_error'] && $parsed['delta']) {
          $parse_error = $parsed['delta'];
+         $processorInstance->stream_parse_error = $parse_error;
+         $processorInstance->stream_error_data = is_array($parsed['error_data'] ?? null) ? $parsed['error_data'] : [];
          if (!$processorInstance->get_error_occurred_status()) {
-            $formatter->send_sse_error($parsed['delta'], false);
+            $formatter->send_sse_error($parsed['delta'], false, $processorInstance->stream_error_data);
             $processorInstance->set_error_occurred_status(true);
             // Error handler will call log_bot_error_logic and dispatch trigger
          }

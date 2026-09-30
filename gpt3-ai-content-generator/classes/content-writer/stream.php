@@ -83,7 +83,7 @@ function process_content_writer_logic(
     $log_storage = $handlerInstance->get_log_storage();
 
     // Parameter extraction
-    $user_id            = $cached_data['user_id'] ?? get_current_user_id();
+    $user_id            = get_current_user_id();
     $conversation_uuid  = $cached_data['conversation_uuid'] ?? wp_generate_uuid4();
     $user_message       = $cached_data['user_message'] ?? '';
     $system_instruction = $cached_data['system_instruction'] ?? '';
@@ -177,6 +177,7 @@ function process_content_writer_logic(
                 null, // chroma file upload context id (optional)
                 $collected_vector_search_scores
             );
+            if (is_wp_error($vector_context)) { return $vector_context; }
             if (!empty($vector_context)) {
                 $system_instruction = $vector_context . "\n\n---\n\n" . $system_instruction;
             }

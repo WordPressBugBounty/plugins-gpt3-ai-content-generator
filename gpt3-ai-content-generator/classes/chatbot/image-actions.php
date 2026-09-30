@@ -110,7 +110,17 @@ class ChatbotImageAjaxHandler extends BaseAjaxHandler
             return;
         }
 
+        if (get_post_type($bot_id) !== \WPAICG\Chat\Admin\AdminSetup::POST_TYPE || get_post_status($bot_id) !== 'publish') {
+            $this->send_wp_error(new WP_Error('invalid_bot_id', __('Invalid chatbot specified.', 'gpt3-ai-content-generator'), ['status' => 400]));
+            return;
+        }
         $bot_settings = $this->bot_storage->get_chatbot_settings($bot_id);
+        if (!$bot_settings || ($bot_settings['enable_image_generation'] ?? '0') !== '1') {
+            $this->send_wp_error(new WP_Error('chat_image_generation_disabled', __('Image generation is not enabled for this chatbot.', 'gpt3-ai-content-generator'), ['status' => 403]));
+            return;
+        }
+        $rate_check = \WPAICG\Core\TokenManager\AIPKit_Token_Manager::check_public_request_rate();
+        if (is_wp_error($rate_check)) { $this->send_wp_error($rate_check); return; }
 
         $base_log_data = [
             'bot_id'             => $bot_id,
@@ -124,7 +134,7 @@ class ChatbotImageAjaxHandler extends BaseAjaxHandler
         ];
 
         $selected_image_model = $bot_settings['chat_image_model_id'] ?? \WPAICG\Chat\Storage\BotSettingsManager::get_default_model_id('OpenAIImage');
-        $provider_for_image = 'OpenAI';
+        $provider_for_image = '';
 
         $replicate_model_ids = [];
         if (class_exists('\WPAICG\AIPKit_Providers')) {
@@ -169,7 +179,9 @@ class ChatbotImageAjaxHandler extends BaseAjaxHandler
                 $xai_image_model_ids = wp_list_pluck($xai_image_models, 'id');
             }
         }
-        if (in_array($selected_image_model, $openrouter_image_model_ids, true)) {
+        if (strpos($selected_image_model, 'aipuffer/') === 0 || in_array($selected_image_model, wp_list_pluck(\WPAICG\Cloud\Connection::media_models('image_generate'), 'id'), true)) {
+            $provider_for_image = 'AIPufferCloud';
+        } elseif (in_array($selected_image_model, $openrouter_image_model_ids, true)) {
             $provider_for_image = 'OpenRouter';
         } elseif (in_array($selected_image_model, $google_image_model_ids, true)) {
             $provider_for_image = 'Google';
@@ -180,8 +192,12 @@ class ChatbotImageAjaxHandler extends BaseAjaxHandler
         } elseif (in_array($selected_image_model, $replicate_model_ids, true)) {
             $provider_for_image = 'Replicate';
         }
-        if ($provider_for_image === 'OpenAI') {
-            $selected_image_model = \WPAICG\AIPKit_Providers::normalize_openai_image_model($selected_image_model);
+        if ($provider_for_image === '' && in_array($selected_image_model, \WPAICG\AIPKit_Providers::get_openai_image_model_ids(), true)) {
+            $provider_for_image = 'OpenAI';
+        }
+        if ($provider_for_image === '') {
+            $this->send_wp_error(new WP_Error('chat_image_model_unavailable', __('The selected image model is unavailable. Sync models or select another image model.', 'gpt3-ai-content-generator'), ['status' => 400]));
+            return;
         }
 
         if ($this->token_manager) {

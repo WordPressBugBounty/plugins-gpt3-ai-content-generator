@@ -1524,6 +1524,22 @@ function get_models_logic(OpenRouterProviderStrategy $strategyInstance, array $a
     $options = $strategyInstance->get_request_options('models');
     $options['method'] = 'GET';
 
+    // The public model catalog does not authenticate the supplied key.
+    if (!empty($api_params['verify_credentials'])) {
+        $key_url = preg_replace('~/models/?$~', '/key', $url);
+        $key_response = wp_remote_get($key_url, array_merge($options, ['headers' => $headers]));
+        if (is_wp_error($key_response)) { return $key_response; }
+        $key_status = wp_remote_retrieve_response_code($key_response);
+        if ($key_status !== 200) {
+            return new WP_Error('openrouter_key_rejected', $strategyInstance->parse_error_response(wp_remote_retrieve_body($key_response), $key_status), ['status' => $key_status]);
+        }
+        $key_body = $strategyInstance->decode_json(wp_remote_retrieve_body($key_response), 'OpenRouter Key');
+        if (is_wp_error($key_body)) { return $key_body; }
+        if (!is_array($key_body['data'] ?? null) || !array_key_exists('label', $key_body['data'])) {
+            return new WP_Error('openrouter_key_response', __('OpenRouter returned an unexpected key response. Try again.', 'gpt3-ai-content-generator'));
+        }
+    }
+
     $response = wp_remote_get($url, array_merge($options, ['headers' => $headers]));
     if (is_wp_error($response)) {
         return $response;

@@ -588,7 +588,7 @@ $content_aware_enabled = in_array($content_aware_enabled, ['0', '1'], true)
     : BotSettingsManager::DEFAULT_CONTENT_AWARE_ENABLED;
 $vector_store_provider = $active_bot_settings['vector_store_provider']
     ?? BotSettingsManager::DEFAULT_VECTOR_STORE_PROVIDER;
-$allowed_vector_store_providers = ['openai', 'pinecone', 'qdrant', 'chroma', 'claude_files', 'google'];
+$allowed_vector_store_providers = ['local', 'openai', 'pinecone', 'qdrant', 'chroma', 'claude_files', 'google'];
 if (!in_array($vector_store_provider, $allowed_vector_store_providers, true)) {
     $vector_store_provider = BotSettingsManager::DEFAULT_VECTOR_STORE_PROVIDER;
 }
@@ -620,7 +620,7 @@ if (empty($allowed_embedding_providers)) {
 $default_embedding_provider_key = isset($embedding_provider_options[BotSettingsManager::DEFAULT_VECTOR_EMBEDDING_PROVIDER])
     ? BotSettingsManager::DEFAULT_VECTOR_EMBEDDING_PROVIDER
     : (array_key_first($embedding_provider_options) ?: BotSettingsManager::DEFAULT_VECTOR_EMBEDDING_PROVIDER);
-if (!in_array($vector_embedding_provider, $allowed_embedding_providers, true)) {
+if ($vector_embedding_provider !== '' && $vector_embedding_provider !== 'aipuffercloud' && !in_array($vector_embedding_provider, $allowed_embedding_providers, true)) {
     $vector_embedding_provider = $default_embedding_provider_key;
 }
 $vector_embedding_model = $active_bot_settings['vector_embedding_model'] ?? BotSettingsManager::get_default_model_id('OpenAIEmbedding');
@@ -648,6 +648,16 @@ $google_file_search_stores = [];
 $pinecone_indexes = [];
 $qdrant_collections = [];
 $chroma_collections = [];
+// Built-in knowledge bases (shown to users as "AI Puffer") and the ones this bot uses.
+$local_stores = [];
+if (!class_exists(\WPAICG\Vector\Providers\AIPKit_Vector_Local_Strategy::class) && file_exists(WPAICG_PLUGIN_DIR . 'classes/knowledge-base/providers/local.php')) {
+    require_once WPAICG_PLUGIN_DIR . 'classes/knowledge-base/provider-contracts.php';
+    require_once WPAICG_PLUGIN_DIR . 'classes/knowledge-base/providers/local.php';
+}
+if (class_exists(\WPAICG\Vector\Providers\AIPKit_Vector_Local_Strategy::class)) {
+    $local_stores = (new \WPAICG\Vector\Providers\AIPKit_Vector_Local_Strategy())->list_indexes();
+}
+$local_store_ids = is_array($active_bot_settings['local_store_ids'] ?? null) ? $active_bot_settings['local_store_ids'] : [];
 $embedding_models_by_provider = [];
 $openai_provider_data = [];
 $pinecone_provider_data = [];
@@ -701,6 +711,10 @@ $available_image_models = [
     'Azure' => AIPKit_Providers::get_azure_image_models(),
     'Google' => AIPKit_Providers::get_google_image_models(),
 ];
+if (class_exists('\\WPAICG\\Cloud\\Connection')) {
+    $cloud_image_models = \WPAICG\Cloud\Connection::media_models('image_generate');
+    if ($cloud_image_models) { $available_image_models['AIPufferCloud'] = $cloud_image_models; }
+}
 if (isset($openrouter_image_model_list) && is_array($openrouter_image_model_list) && !empty($openrouter_image_model_list)) {
     $available_image_models['OpenRouter'] = $openrouter_image_model_list;
 }
@@ -718,7 +732,8 @@ $enable_voice_input = in_array($enable_voice_input, ['0', '1'], true)
     : BotSettingsManager::DEFAULT_ENABLE_VOICE_INPUT;
 $stt_provider = $active_bot_settings['stt_provider']
     ?? BotSettingsManager::DEFAULT_STT_PROVIDER;
-$allowed_stt_providers = ['OpenAI', 'Google', 'Azure'];
+$allowed_stt_providers = ['', 'OpenAI', 'Google', 'Azure'];
+if ($stt_provider === 'AIPufferCloud' || \WPAICG\AIPKit_Providers::provider_supports_capability('AIPufferCloud', 'stt')) { $allowed_stt_providers[] = 'AIPufferCloud'; }
 if (!in_array($stt_provider, $allowed_stt_providers, true)) {
     $stt_provider = BotSettingsManager::DEFAULT_STT_PROVIDER;
 }
@@ -727,6 +742,7 @@ $stt_openai_model_id = $active_bot_settings['stt_openai_model_id']
 $openai_stt_models = AIPKit_Providers::get_openai_stt_models();
 $stt_google_model_id = $active_bot_settings['stt_google_model_id']
     ?? AIPKit_Providers::normalize_google_stt_model('');
+$stt_cloud_model_id = $active_bot_settings['stt_cloud_model_id'] ?? (\WPAICG\Cloud\Connection::media_models('transcribe')[0]['id'] ?? '');
 $google_stt_models = AIPKit_Providers::get_google_stt_models();
 
 $tts_enabled = $active_bot_settings['tts_enabled']
@@ -737,7 +753,8 @@ $tts_enabled = in_array($tts_enabled, ['0', '1'], true)
 $tts_provider = $active_bot_settings['tts_provider']
     ?? BotSettingsManager::DEFAULT_TTS_PROVIDER;
 $tts_providers = ['Google', 'OpenAI', 'ElevenLabs'];
-if (!in_array($tts_provider, $tts_providers, true)) {
+if ($tts_provider === 'AIPufferCloud' || \WPAICG\AIPKit_Providers::provider_supports_capability('AIPufferCloud', 'tts')) { $tts_providers[] = 'AIPufferCloud'; }
+if ($tts_provider !== '' && !in_array($tts_provider, $tts_providers, true)) {
     $tts_provider = BotSettingsManager::DEFAULT_TTS_PROVIDER;
 }
 $tts_google_voice_id = AIPKit_Providers::normalize_google_tts_voice($active_bot_settings['tts_google_voice_id'] ?? '');
@@ -745,6 +762,8 @@ $tts_google_model_id = AIPKit_Providers::normalize_google_tts_model($active_bot_
 $tts_openai_voice_id = $active_bot_settings['tts_openai_voice_id'] ?? BotSettingsManager::get_default_model_id('OpenAIVoices');
 $tts_openai_model_id = $active_bot_settings['tts_openai_model_id']
     ?? BotSettingsManager::get_default_model_id('OpenAITTS');
+$tts_cloud_voice_id = $active_bot_settings['tts_cloud_voice_id'] ?? 'alloy';
+$tts_cloud_model_id = $active_bot_settings['tts_cloud_model_id'] ?? (\WPAICG\Cloud\Connection::media_models('speech_generate')[0]['id'] ?? '');
 $tts_elevenlabs_voice_id = $active_bot_settings['tts_elevenlabs_voice_id'] ?? '';
 $tts_elevenlabs_model_id = $active_bot_settings['tts_elevenlabs_model_id']
     ?? BotSettingsManager::get_default_model_id('ElevenLabsModels');

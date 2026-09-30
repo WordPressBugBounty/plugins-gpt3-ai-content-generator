@@ -12,9 +12,8 @@ function aipkit_render_automation_context_settings(array $aipkit_autogpt_context
     $qdrant_collections = $aipkit_view_data['qdrant_collections'] ?? [];
     $chroma_collections = $aipkit_view_data['chroma_collections'] ?? [];
     $embedding_provider_options = \WPAICG\AIPKit_Providers::get_embedding_provider_map($aipkit_autogpt_context_config['embedding_context'] ?? 'autogpt_content_writing_ui');
-    $default_embedding_provider_key = isset($embedding_provider_options['openai'])
-        ? 'openai'
-        : (array_key_first($embedding_provider_options) ?: 'openai');
+    $feature_defaults = \WPAICG\AIPKit_Providers::get_new_feature_defaults();
+    $default_embedding_provider_key = $feature_defaults['vector_embedding_provider'];
     $aipkit_autogpt_context_scope = isset($aipkit_autogpt_context_config['scope'])
         ? (string) $aipkit_autogpt_context_config['scope']
         : 'cw';
@@ -69,7 +68,7 @@ function aipkit_render_automation_context_settings(array $aipkit_autogpt_context
             id="<?php echo esc_attr($aipkit_autogpt_context_provider_field_id); ?>"
             name="<?php echo esc_attr($aipkit_autogpt_context_name_prefix . 'vector_store_provider'); ?>"
             class="<?php echo esc_attr(($aipkit_autogpt_context_scope === 'cw' ? 'aipkit_task_cw_vector_store_provider_field' : '') . $aipkit_autogpt_context_autosave_class); ?>"
-            value="openai"
+            value="<?php echo esc_attr($feature_defaults['vector_store_provider']); ?>"
         >
     
         <div class="aipkit_cw_kb_row aipkit_autogpt_question_row aipkit_cw_kb_row--mode">
@@ -82,6 +81,7 @@ function aipkit_render_automation_context_settings(array $aipkit_autogpt_context
                     class="aipkit_form-input aipkit_cw_blended_chevron_select"
                 >
                     <option value="off"><?php esc_html_e('Off', 'gpt3-ai-content-generator'); ?></option>
+                    <option value="local"><?php esc_html_e('Local', 'gpt3-ai-content-generator'); ?></option>
                     <option value="openai"><?php esc_html_e('OpenAI', 'gpt3-ai-content-generator'); ?></option>
                     <option value="pinecone"><?php esc_html_e('Pinecone', 'gpt3-ai-content-generator'); ?></option>
                     <option value="qdrant"><?php esc_html_e('Qdrant', 'gpt3-ai-content-generator'); ?></option>
@@ -236,6 +236,31 @@ function aipkit_render_automation_context_settings(array $aipkit_autogpt_context
                             </select>
                         </div>
     
+                        <div class="<?php echo esc_attr('aipkit_task_' . $aipkit_autogpt_context_scope . '_vector_local_field'); ?>" hidden>
+                            <select
+                                id="<?php echo esc_attr($aipkit_autogpt_context_base . '_local_store_id'); ?>"
+                                name="<?php echo esc_attr($aipkit_autogpt_context_name_prefix . 'local_store_id'); ?>"
+                                class="<?php echo esc_attr('aipkit_form-input aipkit_vector_settings_select' . $aipkit_autogpt_context_autosave_class); ?>"
+                                data-aipkit-local-store-select
+                                aria-label="<?php esc_attr_e('site knowledge base', 'gpt3-ai-content-generator'); ?>"
+                            >
+                                <?php
+                                if (!class_exists(\WPAICG\Vector\Providers\AIPKit_Vector_Local_Strategy::class)) {
+                                    require_once WPAICG_PLUGIN_DIR . 'classes/knowledge-base/providers/local.php';
+                                }
+                                $aipkit_local_stores = \WPAICG\Vector\Providers\AIPKit_Vector_Local_Strategy::stores();
+                                ?>
+                                <?php if ($aipkit_local_stores) : ?>
+                                    <option value=""><?php esc_html_e('Select knowledge base', 'gpt3-ai-content-generator'); ?></option>
+                                    <?php foreach ($aipkit_local_stores as $aipkit_local_store) : ?>
+                                        <option value="<?php echo esc_attr($aipkit_local_store['id']); ?>"><?php echo esc_html($aipkit_local_store['name']); ?></option>
+                                    <?php endforeach; ?>
+                                <?php else : ?>
+                                    <option value="" disabled><?php esc_html_e('No knowledge bases yet', 'gpt3-ai-content-generator'); ?></option>
+                                <?php endif; ?>
+                            </select>
+                        </div>
+
                         <div class="<?php echo esc_attr('aipkit_task_' . $aipkit_autogpt_context_scope . '_vector_chroma_field'); ?>" hidden>
                             <select
                                 id="<?php echo esc_attr($aipkit_autogpt_context_chroma_select_id); ?>"

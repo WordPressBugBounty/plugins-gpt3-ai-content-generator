@@ -185,7 +185,7 @@ $render_tool_enable_control = static function (string $tool_key, array $tool_opt
         </div>
     </div>
 
-    <div class="aipkit_tools_feature_row aipkit_popover_option_row aipkit_image_analysis_popover_row<?php echo !empty($tools_master_options['image_analysis']['enabled']) ? ' aipkit_tools_feature_row--is-enabled' : ''; ?>" data-aipkit-tool-key="image_analysis" style="<?php echo in_array($current_provider_for_this_bot, ['OpenAI', 'Google', 'Claude', 'OpenRouter', 'xAI'], true) ? '' : 'display:none;'; ?>">
+    <div class="aipkit_tools_feature_row aipkit_popover_option_row aipkit_image_analysis_popover_row<?php echo !empty($tools_master_options['image_analysis']['enabled']) ? ' aipkit_tools_feature_row--is-enabled' : ''; ?>" data-aipkit-tool-key="image_analysis" style="<?php echo \WPAICG\AIPKit_Providers::model_supports_image_input($current_provider_for_this_bot, (string) ($active_bot_settings['model'] ?? '')) ? '' : 'display:none;'; ?>">
         <div class="aipkit_tools_feature_left">
             <?php $render_tool_enable_control('image_analysis', $tools_master_options['image_analysis'], 'aipkit_bot_' . $bot_id . '_image_analysis_tool_toggle'); ?>
         </div>
@@ -304,6 +304,7 @@ $render_tool_enable_control = static function (string $tool_key, array $tool_opt
             $aipkit_notice_id = 'aipkit_tools_image_provider_warning_' . (string) $bot_id;
             $aipkit_notice_class = 'aipkit_tools_image_provider_warning';
             $aipkit_notice_context = __('generate images in this chatbot', 'gpt3-ai-content-generator');
+            $aipkit_notice_model_source = 'aipkit_bot_' . $bot_id . '_chat_image_model_id_tools';
             include WPAICG_PLUGIN_DIR . 'admin/views/shared/provider-key-notice.php';
             ?>
                     </div>

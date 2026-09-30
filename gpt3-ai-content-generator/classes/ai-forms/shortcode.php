@@ -111,6 +111,7 @@ class AIPKit_AI_Form_Shortcode
             class_exists('\\WPAICG\\AIPKit_Providers')
         ) {
             $all_models = [
+                'aipuffercloud' => \WPAICG\AIPKit_Providers::get_model_list('AIPufferCloud'),
                 'openai' => \WPAICG\AIPKit_Providers::get_openai_models(),
                 'google' => \WPAICG\AIPKit_Providers::get_google_models(),
                 'claude' => \WPAICG\AIPKit_Providers::get_claude_models(),
@@ -364,6 +365,8 @@ function render_form_html_logic(
     ob_start();
     $labels = $form_data['labels'] ?? [];
     $save_as_post_nonce = wp_create_nonce('aipkit_ai_form_save_as_post_nonce');
+    $selection_flags = (int) $show_provider . (int) $show_model;
+    $selection_policy = $selection_flags . ':' . wp_hash('ai_form_selection|' . $form_data['id'] . '|' . $selection_flags);
     $conversation_ui_preset = class_exists(PaidShortcode::class)
         ? PaidShortcode::get_conversation_ui_preset($form_data)
         : 'full';
@@ -371,7 +374,8 @@ function render_form_html_logic(
     <div 
         class="aipkit-ai-form-wrapper aipkit-theme-<?php echo esc_attr($theme); ?>" 
         id="<?php echo esc_attr($unique_form_html_id); ?>" 
-        data-form-id="<?php echo esc_attr($form_data['id']); ?>" 
+        data-form-id="<?php echo esc_attr($form_data['id']); ?>"
+        data-selection-policy="<?php echo esc_attr($selection_policy); ?>"
         data-nonce="<?php echo esc_attr($ajax_nonce); ?>"
         data-ai-provider="<?php echo esc_attr($form_data['ai_provider'] ?? 'OpenAI'); ?>"
         data-show-provider="<?php echo $show_provider ? 'true' : 'false'; ?>"
@@ -405,7 +409,7 @@ function render_form_html_logic(
                             <label class="aipkit_form-label" for="aipkit-aiform-provider-<?php echo esc_attr($form_data['id']); ?>"><?php echo esc_html($labels['provider_label']); ?></label>
                             <select id="aipkit-aiform-provider-<?php echo esc_attr($form_data['id']); ?>" name="aipkit_form_field[ai_provider]" class="aipkit_form-input aipkit_aiform_provider_select">
                                 <?php
-                                $all_providers = ['OpenAI', 'Google', 'Claude', 'OpenRouter', 'Azure', 'DeepSeek', 'xAI'];
+                                $all_providers = \WPAICG\AIPKit_Providers::get_text_generation_providers(false);
                                 if (class_exists(PaidShortcode::class)) {
                                     $all_providers = PaidShortcode::add_providers($all_providers);
                                 }
@@ -414,7 +418,7 @@ function render_form_html_logic(
                                 $providers_to_show = !empty($allowed_providers) ? array_intersect($all_providers, $allowed_providers) : $all_providers;
 
                         foreach ($providers_to_show as $provider_name) {
-                            echo '<option value="' . esc_attr($provider_name) . '"' . selected($form_data['ai_provider'], $provider_name, false) . '>' . esc_html($provider_name) . '</option>';
+                            echo '<option value="' . esc_attr($provider_name) . '"' . selected($form_data['ai_provider'], $provider_name, false) . '>' . esc_html(\WPAICG\AIPKit_Providers::get_provider_display_name((string) $provider_name)) . '</option>';
                         }
                         ?>
                             </select>

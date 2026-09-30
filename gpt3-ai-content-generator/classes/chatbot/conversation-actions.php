@@ -293,13 +293,22 @@ class ConversationAjaxHandler extends BaseAjaxHandler {
         }
     }
 
-    /**
-     * AJAX handler for generating speech from text.
-     * Uses FRONTEND nonce as it's called from the chat UI.
-     * REVISED: Return base64 encoded audio data instead of a file URL.
-     * REVISED: Added OpenAI format mapping.
-     * @since NEXT_VERSION
-     */
+    /** Returns accounting status for an audio request owned by this visitor. */
+    public function ajax_speech_request_status() {
+        $permission = $this->check_frontend_permissions('aipkit_frontend_chat_nonce');
+        if (is_wp_error($permission)) { $this->send_wp_error($permission); return; }
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Verified above.
+        $bot_id = absint(wp_unslash($_POST['bot_id'] ?? 0));
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Verified above.
+        $id = sanitize_text_field(wp_unslash($_POST['operation_id'] ?? ''));
+        $rate = \WPAICG\Core\TokenManager\AIPKit_Token_Manager::check_public_request_rate();
+        if (is_wp_error($rate)) { $this->send_wp_error($rate); return; }
+        $result = AIPKit_Speech_Manager::request_status($id, $bot_id);
+        if (is_wp_error($result)) { $this->send_wp_error($result); return; }
+        wp_send_json_success($result);
+    }
+
+    /** Handles AJAX requests to generate speech from text. */
     public function ajax_generate_speech() {
         $permission_check = $this->check_frontend_permissions('aipkit_frontend_chat_nonce');
         if (is_wp_error($permission_check)) { $this->send_wp_error($permission_check); return; }
@@ -315,15 +324,33 @@ class ConversationAjaxHandler extends BaseAjaxHandler {
         if (empty($text)) { wp_send_json_error(['message' => __('Text cannot be empty.', 'gpt3-ai-content-generator')], 400); return; }
         if (empty($bot_id)) { wp_send_json_error(['message' => __('Bot ID is required.', 'gpt3-ai-content-generator')], 400); return; }
 
+        if (get_post_type($bot_id) !== \WPAICG\Chat\Admin\AdminSetup::POST_TYPE || get_post_status($bot_id) !== 'publish') {
+            wp_send_json_error(['message' => __('Invalid chatbot specified.', 'gpt3-ai-content-generator')], 400); return;
+        }
         if (!class_exists(\WPAICG\Chat\Storage\BotStorage::class)) {
              wp_send_json_error(['message' => __('Internal error: Cannot load bot storage.', 'gpt3-ai-content-generator')], 500);
          }
         $bot_storage = new \WPAICG\Chat\Storage\BotStorage();
         $bot_settings = $bot_storage->get_chatbot_settings($bot_id);
 
+        if (!$bot_settings) {
+            wp_send_json_error(['message' => __('Invalid chatbot specified.', 'gpt3-ai-content-generator')], 400); return;
+        }
+
         if (!isset($bot_settings['tts_enabled']) || $bot_settings['tts_enabled'] !== '1') {
              wp_send_json_error(['message' => __('Voice playback is not enabled for this chatbot.', 'gpt3-ai-content-generator')], 400); return;
         }
+
+        $rate_check = \WPAICG\Core\TokenManager\AIPKit_Token_Manager::check_public_request_rate();
+        if (is_wp_error($rate_check)) { $this->send_wp_error($rate_check); return; }
+
+        require_once WPAICG_PLUGIN_DIR . 'classes/chatbot/pricing-context.php';
+        $user_id = get_current_user_id() ?: null;
+        $session_id = isset($_POST['session_id']) ? sanitize_text_field(wp_unslash($_POST['session_id'])) : null;
+        $tokens = new \WPAICG\Core\TokenManager\AIPKit_Token_Manager();
+        $usage_context = \WPAICG\Chat\Core\Pricing\build_speech_pricing_context_logic($bot_settings, 'tts', $text);
+        $allowance = $tokens->check_and_reset_tokens($user_id, $session_id, $bot_id, 'chat', $usage_context);
+        if (is_wp_error($allowance)) { $this->send_wp_error($allowance); return; }
 
         $tts_provider = $bot_settings['tts_provider'] ?? 'Google';
         $tts_voice_id = $bot_settings['tts_voice_id'] ?? '';
@@ -346,13 +373,22 @@ class ConversationAjaxHandler extends BaseAjaxHandler {
         if ($tts_provider === 'Google' && !empty($bot_settings['tts_google_model_id'])) {
             $tts_options['google_model_id'] = $bot_settings['tts_google_model_id'];
         }
+        if ($tts_provider === 'AIPufferCloud' && !empty($bot_settings['tts_cloud_model_id'])) {
+            $tts_options['cloud_model_id'] = $bot_settings['tts_cloud_model_id'];
+        }
 
-        $result = $this->speech_manager->text_to_speech($text, $tts_options);
+        $operation_id = sanitize_text_field(wp_unslash($_POST['operation_id'] ?? ''));
+        if ($tts_provider === 'AIPufferCloud') { $tts_options['cloud_operation_id'] = $operation_id; }
+        $dispatch = function () use ($text, $tts_options) { return $this->speech_manager->text_to_speech($text, $tts_options); };
+        $result = $tts_provider === 'AIPufferCloud'
+            ? AIPKit_Speech_Manager::run_cloud_request($operation_id, $bot_id, 'speech_generate', $dispatch)
+            : $dispatch();
 
         if (is_wp_error($result)) {
             $error_code = $result->get_error_code();
             $error_message = $result->get_error_message();
-            $status_code = 400;
+            $error_data = (array) $result->get_error_data();
+            $status_code = (int) ($error_data['status'] ?? $error_data['status_code'] ?? 400);
             if ($error_code === 'missing_api_key') {
                 /* translators: %s: The name of the Text-to-Speech provider (e.g., Google, OpenAI). */
                  $error_message = sprintf(__('TTS failed: %s API Key is missing in main settings.', 'gpt3-ai-content-generator'), $tts_provider);
@@ -360,8 +396,9 @@ class ConversationAjaxHandler extends BaseAjaxHandler {
             } elseif (strpos($error_code, '_http_error') !== false || strpos($error_code, 'dependency_missing') !== false) {
                 $status_code = 500;
             }
-             $this->send_wp_error(new WP_Error($error_code, $error_message, ['status' => $status_code]));
+             $this->send_wp_error(new WP_Error($error_code, $error_message, array_merge($error_data, ['status' => $status_code])));
         } else {
+             $tokens->record_token_usage($user_id, $session_id, $bot_id, $usage_context['fallback_units'], 'chat', $usage_context);
              wp_send_json_success(['audio_data_base64' => $result, 'mime_type' => $mime_type]);
         }
     }

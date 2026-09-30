@@ -151,6 +151,7 @@ class WP_AI_Content_Generator_Public
 
                 if (class_exists('\\WPAICG\\AIPKit_Providers')) {
                     $all_models = [
+                        'aipuffercloud' => \WPAICG\AIPKit_Providers::get_model_list('AIPufferCloud'),
                         'openai'     => \WPAICG\AIPKit_Providers::get_openai_models(),
                         'google'     => \WPAICG\AIPKit_Providers::get_google_models(),
                         'claude'     => \WPAICG\AIPKit_Providers::get_claude_models(),
