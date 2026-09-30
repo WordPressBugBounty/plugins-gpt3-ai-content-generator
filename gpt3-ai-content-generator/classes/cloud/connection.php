@@ -209,6 +209,14 @@ final class Connection
         } catch (\Throwable $error) { /* An unreadable connection already fails closed. */ }
     }
 
+    /** Refresh once after a verified Freemius account sync, not during ordinary page loads. */
+    public static function sync_verified_account($user): void
+    {
+        if (!self::allowed() || !is_object($user) || ($user->is_verified ?? null) !== true
+            || !self::generation_ready() || (self::credit_state()['emailVerified'] ?? null) === true) { return; }
+        self::transition('verify');
+    }
+
     public static function forget_connection(): void
     {
         try {
@@ -326,10 +334,10 @@ final class Connection
         if ($per_reply > 0) {
             /* translators: %s: example credits per chat reply. */
             $model['credits'] = sprintf(_n('≈%s credit', '≈%s credits', $per_reply, 'gpt3-ai-content-generator'), number_format_i18n($per_reply));
-            $model['credits_description'] = __('Example cost. Actual credits depend on input, output and reasoning tokens used.', 'gpt3-ai-content-generator');
+            $model['credits_description'] = __('Minimum 1 credit per successful request. Larger requests depend on input, output and reasoning tokens used.', 'gpt3-ai-content-generator');
             if (isset($model['estimates']['chatInput'], $model['estimates']['chatOutput'])) {
                 /* translators: 1: example input tokens, 2: example output tokens. */
-                $model['credits_description'] = sprintf(__('Example: %1$s input and %2$s output tokens, including reasoning. Actual credits depend on usage.', 'gpt3-ai-content-generator'), number_format_i18n($model['estimates']['chatInput']), number_format_i18n($model['estimates']['chatOutput']));
+                $model['credits_description'] = sprintf(__('Minimum 1 credit per successful request. Example: %1$s input and %2$s output tokens, including reasoning. Larger requests cost more based on usage.', 'gpt3-ai-content-generator'), number_format_i18n($model['estimates']['chatInput']), number_format_i18n($model['estimates']['chatOutput']));
             }
         }
         return $model;
@@ -429,9 +437,11 @@ final class Connection
         return $units !== null && $units > 0 && $units < self::LOW_CREDITS * 1000;
     }
 
-    /** A request can be unaffordable without exhausting the account balance. */
+    /** An unactivated free allowance or an unaffordable request is not an exhausted balance. */
     public static function credits_exhausted(): bool
     {
+        $allowance = self::credit_state()['credits']['allowance']['state'] ?? '';
+        if (in_array($allowance, ['not_enrolled', 'verification_required', 'verification_unavailable'], true)) { return false; }
         $units = self::available_credit_units();
         return $units !== null && $units <= 0;
     }
@@ -1088,6 +1098,7 @@ final class Connection
                 if (!is_int($price[$key] ?? null) || $price[$key] < 1 || $price[$key] > 10000000) { throw new RuntimeException('invalid_catalog'); }
             }
             if ((float) $price['cachedRate'] > (float) $price['inputRate']) { throw new RuntimeException('invalid_catalog'); }
+            if (($price['minimumCharge'] ?? null) !== '1000') { throw new RuntimeException('invalid_catalog'); }
             // Reasoning levels are optional (older Cloud versions omit them); only known levels are kept.
             $reasoning = null;
             if (isset($model['reasoning']) && is_array($model['reasoning']) && is_array($model['reasoning']['levels'] ?? null)) {
@@ -1102,7 +1113,7 @@ final class Connection
                 }
             }
             $ids[$model['id']] = true;
-            $models[] = ['id' => $model['id'], 'name' => $model['name'], 'operation' => 'text_chat', 'price' => array_intersect_key($price, array_flip(['id', 'inputRate', 'cachedRate', 'outputRate', 'maxInput', 'maxOutput'])), 'reasoning' => $reasoning, 'capabilities' => ['image_input' => ($model['capabilities']['image_input'] ?? false) === true], 'estimates' => $estimates];
+            $models[] = ['id' => $model['id'], 'name' => $model['name'], 'operation' => 'text_chat', 'price' => array_intersect_key($price, array_flip(['id', 'inputRate', 'cachedRate', 'outputRate', 'minimumCharge', 'maxInput', 'maxOutput'])), 'reasoning' => $reasoning, 'capabilities' => ['image_input' => ($model['capabilities']['image_input'] ?? false) === true], 'estimates' => $estimates];
         }
         if ($value['defaultModel'] !== null && (!is_string($value['defaultModel']) || !isset($ids[$value['defaultModel']]))) { throw new RuntimeException('invalid_catalog'); }
         // Embedding models (Cloud catalogs from 2026-09 on). Optional; a malformed entry is dropped, never

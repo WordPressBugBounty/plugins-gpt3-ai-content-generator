@@ -68,6 +68,7 @@ class AIPKit_Hook_Manager
         $admin_like_request = is_admin() || wp_doing_ajax();
         if (class_exists(\WPAICG\Cloud\Connection::class)) {
             wpaicg_gacg_fs()->add_action('after_account_connection', [\WPAICG\Cloud\Connection::class, 'account_changed']);
+            wpaicg_gacg_fs()->add_action('after_account_user_sync', [\WPAICG\Cloud\Connection::class, 'sync_verified_account']);
             wpaicg_gacg_fs()->add_action('after_account_delete', [\WPAICG\Cloud\Connection::class, 'forget_connection']);
             wpaicg_gacg_fs()->add_action('after_uninstall', [\WPAICG\Cloud\Connection::class, 'uninstall']);
             add_action('wp_ajax_aipkit_cloud_connection', [\WPAICG\Cloud\Connection::class, 'handle']);
