@@ -197,7 +197,7 @@ function aipkit_render_automation_image_settings(): void
                                 'class_name' => 'aipkit_autogpt_unified_model_selector',
                                 'capability' => 'image_generation',
                                 'show_trigger_logo' => true,
-                                'show_provider_diagnostics' => false,
+                                'show_provider_diagnostics' => true,
                                 'search_placeholder' => __('Search image sources...', 'gpt3-ai-content-generator'),
                                 'empty_text' => __('No image sources found', 'gpt3-ai-content-generator'),
                             ];

@@ -75,6 +75,7 @@ class AIPKit_Hook_Manager
             if (is_admin()) {
                 add_action('admin_init', [\WPAICG\Cloud\Connection::class, 'remove_scheduled_sync']);
                 \WPAICG\Cloud\CreditNotice::register();
+                \WPAICG\Cloud\Announcement::register();
             }
         }
         if ($admin_like_request && class_exists(\WPAICG\Admin\Onboarding::class)) {

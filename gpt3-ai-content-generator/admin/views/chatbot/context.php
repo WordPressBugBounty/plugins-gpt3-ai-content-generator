@@ -680,7 +680,7 @@ $knowledge_config_panel_id = 'aipkit_bot_' . $bot_id . '_knowledge_config_panel'
                             <select
                                 id="aipkit_bot_<?php echo esc_attr($bot_id); ?>_vector_embedding_select_modal"
                                 class="aipkit_popover_option_select aipkit_vector_embedding_select"
-                                data-aipkit-universal-model-combined="1"
+                                data-aipkit-universal-model-combined="1" data-aipkit-universal-model-capability="embeddings"
                             >
                                 <?php
                                 echo '<option value="" hidden ' . selected($vector_embedding_model, '', false) . '></option>';

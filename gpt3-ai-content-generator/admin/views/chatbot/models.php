@@ -243,9 +243,7 @@ $render_simple_model_field = static function (array $config) use ($bot_id, $save
             ['provider' => 'xAI', 'slug' => 'xai'],
         ];
         $paid_model_options = WPAICG_PLUGIN_DIR . 'lib/views/chatbot/model-options.php';
-        if (class_exists('\\WPAICG\\Cloud\\Connection') && \WPAICG\Cloud\Connection::generation_ready()) {
-            $model_fields[] = ['provider' => 'AIPufferCloud', 'slug' => 'aipuffercloud'];
-        }
+        $model_fields[] = ['provider' => 'AIPufferCloud', 'slug' => 'aipuffercloud'];
         if (!empty($is_pro) && is_file($paid_model_options)) {
             $model_fields = array_merge($model_fields, include $paid_model_options);
         }

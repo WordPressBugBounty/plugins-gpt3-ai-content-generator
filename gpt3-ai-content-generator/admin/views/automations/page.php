@@ -69,7 +69,7 @@ $frequencies = [
 $is_pro = aipkit_dashboard::is_pro_plan(); // Define is_pro for partials
 
 // For Content Writing Task Type
-$cw_providers_for_select = \WPAICG\AIPKit_Providers::get_text_generation_providers();
+$cw_providers_for_select = \WPAICG\AIPKit_Providers::get_text_generation_providers(true, true, true);
 $cw_ai_parameters = AIPKIT_AI_Settings::get_ai_parameters();
 $cw_default_temperature = $cw_ai_parameters['temperature'] ?? 1.0;
 $cw_available_post_types = $all_post_types;
@@ -198,7 +198,6 @@ $aipkit_autogpt_cron_summary = [
 ?>
 <?php
 $aipkit_notice_id = 'aipkit_provider_notice_autogpt';
-$aipkit_notice_class = 'aipkit_provider_key_notice--centered-workspace';
 $aipkit_notice_context = __('run this automation', 'gpt3-ai-content-generator');
 include WPAICG_PLUGIN_DIR . 'admin/views/shared/provider-key-notice.php';
 include WPAICG_PLUGIN_DIR . 'admin/views/shared/seo-plugin-conflict-notice.php';
@@ -220,7 +219,7 @@ if ($aipkit_runner_notice_state === 'server_pending') {
 }
 ?>
 <div
-    class="aipkit_notification_bar aipkit_notification_bar--warning aipkit_notification_bar--centered-workspace aipkit_autogpt_cron_notice"
+    class="aipkit_notification_bar aipkit_notification_bar--warning aipkit_autogpt_cron_notice"
     data-aipkit-dismissible-notice="autogpt-cron-runner-unavailable-v2"
     data-aipkit-cron-runner-notice
     data-aipkit-message-disabled="<?php echo esc_attr__('WP-Cron is disabled. Automated tasks won’t run.', 'gpt3-ai-content-generator'); ?>"
@@ -257,7 +256,7 @@ if ($aipkit_runner_notice_state === 'server_pending') {
 </div>
 <?php elseif ($aipkit_cron_state === 'overdue') : ?>
 <div
-    class="aipkit_notification_bar aipkit_notification_bar--warning aipkit_notification_bar--centered-workspace"
+    class="aipkit_notification_bar aipkit_notification_bar--warning"
     data-aipkit-dismissible-notice="autogpt-wp-cron-overdue-v1"
 >
     <div class="aipkit_notification_bar__icon" aria-hidden="true">

@@ -643,7 +643,6 @@ final class Connection
     public static function allowance_message(array $credits): string
     {
         $messages = [
-            'suspended' => __('Free monthly credits are currently unavailable. Purchased credits remain available.', 'gpt3-ai-content-generator'),
             'restricted' => __('This account needs attention before more credits can be used. Please contact support.', 'gpt3-ai-content-generator'),
             'enrollment_daily_limit' => __('Today’s free-credit enrollment limit has been reached. Try again tomorrow. Purchased credits remain available.', 'gpt3-ai-content-generator'),
             'policy_unavailable' => __('Free-credit enrollment is temporarily unavailable. Try again later or contact support.', 'gpt3-ai-content-generator'),

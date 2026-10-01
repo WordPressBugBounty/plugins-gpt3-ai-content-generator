@@ -5,22 +5,14 @@ if (!defined('ABSPATH')) {
 
 // phpcs:disable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- This file only uses local helper/template variables and does not define public globals.
 $hide_stt_controls = false;
-$cloud_audio_connected = !empty(\WPAICG\Cloud\Connection::display()['connected']);
 $cloud_stt_models = \WPAICG\Cloud\Connection::media_models('transcribe');
 $cloud_tts_models = \WPAICG\Cloud\Connection::media_models('speech_generate');
-$cloud_audio_unavailable_label = $cloud_audio_connected
-    ? __('AI Puffer Cloud models unavailable', 'gpt3-ai-content-generator')
-    : __('AI Puffer Cloud disconnected', 'gpt3-ai-content-generator');
 $stt_provider_options = [
     '' => __('Select a provider', 'gpt3-ai-content-generator'),
     'OpenAI' => __('OpenAI', 'gpt3-ai-content-generator'),
     'Google' => __('Google', 'gpt3-ai-content-generator'),
+    'AIPufferCloud' => __('AI Puffer', 'gpt3-ai-content-generator'),
 ];
-if ($stt_provider === 'AIPufferCloud' || \WPAICG\AIPKit_Providers::provider_supports_capability('AIPufferCloud', 'stt')) {
-    $stt_provider_options['AIPufferCloud'] = $cloud_audio_connected && $cloud_stt_models
-        ? __('AI Puffer Cloud', 'gpt3-ai-content-generator')
-        : $cloud_audio_unavailable_label;
-}
 $hide_stt_provider_field = count($stt_provider_options) <= 1;
 $selected_stt_provider_for_ui = array_key_exists((string) $stt_provider, $stt_provider_options)
     ? (string) $stt_provider
@@ -108,7 +100,7 @@ $tts_empty_labels = ['voice' => __('-- Select Voice --', 'gpt3-ai-content-genera
                         <label class="aipkit_popover_option_label" for="aipkit_bot_<?php echo esc_attr($bot_id . '_' . $stt_field['name']); ?>_sheet">
                             <?php esc_html_e('Model', 'gpt3-ai-content-generator'); ?>
                         </label>
-                        <select id="aipkit_bot_<?php echo esc_attr($bot_id . '_' . $stt_field['name']); ?>_sheet" name="<?php echo esc_attr($stt_field['name']); ?>" class="aipkit_popover_option_select aipkit_popover_option_select--compact">
+                        <select id="aipkit_bot_<?php echo esc_attr($bot_id . '_' . $stt_field['name']); ?>_sheet" name="<?php echo esc_attr($stt_field['name']); ?>" class="aipkit_popover_option_select aipkit_popover_option_select--compact" data-aipkit-universal-model-provider="<?php echo esc_attr($stt_field_provider); ?>" data-aipkit-universal-model-capability="stt">
                             <?php
                             $found_stt_model = false;
                             foreach (!empty($stt_field['models']) ? $stt_field['models'] : [] as $model) {
@@ -177,7 +169,7 @@ $tts_empty_labels = ['voice' => __('-- Select Voice --', 'gpt3-ai-content-genera
                             >
                                 <option value="" <?php selected($tts_provider, ''); ?>><?php esc_html_e('Select a provider', 'gpt3-ai-content-generator'); ?></option>
                                 <?php foreach ($tts_providers as $provider_name): ?>
-                                    <option value="<?php echo esc_attr($provider_name); ?>" <?php selected($tts_provider, $provider_name); ?>><?php echo esc_html($provider_name === 'AIPufferCloud' && (!$cloud_audio_connected || !$cloud_tts_models) ? $cloud_audio_unavailable_label : $provider_name); ?></option>
+                                    <option value="<?php echo esc_attr($provider_name); ?>" <?php selected($tts_provider, $provider_name); ?>><?php echo esc_html($provider_name === 'AIPufferCloud' ? __('AI Puffer', 'gpt3-ai-content-generator') : $provider_name); ?></option>
                                 <?php endforeach; ?>
                             </select>
                         </div>
@@ -210,7 +202,7 @@ $tts_empty_labels = ['voice' => __('-- Select Voice --', 'gpt3-ai-content-genera
                                 <label class="aipkit_popover_option_label" for="aipkit_bot_<?php echo esc_attr($bot_id . '_' . $tts_field_name); ?>_sheet">
                                     <?php echo esc_html($tts_field_label); ?>
                                 </label>
-                                <select id="aipkit_bot_<?php echo esc_attr($bot_id . '_' . $tts_field_name); ?>_sheet" name="<?php echo esc_attr($tts_field_name); ?>" class="aipkit_popover_option_select aipkit_popover_option_select--compact" <?php if ($tts_field_type === 'model') : ?>data-aipkit-universal-model-provider="<?php echo esc_attr($tts_field_provider); ?>"<?php endif; ?>>
+                                <select id="aipkit_bot_<?php echo esc_attr($bot_id . '_' . $tts_field_name); ?>_sheet" name="<?php echo esc_attr($tts_field_name); ?>" class="aipkit_popover_option_select aipkit_popover_option_select--compact" <?php if ($tts_field_type === 'model') : ?>data-aipkit-universal-model-provider="<?php echo esc_attr($tts_field_provider); ?>" data-aipkit-universal-model-capability="tts"<?php endif; ?>>
                                     <?php if ($tts_is_elevenlabs) : ?>
                                         <option value=""><?php echo esc_html($tts_empty_labels[$tts_field_type]); ?></option>
                                     <?php endif; ?>

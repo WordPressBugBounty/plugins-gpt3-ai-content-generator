@@ -18,7 +18,7 @@ $default_model = (string) ($new_ai_selection['model'] ?? '');
 $ai_parameters = AIPKIT_AI_Settings::get_ai_parameters();
 $default_temperature = $ai_parameters['temperature'] ?? 1.0;
 
-$providers_for_select = AIPKit_Providers::get_text_generation_providers();
+$providers_for_select = AIPKit_Providers::get_text_generation_providers(true, true, true);
 
 $available_post_types = get_post_types(['public' => true], 'objects');
 unset($available_post_types['attachment']);

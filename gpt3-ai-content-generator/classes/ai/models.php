@@ -29,7 +29,7 @@ final class AIPKit_Model_Catalog
      */
     private const PROVIDER_PRIORITY = [
         'text_generation' => [
-            // AI Puffer leads while connected; unconnected providers are skipped by every consumer.
+            // New configurations choose from configured providers in this order.
             'AIPufferCloud',
             'OpenAI',
             'Claude',
@@ -529,13 +529,10 @@ final class AIPKit_Model_Catalog
     {
         $normalized_key = self::normalize_catalog_key($catalog_key);
         if (isset(self::CLOUD_CATALOGS[$normalized_key])) {
-            if (!class_exists('\\WPAICG\\Cloud\\Connection') || !\WPAICG\Cloud\Connection::generation_ready()) {
-                return [];
-            }
             [$type, $capability, $operation] = self::CLOUD_CATALOGS[$normalized_key];
-            $models = $capability === 'text_generation' ? \WPAICG\Cloud\Connection::models()
+            $models = !class_exists('\\WPAICG\\Cloud\\Connection') ? [] : ($capability === 'text_generation' ? \WPAICG\Cloud\Connection::models()
                 : ($capability === 'embeddings' ? \WPAICG\Cloud\Connection::embedding_models()
-                    : \WPAICG\Cloud\Connection::media_models($operation));
+                    : \WPAICG\Cloud\Connection::media_models($operation)));
             return self::model_definition('AIPufferCloud', $type, $capability, '', $models[0]['id'] ?? '', $models);
         }
         $definitions = self::get_builtin_definitions();
@@ -1320,6 +1317,11 @@ final class AIPKit_Model_Registry
         $catalog_key = AIPKit_Model_Catalog::normalize_catalog_key($catalog_key);
         $definition = AIPKit_Model_Catalog::get_definition($catalog_key);
         if (empty($definition)) {
+            return [];
+        }
+        // Provider metadata remains discoverable; disconnected Cloud has no selectable models.
+        if (($definition['provider'] ?? '') === 'AIPufferCloud'
+            && (!class_exists('\\WPAICG\\Cloud\\Connection') || !\WPAICG\Cloud\Connection::generation_ready())) {
             return [];
         }
 

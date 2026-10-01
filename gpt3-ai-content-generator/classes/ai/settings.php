@@ -283,28 +283,27 @@ class AIPKit_Providers
      */
     /**
      * Text-generation providers offered in module selectors (Content Writer, Automations, AI Forms,
-     * Content Assistant, REST). Cloud appears when its connection and model catalog are ready.
+     * Content Assistant, REST). Admin pickers may include disconnected Cloud for setup.
      *
      * @param bool $include_ollama Whether the (Pro) local Ollama provider belongs in this list.
      * @return array<int, string>
      */
-    public static function get_text_generation_providers(bool $include_ollama = true, bool $include_cloud = true): array
+    public static function get_text_generation_providers(bool $include_ollama = true, bool $include_cloud = true, bool $include_disconnected_cloud = false): array
     {
         $providers = ['OpenAI', 'Google', 'Claude', 'OpenRouter', 'Azure', 'Ollama', 'DeepSeek', 'xAI'];
         if (!$include_ollama) {
             $providers = array_values(array_diff($providers, ['Ollama']));
         }
-        if ($include_cloud && class_exists('\\WPAICG\\Cloud\\Connection') && \WPAICG\Cloud\Connection::generation_ready()) {
+        if ($include_cloud && ($include_disconnected_cloud || (class_exists('\\WPAICG\\Cloud\\Connection') && \WPAICG\Cloud\Connection::generation_ready()))) {
             array_unshift($providers, 'AIPufferCloud');
         }
         return $providers;
     }
 
-    public static function get_main_provider_allowlist(): array
+    public static function get_main_provider_allowlist(bool $include_disconnected_cloud = false): array
     {
         $default_allowlist = ['OpenAI', 'Google', 'Claude', 'OpenRouter', 'Azure', 'DeepSeek', 'xAI'];
-        // AI Puffer comes first in every provider picker, and only while it is connected.
-        if (class_exists('\\WPAICG\\Cloud\\Connection') && \WPAICG\Cloud\Connection::generation_ready()) { array_unshift($default_allowlist, 'AIPufferCloud'); }
+        if ($include_disconnected_cloud || (class_exists('\\WPAICG\\Cloud\\Connection') && \WPAICG\Cloud\Connection::generation_ready())) { array_unshift($default_allowlist, 'AIPufferCloud'); }
         $filtered_allowlist = apply_filters('aipkit_main_provider_allowlist', $default_allowlist);
         if (!is_array($filtered_allowlist)) {
             $filtered_allowlist = $default_allowlist;

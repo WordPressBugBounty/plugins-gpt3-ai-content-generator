@@ -104,6 +104,7 @@ class AIPKit_Dependency_Loader
         require_once WPAICG_PLUGIN_DIR . 'classes/cloud/connection.php';
         require_once WPAICG_PLUGIN_DIR . 'classes/cloud/credit-notice.php';
         if ($admin_like_request) {
+            require_once WPAICG_PLUGIN_DIR . 'classes/cloud/announcement.php';
             require_once WPAICG_PLUGIN_DIR . 'classes/admin/onboarding.php';
             Post_Enhancer_Core_Loader::load();
         }

@@ -732,8 +732,7 @@ $enable_voice_input = in_array($enable_voice_input, ['0', '1'], true)
     : BotSettingsManager::DEFAULT_ENABLE_VOICE_INPUT;
 $stt_provider = $active_bot_settings['stt_provider']
     ?? BotSettingsManager::DEFAULT_STT_PROVIDER;
-$allowed_stt_providers = ['', 'OpenAI', 'Google', 'Azure'];
-if ($stt_provider === 'AIPufferCloud' || \WPAICG\AIPKit_Providers::provider_supports_capability('AIPufferCloud', 'stt')) { $allowed_stt_providers[] = 'AIPufferCloud'; }
+$allowed_stt_providers = ['', 'OpenAI', 'Google', 'Azure', 'AIPufferCloud'];
 if (!in_array($stt_provider, $allowed_stt_providers, true)) {
     $stt_provider = BotSettingsManager::DEFAULT_STT_PROVIDER;
 }
@@ -752,8 +751,7 @@ $tts_enabled = in_array($tts_enabled, ['0', '1'], true)
     : BotSettingsManager::DEFAULT_TTS_ENABLED;
 $tts_provider = $active_bot_settings['tts_provider']
     ?? BotSettingsManager::DEFAULT_TTS_PROVIDER;
-$tts_providers = ['Google', 'OpenAI', 'ElevenLabs'];
-if ($tts_provider === 'AIPufferCloud' || \WPAICG\AIPKit_Providers::provider_supports_capability('AIPufferCloud', 'tts')) { $tts_providers[] = 'AIPufferCloud'; }
+$tts_providers = ['Google', 'OpenAI', 'ElevenLabs', 'AIPufferCloud'];
 if ($tts_provider !== '' && !in_array($tts_provider, $tts_providers, true)) {
     $tts_provider = BotSettingsManager::DEFAULT_TTS_PROVIDER;
 }
@@ -821,7 +819,7 @@ $direct_voice_mode_disabled = !($quick_popup_enabled && $enable_realtime_voice =
 
 // Provider/model data for AI selection.
 $allowed_main_providers = class_exists(AIPKit_Providers::class)
-    ? AIPKit_Providers::get_main_provider_allowlist()
+    ? AIPKit_Providers::get_main_provider_allowlist(true)
     : ['OpenAI', 'Google', 'Claude', 'OpenRouter', 'Azure', 'DeepSeek', 'xAI'];
 if (!is_array($allowed_main_providers) || empty($allowed_main_providers)) {
     $allowed_main_providers = ['OpenAI', 'Google', 'Claude', 'OpenRouter', 'Azure', 'DeepSeek', 'xAI'];
@@ -876,7 +874,6 @@ $preview_placeholder_text = $active_bot_post
     : __('Select a bot to see the preview.', 'gpt3-ai-content-generator');
 
 $aipkit_notice_id = 'aipkit_provider_notice_chatbot';
-$aipkit_notice_class = 'aipkit_provider_key_notice--centered-workspace';
 $aipkit_notice_context = __('use this chatbot', 'gpt3-ai-content-generator');
 include WPAICG_PLUGIN_DIR . 'admin/views/shared/provider-key-notice.php';
 

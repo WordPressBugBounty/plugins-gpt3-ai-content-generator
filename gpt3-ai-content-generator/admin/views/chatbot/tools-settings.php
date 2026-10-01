@@ -244,7 +244,7 @@ $render_tool_enable_control = static function (string $tool_key, array $tool_opt
                                     id="aipkit_bot_<?php echo esc_attr($bot_id); ?>_chat_image_model_id_tools"
                                     name="chat_image_model_id"
                                     class="aipkit_form-input aipkit_popover_option_select aipkit_tools_image_model_select"
-                                    data-aipkit-universal-model-combined="1"
+                                    data-aipkit-universal-model-combined="1" data-aipkit-universal-model-capability="image_generation"
                                 >
                                     <option value=""><?php esc_html_e('Select model', 'gpt3-ai-content-generator'); ?></option>
                                     <?php foreach ($available_image_models as $provider_group => $models) : ?>

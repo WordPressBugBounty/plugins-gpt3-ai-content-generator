@@ -307,6 +307,9 @@ if ($visible_nav_module_count === 0) {
         </div>
     </div>
 
+    <?php \WPAICG\Cloud\Announcement::render(); ?>
+    <?php \WPAICG\Cloud\CreditNotice::render(true); ?>
+
     <div class="aipkit_main-content" id="aipkit_module-container">
     </div>
 </div>

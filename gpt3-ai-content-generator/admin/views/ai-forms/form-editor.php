@@ -15,7 +15,7 @@ use WPAICG\aipkit_dashboard;
 use WPAICG\AIPKIT_AI_Settings;
 
 // --- Get available providers (always show, lock via disabled when not eligible) ---
-$providers = \WPAICG\AIPKit_Providers::get_text_generation_providers();
+$providers = \WPAICG\AIPKit_Providers::get_text_generation_providers(true, true, true);
 $aipkit_paid_editor_view = WPAICG_PLUGIN_DIR . 'lib/views/ai-forms/editor.php';
 $is_pro = class_exists('\\WPAICG\\aipkit_dashboard') && aipkit_dashboard::is_pro_plan() && file_exists($aipkit_paid_editor_view);
 if ($is_pro) {

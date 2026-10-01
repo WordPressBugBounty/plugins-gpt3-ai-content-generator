@@ -64,6 +64,7 @@ if (empty($show_model)) {
     data-selection-policy="<?php echo esc_attr($selection_policy); ?>"
     data-image-mode="<?php echo esc_attr($shortcode_mode); ?>"
     data-initial-image-mode="<?php echo esc_attr($current_image_mode); ?>"
+    data-is-admin-preview="<?php echo is_admin() ? '1' : '0'; ?>"
     data-user-logged-in="<?php echo is_user_logged_in() ? '1' : '0'; ?>"
     data-show-provider="<?php echo !empty($show_provider) ? '1' : '0'; ?>"
     data-show-model="<?php echo !empty($show_model) ? '1' : '0'; ?>"
@@ -171,8 +172,8 @@ if (empty($show_model)) {
                                 'empty_text' => empty($show_model)
                                     ? __('No providers available', 'gpt3-ai-content-generator')
                                     : __('No image models available', 'gpt3-ai-content-generator'),
-                                'show_provider_diagnostics' => false,
-                                'show_manage_link' => false,
+                                'show_provider_diagnostics' => is_admin(),
+                                'show_manage_link' => is_admin(),
                             ];
                             include WPAICG_PLUGIN_DIR . 'admin/views/shared/unified-model-selector.php';
                             unset($aipkit_unified_model_selector_config);
