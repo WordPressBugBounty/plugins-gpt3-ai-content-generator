@@ -12,6 +12,8 @@ if (!defined('ABSPATH')) {
 $is_pro_plan = class_exists('\\WPAICG\\aipkit_dashboard')
     ? \WPAICG\aipkit_dashboard::is_pro_plan()
     : false;
+// Search configuration and indexing settings affect the entire site.
+$can_manage_knowledge_settings = \WPAICG\AIPKit_Role_Manager::user_can_access_module('settings');
 $upgrade_url = admin_url('admin.php?page=wpaicg-pricing');
 $post_types_args = ['public' => true];
 $all_selectable_post_types = get_post_types($post_types_args, 'objects');
@@ -48,6 +50,7 @@ $all_selectable_post_types = array_filter($all_selectable_post_types, function (
                         <span class="dashicons dashicons-archive" aria-hidden="true"></span>
                         <?php esc_html_e('Stores', 'gpt3-ai-content-generator'); ?>
                     </button>
+                    <?php if ($can_manage_knowledge_settings) : ?>
                     <button type="button" class="aipkit_sources_workspace_tab" id="aipkit_sources_search_tab" role="tab" aria-selected="false" aria-controls="aipkit_sources_search_panel" data-aipkit-sources-tab="search">
                         <span class="dashicons dashicons-search" aria-hidden="true"></span>
                         <?php esc_html_e('Search', 'gpt3-ai-content-generator'); ?>
@@ -56,6 +59,7 @@ $all_selectable_post_types = array_filter($all_selectable_post_types, function (
                         <span class="dashicons dashicons-admin-generic" aria-hidden="true"></span>
                         <?php esc_html_e('Settings', 'gpt3-ai-content-generator'); ?>
                     </button>
+                    <?php endif; ?>
                 </div>
                 <div class="aipkit_sources_meta aipkit_sources_workspace_tools is-active" data-aipkit-sources-tools="data" aria-label="<?php esc_attr_e('Data tools', 'gpt3-ai-content-generator'); ?>">
                     <label class="screen-reader-text" for="aipkit_sources_provider_filter">
@@ -587,6 +591,7 @@ $all_selectable_post_types = array_filter($all_selectable_post_types, function (
                     </table>
                 </div>
             </div>
+            <?php if ($can_manage_knowledge_settings) : ?>
             <div
                 id="aipkit_sources_search_panel"
                 class="aipkit_sources_workspace_panel aipkit_sources_search_panel"
@@ -612,6 +617,7 @@ $all_selectable_post_types = array_filter($all_selectable_post_types, function (
                     ?>
                 </div>
             </div>
+            <?php endif; ?>
         </div>
     </div>
 </div>

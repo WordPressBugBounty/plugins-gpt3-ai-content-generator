@@ -826,13 +826,13 @@ class AIPKit_Source_Ajax_Handler extends BaseDashboardAjaxHandler
     }
 
     /**
-     * AJAX: Saves the CPT indexing field settings.
+     * AJAX: Saves site-wide CPT indexing settings; requires Settings access.
      * @since 2.4.0
      */
     public function ajax_save_cpt_indexing_options()
     {
-        $permission_check = $this->check_any_module_access_permissions(
-            ['settings', 'sources'],
+        $permission_check = $this->check_module_access_permissions(
+            'settings',
             'aipkit_ai_training_settings_nonce'
         );
         if (is_wp_error($permission_check)) {
@@ -990,7 +990,6 @@ class AIPKit_Source_Ajax_Handler extends BaseDashboardAjaxHandler
 
         update_option('aipkit_indexing_field_settings', $sanitized_settings, 'no');
 
-        // DEBUG: Log the saved settings structure
         wp_send_json_success(['message' => __('Indexing settings saved successfully.', 'gpt3-ai-content-generator')]);
     }
 

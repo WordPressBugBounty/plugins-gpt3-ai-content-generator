@@ -77,6 +77,18 @@ $aipkit_cloud_checked_at = (int) (Connection::credit_state()['checkedAt'] ?? 0);
                             )); ?></small>
                         <?php endif; ?>
                     </div>
+                    <?php if ((int) ($aipkit_cloud_credits['included'] ?? 0) !== 0 || (int) ($aipkit_cloud_credits['includedAllowance']['total'] ?? 0) > 0) : ?>
+                        <div class="aipkit_cloud_split_item">
+                            <dt><?php esc_html_e('Included', 'gpt3-ai-content-generator'); ?></dt>
+                            <dd><?php echo esc_html(number_format_i18n($aipkit_cloud_to_credits($aipkit_cloud_credits['included'] ?? '0'))); ?></dd>
+                            <small><?php echo esc_html(sprintf(
+                                /* translators: 1: included monthly credits, 2: credit renewal date. */
+                                __('%1$s/month · renews %2$s', 'gpt3-ai-content-generator'),
+                                number_format_i18n($aipkit_cloud_to_credits($aipkit_cloud_credits['includedAllowance']['total'] ?? '0')),
+                                !empty($aipkit_cloud_credits['includedAllowance']['nextRefresh']) ? $aipkit_cloud_date($aipkit_cloud_credits['includedAllowance']['nextRefresh']) : '—'
+                            )); ?></small>
+                        </div>
+                    <?php endif; ?>
                     <div class="aipkit_cloud_split_item">
                         <dt><?php esc_html_e('Purchased', 'gpt3-ai-content-generator'); ?></dt>
                         <dd><?php echo esc_html(number_format_i18n($aipkit_cloud_to_credits((int) $aipkit_cloud_credits['purchased'] + (int) $aipkit_cloud_credits['adjustments']))); ?></dd>

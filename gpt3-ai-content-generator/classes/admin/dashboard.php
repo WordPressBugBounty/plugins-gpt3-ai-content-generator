@@ -34,8 +34,16 @@ if (!class_exists('\\WPAICG\\aipkit_dashboard')) {
 
         public static function is_pro_plan()
         {
-            if (function_exists('wpaicg_gacg_fs') && wpaicg_gacg_fs()->is_plan('pro', true)) {
-                return true;
+            if (function_exists('wpaicg_gacg_fs')) {
+                $fs = wpaicg_gacg_fs();
+                if (!$fs->can_use_premium_code()) {
+                    return false;
+                }
+                foreach (array('pro', 'proplus', 'promax') as $plan) {
+                    if ($fs->is_plan($plan, true)) {
+                        return true;
+                    }
+                }
             }
             return false;
         }

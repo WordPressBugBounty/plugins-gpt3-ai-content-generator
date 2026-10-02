@@ -730,6 +730,14 @@ final class Connection
         foreach (['available', 'free', 'purchased', 'adjustments', 'held'] as $key) {
             if (!isset($value[$key]) || !is_string($value[$key]) || !preg_match('/^-?[0-9]{1,20}$/D', $value[$key])) { return null; }
         }
+        if (isset($value['included']) && (!is_string($value['included']) || !preg_match('/^-?[0-9]{1,20}$/D', $value['included']))) { return null; }
+        if (isset($value['includedAllowance'])) {
+            $included = $value['includedAllowance'];
+            if (!is_array($included) || !is_string($included['total'] ?? null) || !preg_match('/^[0-9]{1,20}$/D', $included['total'])
+                || !array_key_exists('nextRefresh', $included)) { return null; }
+            $date = $included['nextRefresh'];
+            if ($date !== null && (!is_string($date) || !preg_match('/^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9:.]+Z$/D', $date) || strtotime($date) === false)) { return null; }
+        }
         $allowance = $value['allowance'] ?? null;
         if (!is_array($allowance) || !in_array($allowance['state'] ?? '', ['not_enrolled', 'issued', 'suspended', 'restricted', 'paused', 'budget_exhausted', 'policy_unavailable', 'enrollment_daily_limit', 'verification_required', 'verification_unavailable'], true)
             || !array_key_exists('total', $allowance) || !array_key_exists('nextRefresh', $allowance) || !is_bool($value['restricted'] ?? null)) { return null; }

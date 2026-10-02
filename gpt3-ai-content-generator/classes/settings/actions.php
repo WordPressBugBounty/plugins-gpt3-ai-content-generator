@@ -218,18 +218,18 @@ class SettingsAjaxHandler extends BaseDashboardAjaxHandler
     /**
      * Saves only Semantic Search settings.
      *
-     * Semantic Search is exposed from both the global Settings module and the
-     * Knowledge Base module, so either module permission is sufficient here.
+     * These options apply site-wide, so Knowledge Base access alone cannot
+     * authorize changes, even when the form appears in that module.
      */
     public function ajax_save_semantic_search_settings()
     {
-        $permission_check = $this->check_any_module_access_permissions(['settings', 'sources']);
+        $permission_check = $this->check_module_access_permissions('settings');
         if (is_wp_error($permission_check)) {
             $this->send_wp_error($permission_check);
             return;
         }
 
-        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce is checked in check_any_module_access_permissions().
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce is checked in check_module_access_permissions().
         $post_data = wp_unslash($_POST);
         $changed = $this->save_semantic_search_settings($post_data);
 

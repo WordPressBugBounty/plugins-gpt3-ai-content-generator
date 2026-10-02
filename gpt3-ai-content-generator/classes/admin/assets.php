@@ -289,6 +289,26 @@ class DashboardAssets extends AIPKit_Admin_Asset_Base
     public function register_hooks()
     {
         add_action('admin_enqueue_scripts', [$this, 'enqueue_core_dashboard_assets']);
+        add_action('admin_enqueue_scripts', [$this, 'enqueue_pricing_assets']);
+    }
+
+    /** Style the SDK app while preserving its live plans, prices and checkout. */
+    public function enqueue_pricing_assets($hook_suffix): void
+    {
+        $screen = get_current_screen();
+        if (!$screen || !preg_match('/(?:^|_)page_wpaicg-pricing(?:-network)?$/D', $screen->id) || fs_request_get_bool('checkout')) {
+            return;
+        }
+
+        if (function_exists('wpaicg_gacg_fs')) {
+            // Show plan cards with a site selector, even when only Pro is published.
+            wpaicg_gacg_fs()->add_filter('pricing/disable_single_package', '__return_true');
+        }
+
+        $this->register_style_bundle('aipkit-admin-pricing', 'admin-pricing.bundle.css', [], self::asset_version('dist/css/admin-pricing.bundle.css'));
+        $this->enqueue_style_handle('aipkit-admin-pricing');
+        $this->register_script_bundle('aipkit-admin-pricing', 'admin-pricing.bundle.js', ['wp-i18n', 'freemius-pricing'], self::asset_version('dist/js/admin-pricing.bundle.js'));
+        $this->enqueue_script_handle('aipkit-admin-pricing');
     }
 
     public function enqueue_core_dashboard_assets($hook_suffix)

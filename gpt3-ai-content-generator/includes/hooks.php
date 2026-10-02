@@ -66,6 +66,10 @@ class AIPKit_Hook_Manager
     public static function register_hooks(string $plugin_version)
     {
         $admin_like_request = is_admin() || wp_doing_ajax();
+        if (is_admin()) {
+            // Paid users need plan changes even while the SDK caches the old single-plan catalog.
+            wpaicg_gacg_fs()->add_filter('is_pricing_page_visible', '__return_true');
+        }
         if (class_exists(\WPAICG\Cloud\Connection::class)) {
             wpaicg_gacg_fs()->add_action('after_account_connection', [\WPAICG\Cloud\Connection::class, 'account_changed']);
             wpaicg_gacg_fs()->add_action('after_account_user_sync', [\WPAICG\Cloud\Connection::class, 'sync_verified_account']);
