@@ -119,6 +119,7 @@ final class Onboarding
             'nonce' => wp_create_nonce(self::NONCE),
             'syncNonce' => wp_create_nonce('aipkit_nonce'),
             'dashboardUrl' => admin_url('admin.php?page=wpaicg'),
+            'cloudConnected' => !empty(Connection::display()['connected']),
         ]);
         include WPAICG_PLUGIN_DIR . 'admin/views/onboarding/page.php';
     }
@@ -189,6 +190,17 @@ final class Onboarding
         $op = isset($_POST['op']) ? sanitize_key(wp_unslash($_POST['op'])) : '';
         switch ($op) {
             case 'goals': self::op_goals(); break;
+            case 'progress':
+                $state = self::state();
+                if (!empty($state['goals'])) {
+                    Connection::record_onboarding([
+                        'goals' => $state['goals'], 'power' => $state['power'] ?? 'later',
+                        'results' => $state['results'] ?? [], 'saved' => $state['saved'] ?? [],
+                        'status' => $state['status'] ?? 'pending',
+                    ]);
+                }
+                wp_send_json_success();
+                break;
             case 'cloud': self::op_cloud(); break;
             case 'cloud_state': wp_send_json_success(self::cloud_view_data()); break;
             case 'cloud_disconnect':
@@ -256,10 +268,11 @@ final class Onboarding
             'freemius_failed' => __('This site could not be registered right now. Please try again in a minute, or use your own API key.', 'gpt3-ai-content-generator'),
             'site_mismatch' => __('Freemius has a different address for this site. Deactivate and reactivate AI Puffer, then try again.', 'gpt3-ai-content-generator'),
         ];
-        if ($status === 'confirm_email') { wp_send_json_success(self::cloud_view_data()); }
+        if ($status === 'confirm_email') { self::save(['power' => 'cloud']); wp_send_json_success(self::cloud_view_data()); }
         if ($status !== 'connected') {
             wp_send_json_error(['status' => $status, 'message' => $messages[$status] ?? (Connection::verification_message($status) ?: __('Could not connect to AI Puffer Cloud. Please try again, or use your own API key.', 'gpt3-ai-content-generator'))], 400);
         }
+        self::save(['power' => 'cloud']);
         $credits_ready = !$connected || Connection::transition('verify') !== 'balance_unavailable';
         // Re-entry and an explicit retry refresh the catalog before making Cloud active.
         $synced = !$connected || Connection::transition('sync') === 'synced';
@@ -267,7 +280,6 @@ final class Onboarding
         if (!$view['ready']) { wp_send_json_success($view); }
         $model = Connection::default_model();
         self::use_provider('AIPufferCloud', $model);
-        self::save(['power' => 'cloud']);
         wp_send_json_success($view + ['provider' => 'AIPufferCloud', 'model' => $model, 'label' => __('AI Puffer Cloud', 'gpt3-ai-content-generator')]);
     }
 
@@ -329,6 +341,15 @@ final class Onboarding
         return !empty($state['provider']) && !empty($state['model']) ? [$state['provider'], $state['model']] : null;
     }
 
+    /** Save outcomes locally after successful actions; never store prompts or generated text here. */
+    private static function record_result(string $goal, bool $saved = false): void
+    {
+        $state = self::state();
+        $changes = ['results' => array_values(array_unique(array_merge($state['results'] ?? [], [$goal])))];
+        if ($saved) { $changes['saved'] = array_values(array_unique(array_merge($state['saved'] ?? [], [$goal]))); }
+        self::save($changes);
+    }
+
     /** Try the default chatbot: one real reply with its instructions. */
     private static function op_chat(): void
     {
@@ -351,7 +372,10 @@ final class Onboarding
         $messages[] = ['role' => 'user', 'content' => $message];
         $result = (new AIPKit_AI_Caller(false, 'chat'))->make_standard_call($chosen[0], $chosen[1], $messages, ['max_completion_tokens' => 1500], $instructions);
         if (is_wp_error($result)) { wp_send_json_error(['message' => $result->get_error_message()], 400); }
-        wp_send_json_success(['reply' => wp_kses_post((string) ($result['content'] ?? ''))]);
+        $reply = wp_kses_post((string) ($result['content'] ?? ''));
+        if (trim(wp_strip_all_tags($reply)) === '') { wp_send_json_error(['message' => __('The reply came back empty. Please try again.', 'gpt3-ai-content-generator')], 400); }
+        self::record_result('chatbot');
+        wp_send_json_success(['reply' => $reply]);
     }
 
     /** "Add it to my site": the default chatbot becomes the site-wide popup. */
@@ -363,6 +387,7 @@ final class Onboarding
         update_post_meta($bot, '_aipkit_popup_enabled', '1');
         update_post_meta($bot, '_aipkit_site_wide_enabled', '1');
         if (class_exists('\\WPAICG\\Chat\\Storage\\SiteWideBotManager')) { (new \WPAICG\Chat\Storage\SiteWideBotManager())->clear_site_wide_cache(); }
+        self::record_result('chatbot', true);
         wp_send_json_success(['url' => home_url('/')]);
     }
 
@@ -383,6 +408,7 @@ final class Onboarding
         if ($html === '') { wp_send_json_error(['message' => __('The draft came back empty. Please try again.', 'gpt3-ai-content-generator')], 400); }
         $post = wp_insert_post(['post_title' => $topic, 'post_content' => $html, 'post_status' => 'draft', 'post_type' => 'post'], true);
         if (is_wp_error($post)) { wp_send_json_error(['message' => $post->get_error_message()], 400); }
+        self::record_result('write', true);
         $first = wp_strip_all_tags(preg_replace('/<h[1-6][^>]*>.*?<\/h[1-6]>/is', '', $html));
         wp_send_json_success([
             'title' => html_entity_decode($topic, ENT_QUOTES, 'UTF-8'),
@@ -432,6 +458,7 @@ final class Onboarding
         if ($id) {
             set_transient('aipkit_setup_product_' . get_current_user_id() . '_' . $result_id, ['id' => $id, 'short' => $short, 'description' => $description], HOUR_IN_SECONDS);
         }
+        self::record_result('products');
         wp_send_json_success([
             'result_id' => $result_id,
             'product_id' => $id,
@@ -460,6 +487,7 @@ final class Onboarding
         $result = wp_update_post($update, true);
         if (is_wp_error($result)) { wp_send_json_error(['message' => $result->get_error_message()], 400); }
         delete_transient($key);
+        self::record_result('products', true);
         wp_send_json_success([
             /* translators: %s: product name. */
             'message' => sprintf(__('Saved to “%s”.', 'gpt3-ai-content-generator'), get_the_title($id)),
@@ -509,6 +537,7 @@ final class Onboarding
             : new \WP_Error('unknown_template', __('Unknown template.', 'gpt3-ai-content-generator')));
         if (is_wp_error($result)) { wp_send_json_error(['message' => $result->get_error_message()], 400); }
         self::save(['template' => $template]);
+        self::record_result($template === 'auto_blog' ? 'auto' : 'forms', true);
         wp_send_json_success($result);
     }
 

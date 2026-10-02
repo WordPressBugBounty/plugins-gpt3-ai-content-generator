@@ -124,6 +124,17 @@ final class Connection
         return self::post('/api/cloud', ['operation' => $operation, 'site' => self::site()], self::generation_headers(), $timeout);
     }
 
+    /** Best-effort setup outcomes, sent only through an existing, consented Cloud connection. */
+    public static function record_onboarding(array $progress): bool
+    {
+        if (!self::allowed()) { return false; }
+        try {
+            if (empty(self::state()['token'])) { return false; }
+            $response = self::post('/api/cloud', ['operation' => 'onboarding', 'site' => self::site(), 'progress' => $progress], self::generation_headers(), 3);
+            return ($response['status'] ?? '') === 'recorded';
+        } catch (\Throwable $error) { return false; }
+    }
+
     /** Explicit lookup only; callers must retain the original operation ID. Never polls or dispatches AI. */
     public static function request_status(string $operation_id): array
     {
@@ -634,6 +645,7 @@ final class Connection
             'account_changed' => __('The account changed during connection. Please connect again.', 'gpt3-ai-content-generator'),
             'verification_pending' => __('Your email is still unverified. Open the confirmation link, then check again.', 'gpt3-ai-content-generator'),
             'verification_unavailable' => __('Email verification is unavailable right now. Please try again shortly.', 'gpt3-ai-content-generator'),
+            'identity_verification_unavailable' => __('Your account could not be checked right now. Please try connecting again in a minute.', 'gpt3-ai-content-generator'),
             'balance_unavailable' => __('Your credits could not be checked. Please try again.', 'gpt3-ai-content-generator'),
         ];
         return $messages[$notice] ?? '';

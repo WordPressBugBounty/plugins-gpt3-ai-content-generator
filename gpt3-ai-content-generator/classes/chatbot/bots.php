@@ -289,7 +289,8 @@ class BotSettingsManager
     public const DEFAULT_SITE_WIDE_ENABLED = '0';
     // --- Constants for Default Settings ---
     public const DEFAULT_TEMPERATURE = 1.0;
-    public const DEFAULT_MAX_COMPLETION_TOKENS = 4000;
+    public const DEFAULT_MAX_COMPLETION_TOKENS = 1500;
+    public const DEFAULT_INSTRUCTIONS = "You are a helpful AI assistant for this website. Answer clearly and concisely, usually in a few sentences. Give longer explanations when the user asks for more detail. Today's date is [date].";
     public const DEFAULT_MAX_MESSAGES = 15;
     public const DEFAULT_ENABLE_FULLSCREEN = '1';
     public const DEFAULT_ENABLE_DOWNLOAD = '0';
@@ -1275,8 +1276,7 @@ class AIPKit_Bot_Settings_Initializer
         delete_post_meta($post_id, '_aipkit_azure_endpoint');
         update_post_meta($post_id, '_aipkit_theme', BotSettingsManager::DEFAULT_THEME);
         update_post_meta($post_id, '_aipkit_theme_preset_key', BotSettingsManager::DEFAULT_THEME_PRESET_KEY);
-        $default_instructions = "You are a helpful AI Assistant. Please be friendly. Today's date is [date].";
-        update_post_meta($post_id, '_aipkit_instructions', $default_instructions);
+        update_post_meta($post_id, '_aipkit_instructions', BotSettingsManager::DEFAULT_INSTRUCTIONS);
         $deploy_mode = ($deploy_mode === 'inline')
             ? 'inline'
             : BotSettingsManager::DEFAULT_DEPLOY_MODE;
@@ -1617,7 +1617,6 @@ function get_general_bot_settings_logic(int $bot_id, string $bot_name, callable 
 {
     $settings = [];
 
-
     $settings['bot_id'] = $bot_id;
     $settings['name'] = $bot_name;
 
@@ -1626,8 +1625,7 @@ function get_general_bot_settings_logic(int $bot_id, string $bot_name, callable 
     $settings['greeting'] = $get_meta_fn('_aipkit_greeting_message', $default_greeting);
     $settings['subgreeting'] = $get_meta_fn('_aipkit_subgreeting_message', $default_subgreeting);
 
-    $default_instructions = "You are a helpful AI Assistant. Please be friendly. Today's date is [date].";
-    $settings['instructions'] = $get_meta_fn('_aipkit_instructions', $default_instructions);
+    $settings['instructions'] = $get_meta_fn('_aipkit_instructions', BotSettingsManager::DEFAULT_INSTRUCTIONS);
 
     return $settings;
 }
