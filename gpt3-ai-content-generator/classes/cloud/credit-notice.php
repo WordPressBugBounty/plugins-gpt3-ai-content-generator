@@ -18,7 +18,7 @@ final class CreditNotice
 
     public static function register(): void
     {
-        add_action('admin_notices', [self::class, 'render']);
+        add_action('admin_notices', [self::class, 'render'], 10, 0);
         add_action('admin_enqueue_scripts', [self::class, 'enqueue_assets']);
         add_action('wp_ajax_' . self::ACTION, [self::class, 'dismiss']);
     }
