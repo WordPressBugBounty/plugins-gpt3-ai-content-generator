@@ -9,7 +9,7 @@ if (!defined('ABSPATH')) {
 <div class="aipkit_form-group aipkit_settings_simple_row" id="aipkit_settings_backup_row">
     <div class="aipkit_form-label">
         <?php esc_html_e('Settings backup', 'gpt3-ai-content-generator'); ?>
-        <span class="aipkit_form-label-helper"><?php esc_html_e('Export or import every Settings tab as JSON. Backups include API keys and connection secrets, so store them securely.', 'gpt3-ai-content-generator'); ?></span>
+        <span class="aipkit_form-label-helper"><?php esc_html_e('Back up global settings and API keys as JSON. Chatbots, knowledge base data, licenses and Cloud connections are not included. Keep backups private.', 'gpt3-ai-content-generator'); ?></span>
     </div>
     <div class="aipkit_settings_action_buttons">
         <button

@@ -16,7 +16,7 @@ class AIPKit_Content_Writer_Template_Manager
     private $wpdb;
     private $table_name;
     private $allowed_config_keys = [
-        'ai_provider', 'ai_model', 'content_title', 'content_title_bulk',
+        'template_scope', 'ai_provider', 'ai_model', 'content_title', 'content_title_bulk',
         'content_keywords',
         'ai_temperature', 'content_length', 'content_max_tokens',
         'post_type', 'post_author', 'post_status',
@@ -914,6 +914,8 @@ function sanitize_config_logic(\WPAICG\ContentWriter\AIPKit_Content_Writer_Templ
                     $sanitized_sub_array['prompt'] = AIPKit_Prompt_Sanitizer::sanitize(wp_unslash($config[$key]['prompt']));
                 }
                 $sanitized[$key] = $sanitized_sub_array;
+            } elseif ($key === 'template_scope') {
+                $sanitized[$key] = $config[$key] === 'prompts_only' ? 'prompts_only' : 'full';
             } elseif ($key === 'gsheets_credentials') {
                 if (class_exists('\WPAICG\Lib\Utils\AIPKit_Google_Credentials_Handler')) {
                     // The handler returns an array or null, which will be properly JSON encoded later when the whole config is saved.
@@ -1307,7 +1309,7 @@ function normalize_template_row_logic(array $template): array
 {
     // Decode the config JSON
     $config = json_decode($template['config'], true);
-    if (json_last_error() !== JSON_ERROR_NONE) {
+    if (json_last_error() !== JSON_ERROR_NONE || !is_array($config)) {
         $template['config'] = [];
     } else {
         // Handle Google Sheets credentials if they exist
@@ -1359,6 +1361,13 @@ function normalize_template_row_logic(array $template): array
     } else {
         $template['config']['post_schedule_date'] = '';
         $template['config']['post_schedule_time'] = '';
+    }
+
+    // Protected starter templates only apply writing presets, even when their
+    // saved configuration predates persistence of the scope field.
+    if (($template['template_type'] ?? '') === 'content_writer'
+        && in_array((int) $template['id'], get_cw_starter_template_ids_for_user((int) $template['user_id']), true)) {
+        $template['config']['template_scope'] = 'prompts_only';
     }
 
     return $template;

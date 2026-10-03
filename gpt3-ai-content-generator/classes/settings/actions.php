@@ -884,7 +884,7 @@ class SettingsAjaxHandler extends BaseDashboardAjaxHandler
         }
 
         wp_send_json_success([
-            'message' => __('Settings backup imported successfully.', 'gpt3-ai-content-generator'),
+            'message' => __('Global settings imported successfully. Chatbots and knowledge base data were not changed.', 'gpt3-ai-content-generator'),
         ]);
     }
 
