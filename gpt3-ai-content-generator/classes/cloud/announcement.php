@@ -29,7 +29,7 @@ final class Announcement
         ], admin_url('admin.php'));
         ?>
         <div class="aipkit_notification_bar aipkit_notification_bar--info" data-aipkit-cloud-announcement<?php if ($connected) : ?> hidden<?php endif; ?>>
-            <img class="aipkit_notification_bar__icon" src="<?php echo esc_url(WPAICG_PLUGIN_URL . 'public/images/icon.svg'); ?>" width="28" height="28" alt="" />
+            <img class="aipkit_notification_bar__icon" src="<?php echo esc_url(WPAICG_LOGO_URL); ?>" width="28" height="28" alt="" />
             <div class="aipkit_notification_bar__content">
                 <p><?php esc_html_e('Try AI Puffer Cloud — 25 free credits every month. No API key needed.', 'gpt3-ai-content-generator'); ?></p>
                 <p data-cloud-announcement-feedback role="status" hidden></p>

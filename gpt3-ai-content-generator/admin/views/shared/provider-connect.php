@@ -6,10 +6,10 @@ if (!defined('ABSPATH')) { exit; }
     <div class="aipkit_connect_choices">
         <?php foreach ($aipkit_provider_configs as $aipkit_name => $aipkit_config) :
             if (!empty($aipkit_config['requires_pro']) && !$is_pro) { continue; }
-            $aipkit_icon = $aipkit_name === 'AIPufferCloud' ? 'public/images/icon.svg' : 'admin/images/providers/' . $aipkit_config['icon']; ?>
-            <?php $aipkit_is_cloud = $aipkit_name === 'AIPufferCloud'; ?>
+            $aipkit_is_cloud = $aipkit_name === 'AIPufferCloud';
+            $aipkit_icon_url = $aipkit_is_cloud ? WPAICG_LOGO_URL : WPAICG_PLUGIN_URL . 'admin/images/providers/' . $aipkit_config['icon']; ?>
             <button type="button" class="aipkit_connect_choice<?php echo $aipkit_is_cloud ? ' aipkit_connect_choice--featured' : ''; ?>" data-connect-provider="<?php echo esc_attr($aipkit_name); ?>">
-                <span class="aipkit_connect_choice_icon"><img src="<?php echo esc_url(WPAICG_PLUGIN_URL . $aipkit_icon); ?>" alt="" width="24" height="24"></span>
+                <span class="aipkit_connect_choice_icon"><img src="<?php echo esc_url($aipkit_icon_url); ?>" alt="" width="24" height="24"></span>
                 <span class="aipkit_connect_choice_text">
                     <span class="aipkit_connect_choice_name"><?php echo esc_html($aipkit_config['display_name']); ?><?php if ($aipkit_is_cloud) : ?><span class="aipkit_connect_badge"><?php esc_html_e('Free', 'gpt3-ai-content-generator'); ?></span><?php endif; ?></span>
                     <?php if ($aipkit_is_cloud) : ?><small><?php esc_html_e('No API key needed. Free monthly credits.', 'gpt3-ai-content-generator'); ?></small><?php endif; ?>

@@ -584,14 +584,18 @@ $aipkit_get_advanced_fields = static function (array $config) use ($aipkit_commo
     <?php foreach ($aipkit_provider_configs as $aipkit_provider => $aipkit_config) :
         $aipkit_account_provider = $aipkit_config['credential_type'] === 'account';
         $aipkit_slug = (string) $aipkit_config['slug'];
-        $aipkit_icon_relative_path = $aipkit_account_provider ? 'public/images/icon.svg' : 'admin/images/providers/' . $aipkit_config['icon'];
-        $aipkit_icon_path = WPAICG_PLUGIN_DIR . $aipkit_icon_relative_path;
-        $aipkit_icon_version = file_exists($aipkit_icon_path) ? filemtime($aipkit_icon_path) : false;
-        $aipkit_icon_url = add_query_arg(
-            'ver',
-            (string) ($aipkit_icon_version ?: WPAICG_VERSION),
-            WPAICG_PLUGIN_URL . $aipkit_icon_relative_path
-        );
+        if ($aipkit_account_provider) {
+            $aipkit_icon_url = WPAICG_LOGO_URL;
+        } else {
+            $aipkit_icon_relative_path = 'admin/images/providers/' . $aipkit_config['icon'];
+            $aipkit_icon_path = WPAICG_PLUGIN_DIR . $aipkit_icon_relative_path;
+            $aipkit_icon_version = file_exists($aipkit_icon_path) ? filemtime($aipkit_icon_path) : false;
+            $aipkit_icon_url = add_query_arg(
+                'ver',
+                (string) ($aipkit_icon_version ?: WPAICG_VERSION),
+                WPAICG_PLUGIN_URL . $aipkit_icon_relative_path
+            );
+        }
         $aipkit_data = $aipkit_provider_data[$aipkit_provider] ?? [];
         $aipkit_credential = (string) ($aipkit_data[$aipkit_config['credential_key']] ?? '');
         $aipkit_connected = $aipkit_account_provider ? Connection::display()['connected'] : $aipkit_credential !== '';

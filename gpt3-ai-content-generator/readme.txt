@@ -1,137 +1,225 @@
 === AI Puffer – AI Chatbot, AI Writer & Automation ===
 Contributors: senols
-Tags: ai, chatbot, openai, ai writer, automation
+Tags: chatbot, chatgpt, ai writer, openai, ai
 Requires at least: 6.0
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 2.4.93
+Stable tag: 2.4.94
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
-Chat. Create. Automate.
+AI chatbot that answers from your content. Write and schedule posts. 25 free AI credits monthly, or use your own OpenAI, Claude or Gemini key.
 
 == Description ==
 
-**AI Puffer** is the **complete AI plugin for WordPress** — a full set of **artificial intelligence tools** to transform your site. From **AI chatbot** and **content generation** to **image creation, automation, and AI training** on your own data, AIP gives you everything in one place, right inside your WordPress dashboard.
+**AI Puffer** (formerly AI Power) brings an AI chatbot, AI writer, scheduled content, AI forms and image generation to WordPress. Answer visitors from your content and create posts without leaving your dashboard.
 
-Our **"Bring Your Own API Key"** model lets you connect to top AI providers (OpenAI, Google Gemini, Microsoft Azure, OpenRouter, DeepSeek, xAI and Ollama). No hidden credits — you use your own account and control your costs.
+**Start with 25 free AI credits monthly.** Connect AI Puffer Cloud with no API key. Free credits are available to eligible accounts with a verified email. You can also use your own OpenAI, Anthropic Claude, Google Gemini, xAI Grok, DeepSeek, OpenRouter or Azure OpenAI key.
 
-You can also connect **AI Puffer Cloud**, an optional provider with monthly free credits and credit top-ups. Use Cloud models for text, images, speech, transcription, and embeddings, or keep using your own provider accounts.
+[Documentation](https://docs.aipower.org/) · [How Cloud works](https://aipower.org/ai-puffer-cloud/) · [Pricing](https://aipower.org/pricing/) · [User reviews](https://wordpress.org/support/plugin/gpt3-ai-content-generator/reviews/)
 
-### External services and connection diagnostics
+### Cloud or your own API keys
 
-AI Puffer Cloud is optional and connects only after you accept its connection terms. Connection attempts send outcomes, error codes, HTTP status, timing, software versions and a random support reference to AI Puffer Cloud, including attempts that fail before account registration. Reports exclude credentials, email addresses, site URLs, prompts and generated content. Cloud keeps reports for 30 days. The plugin keeps at most 10 local reports and removes reports older than 30 days on the next connection attempt. Reporting does not run on ordinary page loads.
+**AI Puffer Cloud:** connect in the setup wizard or Settings → AI. Supported models cover text, image generation and analysis, speech, transcription and embeddings. Credit use varies by model and request size, with a minimum per text request. One credit is not always one message, article or image. Image editing, video, realtime voice and web search currently require your own supported provider key.
 
-Freemius provides account registration, email verification, licensing and checkout. Account registration sends your name, email and site address; general usage tracking is disabled in AI Puffer's setup flow. Marketing emails are optional.
+**Your own API keys:** your site sends requests to the provider you choose, which bills your provider account. OpenAI-compatible endpoints are supported too. Use Cloud and your own keys side by side, with a model picker for each chatbot, form, task or tool.
 
-[AI Puffer terms](https://aipower.org/terms-and-conditions/) · [AI Puffer privacy policy](https://aipower.org/privacy-policy/) · [Freemius terms](https://freemius.com/terms/) · [Freemius privacy policy](https://freemius.com/privacy/)
+### Free and Pro
 
-[📖 Documentation & Guides](https://docs.aipower.org/)  
+* **Free plugin:** chatbots, knowledge base, Content Writer, scheduled posts from topic lists or CSV, AI Forms, Images, usage limits and logs, visitor credit packages through WooCommerce, REST API and webhooks. AI usage requires Cloud credits or your own provider keys.
+* **Pro, Pro Plus and Pro Max:** all three unlock the same premium plugin features listed below.
+* **Monthly plan credits:** Pro Plus includes 3,000 AI credits monthly; Pro Max includes 10,000. Credits renew monthly with monthly or annual billing, do not roll over, and are shared across sites on the same account. A 2-site license does not double the allowance.
+* **Pro and Pro lifetime:** no monthly paid-plan AI credits. Eligible free credits and optional top-ups remain available. Lifetime is available for Pro only.
+* **Top-ups:** optional on every plan. Purchased AI credits do not expire and are shared across sites on the same account.
 
-### Why Choose AIP?
+### AI chatbot that answers from your content
 
-* **All-in-One** – Chatbot, AI Writer, AI Forms, Image Generator, Automation, WooCommerce AI tools, and more.
-* **Train on Your Data** – Build your own **AI knowledge base** from posts, pages, products, PDFs, or files.
-* **Voice + Chat** – Real-time voice agents and voice input for interactive AI experiences.
-* **WooCommerce AI** – Generate product descriptions, titles, SEO tags, and sell AI credits to customers.
-* **Fast & Flexible** – Works with OpenAI GPT-5/4o, Google Gemini & Imagen, Azure, Replicate, and others.
-* **Flexible** – Keep your content in WordPress and choose an AI provider or AI Puffer Cloud to process requests.
+**Included free:** unlimited chatbots with their own models, instructions, colors, welcome messages and conversation starters. Use posts, pages, products and FAQs as knowledge. Show a bot as a popup, site-wide, or with a block or shortcode. Voice input, read-aloud replies and image input work with supported models. Web search and Google Search grounding require your own supported provider key.
 
----
+**Pro adds:** file uploads in chat, realtime voice, advanced triggers, PDF export of conversations, and embedding your chatbot on other websites, including non-WordPress sites.
 
-### 🚀 Key Features
+### AI writer and Content Assistant
 
-#### 🤖 AI Chatbot
-- Create custom **AI chatbots** for WordPress or any external site (embed with shortcode or HTML).
-- Train bots on your **own website content** or external files.
-- Enable **web search** (OpenAI or Google) for real-time answers.
-- Add **voice input & playback**, triggers, and usage limits.
+Draft posts from topics and keywords, one at a time or from a batch or CSV list. Use reusable prompt templates, choose draft or publish status, and add featured or inline images from AI providers or stock photos. Start from Posts → Generate New Post.
 
-#### ✍️ AI Content Generator
-- Generate **high-quality articles, blog posts, or product descriptions**.
-- Input ideas via text, CSV, RSS feeds, or URLs.
-- SEO-friendly output with custom templates, placeholders, and **Smart SEO** score improvement.
+**Included free:** Gutenberg output, meta descriptions and focus keywords where supported by Yoast SEO, Rank Math, All in One SEO or The SEO Framework. The Content Assistant improves titles, excerpts, content and tags in the block editor, classic editor and post lists.
 
-#### 📝 AI Forms
-- Drag-and-drop **AI-powered forms** to process user input into useful outputs — from outlines to support replies.
-- Connect forms to **web search**, uploaded files, image analysis, workflows, and your AI training data.
+**Pro adds:** RSS, URL and Google Sheets sources, Smart SEO audits and fixes, and bulk image alt text.
 
-#### ⚙️ AI Automation Engine
-- Schedule recurring or one-time AI tasks.
-- Automate content creation, Smart SEO improvement, comment replies, or vector indexing.
+### Scheduled content and auto blogging
 
-#### 🎨 AI Image Generator
-- Convert text to image with **OpenAI GPT Image, Google Imagen, and Replicate models**.
-- Pull free stock images from **Pexels** or **Pixabay**.
-- Works in posts, tasks, chatbot, and forms.
+**Included free:** recurring or one-time automation tasks from topics or CSV, with draft, schedule or publish options. Reply to comments with replies held for approval by default, or add new posts to your knowledge base using category filters. Review item status in the queue. Server cron is supported when WP-Cron is disabled.
 
-#### 📚 AI Training / Vector Database
-- Build a **knowledge base** from your posts, products, PDFs, or uploaded files.
-- Store your knowledge in **Local** (your WordPress database), **OpenAI Vector Stores**, **Pinecone**, **Qdrant** or **Chroma**.
-- Long content is chunked before embedding for safer external vector indexing.
-- Use in Chatbot or Forms for **context-aware AI answers**.
+**Pro adds:** RSS, URL and Google Sheets sources, improving existing posts on a schedule, and Smart SEO inside tasks.
 
-#### 🛒 WooCommerce AI Tools
-- Bulk-generate or enhance product descriptions, titles, and tags.
-- Sell **AI credits** to customers via WooCommerce.
+### AI forms
 
-#### 🛠 Content Assistant
-- Bulk-enhance existing posts, generate SEO titles/excerpts.
-- Works in Block Editor, Classic Editor, or directly from the post list.
+**Included free:** a drag-and-drop builder, templates and prompts that use visitors' field values. Choose a model and knowledge base for each form, and enable web search with your own supported key. Embed with a block or shortcode, and import or export forms.
 
-#### 🔌 REST API Access
-- Call text, image, embedding, and chatbot functions programmatically from other apps.
+**Pro adds:** file and image upload fields, multi-step forms, workflows and PDF download of results.
 
----
+### AI image generator
+
+Enable Images in Settings → Modules. Generate images with OpenAI GPT Image, Gemini image models, Grok Imagine, Replicate, OpenRouter, Azure or Cloud. Image editing works with supported providers and models. Google Veo video needs your own Google key. Search stock photos from Pexels and Pixabay, or embed a visitor image generator with a block or shortcode. These tools are included in the free plugin; provider accounts or Cloud credits cover AI usage.
+
+### Knowledge base and semantic search
+
+AI Puffer splits content into passages and retrieves relevant passages for a question. It does not train a new AI model.
+
+**Included free:** posts, pages, products, custom post types, Q&A pairs and pasted text, including page-builder content. Use “Add to knowledge base” from post lists or embed semantic search on your site. Choose Local storage in your WordPress database, OpenAI vector stores, Google File Search, Pinecone, Qdrant or Chroma. External stores and embeddings require compatible provider connections.
+
+**Pro adds:** PDF, DOCX, TXT, MD, CSV and JSON file sources, custom chunking and batch settings, and background reindexing.
+
+### WooCommerce product tools and visitor credits
+
+**Included free:** improve product titles, descriptions, short descriptions and tags with the Content Assistant; answer questions from product pages; and sell visitor credit packages for your chatbots, forms and image generator. Visitor credits are balances managed on your site, separate from AI Puffer Cloud credits. WooCommerce is optional.
+
+**Pro adds:** product optimization mode in the Content Writer for updating existing products.
+
+### Usage, permissions and integrations
+
+**Included free:** guest, user and role limits with daily, weekly, monthly or no reset; conversation and usage logs; credit balances; and a Role Manager. Word and IP blocklists, IP anonymization and optional moderation help manage requests.
+
+Use the REST API, signed event webhooks, three blocks and five shortcodes. WordPress AI Connectors are opt-in and let compatible built-in AI features use your configured providers.
+
+**Pro adds:** automatic log deletion, a chatbot consent box, and Zapier, Make, n8n, Slack, HubSpot, Notion and Pipedrive integrations.
+
+### Supported providers
+
+* **AI Puffer Cloud:** available models from OpenAI, Anthropic, Google and others, using AI credits.
+* **OpenAI:** GPT text models, GPT Image, speech, transcription and embeddings.
+* **Anthropic:** Claude Sonnet, Opus and Haiku.
+* **Google:** Gemini text and image models, Veo, speech and embeddings.
+* **xAI:** Grok text and image models.
+* **DeepSeek**, **OpenRouter** (including Mistral models), **Azure OpenAI** and OpenAI-compatible endpoints.
+* **Ollama (Pro):** local models on your own server.
+* **Media services:** ElevenLabs voices, Replicate images, and Pexels and Pixabay stock photos.
+
+Models and capabilities depend on the selected provider and its current catalog.
+
+### Privacy and data flow
+
+AI requests are sent when you use a connected provider. Visitor messages go to the provider selected for that chatbot. Chat logs, usage records and Local knowledge are stored in your WordPress database. Text you index is processed by the chosen embedding provider and, with an external store, stored there. The External services section below explains connection, licensing and diagnostic requests and links each service's terms and privacy policy.
 
 == Installation ==
 
-1. Install via Plugins → Add New, or upload to `/wp-content/plugins/gpt3-ai-content-generator`.
-2. Activate via the **Plugins** menu.
-3. Go to **AI Puffer → Dashboard** and connect AI Puffer Cloud or enter your own provider API key.
-4. Click **Sync Models** to load available AI models.
-5. Explore modules (Chat, Write, Automate, etc.) and start using AI features.
-
----
+1. In WordPress, go to Plugins → Add New Plugin, search for "AI Puffer", then click Install Now and Activate. You can also upload the plugin folder to `/wp-content/plugins/gpt3-ai-content-generator`.
+2. On a new install, a setup wizard starts the first time you open AI Puffer. Choose what you want to do first (a chatbot, posts, product descriptions, automations or forms) and how to power AI: AI Puffer Cloud (accept the connection terms and confirm your email) or your own API key.
+3. To connect Cloud or change API keys later, go to AI Puffer → Settings → AI. Models load after you save a key.
+4. Open a module from the top bar of the AI Puffer screen: Chatbots, Content Writer, Automations, AI Forms, Knowledge Base or Usage. Turn on Images in Settings → Modules.
 
 == Frequently Asked Questions ==
 
-= Do I need to buy credits from you? =  
-No. AIP works with your **own API key** from AI providers like OpenAI, Google Gemini, etc. You pay them directly for usage. If you prefer not to manage API keys, you can optionally connect AI Puffer Cloud instead: it includes a monthly free allowance after you confirm your email. Your existing features never require the hosted service.
+= Do I need an API key? =
 
-= Which AI providers and models are supported? =  
-We support **OpenAI** (GPT-5, GPT-4o, GPT-3.5, GPT Image, etc.), **Google** (Gemini, Imagen), **Microsoft Azure OpenAI**, **OpenRouter**, **DeepSeek**, **Ollama** and **Replicate**.
+Not if you use AI Puffer Cloud. Connect it in the setup wizard or in AI Puffer → Settings → AI, accept the connection terms and confirm your email. Eligible accounts get 25 free AI credits monthly. If you already pay for an AI provider such as OpenAI, Anthropic, Google or xAI, paste that key instead. You can use both side by side.
 
-= Can I train the AI on my own content? =  
-Yes. Use the **Train** module to index posts, pages, WooCommerce products, PDFs, or uploaded files into a **vector store**. Then link that knowledge base to your Chatbot or Forms.
+= What do the free Cloud credits include? =
 
-= How do I limit AI usage for visitors or members? =  
-The **Usage & Billing** tools let you set guest, user, or role-based usage limits for Chat, Forms, and Images. Limits can reset daily, weekly, monthly, or never.
+Eligible accounts with a verified email get 25 free AI credits monthly. Connecting registers your site through Freemius, which handles the account and the confirmation email.
 
-= Can I monetize my AI tools? =  
-Yes. Sell **credit packages** via WooCommerce. Credits are deducted when pricing rules apply to AI usage.
+Credits pay for requests: text, image generation and analysis, speech, transcription and embeddings. The cost depends on the model and the size of the request, with a minimum per text request, so one credit is not one message, article or image.
 
-= What makes AIP different from other AI plugins? =  
-AIP is **all-in-one** — instead of installing separate plugins for chatbots, content writing, AI forms, and WooCommerce AI, you get them all in one optimized toolkit with centralized settings.
+Free credits reset each month and do not roll over. Purchased top-ups do not expire and are shared by the sites on your account. The allowance depends on eligibility and on the program being available, and Usage shows your balance and status. When credits run out, those requests stop until the allowance renews or you add credits. Providers you connect with your own key keep working.
 
-= Is AIP compatible with GPT-5 and other latest models? =  
-Yes. AIP supports GPT-5, GPT-4o, GPT-4 Turbo, Google Gemini 1.5, Imagen 4.0, and more.
+= What's free and what's Pro? =
 
----
+Everything listed under "Included free" works without a Pro license, using Cloud credits or your own provider keys. Some features need your own key with a provider that offers them, such as web search, Veo video and image editing. Pro adds file uploads for the knowledge base, chat and forms; RSS, URL and Google Sheets sources; improving existing posts on a schedule; product optimization mode; alt text for many images at once; Smart SEO; chatbot triggers; realtime voice; embedding chatbots on other sites; PDF export; multi-step forms and workflows; custom chunking and background reindexing; Ollama; automatic log deletion; a consent box; and the Zapier, Make, n8n, Slack, HubSpot, Notion and Pipedrive integrations.
+
+Pro, Pro Plus and Pro Max unlock the same premium features. Monthly and annual Pro Plus subscriptions include 3,000 AI credits monthly; Pro Max includes 10,000. Credits renew monthly, do not roll over, and are shared across sites on the same account, including with a 2-site license. Pro and Pro lifetime include no monthly paid-plan credits; lifetime is available for Pro only. Optional purchased top-ups do not expire. See [pricing](https://aipower.org/pricing/).
+
+= Can I use OpenAI, Claude, Gemini or Grok models? =
+
+Yes. Add your own key for OpenAI, Anthropic (Claude), Google (Gemini) or xAI (Grok), or pick OpenAI, Anthropic and Google models on Cloud. DeepSeek, OpenRouter, Azure OpenAI and OpenAI-compatible endpoints work too, and Ollama local models are in Pro. Pick the model for each chatbot, form, task or tool.
+
+= Does the chatbot answer only from my content? =
+
+It answers from your content when it finds a good match, but it is not limited to it. With a knowledge base connected, the plugin looks up the passages that best match each question (a confidence threshold sets how close a match must be) and sends them to the AI model with the question and your instructions. The model can still use its general knowledge or make mistakes. Tell it in the instructions what to do when your content has no answer, for example "Say you don't know and suggest contacting us", and test it with real questions before you go live.
+
+= How is my data handled in Cloud mode vs own-key mode? =
+
+With your own key, requests go straight from your server to the provider you chose, under your account with that provider. They do not pass through AI Puffer Cloud. In Cloud mode, requests (prompts, messages, the content, images or audio you submit, and model settings) go to Cloud, which passes them to the AI service behind the selected model (through service providers such as OpenRouter where applicable) and records the credits used. Cloud's billing records hold usage and credit data, not full conversations. In both modes, chat logs, usage records and Local knowledge stay in your WordPress database. The External services section lists what each service receives and links its terms and privacy policy.
+
+= Does it work with WooCommerce? =
+
+Yes, and WooCommerce is optional. You can write product titles, descriptions, short descriptions and tags with the Content Assistant, let the chatbot answer from your products, and sell AI credit packages to visitors through your WooCommerce checkout. Product optimization mode in the Content Writer is in Pro.
+
+= Is this the same plugin as AI Power? =
+
+Yes. AI Power was renamed AI Puffer. It is the same plugin, with the same plugin folder, settings and data, so updating keeps your bots, content, keys and history. The new listing name says what it does: AI chatbot, AI writer and automation.
 
 == Screenshots ==
 
-1. Customize your chatbot’s appearance, instructions, and AI model with a live preview.
-2. Draft an article from a topic and keywords, with controls for the model, length, and publishing status.
-3. Build an AI form with standard fields, a model, and a prompt that uses your field values.
-4. Create images with your connected AI provider and browse your generated image history.
-5. Prepare a batch of topics and keywords for an automated content task.
-6. Add question-and-answer sources and choose the vector store used by your chatbot.
-7. Display a popup chatbot on your WordPress site with a greeting and conversation starters.
+1. Chatbots: set the welcome message, colors, icon, AI model and instructions, and watch a live preview. Show the bot as a popup or site-wide, or copy its shortcode.
+2. Content Writer: draft a post from a topic and keywords, and choose the model, the length and the post status.
+3. AI Forms: build a form from standard fields, pick a model, and write a prompt that uses what visitors enter.
+4. Images: create images with your connected provider and browse the images you generated.
+5. Automations: add a batch of topics and keywords for a scheduled content task.
+6. Knowledge Base: add question-and-answer sources and choose where the knowledge is stored.
+7. The chatbot on your site: a popup with a greeting and conversation starters.
 
----
+== External services ==
+
+The plugin contacts external services when you connect or use them, manage licensing or checkout, or submit optional deactivation feedback. Cloud setup and connection diagnostics are sent after you accept the Cloud connection terms and click Connect. An AI request contains what the feature needs: the prompt and instructions, chat or form input with recent conversation history, the content being written or improved, text you add to a knowledge base, images or audio you submit, and model settings. Each API key goes only to its own provider.
+
+**AI Puffer Cloud** (puffercloud.dev, [about Cloud](https://aipower.org/ai-puffer-cloud/)), the optional hosted AI service run by the AI Puffer team.
+
+* Connecting happens only after an administrator accepts the connection terms and clicks Connect. It sends the site's Freemius install ID, the site address, a signed proof of the installation and the attempt's support reference.
+* Using its models sends the request content and model settings. Cloud passes each request to the AI service behind the chosen model (such as OpenAI, Anthropic or Google), through service providers such as OpenRouter where applicable, and returns the result and the credits used. Balance, model, checkout and disconnect requests send the site address and its Cloud credential; deleting the plugin also disconnects the site. While connected, the setup wizard sends your setup choices and completed steps.
+* Connection diagnostics: each Connect attempt, including one that fails before account registration, sends its outcome, the step reached, error codes, HTTP status, timing, software versions and a random support reference. Your browser sends the report, so Cloud also sees the browser's IP address and the site's domain. Cloud keeps diagnostic reports for 30 days. The plugin keeps at most 10 local reports, removes those older than 30 days on the next attempt, and never reports on ordinary page loads.
+* [Terms](https://aipower.org/terms-and-conditions/) · [Privacy](https://aipower.org/privacy-policy/)
+
+**Freemius** ([freemius.com](https://freemius.com)): account registration, email verification, licensing, and checkout for Pro plans and credits. Registration happens only when you choose it, for example by connecting Cloud or signing up for product updates in the setup wizard. It sends your name, email address and site address, plus basic plugin details such as the version. General usage tracking is turned off in the setup flow, and marketing emails are optional. The in-plugin pricing page, checkout and license activation also contact Freemius. An answer to the optional deactivation feedback form is sent to Freemius when the plugin is deleted and, unless you tick "Anonymous feedback", registers the site. [Terms](https://freemius.com/terms/) · [Privacy](https://freemius.com/privacy/)
+
+The AI providers and stores below are used only when you select one for a feature, or turn on a feature that uses it.
+
+**OpenAI** (api.openai.com): text, images, embeddings, vector stores, speech, transcription, web search, and moderation if you turn it on (realtime voice is Pro). A custom OpenAI-compatible base URL receives these requests instead. [Terms](https://openai.com/policies/services-agreement/) · [Privacy](https://openai.com/policies/privacy-policy/)
+
+**Google Gemini API** (generativelanguage.googleapis.com): text, images, Veo video, speech, transcription, embeddings, File Search stores and Search grounding. [Terms](https://ai.google.dev/gemini-api/terms) · [Privacy](https://policies.google.com/privacy)
+
+**Anthropic** (api.anthropic.com): Claude text, image input and web search. [Terms](https://www.anthropic.com/legal/commercial-terms) · [Privacy](https://www.anthropic.com/legal/privacy)
+
+**xAI** (api.x.ai): text, image input, web search and images. [Terms](https://x.ai/legal/terms-of-service-enterprise) · [Privacy](https://x.ai/legal/privacy-policy)
+
+**DeepSeek** (api.deepseek.com): text. [Terms](https://cdn.deepseek.com/policies/en-US/deepseek-open-platform-terms-of-service.html) · [Privacy](https://cdn.deepseek.com/policies/en-US/deepseek-privacy-policy.html)
+
+**OpenRouter** (openrouter.ai): text, images and web search, through the model vendor you pick. [Terms](https://openrouter.ai/terms) · [Privacy](https://openrouter.ai/privacy)
+
+**Microsoft Azure OpenAI** (your Azure endpoint): text, images, embeddings and transcription. [Terms](https://azure.microsoft.com/en-us/support/legal/) · [Privacy](https://www.microsoft.com/en-us/privacy/privacystatement)
+
+**ElevenLabs** (api.elevenlabs.io): reply text, when a bot reads replies aloud with ElevenLabs. [Terms](https://elevenlabs.io/terms-of-use) · [Privacy](https://elevenlabs.io/privacy-policy)
+
+**Replicate** (api.replicate.com): image prompts and settings. [Terms](https://replicate.com/terms) · [Privacy](https://replicate.com/privacy)
+
+**Pexels** (api.pexels.com) and **Pixabay** (pixabay.com): your stock photo search terms. Pexels [Terms](https://www.pexels.com/terms-of-service/) · [Privacy](https://www.pexels.com/privacy-policy/); Pixabay [Terms](https://pixabay.com/service/terms/) · [Privacy](https://pixabay.com/service/privacy/)
+
+**Pinecone** (api.pinecone.io and your index host), **Qdrant and Chroma** (the address you enter), if chosen as your knowledge store: passages and embeddings of content you index, and search vectors for lookups. Pinecone [Terms](https://www.pinecone.io/legal/) · [Privacy](https://www.pinecone.io/privacy/); Qdrant [Terms](https://qdrant.tech/legal/terms_and_conditions/) · [Privacy](https://qdrant.tech/legal/privacy-policy/); Chroma [Terms](https://www.trychroma.com/terms) · [Privacy](https://www.trychroma.com/privacy)
+
+**Webhooks:** if you add webhook URLs in Settings → Developers, signed event data is sent to those addresses.
+
+**Pro only (not in the free version):** Ollama sends requests only to the server you enter (default `http://localhost:11434`). RSS feeds, web pages and Google Sheets you choose as sources are read from their sites. Chatbot trigger webhooks and the Slack, HubSpot, Notion, Pipedrive, Zapier, Make and n8n integrations send the data you map to the app or address you connect.
+
+== Source code ==
+
+The free edition's original JavaScript and CSS, build tools and instructions are available in the [public source repository](https://github.com/aipuffer/gpt3-ai-content-generator). Version tags identify source snapshots matching the corresponding free release.
+
+== Upgrade Notice ==
+
+= 2.4.94 =
+Fixes Content Writer settings reverting, provider model refresh issues, image defaults and history dimensions, and AI Forms feedback. Updates the feature and credit descriptions.
 
 == Changelog ==
+
+= 2.4.94 =
+
+* Published a maintained source repository and build instructions for the free edition's bundled assets.
+* Updated the Markdown rendering library to address excessive processing time with specially crafted text.
+- Fixed Content Writer model, image and publishing settings reverting when reopening a starter template.
+- Fixed provider model refresh errors and outdated model lists in Content Writer, Automations and Content Assistant.
+- Use the lowest-cost available AI Puffer Cloud image model by default for new selections.
+- Fixed generated image history showing requested dimensions instead of the saved image's actual dimensions.
+- Clarified AI Forms credit errors and instructions for adding fields manually.
+- Updated AI Puffer branding and the plugin's feature and credit descriptions.
 
 = 2.4.93 =
 
@@ -215,277 +303,3 @@ Yes. AIP supports GPT-5, GPT-4o, GPT-4 Turbo, Google Gemini 1.5, Imagen 4.0, and
 - Added support for AI responses, transcription, and file uploads on servers without PHP cURL.
 - Improved error messages and diagnostics for chatbot preview and AI request failures.
 - Fixed OpenAI file uploads failing because of an invalid default upload purpose or a missing HTTP dependency.
-
-= 2.4.79 =
-
-- Reduced plugin download size to improve performance.
-- Reduced the chatbot's default JavaScript and CSS payload while preserving on-demand loading for optional features.
-- Fixed delayed text and image responses updating the chat after stopping generation, clearing messages, or switching conversations.
-- Improved chatbot popup, audio playback, and embedded form reliability when closing, reopening, or switching chats.
-
-Please make sure to clear your site, browser, and CDN caches to ensure the latest scripts and styles are loaded.
-
-= 2.4.78 =
-
-- Added GPT-6 Astra.
-- Added Gemini 3.8 Flash.
-
-= 2.4.77 =
-
-- Improved chatbot form rules so required forms persist across page reloads, pause the conversation until submission, and do not reappear after successful completion.
-- Fixed message-count rule conditions to count visitor messages accurately.
-
-= 2.4.76 =
-
-- Fixed the RSS fetch action remaining visible after switching Content Writer to another source.
-
-= 2.4.75 =
-
-- Added RSS article quantity controls in Content Writer and Automations, selecting the newest matching articles across all feeds without the previous per-feed cap.
-- Fixed Knowledge Base indexing so page-builder shortcode markup is removed while preserving its readable content during background and admin indexing.
-- Improved indexing progress across post lists, Knowledge Base, chatbots, and Automations so submitted content remains processing until confirmed ready, with automatic status refresh.
-- Fixed WooCommerce product saves being blocked by an invalid hidden credit amount after the AI Puffer credit-package option was turned off.
-
-= 2.4.74 =
-
-- Improved Knowledge Base indexing to automatically capture richer public content from common page builders without technical setup.
-- Added background reindex status and updating for knowledge sources when extraction rules change.
-
-= 2.4.73 =
-
-- Added Gutenberg block output for Content Writer and content-writing automations.
-
-= 2.4.72 =
-
-- Fixed saved image model selections displaying incorrectly when reopening automations.
-- Updated new OpenAI automations to use the recommended default image model when available.
-- Updated Classic Editor Assistant notices to use the shared modern warning dialog.
-
-= 2.4.71 =
-
-- Fixed migrated or unavailable chatbot Knowledge targets so users can remove stale selections without losing other saved targets.
-- Fixed image provider connection checks.
-
-= 2.4.69 =
-
-- Upgraded OpenRouter text generation to the Responses API with streaming, vision, usage, and improved error support.
-- Added OpenRouter web search with domain filtering and source citations in Chatbot and AI Forms.
-- Added OpenRouter image generation and editing across Image Generator, Content Writer, Automations, and the REST API.
-- Added OpenRouter reasoning effort controls across supported text-generation modules.
-- Added OpenRouter routing and privacy controls for provider failover, strict parameter support, fallback models, data collection, and zero data retention.
-- Added per-chatbot Session stickiness for OpenRouter to improve provider and prompt-cache affinity without changing conversation history.
-
-= 2.4.68 =
-
-- Image Generator module improvements.
-- Added OpenAI-compatible Chat Completions mode for custom provider endpoints.
-
-= 2.4.67 =
-
-- Migrated Gemini chat, image, speech, and web search features to the Google Interactions API.
-- Added Google knowledge stores across Chatbot, AI Forms, Content Writer, Automations, and knowledge workflows.
-- Improved Google usage details, source citations, file uploads, image analysis, and existing-model compatibility.
-
-= 2.4.66 =
-
-- Fixed image model selection in Automations.
-- Improved Google provider syncing.
-
-= 2.4.65 =
-
-- Added a new AI model picker across all modules with search, favorites, recommendations, and provider grouping.
-- Redesigned Role Manager for easier role and permission management.
-- Improved Chatbot voice input with live waveform, cancel/confirm controls, and editable transcription.
-- Added WordPress 7.1 compatibility.
-
-= 2.4.64 =
-
-- Improved Chatbot launcher icon sizing across all widget sizes so the icon remains clear and proportionate within the button.
-- Fixed a faint light edge around rounded Chatbot headers when displayed on dark page backgrounds.
-
-= 2.4.63 =
-
-- Redesigned the Chatbot experience across popup, on-page, fullscreen, sidebar, uploads, message actions, themes, and motion.
-- Migrated Realtime Voice to GPT-Realtime 2.1 with the current secure WebRTC client-secret flow, updated voices, and more reliable session states.
-- Refreshed Chatbot settings with a more compact side panel, aligned controls, standardized fields, and a modern custom-theme editor.
-
-= 2.4.62 =
-
-- Improved Automations reliability and throughput with database-backed schedules, automatic time-budgeted queue processing, fair item claiming, overlap protection, and recovery of interrupted work.
-- Improved large-site responsiveness across Automations, Chatbot knowledge, and Knowledge Base screens with bounded status counts, cursor-based pagination, and clearer loading feedback.
-- Improved Rewrite Content, Image Alt Text, and WooCommerce bulk tables, including a 1,000-row page-size option.
-- Added optional authenticated server cron support for sites that disable WP-Cron.
-
-= 2.4.61 =
-
-- Improved Content Assistant menus in Gutenberg and Classic Editor.
-
-= 2.4.59 =
-
-- Redesigned Content Writer.
-- Fixed Apps recipe validation.
-
-= 2.4.58 =
-
-- Redesigned Content Assistant.
-- Improved batch content updates.
-- Redesigned Add to knowledge base.
-
-= 2.4.57 =
-
-- Improved Settings module.
-- Standardized missing-provider notices across modules.
-- Improved Chatbot live preview.
-
-= 2.4.56 =
-
-- Redesigned AI Forms with a cleaner overview, five ready-made templates, and a more compact form editor.
-- Improved form building with persistent layout controls, resizable columns, clearer drop targets, streamlined field settings, and automatic prompt-variable names for newly added fields.
-- Added model syncing, modern model, knowledge base, and web search settings dialogs, stronger prompt validation, and preview support for any form containing fields.
-- Added checkbox-based bulk export and deletion, one-off shortcode options, and clearer import and export actions.
-- Standardized table headers, footers, pagination, dialogs, buttons across AI Forms and related admin screens.
-- Stopped creating legacy default forms on activation or update; existing forms remain available.
-- Fixed Chatbot Manage Sources updates incorrectly reporting a missing OpenAI API key.
-
-= 2.4.55 =
-
-- Refined Automations with a compact overview, clearer task schedules, consistent statuses, and responsive task and queue tables.
-- Added task pagination with rows-per-page controls, queue pagination, and always-visible queue search and status filters.
-- Added safer checkbox-based bulk queue deletion, clearer cron health controls, and direct links to completed posts.
-
-= 2.4.54 =
-
-- Improved knowledge base module.
-
-= 2.4.53 =
-
-- Improved log details, retention controls, billing workflows.
-
-= 2.4.52 =
-
-- Improved chatbot knowledge sources.
-
-= 2.4.51 =
-
-- Added GPT-5.6 Sol, GPT-5.6 Terra, and GPT-5.6 Luna to the recommended OpenAI models.
-
-= 2.4.49 =
-
-- Redesigned Automations with a compact, guided setup experience for creating content, rewriting posts, building knowledge bases, and replying to comments.
-- Made task creation faster with inline topic entry, Batch Editor, Quick Paste, CSV, RSS, URL, and Google Sheets workflows, plus a quick-create option using recommended defaults.
-- Unified text, image, and embedding model selection with clearer provider setup guidance and smarter available-model defaults.
-- Refined task editing, image and SEO controls, scheduling, publishing settings, validation, and prompt customization for a more consistent workflow.
-- Modernized the Tasks and Queue screens with clearer statuses, schedules, cron health, queue tools, and safer deletion confirmations.
-
-= 2.4.48 =
-
-- Refined the Content Writer workspace layout.
-- Improved Content Writer autosave feedback so normal saves stay quiet while errors remain visible.
-- Improved Content Writer generation progress and error displays, including clearer provider API errors.
-- Refined Automations task and queue panels.
-
-= 2.4.47 =
-
-- Improved the AI Puffer top navigation so module links, Usage, Settings, and Upgrade adapt more cleanly across desktop, tablet, and narrow responsive widths.
-- Moved Usage into the utility navigation area and kept the main module navigation focused on the primary tools.
-- Updated default module visibility so Chatbots, Content Writer, Automations, AI Forms, and Knowledge Base are enabled by default, while Images can be enabled from Settings > Modules when needed.
-
-= 2.4.46 =
-
-- Polished the settings screens and top navigation styling.
-
-= 2.4.45 =
-
-- Fixed automated task scheduler cleanup so orphaned task cron hooks are pruned automatically.
-
-= 2.4.44 =
-
-- Fixed automated task Run Now actions for content-writing tasks so manual runs load the shared task modules correctly.
-- Added task IDs to Run Now content-writing queue items so RSS history tracking matches scheduled runs.
-
-= 2.4.43 =
-
-- Removed the dashboard and moved module toggles to Settings > Modules.
-- Simplified the chatbot settings interface.
-
-= 2.4.42 =
-
-- Fixed an unclear file upload error shown when required vector store processing files are missing from the installation.
-- Updated the pricing page to support newly introduced currencies.
-
-= 2.4.41 =
-
-- Fixed a shortcode rendering issue in some WordPress setups.
-- Fixed database table creation on servers with stricter MySQL/MariaDB index length limits.
-
-= 2.4.39 =
-
-- Fixed popup chatbot accessibility warnings caused by focusable controls inside hidden popup and hint containers.
-
-= 2.4.38 =
-
-Brought back PHP 7.4 support due to popular demand from PHP 7.4 fans.
-
-= 2.4.37 =
-
-- Code cleanup.
-
-= 2.4.36 =
-
-- Code cleanup.
-
-= 2.4.35 =
-
-- Fixed WordPress AI Connectors approval conflict that could block OpenAI vector-store indexing when the WordPress AI OpenAI connector plugin was active.
-- Improved AI Puffer-managed WordPress AI connector status reporting in the WordPress AI dashboard.
-
-= 2.4.34 =
-
-- Added Claude Opus 4.8 to Anthropic recommended models.
-- Improved Role Manager compatibility with custom roles from access management plugins.
-- Improved admin styling isolation from other plugins.
-
-= 2.4.33 =
-
-Performance improvements.
-
-= 2.4.32 =
-
-- General bug fixes and improvements.
-
-= 2.4.31 =
-
-- General bug fixes and improvements.
-
-= 2.4.29 =
-
-- General bug fixes and improvements.
-
-= 2.4.28 =
-
-- Fixed a WordPress AI Client compatibility issue.
-- Improved embedding batches.
-- Improved Role Manager permissions for core modules, WordPress utilities, Usage, and Settings.
-
-= 2.4.27 =
-
-- Improved vector store list refresh and stale cache handling across OpenAI, Pinecone, Qdrant, and Chroma.
-- Fixed the AI Forms OpenAI vector store selector in Knowledge Base settings.
-
-= 2.4.26 =
-
-- Improved webhook events.
-
-= 2.4.25 =
-
-- Added WordPress AI Connectors.
-
-Read more: [WordPress AI Connectors](https://docs.aipower.org/wordpress-ai-connectors)
-
-= 2.4.24 =
-
-- Added WordPress 7.0 compatibility updates.
-- Removed deprecated Google Gemini 3.1 Flash Lite Preview and added Gemini 3.5 Flash.
-- Fixed long-content chunking for Pinecone, Qdrant, and Chroma so large WordPress posts can be embedded in safe chunks.
-- Improved Qdrant strict-mode filters.
-- Improved Chroma collection lookup/delete reliability.

@@ -398,7 +398,12 @@ class AIPKit_Image_Generator_Shortcode
             $model = get_post_meta($attachment_id, '_aipkit_image_model', true);
             $provider_name = AIPKit_Providers::get_provider_display_name((string) $provider);
             $model_name = \WPAICG\Core\Models\AIPKit_Model_Registry::get_model_display_name((string) $provider, (string) $model);
-            $size = get_post_meta($attachment_id, '_aipkit_image_size', true);
+            // Providers may return a different size from the one requested. Reading
+            // attachment metadata also corrects history for images saved before this fix.
+            $image_metadata = wp_get_attachment_metadata($attachment_id);
+            $size = !empty($image_metadata['width']) && !empty($image_metadata['height'])
+                ? (int) $image_metadata['width'] . 'x' . (int) $image_metadata['height']
+                : '';
             $image_url_path = wp_parse_url((string) $full_url, PHP_URL_PATH);
             $image_file_name = is_string($image_url_path) && $image_url_path !== ''
                 ? sanitize_file_name(wp_basename($image_url_path))

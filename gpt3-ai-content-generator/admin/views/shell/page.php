@@ -171,7 +171,7 @@ if ($visible_nav_module_count === 0) {
                 >
                     <span class="aipkit_module-brand_logo" aria-hidden="true">
                         <img
-                            src="<?php echo esc_url(WPAICG_PLUGIN_URL . 'public/images/icon.svg'); ?>"
+                            src="<?php echo esc_url(WPAICG_LOGO_HEADER_URL); ?>"
                             alt=""
                         />
                     </span>

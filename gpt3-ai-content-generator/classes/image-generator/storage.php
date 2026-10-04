@@ -277,9 +277,6 @@ class AIPKit_Image_Storage_Helper
         if (isset($generation_options['model'])) {
             update_post_meta($attach_id, '_aipkit_image_model', sanitize_text_field($generation_options['model']));
         }
-        if (isset($generation_options['size'])) {
-            update_post_meta($attach_id, '_aipkit_image_size', sanitize_text_field($generation_options['size']));
-        }
         if (isset($generation_options['quality'])) {
             update_post_meta($attach_id, '_aipkit_image_quality', sanitize_text_field($generation_options['quality']));
         }

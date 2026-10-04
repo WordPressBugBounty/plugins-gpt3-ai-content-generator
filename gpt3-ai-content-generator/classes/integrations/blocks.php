@@ -315,6 +315,7 @@ class AIPKit_Blocks_Manager
         $module_settings = class_exists(aipkit_dashboard::class) ? aipkit_dashboard::get_module_settings() : [];
 
         return [
+            'logoUrl' => WPAICG_LOGO_URL,
             'chatbots' => $chatbot_access ? $this->get_post_options(AdminSetup::class, ['publish', 'draft']) : [],
             'forms' => $ai_forms_access ? $this->get_post_options(AIPKit_AI_Form_Admin_Setup::class, ['publish']) : [],
             'access' => [

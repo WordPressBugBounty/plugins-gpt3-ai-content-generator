@@ -90,10 +90,12 @@ function do_ajax_generate_form_from_prompt_logic(AIPKit_AI_Form_Ajax_Handler $ha
         );
 
         if (is_wp_error($normalized_form)) {
+            $error_data = $normalized_form->get_error_data();
             $failures[] = [
                 'provider' => $attempt['provider'],
                 'model' => $attempt['model'],
                 'message' => $normalized_form->get_error_message(),
+                'code' => $error_data['provider_error_code'] ?? $normalized_form->get_error_code(),
             ];
             continue;
         }
@@ -350,6 +352,24 @@ function aipkit_ai_forms_build_generation_failure_message(array $failures): stri
 {
     if ($failures === []) {
         return __('Form generation failed and no provider attempt produced a valid result.', 'gpt3-ai-content-generator');
+    }
+
+    if (count($failures) === 1) {
+        $failure = $failures[0];
+        if (($failure['provider'] ?? '') === 'AIPufferCloud') {
+            $code = (string) ($failure['code'] ?? '');
+            if ($code === 'insufficient_funds') {
+                return __('Not enough AI Puffer Cloud credits to generate a form draft. Add credits in Usage, choose another model, or drag fields into the form to build it manually.', 'gpt3-ai-content-generator');
+            }
+            if (in_array($code, \WPAICG\Cloud\Connection::BILLING_CODES, true)) {
+                return \WPAICG\Cloud\Connection::billing_message($code);
+            }
+        }
+        // One selected provider did not try "all available providers". Keep its
+        // full guidance instead of cutting off the action the user needs to take.
+        if (!empty($failure['message'])) {
+            return (string) $failure['message'];
+        }
     }
 
     $summary_parts = [];

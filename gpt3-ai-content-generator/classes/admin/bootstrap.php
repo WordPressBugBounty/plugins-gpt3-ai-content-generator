@@ -139,7 +139,8 @@ class Initializer
         $base_menu_capability = $this->get_base_menu_capability();
         $menu_capability = current_user_can($base_menu_capability) ? $base_menu_capability : 'read';
 
-        add_menu_page(__('AI Puffer', 'gpt3-ai-content-generator'), __('AI Puffer', 'gpt3-ai-content-generator'), $menu_capability, 'wpaicg', [$this, 'render_dashboard_page'], WPAICG_PLUGIN_URL . 'public/images/icon.svg', 6);
+        add_menu_page(__('AI Puffer', 'gpt3-ai-content-generator'), __('AI Puffer', 'gpt3-ai-content-generator'), $menu_capability, 'wpaicg', [$this, 'render_dashboard_page'], WPAICG_LOGO_URL, 6);
+        wp_add_inline_style('admin-menu', '#toplevel_page_wpaicg .wp-menu-image img{width:20px;height:auto;box-sizing:content-box;}');
         add_submenu_page('wpaicg', __('Dashboard', 'gpt3-ai-content-generator'), __('Dashboard', 'gpt3-ai-content-generator'), $menu_capability, 'wpaicg', [$this, 'render_dashboard_page']);
         add_submenu_page('wpaicg', __('Role Manager', 'gpt3-ai-content-generator'), __('Role Manager', 'gpt3-ai-content-generator'), AIPKit_Role_Manager::CAP_MANAGE_ROLE_MANAGER, 'aipkit-role-manager', [$this, 'render_role_manager_page']);
 

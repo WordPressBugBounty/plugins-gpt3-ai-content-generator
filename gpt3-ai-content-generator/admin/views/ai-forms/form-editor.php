@@ -285,7 +285,7 @@ $connected_apps_supported_destinations = [
                     <div class="aipkit_form_designer_placeholder" id="aipkit_form_designer_placeholder">
                         <span class="dashicons dashicons-plus-alt2" aria-hidden="true"></span>
                         <span class="aipkit_form_designer_placeholder_title"><?php esc_html_e("This form doesn't have any fields yet", 'gpt3-ai-content-generator'); ?></span>
-                        <span class="aipkit_form_designer_placeholder_hint"><?php esc_html_e('Drag a field here or click an element on the left', 'gpt3-ai-content-generator'); ?></span>
+                        <span class="aipkit_form_designer_placeholder_hint"><?php esc_html_e('Drag a field from the left into this area to add it to your form.', 'gpt3-ai-content-generator'); ?></span>
                     </div>
                 </div>
             </div>

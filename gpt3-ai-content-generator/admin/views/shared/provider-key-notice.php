@@ -52,7 +52,7 @@ $aipkit_provider_notice_settings_url = add_query_arg(
     data-message-default="<?php echo esc_attr($aipkit_provider_notice_default_message); ?>"
     data-action-default="<?php echo esc_attr__('Connect a provider', 'gpt3-ai-content-generator'); ?>"
 >
-    <img class="aipkit_notification_bar__icon" src="<?php echo esc_url(WPAICG_PLUGIN_URL . 'public/images/icon.svg'); ?>" width="28" height="28" alt="" />
+    <img class="aipkit_notification_bar__icon" src="<?php echo esc_url(WPAICG_LOGO_URL); ?>" width="28" height="28" alt="" />
     <div class="aipkit_notification_bar__content">
         <p>
             <span class="aipkit_provider_notice_message">

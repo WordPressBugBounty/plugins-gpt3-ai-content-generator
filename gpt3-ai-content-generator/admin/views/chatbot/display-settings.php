@@ -152,7 +152,7 @@ $render_display_field = static function (string $name, string $label, $value, ar
     <?php echo $quick_popup_enabled ? '' : 'hidden'; ?>
 >
     <?php
-    $aipkit_popup_default_icon_url = esc_url((defined('WPAICG_PLUGIN_URL') ? WPAICG_PLUGIN_URL : plugin_dir_url(dirname(__FILE__, 2))) . 'public/images/icon.svg');
+    $aipkit_popup_default_icon_url = esc_url(WPAICG_LOGO_URL);
     $aipkit_validate_url = static function ($url) {
         $url = trim((string)$url);
         if ($url === '') {

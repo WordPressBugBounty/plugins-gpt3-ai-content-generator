@@ -284,6 +284,22 @@ final class Connection
         $models = $operation === '' ? $models : array_values(array_filter($models, static function ($model) use ($operation) {
             return ($model['operation'] ?? '') === $operation;
         }));
+        // Catalog order also chooses new image defaults. Keep the cheapest published
+        // generation model first without changing saved choices or other media operations.
+        $images = array_values(array_filter($models, static function ($model): bool {
+            return ($model['operation'] ?? '') === 'image_generate';
+        }));
+        usort($images, static function ($left, $right): int {
+            $left_rate = is_numeric($left['creditsPerUnit'] ?? null) && $left['creditsPerUnit'] >= 0 ? (float) $left['creditsPerUnit'] : INF;
+            $right_rate = is_numeric($right['creditsPerUnit'] ?? null) && $right['creditsPerUnit'] >= 0 ? (float) $right['creditsPerUnit'] : INF;
+            return ($left_rate <=> $right_rate) ?: strcmp((string) ($left['id'] ?? ''), (string) ($right['id'] ?? ''));
+        });
+        $image_index = 0;
+        foreach ($models as $index => $model) {
+            if (($model['operation'] ?? '') === 'image_generate') {
+                $models[$index] = $images[$image_index++];
+            }
+        }
         return array_map(static function ($model) {
             $rate = (float) ($model['creditsPerUnit'] ?? 0);
             $unit = $model['unit'] ?? '';

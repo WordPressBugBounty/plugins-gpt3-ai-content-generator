@@ -119,7 +119,7 @@ final class CreditNotice
             data-cloud-credit-key="<?php echo esc_attr($alert['key']); ?>" data-cloud-credit-fingerprint="<?php echo esc_attr(self::fingerprint($alert)); ?>"
             data-cloud-credit-error="<?php esc_attr_e('Could not dismiss the notice. Please reload and try again.', 'gpt3-ai-content-generator'); ?>"
             data-cloud-credit-nonce="<?php echo esc_attr(wp_create_nonce(self::ACTION)); ?>" data-cloud-credit-url="<?php echo esc_url(admin_url('admin-ajax.php')); ?>">
-            <img class="aipkit_notification_bar__icon" src="<?php echo esc_url(WPAICG_PLUGIN_URL . 'public/images/icon.svg'); ?>" width="28" height="28" alt="" />
+            <img class="aipkit_notification_bar__icon" src="<?php echo esc_url(WPAICG_LOGO_URL); ?>" width="28" height="28" alt="" />
             <div class="aipkit_notification_bar__content">
                 <p><?php echo esc_html($alert['message']); ?></p>
                 <p data-cloud-credit-feedback role="status" hidden></p>

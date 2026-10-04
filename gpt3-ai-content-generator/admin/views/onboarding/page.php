@@ -36,7 +36,7 @@ $aipkit_setup_arrow = 'M5 12h14M13 6l6 6-6 6';
 <div class="aipkit-setup" id="aipkit-setup" data-step="welcome" data-power="cloud" data-cloud-ready="<?php echo $aipkit_setup['cloud']['ready'] ? 'true' : 'false'; ?>" data-cloud-pending="<?php echo $aipkit_setup['cloud']['pendingEmail'] ? 'true' : 'false'; ?>" data-cloud="<?php echo $aipkit_setup['cloud']['connected'] ? 'connected' : 'none'; ?>">
     <header class="aipkit-setup__bar">
         <div class="aipkit-setup__brand">
-            <img class="aipkit-setup__logo" src="<?php echo esc_url(WPAICG_PLUGIN_URL . 'public/images/icon.svg'); ?>" width="34" height="34" alt="">
+            <img class="aipkit-setup__logo" src="<?php echo esc_url(WPAICG_LOGO_URL); ?>" width="34" height="34" alt="">
             <span><?php esc_html_e('AI Puffer', 'gpt3-ai-content-generator'); ?></span>
         </div>
         <ol class="aipkit-setup__progress" hidden aria-label="<?php esc_attr_e('Setup progress', 'gpt3-ai-content-generator'); ?>">
@@ -51,7 +51,7 @@ $aipkit_setup_arrow = 'M5 12h14M13 6l6 6-6 6';
         <div class="aipkit-setup__error" role="alert" hidden></div>
 
         <section class="aipkit-setup__step aipkit-setup__welcome" data-step="welcome">
-            <img class="aipkit-setup__logo aipkit-setup__logo--welcome" src="<?php echo esc_url(WPAICG_PLUGIN_URL . 'public/images/icon.svg'); ?>" width="72" height="72" alt="">
+            <img class="aipkit-setup__logo aipkit-setup__logo--welcome" src="<?php echo esc_url(WPAICG_LOGO_URL); ?>" width="72" height="72" alt="">
             <h1><?php esc_html_e('Welcome to AI Puffer', 'gpt3-ai-content-generator'); ?></h1>
             <p class="aipkit-setup__lead"><?php esc_html_e('Answer two quick questions and we will set up only what you need. It takes less than a minute.', 'gpt3-ai-content-generator'); ?></p>
             <button type="button" class="aipkit-setup__btn aipkit-setup__btn--lg" data-action="start"><?php esc_html_e('Get started', 'gpt3-ai-content-generator'); ?> <?php $aipkit_setup_icon($aipkit_setup_arrow, 18, 'currentColor', '2'); ?></button>

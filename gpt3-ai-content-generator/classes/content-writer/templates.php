@@ -1367,6 +1367,9 @@ function normalize_template_row_logic(array $template): array
     // saved configuration predates persistence of the scope field.
     if (($template['template_type'] ?? '') === 'content_writer'
         && in_array((int) $template['id'], get_cw_starter_template_ids_for_user((int) $template['user_id']), true)) {
+        // Seeded presets have no personal settings yet. Autosave writes a full
+        // form configuration, which must be restored when reopening the writer.
+        $template['has_saved_settings'] = ($template['config']['template_scope'] ?? '') !== 'prompts_only';
         $template['config']['template_scope'] = 'prompts_only';
     }
 
