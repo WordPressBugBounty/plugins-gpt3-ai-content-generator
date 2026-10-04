@@ -13,7 +13,7 @@ if (!defined('ABSPATH')) {
 final class Connection
 {
     public const OPTION = 'aipkit_cloud_connection';
-    public const CONSENT_VERSION = 'cloud-connect-2026-09-26-v2';
+    public const CONSENT_VERSION = 'cloud-connect-2026-10-04';
     public const TERMS_URL = 'https://aipower.org/terms-and-conditions/';
     public const PRIVACY_URL = 'https://aipower.org/privacy-policy/';
     private const LOCK = 'aipkit_cloud_connection_lock';
@@ -651,6 +651,41 @@ final class Connection
         return $messages[$notice] ?? '';
     }
 
+    /** Connection wording is shared by setup and the provider dialog. */
+    public static function connection_message(string $status): string
+    {
+        $messages = [
+            'freemius_failed' => __('We couldn’t connect this site to AI Puffer Cloud. Please try again. If the problem continues, contact support.', 'gpt3-ai-content-generator'),
+            'unavailable' => __('We couldn’t connect this site to AI Puffer Cloud. Please try again. If the problem continues, contact support.', 'gpt3-ai-content-generator'),
+            'installation_inactive' => __('This site’s account connection is inactive. Deactivate and reactivate AI Puffer, then connect again.', 'gpt3-ai-content-generator'),
+            'site_mismatch' => __('Your account has a different address for this site. Deactivate and reactivate AI Puffer, then connect again.', 'gpt3-ai-content-generator'),
+            'account_unavailable' => __('This Cloud account is paused. Please contact AI Puffer support.', 'gpt3-ai-content-generator'),
+            'busy' => __('Another connection action is in progress. Please wait before trying again.', 'gpt3-ai-content-generator'),
+            'forbidden' => __('You cannot manage this Cloud connection.', 'gpt3-ai-content-generator'),
+        ];
+        $message = $messages[$status] ?? self::verification_message($status);
+        if ($status === 'freemius_failed' && ConnectionDiagnostics::playground_failure()) {
+            $message = __('Cloud connection is currently unavailable in this WordPress preview. Install AI Puffer on your site to claim your free credits.', 'gpt3-ai-content-generator');
+        }
+        return $message === '' ? '' : ConnectionDiagnostics::with_reference($message);
+    }
+
+    /** Processing disclosure stays accessible without putting service names in the controls. */
+    public static function privacy_details_html(bool $diagnostics = true): string
+    {
+        ob_start(); ?>
+        <details class="description">
+            <summary><?php esc_html_e('What information do we collect?', 'gpt3-ai-content-generator'); ?></summary>
+            <?php if ($diagnostics) : ?>
+                <p><?php esc_html_e('When you connect to AI Puffer Cloud, we collect non-sensitive diagnostic data to help fix setup problems and improve the plugin. This includes connection results, error codes, response times, and your AI Puffer, WordPress and PHP versions. Reports are kept for 30 days.', 'gpt3-ai-content-generator'); ?></p>
+                <br>
+            <?php endif; ?>
+            <p><?php esc_html_e('To create and manage your account, AI Puffer uses Freemius for registration, email verification and licensing. This sends your name, email address and site URL. General usage tracking stays off, and marketing emails are optional.', 'gpt3-ai-content-generator'); ?></p>
+            <p><a href="https://freemius.com/terms/" target="_blank" rel="noopener noreferrer"><?php esc_html_e('Freemius terms', 'gpt3-ai-content-generator'); ?></a> · <a href="https://freemius.com/privacy/" target="_blank" rel="noopener noreferrer"><?php esc_html_e('Freemius privacy policy', 'gpt3-ai-content-generator'); ?></a></p>
+        </details>
+        <?php return ob_get_clean();
+    }
+
     /** The same allowance explanation in Usage and setup. */
     public static function allowance_message(array $credits): string
     {
@@ -771,18 +806,23 @@ final class Connection
     }
 
     /** Capability check is repeated here for every caller; HTTP also requires a nonce. */
-    public static function transition(string $action, bool $consent = false, bool $marketing = false, string $consent_version = '', string $email = ''): string
+    public static function transition(string $action, bool $consent = false, bool $marketing = false, string $email = '', string $source = 'settings'): string
     {
         if (!self::allowed() || !in_array($action, ['connect', 'disconnect', 'sync', 'refresh', 'balance', 'verify', 'reset'], true)) {
             return 'forbidden';
-        }
-        if ($action === 'connect' && $consent && $consent_version !== self::CONSENT_VERSION) {
-            return 'consent_required';
         }
         if (!self::lock()) {
             return 'busy';
         }
         try {
+            if ($action === 'connect') {
+                if (!$consent) { return 'unavailable'; }
+                return ConnectionDiagnostics::run(static function () use ($marketing, $email): string {
+                    $state = self::connected_state();
+                    if (isset($state['token'])) { return 'unavailable'; }
+                    return self::connect($marketing, $email);
+                }, $source);
+            }
             if ($action === 'reset') {
                 try { self::state(); }
                 catch (\Throwable $error) {
@@ -818,10 +858,6 @@ final class Connection
             if ($action === 'sync') {
                 return self::sync_catalog($state);
             }
-            if ($action === 'connect') {
-                if (isset($state['token']) || !$consent) { return 'unavailable'; }
-                return self::connect($marketing, $email);
-            }
             if ($action === 'disconnect' && isset($state['token'])) {
                 // A credential Cloud no longer accepts is already useless: remove it locally anyway.
                 // Any other failure keeps the connection so a valid credential is never orphaned.
@@ -848,24 +884,26 @@ final class Connection
     private static function connect(bool $marketing, string $email): string
     {
         if (function_exists('set_time_limit')) { @set_time_limit(120); } // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged, Squiz.PHP.DiscouragedFunctions.Discouraged -- Bounded explicit action; disabled on some hosts. Provider requests retain their own timeouts.
-        try { $fs = wpaicg_gacg_fs(); } catch (\Throwable $error) { return 'freemius_failed'; }
+        try { $fs = wpaicg_gacg_fs(); } catch (\Throwable $error) { ConnectionDiagnostics::error('sdk_unavailable'); return 'freemius_failed'; }
         if (!$fs->is_registered(true)) {
             // Registration email is explicit; changing it never edits the WordPress profile.
             if ($email === '') { $email = (string) (get_option(self::REGISTRATION, [])['email'] ?? wp_get_current_user()->user_email); }
             if (!is_email($email)) { return 'invalid_email'; }
             if (!self::lock(self::REGISTRATION_COOLDOWN, 60)) { return 'registration_wait'; }
             update_option(self::REGISTRATION, ['email' => $email], false);
-            try { $fs->opt_in($email, false, false, false, false, false, true, $marketing, [], false); }
-            catch (\Throwable $error) { return 'freemius_failed'; }
+            try { ConnectionDiagnostics::sdk_result($fs->opt_in($email, false, false, false, false, false, true, $marketing, [], false)); }
+            catch (\Throwable $error) { ConnectionDiagnostics::error($error->getMessage()); return 'freemius_failed'; }
             if (!$fs->is_registered(true)) { return $fs->is_pending_activation() ? 'confirm_email' : 'freemius_failed'; }
         }
         $install = $fs->get_site();
         $install_id = is_object($install) ? (string) ($install->id ?? '') : '';
         $secret = is_object($install) ? (string) ($install->secret_key ?? '') : '';
         $url = is_object($install) && is_string($install->url ?? null) ? untrailingslashit($install->url) : '';
-        if (!preg_match('/^[1-9][0-9]{0,18}$/D', $install_id) || strlen($secret) < 16 || $url === '') { return 'freemius_failed'; }
+        if (!preg_match('/^[1-9][0-9]{0,18}$/D', $install_id) || strlen($secret) < 16 || $url === '') { ConnectionDiagnostics::error('installation_missing'); return 'freemius_failed'; }
         try {
-            $c = self::post('/api/connect', ['operation' => 'challenge', 'install' => $install_id, 'site' => $url], [], 20);
+            ConnectionDiagnostics::stage('challenge');
+            $reference = ConnectionDiagnostics::report()['reference'] ?? null;
+            $c = self::post('/api/connect', ['operation' => 'challenge', 'install' => $install_id, 'site' => $url, 'acceptedConsentVersion' => self::CONSENT_VERSION, 'reference' => $reference], [], 20);
             if (!is_string($c['id'] ?? null) || !preg_match('/^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$/D', $c['id'])
                 || ($c['install'] ?? '') !== $install_id || ($c['product'] ?? '') !== self::PRODUCT
                 || !is_string($c['site'] ?? null) || strcasecmp($c['site'], $url) !== 0
@@ -873,12 +911,12 @@ final class Connection
                 || !is_int($c['expiresAt'] ?? null) || !is_string($c['consentVersion'] ?? null) || !preg_match('/^[a-z0-9-]{1,64}$/D', $c['consentVersion'])) {
                 return 'unavailable';
             }
-            if ($c['consentVersion'] !== self::CONSENT_VERSION) { return 'consent_required'; }
             // Byte-identical to Cloud's JSON.stringify: no escaped slashes or Unicode.
             $message = wp_json_encode(['aipuffer-cloud-connect-v1', self::PRODUCT, $install_id, $c['site'], $c['id'], $c['nonce'], $c['expiresAt'], $c['consentVersion']], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
-            $result = self::post('/api/connect', ['operation' => 'connect', 'id' => $c['id'], 'signature' => hash_hmac('sha256', $message, $secret), 'consent' => true, 'acceptedConsentVersion' => self::CONSENT_VERSION], [], 45);
+            ConnectionDiagnostics::stage('connection');
+            $result = self::post('/api/connect', ['operation' => 'connect', 'id' => $c['id'], 'signature' => hash_hmac('sha256', $message, $secret), 'consent' => true, 'acceptedConsentVersion' => $c['consentVersion'], 'reference' => $reference], [], 45);
         } catch (RuntimeException $error) {
-            if (in_array($error->getMessage(), ['consent_required', 'consent_version_mismatch'], true)) { return 'consent_required'; }
+            ConnectionDiagnostics::error($error->getMessage());
             return in_array($error->getMessage(), ['installation_inactive', 'site_mismatch', 'account_unavailable'], true) ? $error->getMessage() : 'unavailable';
         }
         if (($result['status'] ?? '') !== 'connected' || ($result['siteUrl'] ?? '') !== $c['site']
@@ -886,7 +924,7 @@ final class Connection
             return 'unavailable';
         }
         $receipt = $result['consent'] ?? null;
-        if (!is_array($receipt) || ($receipt['version'] ?? '') !== self::CONSENT_VERSION
+        if (!is_array($receipt) || !is_string($receipt['version'] ?? null) || !preg_match('/^[a-z0-9-]{1,64}$/D', $receipt['version'])
             || !is_string($receipt['acceptedAt'] ?? null)
             || !preg_match('/^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9:.]+Z$/D', $receipt['acceptedAt'])
             || strtotime($receipt['acceptedAt']) === false) {
@@ -987,7 +1025,7 @@ final class Connection
             // Removal cannot depend on network availability or an old credential still being readable.
         } finally {
             foreach ([self::OPTION, self::CREDITS, self::REFUSAL_REFRESH, 'aipkit_cloud_credit_packs', self::LOCK, self::REGISTRATION, self::REGISTRATION_COOLDOWN,
-                'aipkit_cloud_used_at', 'aipkit_cloud_background_checks_removed'] as $option) {
+                'aipkit_cloud_used_at', 'aipkit_cloud_background_checks_removed', ConnectionDiagnostics::OPTION] as $option) {
                 delete_option($option);
             }
             delete_transient(self::STATUS);
@@ -1016,7 +1054,7 @@ final class Connection
                 if (!is_string($url) || wp_parse_url($url, PHP_URL_SCHEME) !== 'https' || wp_parse_url($url, PHP_URL_HOST) !== 'checkout.freemius.com') { throw new RuntimeException('invalid_checkout'); }
             } catch (\Throwable $error) {
                 if ($error->getMessage() === 'credit_buyer_unverified') {
-                    wp_send_json_error(['message' => __('Verify your Freemius email before buying credits. Use Resend email or Manage email in the connection settings.', 'gpt3-ai-content-generator')], 403);
+                    wp_send_json_error(['message' => __('Verify your email before buying credits. Use Resend email or Manage email in the connection settings.', 'gpt3-ai-content-generator')], 403);
                 }
                 wp_send_json_error(['message' => __('Cloud checkout is unavailable. Refresh your connection and try again.', 'gpt3-ai-content-generator')], 503);
             }
@@ -1024,12 +1062,11 @@ final class Connection
         }
         $consent = isset($_POST['cloud_consent']) && $_POST['cloud_consent'] === 'yes';
         $marketing = isset($_POST['cloud_marketing']) && $_POST['cloud_marketing'] === 'yes';
-        $consent_version = isset($_POST['cloud_consent_version']) && is_string($_POST['cloud_consent_version']) ? sanitize_text_field(wp_unslash($_POST['cloud_consent_version'])) : '';
         // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- transition() validates the unchanged candidate with is_email(); malformed addresses must be rejected, not silently repaired.
         $email = isset($_POST['cloud_email']) && is_string($_POST['cloud_email']) ? trim(wp_unslash($_POST['cloud_email'])) : '';
         if ($action === 'view') { $notice = ''; }
         elseif ($action === 'check_email' && !self::display()['registered']) { $notice = 'confirm_email'; }
-        else { $notice = self::transition($action === 'check_email' ? 'connect' : $action, $consent, $marketing, $consent_version, $email); }
+        else { $notice = self::transition($action === 'check_email' ? 'connect' : $action, $consent, $marketing, $email); }
         if ($action === 'balance') {
             wp_send_json_success((self::display()['connected'] ? self::credit_view_response() : self::view_response()) + ['refreshed' => $notice === 'refreshed']);
         }
@@ -1063,6 +1100,7 @@ final class Connection
         $states = \WPAICG\AIPKit_Providers::get_provider_connection_states();
         return self::credit_view_response($aipkit_cloud_notice) + [
             'html' => $html,
+            'connectionDiagnostic' => ConnectionDiagnostics::report(),
             'emailVerified' => self::display()['email_verified'],
             'emailRecoveryHtml' => self::email_recovery_html(),
             'verificationMessage' => self::verification_message($aipkit_cloud_notice),

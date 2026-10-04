@@ -16,21 +16,10 @@ if (!defined('ABSPATH')) {
 
 $aipkit_render_account_fields = static function (string $aipkit_cloud_notice = ''): void {
     $aipkit_cloud_display = Connection::display();
-    $aipkit_cloud_notices = [
-        'consent_required' => __('The Cloud connection terms have changed. Update AI Puffer if needed, then reload this page and review the connection terms again.', 'gpt3-ai-content-generator'),
-        'confirm_email' => '',
-        'freemius_failed' => __('This site could not be registered with Freemius. Please try again in a few minutes.', 'gpt3-ai-content-generator'),
-        'installation_inactive' => __('Freemius reports this site as uninstalled or locked. Deactivate and reactivate AI Puffer, then connect again.', 'gpt3-ai-content-generator'),
-        'site_mismatch' => __('Freemius has a different address for this site. Deactivate and reactivate AI Puffer so Freemius picks up the new address, then connect again.', 'gpt3-ai-content-generator'),
-        'account_unavailable' => __('This Cloud account is paused. Please contact AI Puffer support.', 'gpt3-ai-content-generator'),
-        'unavailable' => __('The connection could not be completed. Please try again. Any existing saved connection has been preserved.', 'gpt3-ai-content-generator'),
-        'busy' => __('Another connection action is in progress. Please wait before trying again.', 'gpt3-ai-content-generator'),
-        'forbidden' => __('You cannot manage this Cloud connection.', 'gpt3-ai-content-generator'),
-    ];
-    $aipkit_cloud_is_error = in_array($aipkit_cloud_notice, ['unavailable', 'busy', 'forbidden', 'freemius_failed', 'installation_inactive', 'site_mismatch', 'account_unavailable', 'consent_required', 'invalid_email', 'registration_wait', 'account_changed', 'verification_pending', 'verification_unavailable'], true);
+    $aipkit_cloud_is_error = in_array($aipkit_cloud_notice, ['unavailable', 'busy', 'forbidden', 'freemius_failed', 'installation_inactive', 'site_mismatch', 'account_unavailable', 'invalid_email', 'registration_wait', 'account_changed', 'verification_pending', 'verification_unavailable'], true);
     ?>
     <section class="aipkit_cloud_connection" id="aipkit_cloud_connection" <?php echo $aipkit_cloud_display['connected'] ? '' : 'data-aipkit-settings-autosave-exclude="true"'; ?>>
-        <p class="aipkit_model_sync_status aipkit_cloud_feedback <?php echo $aipkit_cloud_is_error ? 'error' : 'success'; ?>" data-aipkit-cloud-feedback role="status" aria-live="polite"><?php echo esc_html($aipkit_cloud_notices[$aipkit_cloud_notice] ?? Connection::verification_message($aipkit_cloud_notice)); ?></p>
+        <p class="aipkit_model_sync_status aipkit_cloud_feedback <?php echo $aipkit_cloud_is_error ? 'error' : 'success'; ?>" data-aipkit-cloud-feedback role="status" aria-live="polite"><?php echo esc_html(Connection::connection_message($aipkit_cloud_notice)); ?></p>
 
         <?php if ($aipkit_cloud_display['connected']) : ?>
             <?php echo Connection::account_email_html(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Shared renderer escapes every value. ?>
@@ -58,7 +47,6 @@ $aipkit_render_account_fields = static function (string $aipkit_cloud_notice = '
             <form method="post" action="<?php echo esc_url(admin_url('admin-ajax.php')); ?>" class="aipkit_cloud_connect">
                 <?php wp_nonce_field('aipkit_cloud_connection', '_wpnonce', false); ?>
                 <input type="hidden" name="action" value="aipkit_cloud_connection">
-                <input type="hidden" name="cloud_consent_version" value="<?php echo esc_attr(Connection::CONSENT_VERSION); ?>">
                 <?php if (!$aipkit_cloud_display['registered']) : ?>
                     <label class="aipkit_settings_provider_model_label"><?php esc_html_e('Email', 'gpt3-ai-content-generator'); ?>
                         <input class="aipkit_form-input" type="email" name="cloud_email" autocomplete="email" value="<?php echo esc_attr($aipkit_cloud_display['email']); ?>" required>
@@ -79,6 +67,7 @@ $aipkit_render_account_fields = static function (string $aipkit_cloud_notice = '
                     '<a href="' . esc_url(Connection::TERMS_URL) . '" target="_blank" rel="noopener noreferrer">' . esc_html__('terms', 'gpt3-ai-content-generator') . '</a>',
                     '<a href="' . esc_url(Connection::PRIVACY_URL) . '" target="_blank" rel="noopener noreferrer">' . esc_html__('privacy policy', 'gpt3-ai-content-generator') . '</a>'
                 ); ?></span></label>
+                <?php echo Connection::privacy_details_html(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Renderer escapes all values. ?>
                 <?php if (!$aipkit_cloud_display['registered'] && !$aipkit_cloud_display['confirm_email']) : ?>
                     <label class="aipkit_cloud_check"><input type="checkbox" name="cloud_marketing" value="yes"> <span><?php esc_html_e('Email me product news and tips (optional).', 'gpt3-ai-content-generator'); ?></span></label>
                 <?php endif; ?>

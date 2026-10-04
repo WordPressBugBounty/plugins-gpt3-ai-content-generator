@@ -176,6 +176,7 @@ final class Onboarding
             'connected' => $connected, 'registered' => !empty($display['registered']), 'pendingEmail' => $pending,
             'email' => (string) ($display['email'] ?? ''), 'manageEmailUrl' => (string) ($display['manage_email_url'] ?? ''),
             'emailUpdate' => $display['email_update'] ?? null,
+            'connectionDiagnostic' => \WPAICG\Cloud\ConnectionDiagnostics::report(),
             'emailRecoveryHtml' => Connection::email_recovery_html(), 'ready' => $ready, 'message' => $message,
             'retry' => $connected && !$ready && (!$credits_ready || !is_array($credits) || $display['email_verified'] === true || $has_credits),
         ];
@@ -262,15 +263,10 @@ final class Onboarding
         if (self::post('check_email') === 'yes' && !$display['registered']) {
             wp_send_json_success(self::cloud_view_data());
         }
-        $status = $connected ? 'connected' : Connection::transition('connect', $consent, self::post('marketing') === 'yes', self::post('consent_version'), self::post('email'));
-        $messages = [
-            'consent_required' => __('The Cloud connection terms have changed. Update AI Puffer if needed, then reload this page and review the connection terms again.', 'gpt3-ai-content-generator'),
-            'freemius_failed' => __('This site could not be registered right now. Please try again in a minute, or use your own API key.', 'gpt3-ai-content-generator'),
-            'site_mismatch' => __('Freemius has a different address for this site. Deactivate and reactivate AI Puffer, then try again.', 'gpt3-ai-content-generator'),
-        ];
+        $status = $connected ? 'connected' : Connection::transition('connect', $consent, self::post('marketing') === 'yes', self::post('email'), 'onboarding');
         if ($status === 'confirm_email') { self::save(['power' => 'cloud']); wp_send_json_success(self::cloud_view_data()); }
         if ($status !== 'connected') {
-            wp_send_json_error(['status' => $status, 'message' => $messages[$status] ?? (Connection::verification_message($status) ?: __('Could not connect to AI Puffer Cloud. Please try again, or use your own API key.', 'gpt3-ai-content-generator'))], 400);
+            wp_send_json_error(['status' => $status, 'connectionDiagnostic' => \WPAICG\Cloud\ConnectionDiagnostics::report(), 'message' => Connection::connection_message($status) ?: __('Could not connect to AI Puffer Cloud. Please try again.', 'gpt3-ai-content-generator')], 400);
         }
         self::save(['power' => 'cloud']);
         $credits_ready = !$connected || Connection::transition('verify') !== 'balance_unavailable';

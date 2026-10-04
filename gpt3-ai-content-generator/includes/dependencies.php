@@ -101,6 +101,7 @@ class AIPKit_Dependency_Loader
             Content_Writer_Dependencies_Loader::load();
         }
         Security_Dependencies_Loader::load();
+        require_once WPAICG_PLUGIN_DIR . 'classes/cloud/connection-diagnostics.php';
         require_once WPAICG_PLUGIN_DIR . 'classes/cloud/connection.php';
         require_once WPAICG_PLUGIN_DIR . 'classes/cloud/credit-notice.php';
         if ($admin_like_request) {

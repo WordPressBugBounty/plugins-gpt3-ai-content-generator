@@ -1,10 +1,10 @@
-=== AI Puffer – Chat. Create. Automate. (formerly AI Power) ===
+=== AI Puffer – AI Chatbot, AI Writer & Automation ===
 Contributors: senols
 Tags: ai, chatbot, openai, ai writer, automation
 Requires at least: 6.0
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 2.4.92
+Stable tag: 2.4.93
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -17,6 +17,14 @@ Chat. Create. Automate.
 Our **"Bring Your Own API Key"** model lets you connect to top AI providers (OpenAI, Google Gemini, Microsoft Azure, OpenRouter, DeepSeek, xAI and Ollama). No hidden credits — you use your own account and control your costs.
 
 You can also connect **AI Puffer Cloud**, an optional provider with monthly free credits and credit top-ups. Use Cloud models for text, images, speech, transcription, and embeddings, or keep using your own provider accounts.
+
+### External services and connection diagnostics
+
+AI Puffer Cloud is optional and connects only after you accept its connection terms. Connection attempts send outcomes, error codes, HTTP status, timing, software versions and a random support reference to AI Puffer Cloud, including attempts that fail before account registration. Reports exclude credentials, email addresses, site URLs, prompts and generated content. Cloud keeps reports for 30 days. The plugin keeps at most 10 local reports and removes reports older than 30 days on the next connection attempt. Reporting does not run on ordinary page loads.
+
+Freemius provides account registration, email verification, licensing and checkout. Account registration sends your name, email and site address; general usage tracking is disabled in AI Puffer's setup flow. Marketing emails are optional.
+
+[AI Puffer terms](https://aipower.org/terms-and-conditions/) · [AI Puffer privacy policy](https://aipower.org/privacy-policy/) · [Freemius terms](https://freemius.com/terms/) · [Freemius privacy policy](https://freemius.com/privacy/)
 
 [📖 Documentation & Guides](https://docs.aipower.org/)  
 
@@ -124,6 +132,11 @@ Yes. AIP supports GPT-5, GPT-4o, GPT-4 Turbo, Google Gemini 1.5, Imagen 4.0, and
 ---
 
 == Changelog ==
+
+= 2.4.93 =
+
+- Improved connection error messages, including guidance for WordPress plugin previews.
+- Added consented connection diagnostics and support references to help troubleshoot setup failures.
 
 = 2.4.92 =
 

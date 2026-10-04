@@ -105,13 +105,13 @@ $aipkit_setup_arrow = 'M5 12h14M13 6l6 6-6 6';
                             <label class="aipkit-setup__field" data-cloud-email-field <?php echo $aipkit_setup['registered'] ? 'hidden' : ''; ?>><?php esc_html_e('Email', 'gpt3-ai-content-generator'); ?>
                                 <input class="aipkit-setup__input" type="email" data-field="cloud_email" autocomplete="email" value="<?php echo esc_attr($aipkit_setup['cloud']['email']); ?>" required>
                             </label>
-                            <input type="hidden" data-field="consent_version" value="<?php echo esc_attr(\WPAICG\Cloud\Connection::CONSENT_VERSION); ?>">
                             <label class="aipkit-setup__consent"><input type="checkbox" data-field="consent"> <span><?php printf(
                                 /* translators: 1: AI Puffer terms link. 2: AI Puffer privacy policy link. */
                                 esc_html__('I agree to connect this site to AI Puffer Cloud under the %1$s and %2$s.', 'gpt3-ai-content-generator'),
                                 '<a href="' . esc_url(\WPAICG\Cloud\Connection::TERMS_URL) . '" target="_blank" rel="noopener noreferrer">' . esc_html__('terms', 'gpt3-ai-content-generator') . '</a>',
                                 '<a href="' . esc_url(\WPAICG\Cloud\Connection::PRIVACY_URL) . '" target="_blank" rel="noopener noreferrer">' . esc_html__('privacy policy', 'gpt3-ai-content-generator') . '</a>'
                             ); ?></span></label>
+                            <?php echo \WPAICG\Cloud\Connection::privacy_details_html(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Renderer escapes all values. ?>
                             <label class="aipkit-setup__consent aipkit-setup__consent--minor" data-cloud-marketing <?php echo $aipkit_setup['registered'] ? 'hidden' : ''; ?>><input type="checkbox" data-field="marketing"> <?php esc_html_e('Email me product news and tips (optional).', 'gpt3-ai-content-generator'); ?></label>
                             <div class="aipkit-setup__cloud-actions">
                                 <button type="button" class="aipkit-setup__btn" data-action="check-email" <?php echo !$aipkit_setup['cloud']['pendingEmail'] ? 'hidden' : ''; ?> disabled><?php esc_html_e('Check again', 'gpt3-ai-content-generator'); ?></button>
@@ -160,12 +160,7 @@ $aipkit_setup_arrow = 'M5 12h14M13 6l6 6-6 6';
             <?php if (!$aipkit_setup['registered']) : ?>
                 <div class="aipkit-setup__updates" data-updates-optin>
                     <label class="aipkit-setup__consent"><input type="checkbox" data-field="updates"> <?php esc_html_e('Email me about security updates and new features (optional)', 'gpt3-ai-content-generator'); ?></label>
-                    <p class="aipkit-setup__fine"><?php esc_html_e('This registers your site with Freemius, AI Puffer’s account service, using your name, email and site address. Usage tracking stays off, and you can opt out anytime.', 'gpt3-ai-content-generator'); ?> <?php printf(
-                            /* translators: 1: Freemius terms link. 2: Freemius privacy policy link. */
-                            esc_html__('Freemius %1$s and %2$s.', 'gpt3-ai-content-generator'),
-                            '<a href="https://freemius.com/terms/" target="_blank" rel="noopener noreferrer">' . esc_html__('terms', 'gpt3-ai-content-generator') . '</a>',
-                            '<a href="https://freemius.com/privacy/" target="_blank" rel="noopener noreferrer">' . esc_html__('privacy policy', 'gpt3-ai-content-generator') . '</a>'
-                        ); ?></p>
+                    <?php echo \WPAICG\Cloud\Connection::privacy_details_html(false); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Renderer escapes all values. ?>
                 </div>
             <?php endif; ?>
             <div class="aipkit-setup__nav">
