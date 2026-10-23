@@ -1,2 +1,0 @@
-<?php
- namespace WPAICG\Core\Stream\Formatter; if (!defined('ABSPATH')) { exit; } function send_sse_preamble_logic(\WPAICG\Core\Stream\Formatter\SSEResponseFormatter $formatterInstance): void { if ($formatterInstance->get_preamble_sent_status()) { return; } send_raw_logic(':' . str_repeat(' ', 4096) . "\n\n"); $formatterInstance->set_preamble_sent_status(true); } 

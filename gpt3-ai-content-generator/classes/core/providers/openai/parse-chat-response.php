@@ -1,2 +1,0 @@
-<?php
- namespace WPAICG\Core\Providers\OpenAI\Methods; use WPAICG\Core\Providers\OpenAIProviderStrategy; use WPAICG\Core\Providers\OpenAI\OpenAIResponseParser; use WP_Error; if (!defined('ABSPATH')) { exit; } function parse_chat_response_logic( OpenAIProviderStrategy $strategyInstance, array $decoded_response, array $request_data ): array|WP_Error { $parsed = OpenAIResponseParser::parse_chat($decoded_response); if (!is_wp_error($parsed) && isset($decoded_response['id'])) { $parsed['openai_response_id'] = $decoded_response['id']; } return $parsed; }

@@ -1,2 +1,0 @@
-<?php
- namespace WPAICG\Includes\DependencyLoaders; if (!defined('ABSPATH')) { exit; } class Hook_Registrars_Loader { public static function load() { $registrars_path = WPAICG_PLUGIN_DIR . 'includes/hook-registrars/'; $registrar_files = [ 'class-core-hooks-registrar.php', 'class-admin-asset-hooks-registrar.php', 'class-ajax-hooks-registrar.php', 'class-rest-api-hooks-registrar.php', 'class-module-initializer-hooks-registrar.php', ]; foreach ($registrar_files as $file) { $full_path = $registrars_path . $file; if (file_exists($full_path)) { require_once $full_path; } } } }

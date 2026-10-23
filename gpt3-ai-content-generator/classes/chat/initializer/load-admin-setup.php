@@ -1,2 +1,0 @@
-<?php
- namespace WPAICG\Chat\Initializer; if (!defined('ABSPATH')) { exit; } function load_admin_setup_logic(): void { $base_path = WPAICG_PLUGIN_DIR . 'classes/chat/'; $admin_setup_path = $base_path . 'admin/chat_admin_setup.php'; if (file_exists($admin_setup_path) && !class_exists(\WPAICG\Chat\Admin\AdminSetup::class)) { require_once $admin_setup_path; } }

@@ -1,2 +1,0 @@
-<?php
- namespace WPAICG\Chat\Frontend\Shortcode\FeatureManagerMethods; if (!defined('ABSPATH')) { exit; } function compute_derived_flags_logic(array $current_flags): array { $derived_flags = []; $derived_flags['show_header'] = ($current_flags['popup_enabled'] ?? false) || ($current_flags['enable_fullscreen'] ?? false) || ($current_flags['enable_download'] ?? false) || ($current_flags['sidebar_ui_enabled'] ?? false); return $derived_flags; }

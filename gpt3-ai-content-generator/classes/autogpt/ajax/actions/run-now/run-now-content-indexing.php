@@ -1,2 +1,0 @@
-<?php
- namespace WPAICG\AutoGPT\Ajax\Actions\RunNow; use WPAICG\AutoGPT\Cron\AIPKit_Automated_Task_Content_Queuer; if (!defined('ABSPATH')) { exit; } function run_now_content_indexing_logic(int $task_id, array $task_config): void { if (class_exists(AIPKit_Automated_Task_Content_Queuer::class)) { AIPKit_Automated_Task_Content_Queuer::maybe_queue_initial_indexing_content($task_id, $task_config, true); } } 

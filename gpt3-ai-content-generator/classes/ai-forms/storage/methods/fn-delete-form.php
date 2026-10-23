@@ -1,2 +1,0 @@
-<?php
- namespace WPAICG\AIForms\Storage\Methods; if (!defined('ABSPATH')) { exit; } function delete_form_logic(\WPAICG\AIForms\Storage\AIPKit_AI_Form_Storage $storageInstance, int $form_id): bool { $deleted = wp_delete_post($form_id, true); return (bool) $deleted; } 

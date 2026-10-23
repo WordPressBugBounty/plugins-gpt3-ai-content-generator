@@ -1,2 +1,0 @@
-<?php
- namespace WPAICG\Core\Stream\Vector\BuildContext; if (!defined('ABSPATH')) { exit; } function check_prerequisites_logic( bool $vector_store_enabled, string $user_message, ?\WPAICG\Core\AIPKit_AI_Caller $ai_caller, ?\WPAICG\Vector\AIPKit_Vector_Store_Manager $vector_store_manager ): bool { if (!$vector_store_enabled || empty($user_message)) { return false; } if (!$ai_caller || !$vector_store_manager) { return false; } return true; } 

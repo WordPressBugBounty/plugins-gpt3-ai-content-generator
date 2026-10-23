@@ -1,2 +1,0 @@
-<?php
- namespace WPAICG\ContentWriter\Ajax\Actions\InitStream; use WPAICG\Core\Stream\Cache\AIPKit_SSE_Message_Cache; use WP_Error; if (!defined('ABSPATH')) { exit; } function write_to_sse_cache_logic(array $data_to_cache): string|WP_Error { $sse_message_cache = new AIPKit_SSE_Message_Cache(); $cache_key_result = $sse_message_cache->set(wp_json_encode($data_to_cache)); if (is_wp_error($cache_key_result)) { return $cache_key_result; } return $cache_key_result; } 

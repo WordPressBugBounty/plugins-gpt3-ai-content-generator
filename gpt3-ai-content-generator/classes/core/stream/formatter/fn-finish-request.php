@@ -1,2 +1,0 @@
-<?php
- namespace WPAICG\Core\Stream\Formatter; if (!defined('ABSPATH')) { exit; } function finish_sse_request_logic(): void { $capabilities = get_sse_runtime_capabilities_logic(); if ($capabilities['fastcgi_finish_available']) { fastcgi_finish_request(); return; } if ($capabilities['litespeed_finish_available']) { litespeed_finish_request(); } } 

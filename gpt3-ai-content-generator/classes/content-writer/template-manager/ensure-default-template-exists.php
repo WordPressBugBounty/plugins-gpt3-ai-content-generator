@@ -1,2 +1,0 @@
-<?php
- namespace WPAICG\ContentWriter\TemplateManagerMethods; if (!defined('ABSPATH')) { exit; } function ensure_default_template_exists_logic(\WPAICG\ContentWriter\AIPKit_Content_Writer_Template_Manager $managerInstance) { $wpdb = $managerInstance->get_wpdb(); $table_name = $managerInstance->get_table_name(); $current_user_id = get_current_user_id(); if (!$current_user_id) { return; } ensure_starter_templates_exist_logic($managerInstance); set_cw_short_starter_as_default($managerInstance); } 

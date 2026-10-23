@@ -1,2 +1,0 @@
-<?php
- namespace WPAICG\Core\Providers\Azure\Methods; if (!defined('ABSPATH')) { exit; } function format_embeddings_logic_for_payload_formatter($input, array $options): array { $payload = [ 'input' => $input, ]; if (isset($options['dimensions']) && is_int($options['dimensions']) && $options['dimensions'] > 0) { $payload['dimensions'] = $options['dimensions']; } if (isset($options['user']) && is_string($options['user'])) { $payload['user'] = $options['user']; } return $payload; }

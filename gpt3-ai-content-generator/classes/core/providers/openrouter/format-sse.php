@@ -1,2 +1,0 @@
-<?php
- namespace WPAICG\Core\Providers\OpenRouter\Methods; if (!defined('ABSPATH')) { exit; } function format_sse_logic_for_payload_formatter(array $messages, string $system_instruction, array $ai_params, string $model): array { $payload = _shared_format_logic($system_instruction, $messages, $ai_params, $model); $payload['stream'] = true; return $payload; } 

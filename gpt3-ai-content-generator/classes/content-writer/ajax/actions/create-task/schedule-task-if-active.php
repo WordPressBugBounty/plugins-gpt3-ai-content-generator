@@ -1,2 +1,0 @@
-<?php
- namespace WPAICG\ContentWriter\Ajax\Actions\CreateTask; use WPAICG\AutoGPT\Cron\AIPKit_Automated_Task_Scheduler; if (!defined('ABSPATH')) { exit; } function schedule_task_if_active_logic(int $task_id, string $task_status, string $task_frequency): void { if ($task_status === 'active' && class_exists(AIPKit_Automated_Task_Scheduler::class)) { AIPKit_Automated_Task_Scheduler::schedule_task_event($task_id, $task_frequency, 'active'); } } 

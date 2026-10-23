@@ -1,2 +1,0 @@
-<?php
- namespace WPAICG\Chat\Core\AIService\GenerateResponse\AiParams; use WPAICG\Core\AIPKit_OpenAI_Reasoning; if (!defined('ABSPATH')) { exit; } function apply_ollama_thinking_logic(array &$final_ai_params, array $bot_settings): void { $reasoning_effort = AIPKit_OpenAI_Reasoning::sanitize_effort($bot_settings['reasoning_effort'] ?? ''); if ($reasoning_effort === '' || $reasoning_effort === 'none') { return; } $final_ai_params['reasoning'] = ['effort' => $reasoning_effort]; } 

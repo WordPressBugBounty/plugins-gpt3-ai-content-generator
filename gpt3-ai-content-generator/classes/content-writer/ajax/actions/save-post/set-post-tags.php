@@ -1,2 +1,0 @@
-<?php
- namespace WPAICG\ContentWriter\Ajax\Actions\SavePost; if (!defined('ABSPATH')) { exit; } function set_post_tags_logic(int $post_id, string $tags): void { if ($post_id > 0 && !empty($tags)) { wp_set_post_tags($post_id, $tags, false); } }

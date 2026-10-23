@@ -1,2 +1,0 @@
-<?php
- namespace WPAICG\Core\Stream\Formatter; if (!defined('ABSPATH')) { exit; } function send_sse_data_logic(\WPAICG\Core\Stream\Formatter\SSEResponseFormatter $formatterInstance, $data, ?string $id = null): void { $json_data = is_string($data) ? $data : json_encode($data, JSON_UNESCAPED_UNICODE); $output = ''; if ($id !== null) { $output .= "id: {$id}\n"; } $output .= "data: {$json_data}\n\n"; $formatterInstance->send_raw_public_wrapper($output); }

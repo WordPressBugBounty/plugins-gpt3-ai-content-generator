@@ -1,2 +1,0 @@
-<?php
- namespace WPAICG\Core\Providers\Google\Methods; if (!defined('ABSPATH')) { exit; } function format_sse_logic_for_payload_formatter(array $messages, string $system_instruction, array $ai_params, string $model): array { $history = array_map(function($msg) { if ($msg['role'] === 'assistant') $msg['role'] = 'model'; return $msg; }, $messages); $ai_params['model_id_for_grounding'] = $model; $payload = _shared_format_logic($system_instruction, $history, $ai_params); return $payload; }

@@ -1,2 +1,0 @@
-<?php
- namespace WPAICG\Vector\ManagerMethods; use WP_Error; if (!defined('ABSPATH')) { exit; } function create_index_if_not_exists_logic(string $provider, string $index_name, array $index_config, array $provider_config): array|WP_Error { $strategy = get_connected_strategy_logic($provider, $provider_config); if (is_wp_error($strategy)) { return $strategy; } return $strategy->create_index_if_not_exists($index_name, $index_config); }

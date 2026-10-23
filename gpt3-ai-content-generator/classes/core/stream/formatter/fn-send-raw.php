@@ -1,2 +1,0 @@
-<?php
- namespace WPAICG\Core\Stream\Formatter; if (!defined('ABSPATH')) { exit; } function send_raw_logic(string $output): void { if (connection_status() === CONNECTION_NORMAL) { echo $output; if (ob_get_level() > 0) { @ob_flush(); } @flush(); } } 

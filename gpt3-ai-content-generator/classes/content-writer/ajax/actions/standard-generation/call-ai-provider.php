@@ -1,2 +1,0 @@
-<?php
- namespace WPAICG\ContentWriter\Ajax\Actions\StandardGeneration; use WPAICG\ContentWriter\Ajax\Actions\AIPKit_Content_Writer_Standard_Generation_Action; use WP_Error; if (!defined('ABSPATH')) { exit; } function call_ai_provider_logic( AIPKit_Content_Writer_Standard_Generation_Action $handler, string $provider, string $model, array $messages, array $ai_params_override, string $system_instruction ): array|WP_Error { return $handler->get_ai_caller()->make_standard_call( $provider, $model, $messages, $ai_params_override, $system_instruction, [] ); } 

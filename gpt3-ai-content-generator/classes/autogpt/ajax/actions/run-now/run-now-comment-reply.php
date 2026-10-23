@@ -1,2 +1,0 @@
-<?php
- namespace WPAICG\AutoGPT\Ajax\Actions\RunNow; use WPAICG\AutoGPT\Cron\EventProcessor\Trigger; use WP_Error; if (!defined('ABSPATH')) { exit; } function run_now_comment_reply_logic(int $task_id, array $task_config, ?string $last_run_time): void { if (function_exists('\WPAICG\AutoGPT\Cron\EventProcessor\Trigger\trigger_comment_reply_task_logic')) { Trigger\trigger_comment_reply_task_logic($task_id, $task_config, null); } }

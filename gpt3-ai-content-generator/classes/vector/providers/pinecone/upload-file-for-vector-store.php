@@ -1,2 +1,0 @@
-<?php
- namespace WPAICG\Vector\Providers\Pinecone\Methods; use WPAICG\Vector\Providers\AIPKit_Vector_Pinecone_Strategy; use WP_Error; if (!defined('ABSPATH')) { exit; } function upload_file_for_vector_store_logic(AIPKit_Vector_Pinecone_Strategy $strategyInstance, string $file_path, string $original_filename, string $purpose = 'user_data'): array|WP_Error { return new WP_Error('not_applicable_pinecone_file_upload', __('Direct file upload is not applicable for Pinecone. Generate embeddings and upsert vectors.', 'gpt3-ai-content-generator')); }

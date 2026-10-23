@@ -1,2 +1,0 @@
-<?php
- namespace WPAICG\Vector\ManagerMethods; use WP_Error; if (!defined('ABSPATH')) { exit; } function list_all_indexes_logic(string $provider, array $provider_config, ?int $limit = 20, ?string $order = 'desc', ?string $after = null, ?string $before = null): array|WP_Error { $strategy = get_connected_strategy_logic($provider, $provider_config); if (is_wp_error($strategy)) { return $strategy; } return $strategy->list_indexes($limit, $order, $after, $before); }

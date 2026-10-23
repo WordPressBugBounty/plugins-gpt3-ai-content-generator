@@ -1,2 +1,0 @@
-<?php
- namespace WPAICG\Core\Providers\XAI\Methods; use WPAICG\Core\Providers\XAIProviderStrategy; if (!defined('ABSPATH')) { exit; } function build_sse_payload_logic( XAIProviderStrategy $strategyInstance, array $messages, $system_instruction, array $ai_params, string $model ): array { $instructions = is_string($system_instruction) ? $system_instruction : ''; return xai_format_responses_payload($instructions, $messages, '', $ai_params, $model, true); } 

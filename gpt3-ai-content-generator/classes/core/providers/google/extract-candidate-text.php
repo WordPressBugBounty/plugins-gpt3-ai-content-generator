@@ -1,2 +1,0 @@
-<?php
- namespace WPAICG\Core\Providers\Google\Methods; if (!defined('ABSPATH')) { exit; } function extract_candidate_text_logic_for_response_parser(array $candidate): ?string { if (!isset($candidate['content']['parts']) || !is_array($candidate['content']['parts'])) { return null; } $text = ''; $has_text = false; foreach ($candidate['content']['parts'] as $part) { if (!is_array($part) || !isset($part['text'])) { continue; } $text .= (string) $part['text']; $has_text = true; } if (!$has_text) { return null; } return $text; } 

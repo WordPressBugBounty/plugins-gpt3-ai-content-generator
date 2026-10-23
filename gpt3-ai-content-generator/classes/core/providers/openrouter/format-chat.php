@@ -1,2 +1,0 @@
-<?php
- namespace WPAICG\Core\Providers\OpenRouter\Methods; if (!defined('ABSPATH')) { exit; } function format_chat_logic_for_payload_formatter(string $instructions, array $history, array $ai_params, string $model): array { return _shared_format_logic($instructions, $history, $ai_params, $model); }

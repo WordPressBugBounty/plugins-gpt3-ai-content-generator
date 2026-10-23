@@ -1,2 +1,0 @@
-<?php
- namespace WPAICG\Core\Stream\Formatter; if (!defined('ABSPATH')) { exit; } function set_sse_headers_logic(\WPAICG\Core\Stream\Formatter\SSEResponseFormatter $formatterInstance): void { if ($formatterInstance->get_headers_sent_status() || headers_sent()) { return; } apply_sse_runtime_mitigations_logic(); send_sse_response_headers_logic(); $formatterInstance->set_headers_sent_status(true); send_sse_preamble_logic($formatterInstance); } 

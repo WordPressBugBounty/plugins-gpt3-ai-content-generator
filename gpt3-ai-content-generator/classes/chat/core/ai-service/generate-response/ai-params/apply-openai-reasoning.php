@@ -1,2 +1,0 @@
-<?php
- namespace WPAICG\Chat\Core\AIService\GenerateResponse\AiParams; use WPAICG\Core\AIPKit_OpenAI_Reasoning; if (!defined('ABSPATH')) { exit; } function apply_openai_reasoning_logic( array &$final_ai_params, array $bot_settings, string $model ): void { $reasoning_effort = AIPKit_OpenAI_Reasoning::normalize_effort_for_model( (string) $model, $bot_settings['reasoning_effort'] ?? '' ); if ($reasoning_effort !== '') { $final_ai_params['reasoning'] = ['effort' => $reasoning_effort]; } } 

@@ -1,2 +1,0 @@
-<?php
- namespace WPAICG\Core\Providers\Google; use WP_Error; if (!defined('ABSPATH')) { exit; } require_once __DIR__ . '/build.php'; class GoogleUrlBuilder { public static function build(string $operation, array $params): string|WP_Error { return \WPAICG\Core\Providers\Google\Methods\build_logic_for_url_builder($operation, $params); } }

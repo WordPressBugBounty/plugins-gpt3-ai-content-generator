@@ -1,2 +1,0 @@
-<?php
- namespace WPAICG\Vector\Providers\Pinecone\Methods; use WPAICG\Vector\Providers\AIPKit_Vector_Pinecone_Strategy; use WP_Error; if (!defined('ABSPATH')) { exit; } function delete_index_logic(AIPKit_Vector_Pinecone_Strategy $strategyInstance, string $index_name): bool|WP_Error { $path = '/indexes/' . urlencode($index_name); $response = _request_logic($strategyInstance, 'DELETE', $path); if (is_wp_error($response)) { return $response; } return isset($response['deleted']) && $response['deleted'] === true; }

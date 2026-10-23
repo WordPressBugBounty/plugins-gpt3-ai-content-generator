@@ -1,2 +1,0 @@
-<?php
- namespace WPAICG\ContentWriter\TemplateManagerMethods; if (!defined('ABSPATH')) { exit; } function calculate_schedule_datetime_logic(string $date_str, string $time_str): ?string { if (empty($date_str) || empty($time_str)) { return null; } try { $datetime = new \DateTime("{$date_str} {$time_str}", wp_timezone()); return $datetime->format('Y-m-d H:i:s'); } catch (\Exception $e) { return null; } } 

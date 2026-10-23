@@ -1,2 +1,0 @@
-<?php
- namespace WPAICG\Chat\Storage\SaverMethods; use WPAICG\Chat\Storage\SiteWideBotManager; if (!defined('ABSPATH')) { exit; } function handle_site_wide_logic(SiteWideBotManager $site_wide_manager, int $botId, string $site_wide_enabled_flag): bool { return $site_wide_manager->ensure_site_wide_uniqueness($botId, $site_wide_enabled_flag === '1'); } 

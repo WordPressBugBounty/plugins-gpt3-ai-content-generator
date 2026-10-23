@@ -1,2 +1,0 @@
-<?php
- namespace WPAICG\Core\Stream\Formatter; if (!defined('ABSPATH')) { exit; } function send_sse_event_logic(\WPAICG\Core\Stream\Formatter\SSEResponseFormatter $formatterInstance, string $event_type, $data, ?string $id = null): void { $json_data = is_string($data) ? $data : json_encode($data, JSON_UNESCAPED_UNICODE); $output = "event: {$event_type}\n"; if ($id !== null) { $output .= "id: {$id}\n"; } $output .= "data: {$json_data}\n\n"; $formatterInstance->send_raw_public_wrapper($output); }

@@ -1,2 +1,0 @@
-<?php
- namespace WPAICG\Core\Stream\Cache; if (!defined('ABSPATH')) { exit; } function is_using_object_cache_logic(\WPAICG\Core\Stream\Cache\AIPKit_SSE_Message_Cache $cacheInstance): bool { return $cacheInstance->get_use_object_cache_status(); }

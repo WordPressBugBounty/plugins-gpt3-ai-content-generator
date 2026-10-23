@@ -1,2 +1,0 @@
-<?php
- namespace WPAICG\Core\Stream\Vector\BuildContext; use WPAICG\AIPKit_Providers; if (!defined('ABSPATH')) { exit; } function normalize_embedding_provider_logic(string $embedding_provider_key): string { $provider_lookup = sanitize_key((string) strtolower($embedding_provider_key)); return AIPKit_Providers::normalize_embedding_provider_name( $provider_lookup, 'stream_vector_build_context' ); } 

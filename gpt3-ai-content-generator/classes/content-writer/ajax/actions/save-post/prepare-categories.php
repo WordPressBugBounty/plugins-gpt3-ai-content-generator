@@ -1,2 +1,0 @@
-<?php
- namespace WPAICG\ContentWriter\Ajax\Actions\SavePost; if (!defined('ABSPATH')) { exit; } function prepare_categories_logic(array &$postarr, array $data): void { if (!empty($data['category_ids'])) { if ($data['post_type'] === 'post') { $postarr['post_category'] = $data['category_ids']; } } } 

@@ -1,2 +1,0 @@
-<?php
- namespace WPAICG\Chat\Frontend\Assets; use WPAICG\Chat\Frontend\Assets as AssetsOrchestrator; if (!defined('ABSPATH')) { exit; } class AssetsHooks { private $orchestrator; public function __construct(AssetsOrchestrator $orchestrator) { $this->orchestrator = $orchestrator; } public function register(): void { add_action('wp_enqueue_scripts', [$this->orchestrator, 'register_and_enqueue_frontend_assets_public_wrapper'], 99); add_action('template_redirect', [$this->orchestrator, 'check_for_site_wide_bot_public_wrapper']); } }

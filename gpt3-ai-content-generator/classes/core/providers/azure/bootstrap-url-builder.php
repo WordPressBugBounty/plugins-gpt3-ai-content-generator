@@ -1,2 +1,0 @@
-<?php
- namespace WPAICG\Core\Providers\Azure; use WP_Error; if (!defined('ABSPATH')) { exit; } require_once __DIR__ . '/build.php'; class AzureUrlBuilder { public static function build(string $operation, array $params): string|WP_Error { return \WPAICG\Core\Providers\Azure\Methods\build_logic_for_url_builder($operation, $params); } }

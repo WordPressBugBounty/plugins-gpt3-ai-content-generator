@@ -1,2 +1,0 @@
-<?php
- namespace WPAICG\Core\Stream\Cache; use DateTime; use DateTimeZone; if (!defined('ABSPATH')) { exit; } function run_db_cleanup_logic(): void { if (wp_using_ext_object_cache()) { return; } global $wpdb; $table = $wpdb->prefix . 'aipkit_sse_message_cache'; $now_utc = (new DateTime('now', new DateTimeZone('UTC')))->format('Y-m-d H-i-s'); $deleted_count = $wpdb->query($wpdb->prepare("DELETE FROM {$table} WHERE expires_at <= %s", $now_utc)); } 

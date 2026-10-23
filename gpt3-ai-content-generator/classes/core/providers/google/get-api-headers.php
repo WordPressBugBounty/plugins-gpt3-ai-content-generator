@@ -1,2 +1,0 @@
-<?php
- namespace WPAICG\Core\Providers\Google\Methods; use WPAICG\Core\Providers\GoogleProviderStrategy; if (!defined('ABSPATH')) { exit; } function get_api_headers_logic(GoogleProviderStrategy $strategyInstance, string $api_key, string $operation): array { $headers = ['Content-Type' => 'application/json']; if ($operation === 'stream') { $headers['Accept'] = 'text/event-stream'; $headers['Cache-Control'] = 'no-cache'; } return $headers; }

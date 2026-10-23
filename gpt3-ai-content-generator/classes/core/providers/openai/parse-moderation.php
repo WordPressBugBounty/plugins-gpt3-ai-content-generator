@@ -1,2 +1,0 @@
-<?php
- namespace WPAICG\Core\Providers\OpenAI\Methods; if (!defined('ABSPATH')) { exit; } function parse_moderation_logic_for_response_parser(array $decoded_response): bool { return isset($decoded_response['results'][0]['flagged']) && $decoded_response['results'][0]['flagged'] === true; }

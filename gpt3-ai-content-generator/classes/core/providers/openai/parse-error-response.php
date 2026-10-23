@@ -1,2 +1,0 @@
-<?php
- namespace WPAICG\Core\Providers\OpenAI\Methods; use WPAICG\Core\Providers\OpenAIProviderStrategy; use WPAICG\Core\Providers\OpenAI\OpenAIResponseParser; if (!defined('ABSPATH')) { exit; } function parse_error_response_logic( OpenAIProviderStrategy $strategyInstance, $response_body, int $status_code ): string { return OpenAIResponseParser::parse_error($response_body, $status_code); }

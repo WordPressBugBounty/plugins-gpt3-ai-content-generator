@@ -1,2 +1,0 @@
-<?php
- namespace WPAICG\ContentWriter\Ajax\Actions\SavePost; if (!defined('ABSPATH')) { exit; } function assign_taxonomies_logic(int $post_id, array $data): void { if ($data['post_type'] !== 'post' && !empty($data['category_ids'])) { $taxonomy = 'category'; if (is_object_in_taxonomy($data['post_type'], $taxonomy)) { wp_set_post_terms($post_id, $data['category_ids'], $taxonomy); } } } 

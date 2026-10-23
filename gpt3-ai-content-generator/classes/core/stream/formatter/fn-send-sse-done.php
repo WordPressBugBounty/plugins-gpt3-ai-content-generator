@@ -1,2 +1,0 @@
-<?php
- namespace WPAICG\Core\Stream\Formatter; if (!defined('ABSPATH')) { exit; } function send_sse_done_logic(\WPAICG\Core\Stream\Formatter\SSEResponseFormatter $formatterInstance): void { $formatterInstance->send_sse_event('done', ['finished' => true]); }

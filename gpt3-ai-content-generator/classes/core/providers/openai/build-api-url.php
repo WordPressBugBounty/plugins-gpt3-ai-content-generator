@@ -1,2 +1,0 @@
-<?php
- namespace WPAICG\Core\Providers\OpenAI\Methods; use WPAICG\Core\Providers\OpenAIProviderStrategy; use WPAICG\Core\Providers\OpenAI\OpenAIUrlBuilder; use WP_Error; if (!defined('ABSPATH')) { exit; } function build_api_url_logic(OpenAIProviderStrategy $strategyInstance, string $operation, array $params): string|WP_Error { $url_operation_key = ($operation === 'chat' || $operation === 'stream') ? 'responses' : $operation; return OpenAIUrlBuilder::build($url_operation_key, $params); }

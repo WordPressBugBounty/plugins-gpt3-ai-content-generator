@@ -1,2 +1,0 @@
-<?php
- namespace WPAICG\Core\Stream\Formatter; if (!defined('ABSPATH')) { exit; } function send_sse_error_logic( \WPAICG\Core\Stream\Formatter\SSEResponseFormatter $formatterInstance, string $message, bool $non_fatal = false, array $extra_data = [] ): void { $event_type = $non_fatal ? 'warning' : 'error'; $error_data = array_merge(['error' => $message], $extra_data); $error_id = 'err-' . time(); $formatterInstance->send_sse_event($event_type, $error_data, $error_id); } 

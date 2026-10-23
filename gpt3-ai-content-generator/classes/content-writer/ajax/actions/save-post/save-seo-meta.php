@@ -1,2 +1,0 @@
-<?php
- namespace WPAICG\ContentWriter\Ajax\Actions\SavePost; if (!defined('ABSPATH')) { exit; } if (!class_exists('\WPAICG\SEO\AIPKit_SEO_Helper')) { $seo_helper_path = WPAICG_PLUGIN_DIR . 'classes/seo/seo-helper.php'; if (file_exists($seo_helper_path)) { require_once $seo_helper_path; } } function save_seo_meta_logic(int $post_id, string $meta_description): void { if ($post_id > 0 && !empty($meta_description) && class_exists('\WPAICG\SEO\AIPKit_SEO_Helper')) { \WPAICG\SEO\AIPKit_SEO_Helper::update_meta_description($post_id, $meta_description); } } 

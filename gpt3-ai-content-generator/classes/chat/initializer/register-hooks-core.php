@@ -1,2 +1,0 @@
-<?php
- namespace WPAICG\Chat\Initializer; use WPAICG\Chat\Admin\AdminSetup; use WPAICG\Chat\Frontend\Shortcode; use WPAICG\Chat\Frontend\Assets; if (!defined('ABSPATH')) { exit; } function register_hooks_core_logic( AdminSetup $admin_setup, Shortcode $shortcode, Assets $assets ): void { add_action('init', [$admin_setup, 'register_chatbot_post_type']); add_shortcode('aipkit_chatbot', [$shortcode, 'render_chatbot_shortcode']); $assets->register_hooks(); }

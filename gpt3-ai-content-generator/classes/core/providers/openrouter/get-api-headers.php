@@ -1,2 +1,0 @@
-<?php
- namespace WPAICG\Core\Providers\OpenRouter\Methods; use WPAICG\Core\Providers\OpenRouterProviderStrategy; if (!defined('ABSPATH')) { exit; } function get_api_headers_logic(OpenRouterProviderStrategy $strategyInstance, string $api_key, string $operation): array { $headers = [ 'Content-Type' => 'application/json', 'Authorization' => 'Bearer ' . $api_key, 'HTTP-Referer' => get_bloginfo('url'), 'X-Title' => 'AIPKit', ]; if ($operation === 'stream') { $headers['Accept'] = 'text/event-stream'; $headers['Cache-Control'] = 'no-cache'; } return $headers; }

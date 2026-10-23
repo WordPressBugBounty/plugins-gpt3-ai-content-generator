@@ -1,2 +1,0 @@
-<?php
- namespace WPAICG\Chat\Initializer; if (!defined('ABSPATH')) { exit; } function load_utils_logic(): void { $svg_icons_path = WPAICG_PLUGIN_DIR . 'classes/chat/utils/class-aipkit-svg-icons.php'; if (file_exists($svg_icons_path) && !class_exists(\WPAICG\Chat\Utils\AIPKit_SVG_Icons::class)) { require_once $svg_icons_path; } }

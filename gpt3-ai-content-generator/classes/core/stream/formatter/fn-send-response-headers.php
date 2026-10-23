@@ -1,2 +1,0 @@
-<?php
- namespace WPAICG\Core\Stream\Formatter; if (!defined('ABSPATH')) { exit; } function send_sse_response_headers_logic(): void { header('Cache-Control: no-cache, no-store, must-revalidate, max-age=0, no-transform'); header('Pragma: no-cache'); header('Content-Type: text/event-stream; charset=utf-8'); header('X-Accel-Buffering: no'); header('Connection: keep-alive'); set_time_limit(0); } 

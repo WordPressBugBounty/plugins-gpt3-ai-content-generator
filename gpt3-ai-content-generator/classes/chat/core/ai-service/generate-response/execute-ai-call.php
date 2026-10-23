@@ -1,2 +1,0 @@
-<?php
- namespace WPAICG\Chat\Core\AIService\GenerateResponse; use WP_Error; if (!defined('ABSPATH')) { exit; } function execute_ai_call_logic( \WPAICG\Core\AIPKit_AI_Caller $ai_caller, string $main_provider, string $model, array $messages_payload, array $final_ai_params, string $instructions_processed, array $instruction_context_for_logging ): array|WP_Error { return $ai_caller->make_standard_call( $main_provider, $model, $messages_payload, $final_ai_params, $instructions_processed, $instruction_context_for_logging ); } 

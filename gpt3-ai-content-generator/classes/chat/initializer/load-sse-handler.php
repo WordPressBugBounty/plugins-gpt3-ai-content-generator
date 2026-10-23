@@ -1,2 +1,0 @@
-<?php
- namespace WPAICG\Chat\Initializer; if (!defined('ABSPATH')) { exit; } function load_sse_handler_logic(): void { $sse_handler_path = WPAICG_PLUGIN_DIR . 'classes/core/stream/handler/class-sse-handler.php'; if (file_exists($sse_handler_path) && !class_exists(\WPAICG\Core\Stream\Handler\SSEHandler::class)) { require_once $sse_handler_path; } }

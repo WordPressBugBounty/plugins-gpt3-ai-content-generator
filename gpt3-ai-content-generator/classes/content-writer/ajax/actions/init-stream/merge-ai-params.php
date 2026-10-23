@@ -1,2 +1,0 @@
-<?php
- namespace WPAICG\ContentWriter\Ajax\Actions\InitStream; use WPAICG\AIPKIT_AI_Settings; use WPAICG\ContentWriter\Ajax\Actions\Shared; if (!defined('ABSPATH')) { exit; } require_once __DIR__ . '/../shared/prepare-ai-params.php'; function merge_ai_params_logic(array $settings): array { $ai_params_from_form = Shared\prepare_ai_params_logic($settings); $global_ai_params = AIPKIT_AI_Settings::get_ai_parameters(); return array_merge($global_ai_params, $ai_params_from_form); } 

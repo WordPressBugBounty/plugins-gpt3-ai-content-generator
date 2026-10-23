@@ -1,2 +1,0 @@
-<?php
- namespace WPAICG\AutoGPT\Cron\Init; if (!defined('ABSPATH')) { exit; } function ensure_table_exists_logic(\wpdb $wpdb, string $tasks_table_name, string $main_cron_hook): bool { $table_exists = $wpdb->get_var($wpdb->prepare("SHOW TABLES LIKE %s", $tasks_table_name)); if ($table_exists !== $tasks_table_name) { if (wp_next_scheduled($main_cron_hook)) { wp_clear_scheduled_hook($main_cron_hook); } return false; } return true; } 

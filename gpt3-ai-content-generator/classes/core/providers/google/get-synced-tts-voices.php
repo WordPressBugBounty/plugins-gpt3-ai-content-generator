@@ -1,2 +1,0 @@
-<?php
- namespace WPAICG\Core\Providers\Google\Methods; if (!defined('ABSPATH')) { exit; } function get_synced_google_tts_voices_logic(string $option_name): array { return get_option($option_name, []); }

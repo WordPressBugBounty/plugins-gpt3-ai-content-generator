@@ -1,2 +1,0 @@
-<?php
- namespace WPAICG\AutoGPT\Ajax\Actions\RunNow; use WPAICG\AutoGPT\Cron\AIPKit_Automated_Task_Event_Processor; if (!defined('ABSPATH')) { exit; } function finalize_run_now_task_logic(int $task_id): void { global $wpdb; $tasks_table_name = $wpdb->prefix . 'aipkit_automated_tasks'; $wpdb->update( $tasks_table_name, ['last_run_time' => current_time('mysql', 1)], ['id' => $task_id], ['%s'], ['%d'] ); if (class_exists(AIPKit_Automated_Task_Event_Processor::class)) { wp_schedule_single_event(time() + 5, AIPKit_Automated_Task_Event_Processor::MAIN_CRON_HOOK); } } 

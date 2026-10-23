@@ -1,2 +1,0 @@
-<?php
- namespace WPAICG\Vector\ManagerMethods; use WP_Error; if (!defined('ABSPATH')) { exit; } function query_vectors_logic(string $provider, string $index_name, array $query_vector, int $top_k, array $filter = [], array $provider_config = []): array|WP_Error { $strategy = get_connected_strategy_logic($provider, $provider_config); if (is_wp_error($strategy)) { return $strategy; } return $strategy->query_vectors($index_name, $query_vector, $top_k, $filter); }

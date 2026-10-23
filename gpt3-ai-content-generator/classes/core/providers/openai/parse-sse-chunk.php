@@ -1,2 +1,0 @@
-<?php
- namespace WPAICG\Core\Providers\OpenAI\Methods; use WPAICG\Core\Providers\OpenAIProviderStrategy; use WPAICG\Core\Providers\OpenAI\OpenAIResponseParser; if (!defined('ABSPATH')) { exit; } function parse_sse_chunk_logic( OpenAIProviderStrategy $strategyInstance, string $sse_chunk, string &$current_buffer ): array { $parsed = OpenAIResponseParser::parse_sse_chunk($sse_chunk, $current_buffer); return $parsed; }

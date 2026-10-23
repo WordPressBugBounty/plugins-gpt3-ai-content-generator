@@ -1,2 +1,0 @@
-<?php
- namespace WPAICG\Core\Providers\Google\Methods; if (!defined('ABSPATH')) { exit; } function format_chat_logic_for_payload_formatter(string $instructions, array $history, array $ai_params, string $model): array { $ai_params['model_id_for_grounding'] = $model; return _shared_format_logic($instructions, $history, $ai_params); }

@@ -1,2 +1,0 @@
-<?php
- namespace WPAICG\AutoGPT\Cron\Init; use WPAICG\AutoGPT\Cron\AIPKit_Automated_Task_Event_Processor; if (!defined('ABSPATH')) { exit; } function attach_main_hook_action_logic(string $main_cron_hook): void { if (!class_exists(AIPKit_Automated_Task_Event_Processor::class)) { return; } if (!has_action($main_cron_hook, [AIPKit_Automated_Task_Event_Processor::class, 'process_task_queue_event'])) { add_action($main_cron_hook, [AIPKit_Automated_Task_Event_Processor::class, 'process_task_queue_event']); } } 
