@@ -4,7 +4,7 @@ Tags: mcp, chatgpt, claude, chatbot, ai
 Requires at least: 6.0
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 2.5.28
+Stable tag: 2.5.29
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -12,7 +12,7 @@ Manage WordPress from Claude or ChatGPT with a free MCP server: posts, WooCommer
 
 == Description ==
 
-**AI Puffer** (formerly AI Power) is an MCP server for WordPress. Connect Claude or ChatGPT to your site, then ask for what you need in plain language: write and publish posts, update WooCommerce products, fix SEO titles, edit Elementor pages or review your search traffic. The same plugin adds an AI chatbot, content writer, automations, AI forms and image generation to your dashboard.
+**AI Puffer** (formerly AI Power) connects WordPress to Claude and ChatGPT through MCP. Ask them to write and publish posts, update WooCommerce products, improve SEO or edit Elementor pages. The plugin also includes an AI chatbot, content writer, automations, forms and image generation.
 
 **Free to start.** The free plugin includes 2,000 website actions every month for Claude and ChatGPT, with no API key, SSH or WP-CLI installation. Eligible accounts with a verified email also get 25 free AI credits monthly for the chatbot, writer and other AI tools, or you can use your own OpenAI, Anthropic Claude, Google Gemini, xAI Grok, DeepSeek, OpenRouter or Azure OpenAI key.
 
@@ -28,9 +28,6 @@ Manage WordPress from Claude or ChatGPT with a free MCP server: posts, WooCommer
 
 * "Draft a post about our spring sale and schedule it for Monday morning."
 * "Find images that are missing alt text and fill it in."
-* "Which of my recent posts have a poor SEO or readability score?"
-* "Which pages have high impressions but a low click-through rate?"
-* "Mark order 1042 completed and add the tracking number for the customer."
 * "Check my Wordfence security status. What needs attention?"
 
 Assistants can read and search content, create drafts, edit and publish posts and pages, and manage images in your media library. The available actions depend on the site’s installed plugins and the permissions you grant.
@@ -50,7 +47,7 @@ Other plugins that share WordPress abilities or a REST API can be reached too. W
 
 ### WP-CLI-compatible commands without SSH
 
-Supported WP-CLI-compatible commands let assistants inspect the site and manage posts, images, categories, tags, comments, classic navigation menus, settings, users, roles, cache and scheduled events without SSH or a WP-CLI installation. Official plugin/theme/core administration and bounded database inspection/search-replace commands are included. Ask your assistant for `wp help` to see the supported subset and flags. Commands use the same permissions, approval settings and website-action allowance as other website tools; shell scripts and full WP-CLI compatibility are not included.
+Assistants can use supported WP-CLI-compatible commands for content, menus, settings, users, cache, scheduled events, official plugin/theme/core administration and bounded database inspection/search-replace. Ask for `wp help` to see the supported commands and flags. Commands follow the same permissions, approvals and website-action allowance as other website tools; SSH, shell scripts and full WP-CLI compatibility are not included.
 
 ### You stay in control of the MCP connection
 
@@ -68,7 +65,7 @@ Supported WP-CLI-compatible commands let assistants inspect the site and manage 
 
 ### Included in the free plugin
 
-This edition includes the following core modules without a paid license. AI requests use your own provider account or AI Puffer Cloud credits. Website management is optional and includes 2,000 monthly website actions on the Free allowance, shared across your connected sites and assistants.
+These modules need no paid license. AI requests use your provider account or Cloud credits. Website management is optional.
 
 ### AI chatbot that answers from your content
 
@@ -82,7 +79,7 @@ Write Gutenberg-ready content, with meta descriptions and focus keywords where s
 
 ### Automations: scheduled content and auto blogging
 
-Create recurring or one-time automation tasks from topics or CSV, with draft, schedule or publish options. Reply to comments with replies held for approval by default, or add new posts to your knowledge base using category filters. Review item status in the queue. Server cron is supported when WP-Cron is disabled.
+Create recurring or one-time automation tasks from topics or CSV, with draft, schedule or publish options. Add new posts to your knowledge base using category filters. Review item status in the queue. Server cron is supported when WP-Cron is disabled.
 
 ### AI forms
 
@@ -119,21 +116,9 @@ The free plugin works on its own. Paid subscriptions add:
 
 See the [feature comparison and current plans](https://aipower.org/pricing/) for the full list. All subscription tiers unlock the same additional plugin features; their monthly allowances differ.
 
-### Supported providers
-
-* **AI Puffer Cloud:** available models from OpenAI, Anthropic, Google and others, using AI credits.
-* **OpenAI:** GPT text models, GPT Image, speech, transcription and embeddings.
-* **Anthropic:** Claude Sonnet, Opus and Haiku.
-* **Google:** Gemini text and image models, Veo, speech and embeddings.
-* **xAI:** Grok text and image models.
-* **DeepSeek**, **OpenRouter** (including Mistral models), **Azure OpenAI** and OpenAI-compatible endpoints.
-* **Media services:** ElevenLabs voices, Replicate images, and Pexels and Pixabay stock photos.
-
-Models and capabilities depend on the selected provider and its current catalog.
-
 ### Privacy and data flow
 
-AI requests are sent when you use a connected provider. Visitor messages go to the provider selected for that chatbot. Chat logs, usage records and Local knowledge are stored in your WordPress database. Text you index is processed by the chosen embedding provider and, with an external store, stored there. The External services section below explains connection, licensing and diagnostic requests and links each service's terms and privacy policy.
+Chat logs, usage records and Local knowledge stay in your WordPress database. AI requests go to the selected provider; indexed text uses your chosen embedding provider and storage. External services below lists the data each service receives and its terms and privacy policy.
 
 == Installation ==
 
@@ -257,6 +242,9 @@ The free edition's original JavaScript and CSS, build tools and instructions are
 
 == Upgrade Notice ==
 
+= 2.5.29 =
+Removes automatic comment replies and prevents old tasks from running. Fixes overlapping Cloud connection requests and automation recovery that could create duplicate posts.
+
 = 2.5.28 =
 Improves website learning reliability and gives fresh chatbot previews public website basics and suggested questions.
 
@@ -334,6 +322,13 @@ Improves AI Puffer Cloud reconnection after reinstalling and preserves clearer c
 Fixes Content Writer settings reverting, provider model refresh issues, image defaults and history dimensions, and AI Forms feedback. Updates the feature and credit descriptions.
 
 == Changelog ==
+
+= 2.5.29 =
+* Fixed onboarding forgetting a confirmed website read after reloading and continuing through AI setup.
+* Removed automatic comment replies, including their settings and prompts. Old saved tasks and queue items cannot run; posted comments are preserved.
+* Fixed overlapping Cloud connection requests allowing an older request to replace or clear a newer connection.
+* Fixed expired automation workers updating queue items or pausing tasks after another worker had taken over.
+* Prevented automatic content-writing recovery from creating another post when a previous attempt had already saved one, with a message to review the saved post before retrying.
 
 = 2.5.28 =
 * Fixed website learning getting stuck when Automations is disabled.
